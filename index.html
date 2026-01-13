@@ -15,77 +15,101 @@
     <style>
         :root {
             --bg-primary: #0a0a0f;
-            --bg-secondary: #12121a;
-            --bg-card: #1a1a24;
-            --bg-card-hover: #222230;
+            --bg-secondary: #14141c;
+            --bg-card: #1c1c28;
+            --bg-card-hover: #252535;
             --accent-gold: #f59e0b;
             --accent-gold-dim: #b45309;
             --accent-green: #10b981;
             --accent-red: #ef4444;
             --accent-blue: #3b82f6;
             --accent-purple: #8b5cf6;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
+            --text-primary: #f8fafc;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
             --border-color: #2d2d3a;
             --border-accent: #3d3d4a;
+            /* 모바일 기본 폰트 크기 변수 */
+            --font-xs: 0.8rem;
+            --font-sm: 0.9rem;
+            --font-base: 1rem;
+            --font-lg: 1.1rem;
+            --font-xl: 1.25rem;
+            --font-2xl: 1.5rem;
+            /* 터치 영역 최소 크기 */
+            --touch-min: 44px;
+            /* 간격 */
+            --space-xs: 6px;
+            --space-sm: 10px;
+            --space-md: 16px;
+            --space-lg: 24px;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
         }
 
         body {
-            font-family: 'Noto Sans KR', sans-serif;
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
-            line-height: 1.6;
+            min-height: 100dvh;
+            line-height: 1.65;
+            font-size: var(--font-base);
+            overflow-x: hidden;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 24px;
+            padding: var(--space-md);
+            padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
         }
 
         /* Header */
         .header {
             text-align: center;
-            margin-bottom: 32px;
-            padding-bottom: 24px;
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
             border-bottom: 1px solid var(--border-color);
         }
 
         .header h1 {
-            font-size: 2rem;
-            font-weight: 900;
+            font-size: var(--font-xl);
+            font-weight: 800;
             background: linear-gradient(135deg, var(--accent-gold), #fcd34d);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 8px;
+            margin-bottom: var(--space-xs);
         }
 
         .header-subtitle {
             color: var(--text-secondary);
-            font-size: 0.95rem;
-            margin-bottom: 16px;
+            font-size: var(--font-sm);
+            margin-bottom: var(--space-sm);
         }
 
         .header-tags {
             display: flex;
             justify-content: center;
-            gap: 12px;
+            gap: var(--space-sm);
             flex-wrap: wrap;
         }
 
         .tag {
-            padding: 6px 14px;
+            padding: 8px 14px;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: var(--font-xs);
             font-weight: 500;
             border: 1px solid;
         }
@@ -94,34 +118,44 @@
         .tag-green { background: rgba(16,185,129,0.15); border-color: var(--accent-green); color: var(--accent-green); }
         .tag-blue { background: rgba(59,130,246,0.15); border-color: var(--accent-blue); color: var(--accent-blue); }
 
-        /* Main Tabs */
+        /* Main Tabs - 모바일 최적화 */
         .main-tabs {
             display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-            padding: 4px;
+            gap: 4px;
+            margin-bottom: var(--space-md);
+            padding: 5px;
             background: var(--bg-secondary);
-            border-radius: 12px;
+            border-radius: 14px;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .main-tabs::-webkit-scrollbar {
+            display: none;
         }
 
         .main-tab {
-            flex: 1;
-            min-width: 120px;
-            padding: 12px 16px;
+            flex: 0 0 auto;
+            min-width: 72px;
+            min-height: var(--touch-min);
+            padding: 10px 12px;
             border: none;
             background: transparent;
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: var(--font-xs);
             font-weight: 500;
             cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.2s;
+            border-radius: 10px;
+            transition: all 0.2s ease;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 4px;
             font-family: inherit;
+            white-space: nowrap;
         }
 
         .main-tab:hover {
@@ -136,7 +170,13 @@
         }
 
         .main-tab .icon {
-            font-size: 1.1rem;
+            font-size: 1.3rem;
+            line-height: 1;
+        }
+
+        .main-tab .label {
+            font-size: 0.7rem;
+            line-height: 1.2;
         }
 
         /* Tab Content */
@@ -150,39 +190,41 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Cards */
+        /* Cards - 모바일 최적화 */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
+            padding: var(--space-md);
+            margin-bottom: var(--space-md);
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: var(--space-md);
+            flex-wrap: wrap;
+            gap: var(--space-sm);
         }
 
         .card-title {
-            font-size: 1.2rem;
+            font-size: var(--font-lg);
             font-weight: 700;
             color: var(--accent-gold);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .card-badge {
-            padding: 4px 12px;
+            padding: 6px 12px;
             border-radius: 20px;
-            font-size: 0.75rem;
+            font-size: var(--font-xs);
             font-weight: 600;
         }
 
@@ -191,26 +233,27 @@
         .badge-danger { background: rgba(239,68,68,0.2); color: var(--accent-red); }
         .badge-info { background: rgba(59,130,246,0.2); color: var(--accent-blue); }
 
-        /* Summary Stats */
+        /* Summary Stats - 모바일 2열 그리드 */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
         }
 
         .stat-card {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 20px;
+            padding: var(--space-md);
             text-align: center;
         }
 
         .stat-value {
-            font-size: 2rem;
-            font-weight: 900;
+            font-size: var(--font-2xl);
+            font-weight: 800;
             font-family: 'JetBrains Mono', monospace;
+            line-height: 1.2;
         }
 
         .stat-value.gold { color: var(--accent-gold); }
@@ -220,39 +263,40 @@
 
         .stat-label {
             color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-top: 4px;
+            font-size: var(--font-xs);
+            margin-top: 6px;
+            line-height: 1.3;
         }
 
         /* ===== TAB 1: 추천 포트폴리오 ===== */
         .allocation-chart {
             display: flex;
-            gap: 24px;
-            flex-wrap: wrap;
+            gap: var(--space-md);
+            flex-direction: column;
         }
 
         .allocation-visual {
-            flex: 1;
-            min-width: 300px;
+            width: 100%;
         }
 
         .allocation-bar {
             display: flex;
-            height: 40px;
-            border-radius: 8px;
+            height: 36px;
+            border-radius: 10px;
             overflow: hidden;
-            margin-bottom: 20px;
+            margin-bottom: var(--space-md);
         }
 
         .allocation-segment {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
+            font-size: var(--font-xs);
             font-weight: 700;
             color: #fff;
             transition: all 0.3s;
             cursor: pointer;
+            min-width: 24px;
         }
 
         .allocation-segment:hover {
@@ -260,42 +304,45 @@
         }
 
         .allocation-list {
-            flex: 1;
-            min-width: 300px;
+            width: 100%;
         }
 
         .allocation-item {
             display: flex;
             align-items: center;
-            padding: 12px;
+            padding: var(--space-sm) var(--space-md);
             background: var(--bg-secondary);
-            border-radius: 8px;
-            margin-bottom: 8px;
+            border-radius: 10px;
+            margin-bottom: var(--space-xs);
             border-left: 4px solid;
         }
 
         .allocation-item .color-dot {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            margin-right: 12px;
+            margin-right: var(--space-sm);
+            flex-shrink: 0;
         }
 
         .allocation-item .name {
             flex: 1;
             font-weight: 500;
+            font-size: var(--font-sm);
         }
 
         .allocation-item .percent {
             font-family: 'JetBrains Mono', monospace;
             font-weight: 700;
-            margin-right: 12px;
+            margin-right: var(--space-sm);
+            font-size: var(--font-sm);
         }
 
         .allocation-item .amount {
             font-family: 'JetBrains Mono', monospace;
             color: var(--accent-gold);
             font-weight: 600;
+            font-size: var(--font-sm);
         }
 
         /* Cash allocation notice */
@@ -303,41 +350,46 @@
             background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(16,185,129,0.1));
             border: 1px solid var(--accent-gold);
             border-radius: 12px;
-            padding: 16px;
-            margin-top: 20px;
+            padding: var(--space-md);
+            margin-top: var(--space-md);
         }
 
         .cash-notice h4 {
             color: var(--accent-gold);
-            margin-bottom: 8px;
+            margin-bottom: var(--space-xs);
+            font-size: var(--font-base);
         }
 
         /* ===== TAB 2: 종목 분석 ===== */
         .filter-section {
             display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
             flex-wrap: wrap;
         }
 
         .filter-group {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             padding: 4px;
             background: var(--bg-secondary);
-            border-radius: 8px;
+            border-radius: 10px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .filter-btn {
-            padding: 8px 16px;
+            padding: 10px 14px;
             border: none;
             background: transparent;
             color: var(--text-secondary);
-            font-size: 0.85rem;
+            font-size: var(--font-xs);
             cursor: pointer;
-            border-radius: 6px;
+            border-radius: 8px;
             transition: all 0.2s;
             font-family: inherit;
+            white-space: nowrap;
+            min-height: 40px;
         }
 
         .filter-btn:hover {
@@ -350,25 +402,39 @@
             font-weight: 600;
         }
 
+        /* 테이블 모바일 최적화 - 수평 스크롤 */
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0 calc(-1 * var(--space-md));
+            padding: 0 var(--space-md);
+        }
+
         .stock-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.85rem;
+            font-size: var(--font-sm);
+            min-width: 800px;
         }
 
         .stock-table th {
             text-align: left;
-            padding: 12px 8px;
+            padding: var(--space-sm) var(--space-xs);
             border-bottom: 2px solid var(--border-accent);
             color: var(--text-secondary);
             font-weight: 600;
             white-space: nowrap;
+            font-size: var(--font-xs);
+            position: sticky;
+            top: 0;
+            background: var(--bg-card);
         }
 
         .stock-table td {
-            padding: 12px 8px;
+            padding: var(--space-sm) var(--space-xs);
             border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
+            font-size: var(--font-xs);
         }
 
         .stock-table tr:hover {
@@ -378,17 +444,17 @@
         .stock-name {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: var(--space-xs);
         }
 
         .stock-flag {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
 
         .stock-ticker {
             font-family: 'JetBrains Mono', monospace;
             color: var(--text-muted);
-            font-size: 0.75rem;
+            font-size: 0.7rem;
         }
 
         .metric-positive { color: var(--accent-green); }
@@ -397,11 +463,11 @@
         /* Score badges for screening table */
         .score-badge {
             display: inline-block;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: var(--font-xs);
             font-weight: 600;
-            min-width: 28px;
+            min-width: 32px;
             text-align: center;
         }
         .score-excellent { background: #10b981; color: white; }
@@ -409,13 +475,13 @@
         .score-fair { background: #f59e0b; color: white; }
         .score-poor { background: #64748b; color: white; }
         
-        th.sorted-desc::after { content: ' ▼'; color: var(--accent-gold); font-size: 0.65rem; }
-        th.sorted-asc::after { content: ' ▲'; color: var(--accent-gold); font-size: 0.65rem; }
+        th.sorted-desc::after { content: ' ▼'; color: var(--accent-gold); font-size: 0.6rem; }
+        th.sorted-asc::after { content: ' ▲'; color: var(--accent-gold); font-size: 0.6rem; }
         
-        .stock-cell { display: flex; align-items: center; gap: 6px; }
-        .stock-flag { font-size: 1rem; }
-        .stock-name { font-weight: 500; font-size: 0.8rem; }
-        .stock-ticker { font-size: 0.7rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+        .stock-cell { display: flex; align-items: center; gap: var(--space-xs); }
+        .stock-cell .stock-flag { font-size: 1rem; }
+        .stock-cell .stock-name { font-weight: 500; font-size: var(--font-xs); }
+        .stock-cell .stock-ticker { font-size: 0.65rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
         
         .positive { color: var(--accent-green); }
         .negative { color: var(--accent-red); }
@@ -428,7 +494,7 @@
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            font-size: 0.75rem;
+            font-size: var(--font-xs);
             font-weight: 700;
         }
 
@@ -438,9 +504,9 @@
         .rank-other { background: var(--bg-secondary); color: var(--text-secondary); }
 
         .recommendation-tag {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: var(--font-xs);
             font-weight: 600;
         }
 
@@ -452,22 +518,23 @@
         /* ===== TAB 3: 매수 타이밍 ===== */
         .timeline-container {
             position: relative;
-            padding-left: 30px;
+            padding-left: 24px;
         }
 
         .timeline-line {
             position: absolute;
-            left: 10px;
+            left: 8px;
             top: 0;
             bottom: 0;
-            width: 2px;
+            width: 3px;
             background: linear-gradient(to bottom, var(--accent-gold), var(--accent-green), var(--accent-blue));
+            border-radius: 2px;
         }
 
         .timeline-item {
             position: relative;
-            margin-bottom: 24px;
-            padding: 20px;
+            margin-bottom: var(--space-md);
+            padding: var(--space-md);
             background: var(--bg-secondary);
             border-radius: 12px;
             border-left: 3px solid var(--accent-gold);
@@ -475,10 +542,10 @@
 
         .timeline-dot {
             position: absolute;
-            left: -26px;
-            top: 24px;
-            width: 16px;
-            height: 16px;
+            left: -22px;
+            top: 20px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
             background: var(--accent-gold);
             border: 3px solid var(--bg-primary);
@@ -488,96 +555,108 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: var(--space-sm);
+            flex-wrap: wrap;
+            gap: var(--space-xs);
         }
 
         .timeline-month {
-            font-size: 1.3rem;
+            font-size: var(--font-lg);
             font-weight: 700;
             color: var(--accent-gold);
         }
 
         .timeline-amount {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 1.5rem;
+            font-size: var(--font-xl);
             font-weight: 700;
         }
 
         .timeline-breakdown {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 12px;
+            gap: var(--space-xs);
+            margin-top: var(--space-sm);
         }
 
         .breakdown-chip {
-            padding: 6px 12px;
+            padding: 8px 12px;
             background: var(--bg-card);
-            border-radius: 6px;
-            font-size: 0.8rem;
+            border-radius: 8px;
+            font-size: var(--font-xs);
         }
 
         /* ===== TAB 4: 투자 근거 ===== */
         .rationale-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: 1fr;
+            gap: var(--space-md);
         }
 
         .rationale-card {
             background: var(--bg-secondary);
             border-radius: 12px;
-            padding: 20px;
+            padding: var(--space-md);
             border-left: 4px solid var(--accent-blue);
         }
 
         .rationale-card h4 {
             color: var(--accent-gold);
-            margin-bottom: 12px;
+            margin-bottom: var(--space-sm);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--space-xs);
+            font-size: var(--font-base);
+        }
+
+        .rationale-card p {
+            font-size: var(--font-sm);
+            line-height: 1.7;
         }
 
         .expected-return {
             display: flex;
             align-items: center;
-            gap: 20px;
-            padding: 16px;
+            gap: var(--space-md);
+            padding: var(--space-md);
             background: var(--bg-card);
-            border-radius: 8px;
-            margin-top: 12px;
+            border-radius: 10px;
+            margin-top: var(--space-sm);
         }
 
         .return-value {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 1.5rem;
+            font-size: var(--font-xl);
             font-weight: 700;
         }
 
         .return-label {
             color: var(--text-secondary);
-            font-size: 0.8rem;
+            font-size: var(--font-xs);
         }
 
-        /* ===== TAB 5: 시나리오 대응 ===== */
+        /* ===== TAB 5: 시나리오 대응 - 모바일 핵심 개선 ===== */
         .scenario-tabs {
             display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
+            gap: var(--space-xs);
+            margin-bottom: var(--space-md);
             flex-wrap: wrap;
         }
 
         .scenario-tab {
-            padding: 10px 18px;
+            padding: 12px 16px;
             border: 1px solid var(--border-color);
             background: var(--bg-secondary);
             color: var(--text-secondary);
-            font-size: 0.85rem;
+            font-size: var(--font-sm);
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: 10px;
             transition: all 0.2s;
             font-family: inherit;
+            min-height: var(--touch-min);
+            flex: 1;
+            min-width: 100px;
+            text-align: center;
         }
 
         .scenario-tab:hover {
@@ -603,117 +682,141 @@
 
         .scenario-header {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+            flex-direction: column;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
         }
 
         .scenario-title {
-            font-size: 1.3rem;
+            font-size: var(--font-lg);
             font-weight: 700;
         }
 
         .probability-badge {
-            padding: 6px 14px;
+            padding: 8px 14px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: var(--font-sm);
             font-weight: 600;
             background: rgba(239,68,68,0.2);
             color: var(--accent-red);
+            align-self: flex-start;
         }
 
         .trigger-box {
             background: var(--bg-secondary);
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin-bottom: 20px;
+            border-radius: 10px;
+            padding: var(--space-md);
+            margin-bottom: var(--space-md);
+            font-size: var(--font-sm);
         }
 
         .trigger-label {
             color: var(--text-muted);
-            font-size: 0.8rem;
-            margin-right: 8px;
+            font-size: var(--font-xs);
+            margin-right: var(--space-xs);
+            font-weight: 600;
         }
 
+        /* 시나리오 영향 테이블 - 모바일 카드형으로 변경 */
         .impact-table {
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: var(--space-md);
         }
 
         .impact-row {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
-            padding: 14px;
+            padding: var(--space-md);
             background: var(--bg-secondary);
-            border-radius: 8px;
-            margin-bottom: 8px;
+            border-radius: 12px;
+            margin-bottom: var(--space-sm);
+            gap: var(--space-sm);
         }
 
         .impact-asset {
-            width: 120px;
-            font-weight: 500;
+            flex: 0 0 100%;
+            font-weight: 600;
+            font-size: var(--font-base);
+            color: var(--text-primary);
+            margin-bottom: var(--space-xs);
         }
 
         .impact-change {
-            width: 80px;
-            padding: 6px 12px;
-            border-radius: 6px;
+            padding: 8px 14px;
+            border-radius: 8px;
             text-align: center;
             font-family: 'JetBrains Mono', monospace;
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: var(--font-sm);
         }
 
         .impact-change.positive { background: rgba(16,185,129,0.2); color: var(--accent-green); }
         .impact-change.negative { background: rgba(239,68,68,0.2); color: var(--accent-red); }
 
         .impact-direction {
-            width: 60px;
-            text-align: center;
-            font-size: 0.85rem;
+            padding: 6px 12px;
+            background: var(--bg-card);
+            border-radius: 6px;
+            font-size: var(--font-xs);
+            color: var(--text-secondary);
         }
 
         .impact-action {
-            flex: 1;
+            flex: 1 1 100%;
             color: var(--text-secondary);
-            font-size: 0.9rem;
-            padding-left: 20px;
+            font-size: var(--font-sm);
+            padding-top: var(--space-xs);
+            border-top: 1px solid var(--border-color);
+            line-height: 1.5;
         }
 
         .strategy-box {
-            background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.05));
+            background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.05));
             border: 1px solid var(--accent-gold);
-            border-radius: 12px;
-            padding: 16px 20px;
+            border-radius: 14px;
+            padding: var(--space-md);
         }
 
         .strategy-box h4 {
             color: var(--accent-gold);
-            margin-bottom: 8px;
+            margin-bottom: var(--space-sm);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--space-xs);
+            font-size: var(--font-base);
+        }
+
+        .strategy-box p {
+            font-size: var(--font-sm);
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .strategy-box strong {
+            color: var(--text-primary);
         }
 
         /* ===== TAB 6: 의사결정 팁 ===== */
         .tips-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: 1fr;
+            gap: var(--space-md);
         }
 
         .tip-card {
             background: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 20px;
-            border-top: 3px solid var(--accent-gold);
+            border-radius: 14px;
+            padding: var(--space-md);
+            border-top: 4px solid var(--accent-gold);
         }
 
         .tip-card h4 {
-            margin-bottom: 12px;
+            margin-bottom: var(--space-sm);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: var(--space-sm);
+            font-size: var(--font-base);
         }
 
         .tip-card ul {
@@ -722,10 +825,11 @@
         }
 
         .tip-card li {
-            padding: 8px 0;
+            padding: var(--space-sm) 0;
             border-bottom: 1px solid var(--border-color);
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: var(--font-sm);
+            line-height: 1.5;
         }
 
         .tip-card li:last-child {
@@ -735,7 +839,7 @@
         .tip-card li::before {
             content: '→';
             color: var(--accent-gold);
-            margin-right: 8px;
+            margin-right: var(--space-xs);
         }
 
         /* Data placeholder styling */
@@ -747,55 +851,132 @@
                 var(--bg-card) 10px,
                 var(--bg-card) 20px
             );
-            padding: 20px;
-            border-radius: 8px;
+            padding: var(--space-lg);
+            border-radius: 10px;
             text-align: center;
             color: var(--text-muted);
             font-style: italic;
+            font-size: var(--font-sm);
         }
 
         /* Footer */
         .footer {
             text-align: center;
-            padding: 24px;
-            margin-top: 40px;
+            padding: var(--space-lg);
+            margin-top: var(--space-lg);
             border-top: 1px solid var(--border-color);
             color: var(--text-muted);
-            font-size: 0.8rem;
+            font-size: var(--font-xs);
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
+        /* ===== 반응형 미디어 쿼리 - 데스크톱용 ===== */
+        @media (min-width: 768px) {
+            :root {
+                --font-xs: 0.8rem;
+                --font-sm: 0.9rem;
+                --font-base: 1rem;
+                --font-lg: 1.15rem;
+                --font-xl: 1.35rem;
+                --font-2xl: 1.75rem;
+            }
+
             .container {
-                padding: 16px;
+                padding: var(--space-lg);
             }
 
             .header h1 {
-                font-size: 1.5rem;
+                font-size: 1.8rem;
+            }
+
+            .main-tabs {
+                gap: 6px;
             }
 
             .main-tab {
-                padding: 10px 12px;
-                font-size: 0.8rem;
+                flex: 1;
+                min-width: 100px;
+                flex-direction: row;
+                gap: 8px;
             }
 
             .main-tab .label {
-                display: none;
+                font-size: var(--font-xs);
+            }
+
+            .card {
+                padding: var(--space-lg);
             }
 
             .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .allocation-chart {
+                flex-direction: row;
+            }
+
+            .allocation-visual,
+            .allocation-list {
+                flex: 1;
+                min-width: 280px;
+            }
+
+            .rationale-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
 
-            .stock-table {
-                font-size: 0.75rem;
+            .tips-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            /* 시나리오 탭 데스크톱 레이아웃 */
+            .scenario-tab {
+                flex: 0 1 auto;
+                min-width: auto;
+            }
+
+            .scenario-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            /* 영향 테이블 데스크톱 레이아웃 */
+            .impact-row {
+                flex-wrap: nowrap;
+            }
+
+            .impact-asset {
+                flex: 0 0 140px;
+                margin-bottom: 0;
+            }
+
+            .impact-change {
+                min-width: 90px;
+            }
+
+            .impact-action {
+                flex: 1;
+                border-top: none;
+                padding-top: 0;
+                padding-left: var(--space-md);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .rationale-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .tips-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
         /* Scrollbar */
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
         }
 
         ::-webkit-scrollbar-track {
@@ -804,110 +985,297 @@
 
         ::-webkit-scrollbar-thumb {
             background: var(--border-accent);
-            border-radius: 4px;
+            border-radius: 3px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
             background: var(--text-muted);
         }
 
-        /* 모바일 최적화 */
-        @media (max-width: 768px) {
-            .container { padding: 12px; }
-            
-            .header h1 { font-size: 1.4rem; }
-            .header-subtitle { font-size: 0.75rem; }
-            
-            .main-tabs { 
-                gap: 2px; 
-                padding: 3px;
-            }
-            
-            .main-tab {
-                min-width: 60px;
-                padding: 8px 6px;
-                font-size: 0.65rem;
-            }
-            
-            .main-tab .icon { font-size: 1.1rem; }
-            
-            .card { 
-                padding: 14px; 
-                border-radius: 12px;
-                margin-bottom: 14px;
-            }
-            
-            .card-title { font-size: 1rem; }
-            
-            .stat-card { padding: 10px; }
-            .stat-value { font-size: 1.1rem; }
-            .stat-label { font-size: 0.65rem; }
-            
-            /* 테이블 모바일 최적화 */
-            .stock-table th, 
-            .stock-table td {
-                padding: 8px 4px;
-                font-size: 0.7rem;
-            }
-            
-            .stock-name { font-size: 0.7rem !important; }
-            .stock-ticker { font-size: 0.6rem !important; }
-            
-            /* 입력폼 모바일 최적화 */
-            input, select {
-                font-size: 16px !important; /* iOS 줌 방지 */
-                padding: 12px !important;
-            }
-            
-            button {
-                min-height: 44px; /* iOS 터치 타겟 */
-                padding: 10px 16px !important;
-            }
-            
-            /* 폼 그리드 모바일 */
-            #addHoldingForm > div:first-child {
-                grid-template-columns: 1fr 1fr !important;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .stats-grid { 
-                grid-template-columns: repeat(2, 1fr); 
-                gap: 8px;
-            }
-            
-            .main-tab .label { display: none; }
-            .main-tab .icon { font-size: 1.3rem; }
-            .main-tab { min-width: 44px; padding: 10px 8px; }
-            
-            #addHoldingForm > div:first-child {
-                grid-template-columns: 1fr !important;
-            }
-        }
-
-        /* iOS 파일 업로드 스타일 */
-        input[type="file"] {
-            font-size: 16px;
-        }
-
-        /* iOS safe area */
+        /* iOS PWA 최적화 */
         @supports (padding: env(safe-area-inset-bottom)) {
             body {
                 padding-bottom: env(safe-area-inset-bottom);
             }
+            
+            .container {
+                padding-left: max(var(--space-md), env(safe-area-inset-left));
+                padding-right: max(var(--space-md), env(safe-area-inset-right));
+            }
         }
 
-        /* 터치 피드백 */
+        /* 터치 인터랙션 */
         .main-tab:active,
+        .scenario-tab:active,
+        .filter-btn:active,
         button:active {
             transform: scale(0.97);
             opacity: 0.9;
         }
 
-        /* 스와이프 힌트 */
-        .main-tabs::after {
-            content: '';
-            flex: 0 0 20px;
+        /* 입력 폼 모바일 최적화 */
+        input, select, textarea {
+            font-size: 16px !important; /* iOS 줌 방지 */
+            padding: 14px !important;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            width: 100%;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        /* 버튼 공통 스타일 */
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            min-height: var(--touch-min);
+            border-radius: 10px;
+            font-size: var(--font-sm);
+            transition: all 0.2s ease;
+        }
+
+        /* 체크리스트 카드 스타일 개선 */
+        .checklist-card {
+            background: var(--bg-secondary);
+            border-radius: 14px;
+            padding: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+
+        .checklist-card h4 {
+            font-size: var(--font-base);
+            margin-bottom: var(--space-sm);
+        }
+
+        .checklist-item {
+            padding: var(--space-sm) 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: var(--font-sm);
+        }
+
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+            margin-top: var(--space-xs);
+        }
+
+        .checklist-option {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: var(--font-xs);
+            line-height: 1.3;
+        }
+
+        /* 즉시 행동 트리거 박스 */
+        .action-trigger-box {
+            background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.05));
+            border: 1px solid var(--accent-red);
+            border-radius: 14px;
+            padding: var(--space-md);
+            margin-top: var(--space-md);
+        }
+
+        .action-trigger-box h4 {
+            color: var(--accent-red);
+            font-size: var(--font-base);
+            margin-bottom: var(--space-sm);
+        }
+
+        .action-trigger-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-md);
+        }
+
+        @media (min-width: 640px) {
+            .action-trigger-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .action-trigger-section p {
+            font-size: var(--font-sm);
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+        }
+
+        .action-trigger-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .action-trigger-section li {
+            padding: var(--space-xs) 0;
+            font-size: var(--font-sm);
+            color: var(--text-secondary);
+        }
+
+        /* 폼 그리드 */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-sm);
+        }
+
+        @media (min-width: 480px) {
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .form-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* 보유종목 테이블 래퍼 */
+        .holdings-table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0 calc(-1 * var(--space-md));
+            padding: 0 var(--space-md);
+        }
+
+        /* 목표 비중 표시 */
+        .target-allocation-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+        }
+
+        .target-allocation-chip {
+            background: var(--bg-card);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: var(--font-xs);
+        }
+
+        .target-allocation-chip strong {
+            color: var(--accent-gold);
+        }
+
+        /* 성과 지표 그리드 */
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-sm);
+        }
+
+        .performance-card {
+            background: var(--bg-secondary);
+            padding: var(--space-md);
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .performance-value {
+            font-size: var(--font-xl);
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .performance-label {
+            font-size: var(--font-xs);
+            color: var(--text-muted);
+            margin-top: var(--space-xs);
+        }
+
+        /* 리스크 그리드 */
+        .risk-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-sm);
+        }
+
+        .risk-card {
+            background: var(--bg-secondary);
+            padding: var(--space-md);
+            border-radius: 12px;
+        }
+
+        .risk-card-label {
+            font-size: var(--font-xs);
+            color: var(--text-muted);
+            margin-bottom: var(--space-xs);
+        }
+
+        .risk-card-value {
+            font-size: var(--font-2xl);
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .risk-card-desc {
+            font-size: var(--font-xs);
+            color: var(--text-muted);
+            margin-top: var(--space-xs);
+        }
+
+        /* 산업별 전망 그리드 */
+        .industry-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-md);
+        }
+
+        @media (min-width: 640px) {
+            .industry-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .industry-card {
+            background: var(--bg-secondary);
+            border-radius: 14px;
+            padding: var(--space-md);
+        }
+
+        .industry-card h4 {
+            margin-bottom: var(--space-sm);
+            font-size: var(--font-base);
+        }
+
+        .industry-card p {
+            font-size: var(--font-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-sm);
+            line-height: 1.6;
+        }
+
+        .industry-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+        }
+
+        .industry-tag {
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: var(--font-xs);
+        }
+
+        /* 체크리스트 그리드 */
+        .checklist-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-md);
+        }
+
+        @media (min-width: 768px) {
+            .checklist-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
@@ -915,12 +1283,12 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <h1>투자 의사결정 시스템 v2.0</h1>
-            <p class="header-subtitle">포트폴리오 추적 | 리밸런싱 신호 | 성과 분석</p>
+            <h1>투자 의사결정 시스템 v2.1</h1>
+            <p class="header-subtitle">포트폴리오 추적 | 리밸런싱 신호 | 시나리오 대응</p>
             <div class="header-tags">
-                <span class="tag tag-gold">📅 2026년 1월 기준</span>
-                <span class="tag tag-green">📊 100+ 종목 분석</span>
-                <span class="tag tag-blue">🎯 시나리오별 대응</span>
+                <span class="tag tag-gold">📅 2026년 1월 13일 업데이트</span>
+                <span class="tag" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">⚠️ CAPE 40 | 환율 1,460+</span>
+                <span class="tag tag-blue">🎯 8개 시나리오 정량화</span>
             </div>
         </header>
 
@@ -929,14 +1297,6 @@
             <button class="main-tab active" data-tab="portfolio">
                 <span class="icon">📊</span>
                 <span class="label">추천 포트폴리오</span>
-            </button>
-            <button class="main-tab" data-tab="myholdings">
-                <span class="icon">💼</span>
-                <span class="label">내 포트폴리오</span>
-            </button>
-            <button class="main-tab" data-tab="performance">
-                <span class="icon">📈</span>
-                <span class="label">성과/리스크</span>
             </button>
             <button class="main-tab" data-tab="stocks">
                 <span class="icon">🔍</span>
@@ -970,20 +1330,20 @@
                 
                 <div class="allocation-chart">
                     <div class="allocation-visual">
-                        <!-- Visual Bar Chart -->
+                        <!-- Visual Bar Chart - 2026.1 권고 비중 -->
                         <div class="allocation-bar">
-                            <div class="allocation-segment" style="width: 25%; background: #3b82f6;">미국 25%</div>
+                            <div class="allocation-segment" style="width: 20%; background: #3b82f6;">미국 20%</div>
                             <div class="allocation-segment" style="width: 15%; background: #8b5cf6;">한국 15%</div>
-                            <div class="allocation-segment" style="width: 12%; background: #06b6d4;">유럽 12%</div>
-                            <div class="allocation-segment" style="width: 10%; background: #ec4899;">신흥국 10%</div>
-                            <div class="allocation-segment" style="width: 15%; background: #f59e0b;">금/은 15%</div>
+                            <div class="allocation-segment" style="width: 10%; background: #06b6d4;">유럽 10%</div>
+                            <div class="allocation-segment" style="width: 8%; background: #ec4899;">신흥국 8%</div>
+                            <div class="allocation-segment" style="width: 17%; background: #f59e0b;">금/원자재 17%</div>
                             <div class="allocation-segment" style="width: 15%; background: #10b981;">채권 15%</div>
-                            <div class="allocation-segment" style="width: 8%; background: #64748b;">현금 8%</div>
+                            <div class="allocation-segment" style="width: 15%; background: #64748b;">현금 15%</div>
                         </div>
 
                         <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 20px;">
-                            💡 <strong>핵심 원칙:</strong> CAPE 40+ 역사적 고평가 구간에서는 
-                            현금/채권/금 비중을 높이고, 주식은 분할매수로 리스크 분산
+                            💡 <strong>2026.1 조정:</strong> CAPE 40+ & 환율 1,460원+ 대응 → 
+                            미국 25%→20%, 현금 8%→15%, 신흥국 10%→8%
                         </p>
                     </div>
 
@@ -991,8 +1351,8 @@
                         <div class="allocation-item" style="border-color: #3b82f6;">
                             <div class="color-dot" style="background: #3b82f6;"></div>
                             <div class="name">🇺🇸 미국 주식/ETF</div>
-                            <div class="percent">25%</div>
-                            <div class="amount">50M</div>
+                            <div class="percent">20%</div>
+                            <div class="amount">40M</div>
                         </div>
                         <div class="allocation-item" style="border-color: #8b5cf6;">
                             <div class="color-dot" style="background: #8b5cf6;"></div>
@@ -1003,43 +1363,44 @@
                         <div class="allocation-item" style="border-color: #06b6d4;">
                             <div class="color-dot" style="background: #06b6d4;"></div>
                             <div class="name">🇪🇺 유럽/일본</div>
-                            <div class="percent">12%</div>
-                            <div class="amount">24M</div>
+                            <div class="percent">10%</div>
+                            <div class="amount">20M</div>
                         </div>
                         <div class="allocation-item" style="border-color: #ec4899;">
                             <div class="color-dot" style="background: #ec4899;"></div>
                             <div class="name">🌏 신흥국</div>
-                            <div class="percent">10%</div>
-                            <div class="amount">20M</div>
+                            <div class="percent">8%</div>
+                            <div class="amount">16M</div>
                         </div>
                         <div class="allocation-item" style="border-color: #f59e0b;">
                             <div class="color-dot" style="background: #f59e0b;"></div>
-                            <div class="name">🥇 금/은/원자재</div>
-                            <div class="percent">15%</div>
-                            <div class="amount">30M</div>
+                            <div class="name">🥇 금/원자재</div>
+                            <div class="percent">17%</div>
+                            <div class="amount">34M</div>
                         </div>
                         <div class="allocation-item" style="border-color: #10b981;">
                             <div class="color-dot" style="background: #10b981;"></div>
-                            <div class="name">📜 채권 (미국/한국)</div>
+                            <div class="name">📜 채권 (TLT+IEF)</div>
                             <div class="percent">15%</div>
                             <div class="amount">30M</div>
                         </div>
                         <div class="allocation-item" style="border-color: #64748b;">
                             <div class="color-dot" style="background: #64748b;"></div>
                             <div class="name">💵 현금/MMF</div>
-                            <div class="percent">8%</div>
-                            <div class="amount">16M</div>
+                            <div class="percent">15%</div>
+                            <div class="amount">30M</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="cash-notice">
-                    <h4>⚠️ 왜 현금 8% + 채권 15%인가?</h4>
+                    <h4>⚠️ 왜 현금 15% + 채권 15% 권고? (기존 8%+15% 대비 상향)</h4>
                     <p style="color: var(--text-secondary); font-size: 0.9rem;">
-                        • S&P 500 CAPE 40.5 = 1871년 이후 단 2번 (2000년 닷컴버블, 현재)<br>
-                        • 역사적으로 CAPE 40+ 이후 10년 실질수익률 평균 +0.9%<br>
-                        • 급락 시 저가매수 기회자금 + 정신적 안정감 확보<br>
-                        • <strong>전재산을 주식에 넣으면 안 됨</strong>
+                        • S&P 500 CAPE <strong>39.6~40.5</strong> = 1871년 이후 닷컴버블(44.2) 다음 역사적 2위<br>
+                        • <strong>Shiller 연구:</strong> CAPE 26+ 이후 10년 실질수익률 평균 +0.9% (vs 평균 6.6%)<br>
+                        • <strong>관세 불확실성:</strong> 유효관세율 18%, 인플레 +0.5%p 영향 (Goldman)<br>
+                        • <strong>환율 리스크:</strong> 원/달러 1,460원+ (해외자산 62% 환노출)<br>
+                        • 급락 시 저가매수 기회자금 확보 + 정신적 안정감
                     </p>
                 </div>
             </div>
@@ -1049,249 +1410,86 @@
                 <div class="card-header">
                     <h3 class="card-title">📋 세부 자산군별 TOP 추천</h3>
                 </div>
-                <div class="data-placeholder">
-                    [데이터 영역] 자산군별 상위 3개 종목 요약<br>
-                    각 자산군별 PER, 배당률, 추천 이유 표시 예정
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+                    <!-- 미국 주식 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; border-left: 4px solid #3b82f6;">
+                        <h4 style="color: #3b82f6; margin-bottom: 10px; font-size: 0.95rem;">🇺🇸 미국 (20%) - 배당 중심</h4>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+                            <strong>SCHD</strong> 8% - 배당성장 ETF, 0.06% 비용<br>
+                            <strong>VYM</strong> 5% - 고배당 대형주<br>
+                            <strong>VTV</strong> 4% - 대형 가치주<br>
+                            <strong>SPY</strong> 3% - 시장 노출 최소 유지
+                        </div>
+                    </div>
+                    
+                    <!-- 금/원자재 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; border-left: 4px solid #f59e0b;">
+                        <h4 style="color: #f59e0b; margin-bottom: 10px; font-size: 0.95rem;">🥇 금/원자재 (17%) - 인플레 헤지</h4>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+                            <strong>GLD</strong> 12% - 금 ETF (목표가 $5,000)<br>
+                            <strong>SLV</strong> 3% - 은 ETF (금/은 비율 분산)<br>
+                            <strong>PDBC</strong> 2% - 원자재 종합
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--accent-green); margin-top: 6px;">
+                            ✅ 지정학+인플레 헤지, 중앙은행 매입 지속
+                        </div>
+                    </div>
+                    
+                    <!-- 채권 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; border-left: 4px solid #10b981;">
+                        <h4 style="color: #10b981; margin-bottom: 10px; font-size: 0.95rem;">📜 채권 (15%) - 듀레이션 분산</h4>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+                            <strong>TLT</strong> 8% - 장기채 (듀레이션 16.5년)<br>
+                            <strong>IEF</strong> 5% - 중기채 7-10년<br>
+                            <strong>BIL</strong> 2% - 단기 T-Bill (유동성)
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--accent-gold); margin-top: 6px;">
+                            ⚠️ TLT 단독 → TLT+IEF 분산 권고 (인플레 리스크)
+                        </div>
+                    </div>
+                    
+                    <!-- 유럽/일본 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; border-left: 4px solid #06b6d4;">
+                        <h4 style="color: #06b6d4; margin-bottom: 10px; font-size: 0.95rem;">🇪🇺 유럽/일본 (10%) - 가치주</h4>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+                            <strong>VGK</strong> 5% - 유럽 대형주<br>
+                            <strong>DXJ</strong> 5% - 일본 환헤지 (엔약세 대응)
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--accent-blue); margin-top: 6px;">
+                            💡 미국 대비 저평가, 밸류 로테이션 수혜
+                        </div>
+                    </div>
+                    
+                    <!-- 신흥국 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; border-left: 4px solid #ec4899;">
+                        <h4 style="color: #ec4899; margin-bottom: 10px; font-size: 0.95rem;">🌏 신흥국 (8%) - 중국 축소</h4>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+                            <strong>INDA</strong> 4% - 인도 (성장 + 중국 대체)<br>
+                            <strong>EMXC</strong> 2% - 중국 제외 신흥국<br>
+                            <strong>VWO</strong> 2% - 분산 유지
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--accent-red); margin-top: 6px;">
+                            🔴 VWO 중국 비중 30% → 실질 중국 노출 ~3%로 축소
+                        </div>
+                    </div>
+                    
+                    <!-- 한국 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; border-left: 4px solid #8b5cf6;">
+                        <h4 style="color: #8b5cf6; margin-bottom: 10px; font-size: 0.95rem;">🇰🇷 한국 (15%) - 금융 + 분산</h4>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+                            <strong>KB금융</strong> 5% - PBR 0.5x, 배당 5%+<br>
+                            <strong>삼성전자</strong> 4% - AI/반도체 노출<br>
+                            <strong>현대차</strong> 3% - 수출주, 환율 수혜<br>
+                            <strong>한화에어로</strong> 3% - 방산, 지정학 헤지
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         
-        <!-- ==================== TAB 2: 내 포트폴리오 ==================== -->
-        <div class="tab-content" id="myholdings">
-            <div class="card">
-                <div class="card-header" style="flex-wrap: wrap; gap: 10px;">
-                    <h3 class="card-title">💼 내 보유종목</h3>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button id="addHoldingBtn" style="background: var(--accent-gold); color: #000; border: none; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">+ 종목 추가</button>
-                        <button id="exportDataBtn" style="background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer;">📤 백업</button>
-                        <label style="background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer;">
-                            📥 복원
-                            <input type="file" id="importDataInput" accept=".json" style="display: none;">
-                        </label>
-                    </div>
-                </div>
-
-                <!-- 종목 추가 폼 (숨김) -->
-                <div id="addHoldingForm" style="display: none; background: var(--bg-secondary); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
-                        <div>
-                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">티커/코드</label>
-                            <input type="text" id="holdingTicker" placeholder="AAPL, 005930" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 1rem;">
-                        </div>
-                        <div>
-                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">종목명</label>
-                            <input type="text" id="holdingName" placeholder="애플" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 1rem;">
-                        </div>
-                        <div>
-                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">자산군</label>
-                            <select id="holdingClass" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 1rem;">
-                                <option value="US_Stock">🇺🇸 미국주식</option>
-                                <option value="KR_Stock">🇰🇷 한국주식</option>
-                                <option value="EU_Stock">🇪🇺 유럽/일본</option>
-                                <option value="EM_Stock">🌏 신흥국</option>
-                                <option value="Gold">🥇 금/원자재</option>
-                                <option value="Bond">📜 채권</option>
-                                <option value="Cash">💵 현금/MMF</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">매수가</label>
-                            <input type="number" id="holdingBuyPrice" placeholder="150" step="any" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 1rem;">
-                        </div>
-                        <div>
-                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">보유수량</label>
-                            <input type="number" id="holdingQty" placeholder="10" step="any" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 1rem;">
-                        </div>
-                        <div>
-                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">현재가</label>
-                            <input type="number" id="holdingCurrentPrice" placeholder="180" step="any" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 1rem;">
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 8px; margin-top: 12px;">
-                        <button id="saveHoldingBtn" style="background: var(--accent-green); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">저장</button>
-                        <button id="cancelHoldingBtn" style="background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border-color); padding: 10px 20px; border-radius: 8px; cursor: pointer;">취소</button>
-                    </div>
-                </div>
-
-                <!-- 보유종목 요약 -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px;">
-                    <div style="background: var(--bg-secondary); padding: 16px; border-radius: 10px; text-align: center;">
-                        <div id="totalValue" style="font-size: 1.5rem; font-weight: 900; color: var(--accent-gold); font-family: 'JetBrains Mono', monospace;">₩0</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">총 평가금액</div>
-                    </div>
-                    <div style="background: var(--bg-secondary); padding: 16px; border-radius: 10px; text-align: center;">
-                        <div id="totalCost" style="font-size: 1.5rem; font-weight: 900; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace;">₩0</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">총 투자원금</div>
-                    </div>
-                    <div style="background: var(--bg-secondary); padding: 16px; border-radius: 10px; text-align: center;">
-                        <div id="totalPnL" style="font-size: 1.5rem; font-weight: 900; font-family: 'JetBrains Mono', monospace;">₩0</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">총 손익</div>
-                    </div>
-                    <div style="background: var(--bg-secondary); padding: 16px; border-radius: 10px; text-align: center;">
-                        <div id="totalPnLPct" style="font-size: 1.5rem; font-weight: 900; font-family: 'JetBrains Mono', monospace;">0%</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">총 수익률</div>
-                    </div>
-                </div>
-
-                <!-- 보유종목 테이블 -->
-                <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                    <table class="stock-table" id="holdingsTable">
-                        <thead>
-                            <tr>
-                                <th>종목</th>
-                                <th>자산군</th>
-                                <th>매수가</th>
-                                <th>수량</th>
-                                <th>현재가</th>
-                                <th>평가금액</th>
-                                <th>손익</th>
-                                <th>손익률</th>
-                                <th>비중</th>
-                                <th>관리</th>
-                            </tr>
-                        </thead>
-                        <tbody id="holdingsTbody">
-                            <tr><td colspan="10" style="text-align: center; padding: 40px; color: var(--text-muted);">보유종목을 추가해주세요</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 리밸런싱 신호 -->
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">⚖️ 리밸런싱 신호</h3>
-                    <span id="rebalanceStatus" class="card-badge badge-success">✅ 균형 상태</span>
-                </div>
-                
-                <!-- 목표 비중 설정 -->
-                <div style="background: var(--bg-secondary); border-radius: 10px; padding: 16px; margin-bottom: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <span style="font-size: 0.85rem; color: var(--text-secondary);">목표 비중 설정</span>
-                        <button id="editTargetBtn" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">✏️ 수정</button>
-                    </div>
-                    <div id="targetAllocationDisplay" style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.8rem;">
-                        <span style="background: var(--bg-card); padding: 6px 10px; border-radius: 6px;">🇺🇸 미국 <strong>25%</strong></span>
-                        <span style="background: var(--bg-card); padding: 6px 10px; border-radius: 6px;">🇰🇷 한국 <strong>15%</strong></span>
-                        <span style="background: var(--bg-card); padding: 6px 10px; border-radius: 6px;">🇪🇺 유럽 <strong>12%</strong></span>
-                        <span style="background: var(--bg-card); padding: 6px 10px; border-radius: 6px;">🌏 신흥국 <strong>10%</strong></span>
-                        <span style="background: var(--bg-card); padding: 6px 10px; border-radius: 6px;">🥇 금 <strong>15%</strong></span>
-                        <span style="background: var(--bg-card); padding: 6px 10px; border-radius: 6px;">📜 채권 <strong>15%</strong></span>
-                        <span style="background: var(--bg-card); padding: 6px 10px; border-radius: 6px;">💵 현금 <strong>8%</strong></span>
-                    </div>
-                </div>
-
-                <!-- 비중 비교 테이블 -->
-                <div style="overflow-x: auto;">
-                    <table class="stock-table" id="rebalanceTable">
-                        <thead>
-                            <tr>
-                                <th>자산군</th>
-                                <th>목표</th>
-                                <th>현재</th>
-                                <th>차이</th>
-                                <th>필요 조정</th>
-                                <th>신호</th>
-                            </tr>
-                        </thead>
-                        <tbody id="rebalanceTbody">
-                            <tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--text-muted);">보유종목 추가 후 확인 가능</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ==================== TAB 3: 성과/리스크 ==================== -->
-        <div class="tab-content" id="performance">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">📈 포트폴리오 성과</h3>
-                </div>
-                
-                <!-- 설정 -->
-                <div style="background: var(--bg-secondary); border-radius: 10px; padding: 16px; margin-bottom: 16px;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
-                        <div>
-                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">투자 시작일</label>
-                            <input type="date" id="investStartDate" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary);">
-                        </div>
-                        <div>
-                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">무위험수익률 (%)</label>
-                            <input type="number" id="riskFreeRate" value="3.5" step="0.1" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary);">
-                        </div>
-                        <div>
-                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">벤치마크 수익률 (%)</label>
-                            <input type="number" id="benchmarkReturn" value="0" step="0.1" placeholder="S&P500 YTD" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary);">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 성과 지표 -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px;">
-                    <div style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; text-align: center; border-left: 4px solid var(--accent-gold);">
-                        <div id="perfTotalReturn" style="font-size: 1.8rem; font-weight: 900; font-family: 'JetBrains Mono', monospace;">0%</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">총 수익률</div>
-                    </div>
-                    <div style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; text-align: center; border-left: 4px solid var(--accent-blue);">
-                        <div id="perfCAGR" style="font-size: 1.8rem; font-weight: 900; font-family: 'JetBrains Mono', monospace;">0%</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">연환산 수익률</div>
-                    </div>
-                    <div style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; text-align: center; border-left: 4px solid var(--accent-purple);">
-                        <div id="perfSharpe" style="font-size: 1.8rem; font-weight: 900; font-family: 'JetBrains Mono', monospace;">-</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">샤프비율</div>
-                    </div>
-                    <div style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; text-align: center; border-left: 4px solid var(--accent-green);">
-                        <div id="perfVsBenchmark" style="font-size: 1.8rem; font-weight: 900; font-family: 'JetBrains Mono', monospace;">0%</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">vs 벤치마크</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 리스크 분석 -->
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">⚠️ 리스크 분석</h3>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-                    <!-- 변동성 -->
-                    <div style="background: var(--bg-secondary); padding: 20px; border-radius: 12px;">
-                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">포트폴리오 변동성</div>
-                        <div id="riskVolatility" style="font-size: 2rem; font-weight: 900; color: var(--accent-gold); font-family: 'JetBrains Mono', monospace;">-</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">보유종목 변동성 가중평균</div>
-                    </div>
-
-                    <!-- 집중도 -->
-                    <div style="background: var(--bg-secondary); padding: 20px; border-radius: 12px;">
-                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">집중도 위험</div>
-                        <div id="riskConcentration" style="font-size: 2rem; font-weight: 900; font-family: 'JetBrains Mono', monospace;">-</div>
-                        <div id="riskConcentrationDesc" style="font-size: 0.75rem; color: var(--text-muted);">최대 비중 종목</div>
-                    </div>
-
-                    <!-- 최대 손실 -->
-                    <div style="background: var(--bg-secondary); padding: 20px; border-radius: 12px;">
-                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">최대 손실 종목</div>
-                        <div id="riskMaxLoss" style="font-size: 2rem; font-weight: 900; color: var(--accent-red); font-family: 'JetBrains Mono', monospace;">-</div>
-                        <div id="riskMaxLossName" style="font-size: 0.75rem; color: var(--text-muted);">-</div>
-                    </div>
-
-                    <!-- 자산군 다각화 -->
-                    <div style="background: var(--bg-secondary); padding: 20px; border-radius: 12px;">
-                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">자산군 수</div>
-                        <div id="riskDiversification" style="font-size: 2rem; font-weight: 900; color: var(--accent-green); font-family: 'JetBrains Mono', monospace;">0</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">7개 중</div>
-                    </div>
-                </div>
-
-                <!-- 경고 메시지 -->
-                <div id="riskWarnings" style="margin-top: 16px;"></div>
-            </div>
-        </div>
-
-        
-        <!-- ==================== TAB 4: 종목 분석 ==================== -->
+        <!-- ==================== TAB 2: 종목 분석 ==================== -->
         <div class="tab-content" id="stocks">
             <div class="card">
                 <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
@@ -1308,12 +1506,63 @@
                     </div>
                 </div>
 
-                <!-- Method Box -->
+                <!-- Method Box with Version Selection -->
                 <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.75rem; color: var(--text-secondary);">
-                    <strong style="color: var(--accent-gold);">스크리닝 로직 (Piotroski 기반):</strong><br>
-                    <strong>US_Stocks:</strong> Value 25% + Quality 20% [수익성60% + <span style="color:#10b981;">재무안정성40%(CR,D/E)</span>] + Growth 15% + Mom 15% + Risk 15% + Flow 10%<br>
-                    <strong>KR_Stocks:</strong> Value 25% + Quality 25% [수익성60% + <span style="color:#10b981;">재무안정성40%(CR,D/E)</span>] + Growth 20% + Mom 10% + Risk 15% + Flow 5%<br>
-                    <strong>ETF:</strong> Cost 25% + Momentum 35% + Risk 20% + Income 20%
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 200px;">
+                            <strong style="color: var(--accent-gold);">스크리닝 로직 (D-4.3):</strong>
+                            <div id="logicDescA" style="margin-top: 4px;">
+                                <strong>버전 A:</strong> 기본 가중치 (ETF 백분위 적용)<br>
+                                • KR: V25% Q20% G15% M20% R15% Flow5%<br>
+                                • US: V20% Q25% G15% M20% R20%<br>
+                                • ETF: Cost30% Mom25% Risk25% Inc20%
+                            </div>
+                            <div id="logicDescB" style="margin-top: 4px; display: none;">
+                                <strong>버전 B (등가중):</strong> DeMiguel 1/N 기반<br>
+                                • KR/US: V20% Q20% G20% M20% R20%<br>
+                                • 모든 하위지표 등가중
+                            </div>
+                            <div id="logicDescC" style="margin-top: 4px; display: none;">
+                                <strong>버전 C (역발상):</strong> D-4.3 개선 적용<br>
+                                • 52주 고점: AND조건 (RSI70+&Return80%+)<br>
+                                • 적자전환: EarningsGrowth -100% 감점<br>
+                                • ETF 백분위, 감점 최대 30% 제한
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px; background: var(--bg-card); padding: 8px 12px; border-radius: 6px;">
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                <input type="radio" name="scoringVersion" value="A" checked style="accent-color: var(--accent-gold);">
+                                <span style="color: var(--accent-gold); font-weight: 600;">버전 A</span>
+                            </label>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                <input type="radio" name="scoringVersion" value="B" style="accent-color: var(--accent-blue);">
+                                <span style="color: var(--accent-blue); font-weight: 600;">버전 B (등가중)</span>
+                            </label>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                <input type="radio" name="scoringVersion" value="C" style="accent-color: var(--accent-green);">
+                                <span style="color: var(--accent-green); font-weight: 600;">버전 C (역발상)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 버전 C 전용 필터 -->
+                <div id="versionCFilters" style="display: none; background: var(--bg-secondary); border: 1px solid var(--accent-green); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.8rem;">
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+                        <span style="color: var(--accent-green); font-weight: 600;">🎯 역발상 필터:</span>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                            <input type="checkbox" id="filterOverbought" style="accent-color: var(--accent-red);">
+                            <span>🔥 과매수(RSI&gt;70) 제외</span>
+                        </label>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                            <input type="checkbox" id="filterNearHigh" style="accent-color: var(--accent-gold);">
+                            <span>⚠️ 52주고점 95%+ 제외</span>
+                        </label>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                            <input type="checkbox" id="filterContrarianOnly" style="accent-color: var(--accent-blue);">
+                            <span>💎 역발상 후보만</span>
+                        </label>
+                    </div>
                 </div>
 
                 <!-- Filters -->
@@ -1510,138 +1759,130 @@
                     <h3 class="card-title">🎯 월별 의사결정 체크리스트</h3>
                 </div>
                 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+                <div class="checklist-grid">
                     <!-- 1월 체크 -->
-                    <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid var(--accent-gold);">
-                        <h4 style="color: var(--accent-gold); margin-bottom: 12px;">🗓️ 1월 체크</h4>
-                        <div style="font-size: 0.85rem;">
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                                <span style="color: var(--text-secondary);">인플레 3% 이상 유지?</span>
-                            </div>
-                            <div style="display: flex; gap: 8px; padding: 6px 0;">
-                                <span style="background: rgba(239,68,68,0.2); color: var(--accent-red); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Yes → 채권매수 보류</span>
-                                <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">No → 채권 15M 매수</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                                <span style="color: var(--text-secondary);">원/달러 1,500 돌파?</span>
-                            </div>
-                            <div style="display: flex; gap: 8px; padding: 6px 0;">
-                                <span style="background: rgba(239,68,68,0.2); color: var(--accent-red); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Yes → 해외투자 축소</span>
-                                <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">No → 계획대로</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                                <span style="color: var(--text-secondary);">지정학 위기 발생?</span>
-                            </div>
-                            <div style="display: flex; gap: 8px; padding: 6px 0;">
-                                <span style="background: rgba(239,68,68,0.2); color: var(--accent-red); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Yes → 금 비중 확대</span>
-                                <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">No → 금 15M 매수</span>
-                            </div>
+                    <div class="checklist-card" style="border-left: 4px solid var(--accent-gold);">
+                        <h4 style="color: var(--accent-gold); font-size: var(--font-base); margin-bottom: var(--space-sm);">🗓️ 1월 체크</h4>
+                        <div class="checklist-item">
+                            <span style="color: var(--text-secondary); font-size: var(--font-sm);">인플레 3% 이상 유지?</span>
+                        </div>
+                        <div class="checklist-options">
+                            <span class="checklist-option" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">Yes → 채권매수 보류</span>
+                            <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">No → 채권 15M 매수</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span style="color: var(--text-secondary); font-size: var(--font-sm);">원/달러 1,500 돌파?</span>
+                        </div>
+                        <div class="checklist-options">
+                            <span class="checklist-option" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">Yes → 해외투자 축소</span>
+                            <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">No → 계획대로</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span style="color: var(--text-secondary); font-size: var(--font-sm);">지정학 위기 발생?</span>
+                        </div>
+                        <div class="checklist-options">
+                            <span class="checklist-option" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">Yes → 금 비중 확대</span>
+                            <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">No → 금 15M 매수</span>
                         </div>
                     </div>
 
                     <!-- 2-3월 체크 -->
-                    <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid var(--accent-blue);">
-                        <h4 style="color: var(--accent-blue); margin-bottom: 12px;">🗓️ 2-3월 체크</h4>
-                        <div style="font-size: 0.85rem;">
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                                <span style="color: var(--text-secondary);">유럽 성장률 1.5% 이상?</span>
-                            </div>
-                            <div style="display: flex; gap: 8px; padding: 6px 0;">
-                                <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Yes → 유럽 비중 확대</span>
-                                <span style="background: rgba(100,116,139,0.3); color: var(--text-secondary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">No → 계획대로</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                                <span style="color: var(--text-secondary);">엔화 150엔 이상?</span>
-                            </div>
-                            <div style="display: flex; gap: 8px; padding: 6px 0;">
-                                <span style="background: rgba(59,130,246,0.2); color: var(--accent-blue); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Yes → DXJ(환헤지) 우선</span>
-                                <span style="background: rgba(100,116,139,0.3); color: var(--text-secondary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">No → EWJ 우선</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                                <span style="color: var(--text-secondary);">신흥국 자금유출 가속?</span>
-                            </div>
-                            <div style="display: flex; gap: 8px; padding: 6px 0;">
-                                <span style="background: rgba(239,68,68,0.2); color: var(--accent-red); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Yes → 매수 연기</span>
-                                <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">No → VWO 매수</span>
-                            </div>
+                    <div class="checklist-card" style="border-left: 4px solid var(--accent-blue);">
+                        <h4 style="color: var(--accent-blue); font-size: var(--font-base); margin-bottom: var(--space-sm);">🗓️ 2-3월 체크</h4>
+                        <div class="checklist-item">
+                            <span style="color: var(--text-secondary); font-size: var(--font-sm);">유럽 성장률 1.5% 이상?</span>
+                        </div>
+                        <div class="checklist-options">
+                            <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">Yes → 유럽 비중 확대</span>
+                            <span class="checklist-option" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">No → 계획대로</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span style="color: var(--text-secondary); font-size: var(--font-sm);">엔화 150엔 이상?</span>
+                        </div>
+                        <div class="checklist-options">
+                            <span class="checklist-option" style="background: rgba(59,130,246,0.2); color: var(--accent-blue);">Yes → DXJ(환헤지) 우선</span>
+                            <span class="checklist-option" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">No → EWJ 우선</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span style="color: var(--text-secondary); font-size: var(--font-sm);">신흥국 자금유출 가속?</span>
+                        </div>
+                        <div class="checklist-options">
+                            <span class="checklist-option" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">Yes → 매수 연기</span>
+                            <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">No → VWO 매수</span>
                         </div>
                     </div>
 
                     <!-- 4-5월 체크 -->
-                    <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid var(--accent-green);">
-                        <h4 style="color: var(--accent-green); margin-bottom: 12px;">🗓️ 4-5월 체크</h4>
-                        <div style="font-size: 0.85rem;">
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                                <span style="color: var(--text-secondary);">S&P 500 -10% 이상 조정?</span>
-                            </div>
-                            <div style="display: flex; gap: 8px; padding: 6px 0;">
-                                <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Yes → 미국 비중 확대!</span>
-                                <span style="background: rgba(100,116,139,0.3); color: var(--text-secondary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">No → 계획대로</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                                <span style="color: var(--text-secondary);">Fed 금리인하 확정?</span>
-                            </div>
-                            <div style="display: flex; gap: 8px; padding: 6px 0;">
-                                <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Yes → TLT +15%시 차익실현</span>
-                                <span style="background: rgba(100,116,139,0.3); color: var(--text-secondary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">No → TLT 유지</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                                <span style="color: var(--text-secondary);">중국 경기부양 확대?</span>
-                            </div>
-                            <div style="display: flex; gap: 8px; padding: 6px 0;">
-                                <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Yes → MCHI 확대</span>
-                                <span style="background: rgba(100,116,139,0.3); color: var(--text-secondary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">No → VWO만 유지</span>
-                            </div>
+                    <div class="checklist-card" style="border-left: 4px solid var(--accent-green);">
+                        <h4 style="color: var(--accent-green); font-size: var(--font-base); margin-bottom: var(--space-sm);">🗓️ 4-5월 체크</h4>
+                        <div class="checklist-item">
+                            <span style="color: var(--text-secondary); font-size: var(--font-sm);">S&P 500 -10% 이상 조정?</span>
+                        </div>
+                        <div class="checklist-options">
+                            <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">Yes → 미국 비중 확대!</span>
+                            <span class="checklist-option" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">No → 계획대로</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span style="color: var(--text-secondary); font-size: var(--font-sm);">Fed 금리인하 확정?</span>
+                        </div>
+                        <div class="checklist-options">
+                            <span class="checklist-option" style="background: rgba(245,158,11,0.2); color: var(--accent-gold);">Yes → TLT +15%시 차익실현</span>
+                            <span class="checklist-option" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">No → TLT 유지</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span style="color: var(--text-secondary); font-size: var(--font-sm);">중국 경기부양 확대?</span>
+                        </div>
+                        <div class="checklist-options">
+                            <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">Yes → MCHI 확대</span>
+                            <span class="checklist-option" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">No → VWO만 유지</span>
                         </div>
                     </div>
 
                     <!-- 6월 체크 -->
-                    <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid #8b5cf6;">
-                        <h4 style="color: #8b5cf6; margin-bottom: 12px;">🗓️ 6월 리밸런싱 체크</h4>
-                        <div style="font-size: 0.85rem;">
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                                <span style="color: var(--text-secondary);">목표비중 ±5% 이탈?</span>
-                            </div>
-                            <div style="display: flex; gap: 8px; padding: 6px 0;">
-                                <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Yes → 리밸런싱 실행</span>
-                                <span style="background: rgba(100,116,139,0.3); color: var(--text-secondary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">No → 유지</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                                <span style="color: var(--text-secondary);">포트폴리오 +15% 이상?</span>
-                            </div>
-                            <div style="display: flex; gap: 8px; padding: 6px 0;">
-                                <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Yes → 일부 현금화 (10%)</span>
-                                <span style="background: rgba(100,116,139,0.3); color: var(--text-secondary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">No → 유지</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                                <span style="color: var(--text-secondary);">포트폴리오 -15% 이상?</span>
-                            </div>
-                            <div style="display: flex; gap: 8px; padding: 6px 0;">
-                                <span style="background: rgba(239,68,68,0.2); color: var(--accent-red); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Yes → 리스크자산 축소</span>
-                                <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">No → 추가매수 고려</span>
-                            </div>
+                    <div class="checklist-card" style="border-left: 4px solid #8b5cf6;">
+                        <h4 style="color: #8b5cf6; font-size: var(--font-base); margin-bottom: var(--space-sm);">🗓️ 6월 리밸런싱 체크</h4>
+                        <div class="checklist-item">
+                            <span style="color: var(--text-secondary); font-size: var(--font-sm);">목표비중 ±5% 이탈?</span>
+                        </div>
+                        <div class="checklist-options">
+                            <span class="checklist-option" style="background: rgba(245,158,11,0.2); color: var(--accent-gold);">Yes → 리밸런싱 실행</span>
+                            <span class="checklist-option" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">No → 유지</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span style="color: var(--text-secondary); font-size: var(--font-sm);">포트폴리오 +15% 이상?</span>
+                        </div>
+                        <div class="checklist-options">
+                            <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">Yes → 일부 현금화 (10%)</span>
+                            <span class="checklist-option" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">No → 유지</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span style="color: var(--text-secondary); font-size: var(--font-sm);">포트폴리오 -15% 이상?</span>
+                        </div>
+                        <div class="checklist-options">
+                            <span class="checklist-option" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">Yes → 리스크자산 축소</span>
+                            <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">No → 추가매수 고려</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- 즉시 행동 트리거 -->
-                <div style="margin-top: 20px; background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(239,68,68,0.05)); border: 1px solid var(--accent-red); border-radius: 12px; padding: 16px;">
-                    <h4 style="color: var(--accent-red); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">🚨 즉시 행동 트리거 (시기 무관)</h4>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; font-size: 0.85rem;">
-                        <div>
-                            <p style="color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">📉 손절 (Stop-Loss)</p>
-                            <ul style="list-style: none; padding: 0; color: var(--text-secondary);">
-                                <li style="padding: 4px 0;">→ 개별자산 -20% → 50% 비중 축소</li>
-                                <li style="padding: 4px 0;">→ 전체 -15% → 리스크자산 축소</li>
-                                <li style="padding: 4px 0;">→ TLT -15% + 인플레↑ → 전량 매도</li>
+                <div class="action-trigger-box">
+                    <h4>🚨 즉시 행동 트리거 (시기 무관)</h4>
+                    <div class="action-trigger-grid">
+                        <div class="action-trigger-section">
+                            <p style="color: var(--text-secondary);">📉 손절 (Stop-Loss)</p>
+                            <ul>
+                                <li>→ 개별자산 -20% → 50% 비중 축소</li>
+                                <li>→ 전체 -15% → 리스크자산 축소</li>
+                                <li>→ TLT -15% + 인플레↑ → 전량 매도</li>
                             </ul>
                         </div>
-                        <div>
-                            <p style="color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">📈 익절 (Take-Profit)</p>
-                            <ul style="list-style: none; padding: 0; color: var(--text-secondary);">
-                                <li style="padding: 4px 0;">→ 개별자산 +30% → 목표비중 조정</li>
-                                <li style="padding: 4px 0;">→ 전체 +15% → 채권/현금 확대</li>
-                                <li style="padding: 4px 0;">→ 금 +40% → 일부 차익실현</li>
+                        <div class="action-trigger-section">
+                            <p style="color: var(--text-secondary);">📈 익절 (Take-Profit)</p>
+                            <ul>
+                                <li>→ 개별자산 +30% → 목표비중 조정</li>
+                                <li>→ 전체 +15% → 채권/현금 확대</li>
+                                <li>→ 금 +40% → 일부 차익실현</li>
                             </ul>
                         </div>
                     </div>
@@ -1805,7 +2046,32 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">🎭 시나리오별 대응 전략</h3>
-                    <span class="card-badge badge-danger">JSX v2 구조</span>
+                    <span class="card-badge badge-danger">정량화 v2.1</span>
+                </div>
+                
+                <!-- 시나리오 확률 요약 -->
+                <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+                    <h4 style="font-size: 0.9rem; margin-bottom: 10px; color: var(--text-primary);">📊 시나리오 확률 분포 (합계 ≈ 175%, 중복 가능)</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.75rem;">
+                        <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 10px; border-radius: 4px;">연착륙 35%</span>
+                        <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 10px; border-radius: 4px;">환율↑ 30%</span>
+                        <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 10px; border-radius: 4px;">호황 30%</span>
+                        <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 10px; border-radius: 4px;">금리↑ 25%</span>
+                        <span style="background: rgba(239,68,68,0.2); color: var(--accent-red); padding: 4px 10px; border-radius: 4px;">침체 20%</span>
+                        <span style="background: rgba(239,68,68,0.2); color: var(--accent-red); padding: 4px 10px; border-radius: 4px;">AI버블 20%</span>
+                        <span style="background: rgba(100,116,139,0.3); color: var(--text-secondary); padding: 4px 10px; border-radius: 4px;">환율↓ 15%</span>
+                        <span style="background: rgba(239,68,68,0.2); color: var(--accent-red); padding: 4px 10px; border-radius: 4px;">지정학 15%</span>
+                    </div>
+                </div>
+                
+                <!-- 자산간 상관관계 (간략) -->
+                <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; margin-bottom: 16px; font-size: 0.8rem;">
+                    <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: var(--text-primary);">🔗 자산간 상관관계 (핵심)</h4>
+                    <div style="color: var(--text-secondary); line-height: 1.6;">
+                        <span style="color: var(--accent-red);">⚠️</span> 원/달러↔KOSPI: <strong>-0.55</strong> (환율↑ → 한국주식↓) | 
+                        S&P↔KOSPI: <strong>+0.65</strong> (동반 등락) | 
+                        TLT↔S&P: <strong>-0.30</strong> (헤지 효과)
+                    </div>
                 </div>
 
                 <!-- Scenario Sub-tabs -->
@@ -1823,13 +2089,18 @@
                 <!-- Scenario: 금리 인상 -->
                 <div class="scenario-content active" id="rate-up">
                     <div class="scenario-header">
-                        <h4 class="scenario-title">📈 금리 인상 시나리오</h4>
-                        <span class="probability-badge">발생확률: 15%</span>
+                        <h4 class="scenario-title">📈 금리 인상/유지 시나리오</h4>
+                        <span class="probability-badge">발생확률: 25%</span>
                     </div>
                     
                     <div class="trigger-box">
                         <span class="trigger-label">트리거:</span>
-                        인플레이션 재상승, Fed 매파 선회, 임금 상승 지속
+                        트럼프 관세 영향 (+0.5%p 인플레), Fed 매파 선회, 임금 상승 지속
+                    </div>
+                    
+                    <div style="background: rgba(239,68,68,0.1); border: 1px solid var(--accent-red); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem;">
+                        <strong style="color: var(--accent-red);">⚠️ 2026.1 현황:</strong>
+                        <span style="color: var(--text-secondary);"> 관세로 인플레 +0.5%p (Goldman) | 기업 비용전가 80% 예상 (JPM) | 1월 FOMC 인하확률 16%</span>
                     </div>
 
                     <div class="impact-table">
@@ -1885,13 +2156,18 @@
                 <!-- Scenario: 금리 인하 -->
                 <div class="scenario-content" id="rate-down">
                     <div class="scenario-header">
-                        <h4 class="scenario-title">📉 금리 인하 시나리오</h4>
-                        <span class="probability-badge" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">발생확률: 50%</span>
+                        <h4 class="scenario-title">📉 금리 인하 시나리오 (연착륙)</h4>
+                        <span class="probability-badge" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">발생확률: 35%</span>
                     </div>
                     
                     <div class="trigger-box">
                         <span class="trigger-label">트리거:</span>
-                        Fed 비둘기파 전환, 경기둔화, 인플레 하락
+                        Fed 비둘기파 전환, 경기둔화, 인플레 2.5% 이하 안착, 실업률 4.5% 유지
+                    </div>
+                    
+                    <div style="background: rgba(16,185,129,0.1); border: 1px solid var(--accent-green); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem;">
+                        <strong style="color: var(--accent-green);">📊 근거:</strong>
+                        <span style="color: var(--text-secondary);"> Fed dot plot 2026년말 3.0~3.25% | Goldman 침체확률 15% | 관세 협상 진전 시</span>
                     </div>
 
                     <div class="impact-table">
@@ -1942,12 +2218,17 @@
                 <div class="scenario-content" id="geopolitical">
                     <div class="scenario-header">
                         <h4 class="scenario-title">🌍 지정학적 위기</h4>
-                        <span class="probability-badge">발생확률: 20%</span>
+                        <span class="probability-badge">발생확률: 15%</span>
                     </div>
                     
                     <div class="trigger-box">
                         <span class="trigger-label">트리거:</span>
-                        대만 해협 긴장, 우크라이나 확전, 중동 위기, 트럼프 관세전쟁
+                        대만 해협 긴장 (5%), 북한 도발 (5~10%), 중동 확전, 트럼프 관세전쟁 심화
+                    </div>
+                    
+                    <div style="background: rgba(239,68,68,0.1); border: 1px solid var(--accent-red); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem;">
+                        <strong style="color: var(--accent-red);">🇰🇷 한국 특수:</strong>
+                        <span style="color: var(--text-secondary);"> 탄핵 정국 → 외국인 이탈 → 원화 약세 | 북한 도발 시 KOSPI -3~5% 단기 충격 후 회복 패턴</span>
                     </div>
 
                     <div class="impact-table">
@@ -2004,12 +2285,17 @@
                 <div class="scenario-content" id="fx-up">
                     <div class="scenario-header">
                         <h4 class="scenario-title">💱 환율 급등 시나리오 (1,500원 이상)</h4>
-                        <span class="probability-badge" style="background: rgba(245,158,11,0.2); color: var(--accent-gold);">발생확률: 25%</span>
+                        <span class="probability-badge" style="background: rgba(245,158,11,0.2); color: var(--accent-gold);">발생확률: 30%</span>
                     </div>
                     
                     <div class="trigger-box">
                         <span class="trigger-label">트리거:</span>
-                        미국 금리 고점 유지, 한국 경상수지 악화, 외국인 자금 유출, 달러 강세 지속
+                        미국 금리 고점 유지, 한국 정치 불안 (탄핵), 외국인 자금 유출, 달러 강세 지속
+                    </div>
+                    
+                    <div style="background: rgba(245,158,11,0.1); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem;">
+                        <strong style="color: var(--accent-gold);">📊 현재:</strong>
+                        <span style="color: var(--text-secondary);"> 원/달러 1,460~1,472원 (2008년 이후 최고) | 해외자산 62% 환노출 | 환율 +10%시 포트 +6.2% (기보유분)</span>
                     </div>
 
                     <div class="impact-table">
@@ -2065,13 +2351,18 @@
 
                 <div class="scenario-content" id="fx-down">
                     <div class="scenario-header">
-                        <h4 class="scenario-title">💱 환율 급락 시나리오 (1,350원 이하)</h4>
-                        <span class="probability-badge" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">발생확률: 20%</span>
+                        <h4 class="scenario-title">💱 환율 하락 시나리오 (1,380원 이하)</h4>
+                        <span class="probability-badge" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">발생확률: 15%</span>
                     </div>
                     
                     <div class="trigger-box">
                         <span class="trigger-label">트리거:</span>
-                        Fed 금리인하 가속, 달러 약세 전환, 한국 경상수지 개선, 외국인 자금 유입
+                        Fed 금리인하 2~3회, 달러 약세 전환, 한국 정치 안정화, 외국인 자금 유입
+                    </div>
+                    
+                    <div style="background: rgba(16,185,129,0.1); border: 1px solid var(--accent-green); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem;">
+                        <strong style="color: var(--accent-green);">💡 기회:</strong>
+                        <span style="color: var(--text-secondary);"> 환율 1,380원 이하 = 해외투자 적극 확대 구간 | 현재 1,460원 대비 -6% 시점에서 달러 매수 재개</span>
                     </div>
 
                     <div class="impact-table">
@@ -2128,12 +2419,17 @@
                 <div class="scenario-content" id="ai-bubble">
                     <div class="scenario-header">
                         <h4 class="scenario-title">🤖 AI 버블 붕괴 시나리오</h4>
-                        <span class="probability-badge">발생확률: 25%</span>
+                        <span class="probability-badge">발생확률: 20%</span>
                     </div>
                     
                     <div class="trigger-box">
                         <span class="trigger-label">트리거:</span>
-                        AI 수익화 지연, Magnificent 7 실적 미스, 반도체 과잉공급, AI 규제 강화, 밸류에이션 조정
+                        AI 수익화 지연, Magnificent 7 실적 미스, 반도체 과잉공급, OpenAI IPO 실망
+                    </div>
+                    
+                    <div style="background: rgba(245,158,11,0.1); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem;">
+                        <strong style="color: var(--accent-gold);">📊 현황:</strong>
+                        <span style="color: var(--text-secondary);"> Mag7 S&P500 비중 30% | OpenAI 2026년 현금소진 $17B | SPY 내 실질 Mag7 노출 ~7.5%</span>
                     </div>
 
                     <div class="impact-table">
@@ -2197,12 +2493,17 @@
                 <div class="scenario-content" id="recession">
                     <div class="scenario-header">
                         <h4 class="scenario-title">💔 경기침체 시나리오</h4>
-                        <span class="probability-badge">발생확률: 15%</span>
+                        <span class="probability-badge">발생확률: 20%</span>
                     </div>
                     
                     <div class="trigger-box">
                         <span class="trigger-label">트리거:</span>
-                        실업률 급등 (5% 이상), GDP 역성장, 소비 급감, 기업실적 악화, 신용경색
+                        실업률 5%+ 급등, GDP 역성장 2분기, 소비 급감, 관세 장기화
+                    </div>
+                    
+                    <div style="background: rgba(239,68,68,0.1); border: 1px solid var(--accent-red); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem;">
+                        <strong style="color: var(--accent-red);">📊 근거:</strong>
+                        <span style="color: var(--text-secondary);"> Moody's Zandi 침체확률 60% (관세 지속시) | JPM "수축 가능성 반반" | CAPE 40+ 역사: 2000, 2007 후 침체</span>
                     </div>
 
                     <div class="impact-table">
@@ -2279,12 +2580,17 @@
                 <div class="scenario-content" id="boom">
                     <div class="scenario-header">
                         <h4 class="scenario-title">🚀 경기호황 시나리오</h4>
-                        <span class="probability-badge" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">발생확률: 35%</span>
+                        <span class="probability-badge" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">발생확률: 30%</span>
                     </div>
                     
                     <div class="trigger-box">
                         <span class="trigger-label">트리거:</span>
-                        AI 생산성 혁명 현실화, 금리인하 + 연착륙 성공, 기업실적 호조, 소비 강세 지속
+                        AI 생산성 혁명 현실화, 금리인하 + 연착륙 성공, 관세 협상 타결, 소비 강세 지속
+                    </div>
+                    
+                    <div style="background: rgba(245,158,11,0.1); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem;">
+                        <strong style="color: var(--accent-gold);">⚠️ CAPE 경고:</strong>
+                        <span style="color: var(--text-secondary);"> 호황에도 CAPE 40+ 경계 필수 | 역사적 고점에서 +25% 추가 상승 시 CAPE 50 접근 → 더 큰 조정 리스크</span>
                     </div>
 
                     <div class="impact-table">
@@ -2369,13 +2675,24 @@
                 </div>
 
                 <div class="tips-grid">
+                    <div class="tip-card" style="border-top-color: var(--accent-red);">
+                        <h4>🚨 조건부 리밸런싱 룰</h4>
+                        <ul>
+                            <li><strong>CAPE 45 돌파</strong> → 미국→현금 5%p 이동</li>
+                            <li><strong>환율 1,500원</strong> → 해외투자 중단</li>
+                            <li><strong>TLT -15%</strong> → TLT 50%→IEF 전환</li>
+                            <li><strong>VIX 30 돌파</strong> → 현금 20%로 확대</li>
+                            <li><strong>인플레 4%+</strong> → 금 20%, TLT 축소</li>
+                        </ul>
+                    </div>
+
                     <div class="tip-card">
-                        <h4>🚨 즉시 행동 트리거</h4>
+                        <h4>🎯 즉시 행동 트리거</h4>
                         <ul>
                             <li>개별자산 -20% → 50% 비중 축소</li>
-                            <li>전체 포트폴리오 -15% → 리스크자산 축소</li>
-                            <li>TLT -15% + 인플레↑ → 전량 매도</li>
-                            <li>개별자산 +30% → 목표비중으로 리밸런싱</li>
+                            <li>전체 포트 -15% → 리스크자산 축소</li>
+                            <li>TLT -15% + 인플레↑ → IEF로 전환</li>
+                            <li>개별자산 +30% → 목표비중 리밸런싱</li>
                             <li>금 +40% → 일부 차익실현</li>
                         </ul>
                     </div>
@@ -2383,7 +2700,7 @@
                     <div class="tip-card">
                         <h4>💵 현금 관리 원칙</h4>
                         <ul>
-                            <li>최소 현금 5~10% 항상 유지</li>
+                            <li><strong style="color: var(--accent-gold);">현 시점 권고: 15%</strong> (기존 8%)</li>
                             <li>MMF 활용 (연 3~4% 수익)</li>
                             <li>급락 시 저가매수 기회자금</li>
                             <li>정신적 안정감 확보</li>
@@ -2392,24 +2709,24 @@
                     </div>
 
                     <div class="tip-card">
-                        <h4>💱 환율 고려사항</h4>
+                        <h4>💱 환율 고려사항 (2026.1 기준)</h4>
                         <ul>
-                            <li>현재 1,450원대 = 역사적 고점권</li>
-                            <li>미국 ETF 배당 → 15% 원천징수</li>
-                            <li>환차손 발생 시 배당수익 상쇄</li>
-                            <li>국내상장 해외ETF 검토 (환헤지 옵션)</li>
-                            <li>환율 1,350 이하 시 달러자산 적극 확대</li>
+                            <li><strong style="color: var(--accent-red);">현재 1,460~1,472원</strong> = 2008년 이후 최고</li>
+                            <li>해외자산 62% → 환율 -10%시 포트 -6.2%</li>
+                            <li>1,500원 돌파 시: 해외투자 일시 중단</li>
+                            <li>국내상장 해외ETF (TIGER 등) 검토</li>
+                            <li>환율 1,380 이하 시 달러자산 적극 확대</li>
                         </ul>
                     </div>
 
                     <div class="tip-card">
-                        <h4>📊 세금 최적화</h4>
+                        <h4>📊 세금 최적화 (2억원 기준)</h4>
                         <ul>
                             <li>해외주식 양도세: 250만원 공제 후 22%</li>
-                            <li>배당소득: 2000만원 초과 시 종합과세</li>
-                            <li>국내주식: 5000만원 이상 양도세</li>
-                            <li>ISA 계좌 활용 검토</li>
-                            <li>배당소득 분리과세 확인 (2026년~)</li>
+                            <li>연 +20% 수익시 예상 세금: ~880만원</li>
+                            <li>ISA 계좌: 비과세 한도 200만원 활용</li>
+                            <li>배당소득 분리과세 (2026년 시행)</li>
+                            <li>손익통산: 해외주식 손실-이익 상계</li>
                         </ul>
                     </div>
 
@@ -2589,7 +2906,26 @@
         }
         
         function renderTable() {
-            const filtered = applyFilters();
+            let filtered = applyFilters();
+            
+            // 버전 C 전용 필터 적용
+            const version = getSelectedVersion();
+            if (version === 'C') {
+                const filterOverbought = document.getElementById('filterOverbought')?.checked;
+                const filterNearHigh = document.getElementById('filterNearHigh')?.checked;
+                const filterContrarianOnly = document.getElementById('filterContrarianOnly')?.checked;
+                
+                if (filterOverbought) {
+                    filtered = filtered.filter(d => !d._overbought);
+                }
+                if (filterNearHigh) {
+                    filtered = filtered.filter(d => !d._nearHigh);
+                }
+                if (filterContrarianOnly) {
+                    filtered = filtered.filter(d => d._contrarian);
+                }
+            }
+            
             let sorted = [...filtered];
             
             // 정렬
@@ -2647,6 +2983,14 @@
                 const name = d.Name || '-';
                 const sector = d.Sector || d.ETF_Type || d.Category || '-';
                 
+                // 버전 C 플래그 아이콘
+                let statusIcons = '';
+                if (version === 'C') {
+                    if (d._overbought) statusIcons += '🔥';
+                    if (d._nearHigh) statusIcons += '⚠️';
+                    if (d._contrarian) statusIcons += '💎';
+                }
+                
                 // 점수들
                 const totalScore = d.TotalScore ? Math.round(d.TotalScore) : '-';
                 const valueScore = d.ValueScore != null ? Math.round(d.ValueScore) : (d.Cost_Score != null ? Math.round(d.Cost_Score) : '-');
@@ -2664,9 +3008,12 @@
                 const rsi = d.RSI14 ? d.RSI14.toFixed(0) : '-';
                 const vol = d.Volatility20D ? d.Volatility20D.toFixed(1) : '-';
                 
+                // 종목명에 플래그 아이콘 추가
+                const displayName = statusIcons ? `${name.substring(0,16)} ${statusIcons}` : name.substring(0,18);
+                
                 return `<tr>
                     <td><span class="rank-badge ${rankClass}">${rank}</span></td>
-                    <td><div class="stock-cell"><span class="stock-flag">${flag}</span><div><div class="stock-name">${name.substring(0,18)}</div><div class="stock-ticker">${ticker}</div></div></div></td>
+                    <td><div class="stock-cell"><span class="stock-flag">${flag}</span><div><div class="stock-name">${displayName}</div><div class="stock-ticker">${ticker}</div></div></div></td>
                     <td><span class="breakdown-chip">${String(sector).substring(0,10)}</span></td>
                     <td><span class="score-badge ${sc(totalScore)}">${totalScore}</span></td>
                     <td><span class="score-badge ${sc(valueScore)}">${valueScore}</span></td>
@@ -2716,6 +3063,746 @@
         // 원본 데이터 백업
         const originalData = [...screeningData];
         
+        // ========== 스크리닝 점수 계산 함수 ==========
+        
+        // 백분위 계산
+        function percentileRank(arr, val, inverse = false) {
+            const valid = arr.filter(x => x != null && !isNaN(x) && x > -9999 && x < 99999);
+            if (valid.length === 0 || val == null || isNaN(val)) return 50;
+            const below = valid.filter(x => x < val).length;
+            const rank = (below / valid.length) * 100;
+            return inverse ? 100 - rank : rank;
+        }
+        
+        // 시트별 컬럼 값 배열 추출
+        function getColumnValues(data, sheet, col) {
+            return data.filter(d => d._sheet === sheet).map(d => d[col]).filter(x => x != null && !isNaN(x));
+        }
+        
+        // 버전 A: 현재 로직 (임의 가중치)
+        function calcScoresVersionA(data) {
+            const sheets = ['KR_Stocks', 'US_Stocks', 'KR_ETF', 'US_ETF', 'EU_ETF', 'JP_ETF', 'CN_ETF', 'IN_ETF', 'BR_ETF', 'Global_ETF'];
+            
+            sheets.forEach(sheet => {
+                const subset = data.filter(d => d._sheet === sheet);
+                if (subset.length === 0) return;
+                
+                // 컬럼별 값 배열 (백분위 계산용)
+                const cols = {};
+                ['PER', 'PBR', 'ForwardPE', 'FCFYield(%)', 'ROE(%)', 'ROA(%)', 'GrossMargin(%)', 'OpMargin(%)',
+                 'CurrentRatio', 'DebtRatio(%)', 'Debt/Equity', 'RevenueGrowth(%)', 'EarningsGrowth(%)',
+                 'Return60D(%)', 'Return120D(%)', 'Return250D(%)', 'Return3M(%)', 'Return6M(%)', 'Return1Y(%)',
+                 'SharpeRatio', 'Volatility20D', 'MaxDrawdown(%)', 'Beta', 'ForeignRatio(%)', 'InstOwn(%)',
+                 'ExpenseRatio(%)', 'DivYield(%)'].forEach(col => {
+                    cols[col] = subset.map(d => d[col]).filter(x => x != null && !isNaN(x));
+                });
+                
+                // CR/DE 점수 함수 (임의 구간)
+                const crScore = (cr) => {
+                    if (cr == null || cr <= 0) return 50;
+                    if (cr > 2.0) return 90;
+                    if (cr > 1.5) return 70;
+                    if (cr > 1.0) return 50;
+                    return 30;
+                };
+                const deScore = (de) => {
+                    if (de == null) return 50;
+                    if (de < 30) return 90;
+                    if (de < 60) return 70;
+                    if (de < 100) return 50;
+                    if (de < 200) return 35;
+                    return 20;
+                };
+                
+                subset.forEach(d => {
+                    if (sheet === 'KR_Stocks') {
+                        // Value (25%)
+                        const perS = (d.PER > 0 && d.PER < 200) ? percentileRank(cols['PER'], d.PER, true) : 50;
+                        const pbrS = (d.PBR > 0 && d.PBR < 50) ? percentileRank(cols['PBR'], d.PBR, true) : 50;
+                        d.ValueScore = (perS + pbrS) / 2;
+                        
+                        // Quality (25%) = Profit*0.6 + Stab*0.4
+                        const roeS = d['ROE(%)'] != null ? percentileRank(cols['ROE(%)'], d['ROE(%)']) : 50;
+                        const roaS = d['ROA(%)'] != null ? percentileRank(cols['ROA(%)'], d['ROA(%)']) : 50;
+                        const opmS = d['OpMargin(%)'] != null ? percentileRank(cols['OpMargin(%)'], d['OpMargin(%)']) : 50;
+                        const profit = (roeS + roaS + opmS) / 3;
+                        const stab = (crScore(d.CurrentRatio) + deScore(d['DebtRatio(%)'])) / 2;
+                        d.QualityScore = profit * 0.6 + stab * 0.4;
+                        
+                        // Growth (20%)
+                        const revG = d['RevenueGrowth(%)'] != null ? percentileRank(cols['RevenueGrowth(%)'], d['RevenueGrowth(%)']) : 50;
+                        const earnG = d['EarningsGrowth(%)'] != null ? percentileRank(cols['EarningsGrowth(%)'], d['EarningsGrowth(%)']) : 50;
+                        d.GrowthScore = (revG + earnG) / 2;
+                        
+                        // Momentum (10%) = M60*0.6 + M120*0.4
+                        const m60 = d['Return60D(%)'] != null ? percentileRank(cols['Return60D(%)'], d['Return60D(%)']) : 50;
+                        const m120 = d['Return120D(%)'] != null ? percentileRank(cols['Return120D(%)'], d['Return120D(%)']) : 50;
+                        d.MomentumScore = m60 * 0.6 + m120 * 0.4;
+                        
+                        // Risk (15%) = Vol*0.6 + MDD*0.4
+                        const volS = d.Volatility20D != null ? percentileRank(cols['Volatility20D'], d.Volatility20D, true) : 50;
+                        const mddS = d['MaxDrawdown(%)'] != null ? percentileRank(cols['MaxDrawdown(%)'], d['MaxDrawdown(%)'], true) : 50;
+                        d.RiskScore = volS * 0.6 + mddS * 0.4;
+                        
+                        // Flow (5%)
+                        const flowS = d['ForeignRatio(%)'] != null ? Math.min(percentileRank(cols['ForeignRatio(%)'], d['ForeignRatio(%)']), 80) : 50;
+                        d.FlowScore = flowS;
+                        
+                        // Total
+                        d.TotalScore = d.ValueScore * 0.25 + d.QualityScore * 0.25 + d.GrowthScore * 0.20 + d.MomentumScore * 0.10 + d.RiskScore * 0.15 + d.FlowScore * 0.05;
+                        
+                    } else if (sheet === 'US_Stocks') {
+                        // Value (25%)
+                        const fpeS = (d.ForwardPE > 0 && d.ForwardPE < 200) ? percentileRank(cols['ForwardPE'], d.ForwardPE, true) : 50;
+                        const pbrS = (d.PBR > 0 && d.PBR < 50) ? percentileRank(cols['PBR'], d.PBR, true) : 50;
+                        const fcfS = d['FCFYield(%)'] != null ? percentileRank(cols['FCFYield(%)'], d['FCFYield(%)']) : 50;
+                        d.ValueScore = (fpeS + pbrS + fcfS) / 3;
+                        
+                        // Quality (20%) = Profit*0.6 + Stab*0.4
+                        const roeS = d['ROE(%)'] != null ? percentileRank(cols['ROE(%)'], d['ROE(%)']) : 50;
+                        const roaS = d['ROA(%)'] != null ? percentileRank(cols['ROA(%)'], d['ROA(%)']) : 50;
+                        const gmS = d['GrossMargin(%)'] != null ? percentileRank(cols['GrossMargin(%)'], d['GrossMargin(%)']) : 50;
+                        const opmS = d['OpMargin(%)'] != null ? percentileRank(cols['OpMargin(%)'], d['OpMargin(%)']) : 50;
+                        const profit = (roeS + roaS + gmS + opmS) / 4;
+                        const deCol = d['Debt/Equity'] != null ? d['Debt/Equity'] : d['DebtRatio(%)'];
+                        const stab = (crScore(d.CurrentRatio) + deScore(deCol)) / 2;
+                        d.QualityScore = profit * 0.6 + stab * 0.4;
+                        
+                        // Growth (15%)
+                        const revG = d['RevenueGrowth(%)'] != null ? percentileRank(cols['RevenueGrowth(%)'], d['RevenueGrowth(%)']) : 50;
+                        const earnG = d['EarningsGrowth(%)'] != null ? percentileRank(cols['EarningsGrowth(%)'], d['EarningsGrowth(%)']) : 50;
+                        d.GrowthScore = (revG + earnG) / 2;
+                        
+                        // Momentum (15%) = 0.3/0.25/0.2/0.25
+                        const m60 = d['Return60D(%)'] != null ? percentileRank(cols['Return60D(%)'], d['Return60D(%)']) : 50;
+                        const m120 = d['Return120D(%)'] != null ? percentileRank(cols['Return120D(%)'], d['Return120D(%)']) : 50;
+                        const m250 = d['Return250D(%)'] != null ? percentileRank(cols['Return250D(%)'], d['Return250D(%)']) : 50;
+                        const srS = d.SharpeRatio != null ? percentileRank(cols['SharpeRatio'], d.SharpeRatio) : 50;
+                        d.MomentumScore = m60 * 0.3 + m120 * 0.25 + m250 * 0.2 + srS * 0.25;
+                        
+                        // Risk (15%) = 0.4/0.3/0.3
+                        const volS = d.Volatility20D != null ? percentileRank(cols['Volatility20D'], d.Volatility20D, true) : 50;
+                        const mddS = d['MaxDrawdown(%)'] != null ? percentileRank(cols['MaxDrawdown(%)'], d['MaxDrawdown(%)'], true) : 50;
+                        const betaS = d.Beta != null ? Math.max(0, Math.min(100, 100 - Math.abs(d.Beta - 1) * 30)) : 50;
+                        d.RiskScore = volS * 0.4 + mddS * 0.3 + betaS * 0.3;
+                        
+                        // Flow (10%)
+                        d.FlowScore = d['InstOwn(%)'] != null ? percentileRank(cols['InstOwn(%)'], d['InstOwn(%)']) : 50;
+                        
+                        // Total
+                        d.TotalScore = d.ValueScore * 0.25 + d.QualityScore * 0.20 + d.GrowthScore * 0.15 + d.MomentumScore * 0.15 + d.RiskScore * 0.15 + d.FlowScore * 0.10;
+                        
+                    } else if (sheet.includes('ETF')) {
+                        // Cost (30%)
+                        const expR = d['ExpenseRatio(%)'] != null ? d['ExpenseRatio(%)'] : 0;
+                        d.Cost_Score = 100 - Math.min(expR * 10, 80);
+                        
+                        // Momentum (25%) - 백분위 방식 (D-4.3)
+                        const r3m = d['Return3M(%)'] || d['Return60D(%)'] || 0;
+                        const r6m = d['Return6M(%)'] || d['Return120D(%)'] || 0;
+                        const r1y = d['Return1Y(%)'] || d['Return250D(%)'] || 0;
+                        
+                        const r3mArr = cols['Return3M(%)'].length > 0 ? cols['Return3M(%)'] : cols['Return60D(%)'];
+                        const r6mArr = cols['Return6M(%)'].length > 0 ? cols['Return6M(%)'] : cols['Return120D(%)'];
+                        const r1yArr = cols['Return1Y(%)'].length > 0 ? cols['Return1Y(%)'] : cols['Return250D(%)'];
+                        
+                        const r3mPct = percentileRank(r3mArr, r3m, false);
+                        const r6mPct = percentileRank(r6mArr, r6m, false);
+                        const r1yPct = percentileRank(r1yArr, r1y, false);
+                        
+                        d.MomentumScore = r3mPct * 0.4 + r6mPct * 0.35 + r1yPct * 0.25;
+                        
+                        // Risk (25%)
+                        d.RiskScore = d.Volatility20D != null ? percentileRank(cols['Volatility20D'], d.Volatility20D, true) : 50;
+                        
+                        // Income (20%)
+                        d.IncomeScore = d['DivYield(%)'] != null ? percentileRank(cols['DivYield(%)'], d['DivYield(%)']) : 50;
+                        
+                        // Total (D-4.3: 30/25/25/20)
+                        d.TotalScore = d.Cost_Score * 0.30 + d.MomentumScore * 0.25 + d.RiskScore * 0.25 + d.IncomeScore * 0.20;
+                        d.ValueScore = d.Cost_Score;
+                    }
+                });
+            });
+            return data;
+        }
+        
+        // 버전 B: 등가중 (DeMiguel 1/N)
+        function calcScoresVersionB(data) {
+            const sheets = ['KR_Stocks', 'US_Stocks', 'KR_ETF', 'US_ETF', 'EU_ETF', 'JP_ETF', 'CN_ETF', 'IN_ETF', 'BR_ETF', 'Global_ETF'];
+            
+            sheets.forEach(sheet => {
+                const subset = data.filter(d => d._sheet === sheet);
+                if (subset.length === 0) return;
+                
+                // 컬럼별 값 배열
+                const cols = {};
+                ['PER', 'PBR', 'ForwardPE', 'FCFYield(%)', 'ROE(%)', 'ROA(%)', 'GrossMargin(%)', 'OpMargin(%)',
+                 'CurrentRatio', 'DebtRatio(%)', 'Debt/Equity', 'RevenueGrowth(%)', 'EarningsGrowth(%)',
+                 'Return60D(%)', 'Return120D(%)', 'Return250D(%)', 'Return3M(%)', 'Return6M(%)', 'Return1Y(%)',
+                 'SharpeRatio', 'Volatility20D', 'MaxDrawdown(%)', 'From52wHigh(%)', 'Beta', 'ExpenseRatio(%)', 'DivYield(%)'].forEach(col => {
+                    cols[col] = subset.map(d => d[col]).filter(x => x != null && !isNaN(x));
+                });
+                
+                subset.forEach(d => {
+                    if (sheet === 'KR_Stocks') {
+                        // Value (20%) - 등가중
+                        const perS = (d.PER > 0 && d.PER < 200) ? percentileRank(cols['PER'], d.PER, true) : 50;
+                        const pbrS = (d.PBR > 0 && d.PBR < 50) ? percentileRank(cols['PBR'], d.PBR, true) : 50;
+                        d.ValueScore = (perS + pbrS) / 2;
+                        
+                        // Quality (20%) - 모든 지표 등가중 (5개)
+                        const roeS = d['ROE(%)'] != null ? percentileRank(cols['ROE(%)'], d['ROE(%)']) : 50;
+                        const roaS = d['ROA(%)'] != null ? percentileRank(cols['ROA(%)'], d['ROA(%)']) : 50;
+                        const opmS = d['OpMargin(%)'] != null ? percentileRank(cols['OpMargin(%)'], d['OpMargin(%)']) : 50;
+                        const crS = d.CurrentRatio != null ? percentileRank(cols['CurrentRatio'], d.CurrentRatio) : 50;
+                        const deS = d['DebtRatio(%)'] != null ? percentileRank(cols['DebtRatio(%)'], d['DebtRatio(%)'], true) : 50;
+                        d.QualityScore = (roeS + roaS + opmS + crS + deS) / 5;
+                        
+                        // Growth (20%) - 등가중
+                        const revG = d['RevenueGrowth(%)'] != null ? percentileRank(cols['RevenueGrowth(%)'], d['RevenueGrowth(%)']) : 50;
+                        const earnG = d['EarningsGrowth(%)'] != null ? percentileRank(cols['EarningsGrowth(%)'], d['EarningsGrowth(%)']) : 50;
+                        d.GrowthScore = (revG + earnG) / 2;
+                        
+                        // Momentum (20%) - 등가중
+                        const m60 = d['Return60D(%)'] != null ? percentileRank(cols['Return60D(%)'], d['Return60D(%)']) : 50;
+                        const m120 = d['Return120D(%)'] != null ? percentileRank(cols['Return120D(%)'], d['Return120D(%)']) : 50;
+                        d.MomentumScore = (m60 + m120) / 2;
+                        
+                        // Risk (20%) - 등가중
+                        const volS = d.Volatility20D != null ? percentileRank(cols['Volatility20D'], d.Volatility20D, true) : 50;
+                        const mddCol = d['MaxDrawdown(%)'] != null ? 'MaxDrawdown(%)' : 'From52wHigh(%)';
+                        const mddS = d[mddCol] != null ? percentileRank(cols[mddCol] || cols['MaxDrawdown(%)'] || cols['From52wHigh(%)'], d[mddCol], true) : 50;
+                        d.RiskScore = (volS + mddS) / 2;
+                        
+                        // Total (5팩터 등가중, Flow 제외)
+                        d.TotalScore = (d.ValueScore + d.QualityScore + d.GrowthScore + d.MomentumScore + d.RiskScore) / 5;
+                        
+                    } else if (sheet === 'US_Stocks') {
+                        // Value (20%) - 등가중
+                        const fpeS = (d.ForwardPE > 0 && d.ForwardPE < 200) ? percentileRank(cols['ForwardPE'], d.ForwardPE, true) : 50;
+                        const pbrS = (d.PBR > 0 && d.PBR < 50) ? percentileRank(cols['PBR'], d.PBR, true) : 50;
+                        const fcfS = d['FCFYield(%)'] != null ? percentileRank(cols['FCFYield(%)'], d['FCFYield(%)']) : 50;
+                        d.ValueScore = (fpeS + pbrS + fcfS) / 3;
+                        
+                        // Quality (20%) - 모든 지표 등가중 (6개)
+                        const roeS = d['ROE(%)'] != null ? percentileRank(cols['ROE(%)'], d['ROE(%)']) : 50;
+                        const roaS = d['ROA(%)'] != null ? percentileRank(cols['ROA(%)'], d['ROA(%)']) : 50;
+                        const gmS = d['GrossMargin(%)'] != null ? percentileRank(cols['GrossMargin(%)'], d['GrossMargin(%)']) : 50;
+                        const opmS = d['OpMargin(%)'] != null ? percentileRank(cols['OpMargin(%)'], d['OpMargin(%)']) : 50;
+                        const crS = d.CurrentRatio != null ? percentileRank(cols['CurrentRatio'], d.CurrentRatio) : 50;
+                        const deCol = d['Debt/Equity'] != null ? 'Debt/Equity' : 'DebtRatio(%)';
+                        const deS = d[deCol] != null ? percentileRank(cols[deCol] || cols['DebtRatio(%)'], d[deCol], true) : 50;
+                        d.QualityScore = (roeS + roaS + gmS + opmS + crS + deS) / 6;
+                        
+                        // Growth (20%) - 등가중
+                        const revG = d['RevenueGrowth(%)'] != null ? percentileRank(cols['RevenueGrowth(%)'], d['RevenueGrowth(%)']) : 50;
+                        const earnG = d['EarningsGrowth(%)'] != null ? percentileRank(cols['EarningsGrowth(%)'], d['EarningsGrowth(%)']) : 50;
+                        d.GrowthScore = (revG + earnG) / 2;
+                        
+                        // Momentum (20%) - 등가중
+                        const m60 = d['Return60D(%)'] != null ? percentileRank(cols['Return60D(%)'], d['Return60D(%)']) : 50;
+                        const m120 = d['Return120D(%)'] != null ? percentileRank(cols['Return120D(%)'], d['Return120D(%)']) : 50;
+                        const m250 = d['Return250D(%)'] != null ? percentileRank(cols['Return250D(%)'], d['Return250D(%)']) : 50;
+                        d.MomentumScore = (m60 + m120 + m250) / 3;
+                        
+                        // Risk (20%) - 등가중
+                        const volS = d.Volatility20D != null ? percentileRank(cols['Volatility20D'], d.Volatility20D, true) : 50;
+                        const mddCol = d['MaxDrawdown(%)'] != null ? 'MaxDrawdown(%)' : 'From52wHigh(%)';
+                        const mddS = d[mddCol] != null ? percentileRank(cols[mddCol] || cols['MaxDrawdown(%)'] || cols['From52wHigh(%)'], d[mddCol], true) : 50;
+                        const betaS = d.Beta != null ? Math.max(0, Math.min(100, 100 - Math.abs(d.Beta - 1) * 30)) : 50;
+                        d.RiskScore = (volS + mddS + betaS) / 3;
+                        
+                        // Total (5팩터 등가중, Flow 제외)
+                        d.TotalScore = (d.ValueScore + d.QualityScore + d.GrowthScore + d.MomentumScore + d.RiskScore) / 5;
+                        
+                    } else if (sheet.includes('ETF')) {
+                        // ETF - D-4.3 백분위 방식
+                        const expR = d['ExpenseRatio(%)'] != null ? d['ExpenseRatio(%)'] : 0;
+                        d.Cost_Score = 100 - Math.min(expR * 10, 80);
+                        
+                        // 백분위 모멘텀
+                        const r3m = d['Return3M(%)'] || d['Return60D(%)'] || 0;
+                        const r6m = d['Return6M(%)'] || d['Return120D(%)'] || 0;
+                        const r1y = d['Return1Y(%)'] || d['Return250D(%)'] || 0;
+                        
+                        const r3mArr = cols['Return3M(%)'].length > 0 ? cols['Return3M(%)'] : cols['Return60D(%)'];
+                        const r6mArr = cols['Return6M(%)'].length > 0 ? cols['Return6M(%)'] : cols['Return120D(%)'];
+                        const r1yArr = cols['Return1Y(%)'].length > 0 ? cols['Return1Y(%)'] : cols['Return250D(%)'];
+                        
+                        const r3mPct = percentileRank(r3mArr, r3m, false);
+                        const r6mPct = percentileRank(r6mArr, r6m, false);
+                        const r1yPct = percentileRank(r1yArr, r1y, false);
+                        
+                        d.MomentumScore = (r3mPct + r6mPct + r1yPct) / 3;  // 등가중
+                        
+                        d.RiskScore = d.Volatility20D != null ? percentileRank(cols['Volatility20D'], d.Volatility20D, true) : 50;
+                        d.IncomeScore = d['DivYield(%)'] != null ? percentileRank(cols['DivYield(%)'], d['DivYield(%)']) : 50;
+                        
+                        // ETF 등가중
+                        d.TotalScore = (d.Cost_Score + d.MomentumScore + d.RiskScore + d.IncomeScore) / 4;
+                        d.ValueScore = d.Cost_Score;
+                    }
+                });
+            });
+            return data;
+        }
+        
+        // 버전 C: 역발상 전략 (과매수 감점, 소외 가점) - 개선판
+        function calcScoresVersionC(data) {
+            const sheets = ['KR_Stocks', 'US_Stocks', 'KR_ETF', 'US_ETF', 'EU_ETF', 'JP_ETF', 'CN_ETF', 'IN_ETF', 'BR_ETF', 'Global_ETF'];
+            
+            // clamp 함수
+            const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
+            
+            // 섹터 종목 수 계산
+            const getSectorCount = (subset, sector) => {
+                if (!sector) return 0;
+                return subset.filter(d => d.Sector === sector).length;
+            };
+            
+            // 섹터별 백분위 계산 (10개 이상일 때만)
+            const sectorPercentileRank = (subset, sector, col, val, inverse = false) => {
+                const fullArr = subset.map(d => d[col]).filter(x => x != null && !isNaN(x));
+                if (!sector) return percentileRank(fullArr, val, inverse);
+                
+                const sectorData = subset.filter(d => d.Sector === sector);
+                if (sectorData.length < 10) return percentileRank(fullArr, val, inverse); // 10개 미만이면 전체 사용
+                
+                const arr = sectorData.map(d => d[col]).filter(x => x != null && !isNaN(x));
+                return percentileRank(arr, val, inverse);
+            };
+            
+            // 섹터 평균 계산
+            const getSectorAvg = (subset, sector, col) => {
+                if (!sector) return null;
+                const sectorData = subset.filter(d => d.Sector === sector && d[col] != null && !isNaN(d[col]));
+                if (sectorData.length === 0) return null;
+                return sectorData.reduce((s, d) => s + d[col], 0) / sectorData.length;
+            };
+            
+            // 컬럼 값 가져오기 (엑셀/명세서 불일치 대응)
+            const getVal = (d, primary, fallback) => {
+                if (d[primary] != null && !isNaN(d[primary])) return d[primary];
+                if (fallback && d[fallback] != null && !isNaN(d[fallback])) return d[fallback];
+                return null;
+            };
+            
+            sheets.forEach(sheet => {
+                const subset = data.filter(d => d._sheet === sheet);
+                if (subset.length === 0) return;
+                
+                // 컬럼별 값 배열 (엑셀 컬럼명 변형 대응)
+                const cols = {};
+                ['PER', 'PBR', 'ForwardPE', 'FCFYield(%)', 'ROE(%)', 'ROA(%)', 'GrossMargin(%)', 'OpMargin(%)',
+                 'CurrentRatio', 'DebtRatio(%)', 'Debt/Equity', 'RevenueGrowth(%)', 'EarningsGrowth(%)',
+                 'Return60D(%)', 'Return120D(%)', 'Return250D(%)', 'Return3M(%)', 'Return6M(%)', 'Return1Y(%)',
+                 'SharpeRatio', 'Volatility20D', 'Beta', 'RSI14',
+                 // MDD 관련 (명세서: MaxDrawdown, 엑셀: From52wHigh)
+                 'MaxDrawdown(%)', 'From52wHigh(%)',
+                 // 52주고점 (명세서: 52WeekHigh, 엑셀: 52wHigh)
+                 '52WeekHigh', '52wHigh',
+                 // 배당 (명세서: DividendYield, 엑셀: DivYield)
+                 'DividendYield(%)', 'DivYield(%)',
+                 'ExpenseRatio(%)'].forEach(col => {
+                    cols[col] = subset.map(d => d[col]).filter(x => x != null && !isNaN(x));
+                });
+                
+                // MDD 배열 통합
+                const mddArr = cols['MaxDrawdown(%)'].length > 0 ? cols['MaxDrawdown(%)'] : cols['From52wHigh(%)'];
+                
+                subset.forEach(d => {
+                    // 플래그 초기화
+                    d._overbought = false;
+                    d._nearHigh = false;
+                    d._contrarian = false;
+                    
+                    // 컬럼값 통합 (엑셀/명세서 불일치 대응)
+                    const mddVal = getVal(d, 'MaxDrawdown(%)', 'From52wHigh(%)');
+                    const high52Val = getVal(d, '52WeekHigh', '52wHigh');
+                    const divYieldVal = getVal(d, 'DividendYield(%)', 'DivYield(%)');
+                    
+                    if (sheet === 'KR_Stocks') {
+                        // ===== STEP 1: 기본 점수 계산 =====
+                        const sectorCount = getSectorCount(subset, d.Sector);
+                        
+                        // 1-1. Value Score (섹터 10개 이상일 때만 섹터 백분위)
+                        let perS, pbrS;
+                        
+                        // 적자/고PER 처리 개선
+                        if (d.PER == null || isNaN(d.PER)) {
+                            perS = 50;
+                        } else if (d.PER <= 0) {
+                            perS = 20;  // 적자 기업
+                        } else if (d.PER > 200) {
+                            perS = 30;  // 고PER
+                        } else {
+                            perS = sectorPercentileRank(subset, d.Sector, 'PER', d.PER, true);
+                        }
+                        
+                        if (d.PBR == null || isNaN(d.PBR) || d.PBR <= 0 || d.PBR > 50) {
+                            pbrS = 50;
+                        } else {
+                            pbrS = sectorPercentileRank(subset, d.Sector, 'PBR', d.PBR, true);
+                        }
+                        
+                        d.ValueScore = (perS + pbrS) / 2;
+                        
+                        // 1-2. Quality Score
+                        const roeS = d['ROE(%)'] != null ? percentileRank(cols['ROE(%)'], d['ROE(%)']) : 50;
+                        const roaS = d['ROA(%)'] != null ? percentileRank(cols['ROA(%)'], d['ROA(%)']) : 50;
+                        const opmS = d['OpMargin(%)'] != null ? percentileRank(cols['OpMargin(%)'], d['OpMargin(%)']) : 50;
+                        const crS = d.CurrentRatio != null ? percentileRank(cols['CurrentRatio'], d.CurrentRatio) : 50;
+                        const deS = d['DebtRatio(%)'] != null ? percentileRank(cols['DebtRatio(%)'], d['DebtRatio(%)'], true) : 50;
+                        d.QualityScore = (roeS + roaS + opmS + crS + deS) / 5;
+                        
+                        // 1-3. Growth Score (D-4.3: 적자전환 패널티)
+                        const revG = d['RevenueGrowth(%)'] != null ? percentileRank(cols['RevenueGrowth(%)'], d['RevenueGrowth(%)']) : 50;
+                        let earnG = d['EarningsGrowth(%)'] != null ? percentileRank(cols['EarningsGrowth(%)'], d['EarningsGrowth(%)']) : 50;
+                        
+                        // 적자전환 패널티: 이익성장률 -100% 미만 (흑자→적자)
+                        if (d['EarningsGrowth(%)'] != null && d['EarningsGrowth(%)'] < -100) {
+                            earnG *= 0.5;
+                        }
+                        d.GrowthScore = (revG + earnG) / 2;
+                        
+                        // 1-4. Momentum Score (과열 감점 - 중복 방지)
+                        const m60Raw = d['Return60D(%)'] != null ? percentileRank(cols['Return60D(%)'], d['Return60D(%)']) : 50;
+                        const m120Raw = d['Return120D(%)'] != null ? percentileRank(cols['Return120D(%)'], d['Return120D(%)']) : 50;
+                        let momScore = (m60Raw + m120Raw) / 2;
+                        
+                        // 과열 감점 (최악의 것만 적용)
+                        let overheatPenalty = 1.0;
+                        const rsi = d.RSI14;
+                        
+                        if (rsi != null && rsi > 80) {
+                            overheatPenalty = Math.min(overheatPenalty, 0.5);
+                        } else if (rsi != null && rsi > 70) {
+                            overheatPenalty = Math.min(overheatPenalty, 0.7);
+                        }
+                        
+                        if (m60Raw > 90) {
+                            overheatPenalty = Math.min(overheatPenalty, 0.5);
+                        } else if (m60Raw > 80) {
+                            overheatPenalty = Math.min(overheatPenalty, 0.7);
+                        }
+                        
+                        momScore = momScore * overheatPenalty;
+                        if (overheatPenalty < 1.0) d._overbought = true;
+                        
+                        d.MomentumScore = clamp(momScore, 10, 100);
+                        
+                        // 1-5. Risk Score (D-4.3: Vol 55%, MDD 45% - Beta 없음)
+                        const volS = d.Volatility20D != null ? percentileRank(cols['Volatility20D'], d.Volatility20D, true) : 50;
+                        const mddS = mddVal != null ? percentileRank(mddArr, mddVal, true) : 50;
+                        d.RiskScore = volS * 0.55 + mddS * 0.45;
+                        
+                        // ===== STEP 2: 기본 총점 (KR: V25 Q20 G15 M20 R15 Flow5) =====
+                        // Flow Score 추가
+                        const flowS = d['ForeignRatio(%)'] != null ? Math.min(percentileRank(cols['ForeignRatio(%)'] || [], d['ForeignRatio(%)']), 80) : 50;
+                        d.FlowScore = flowS;
+                        
+                        let rawTotal = d.ValueScore * 0.25 + d.QualityScore * 0.20 + d.GrowthScore * 0.15 + d.MomentumScore * 0.20 + d.RiskScore * 0.15 + d.FlowScore * 0.05;
+                        
+                        // ===== STEP 3: 52주 고점 감점 (D-4.3: AND 조건) =====
+                        const price = d.Price || d.Close;
+                        let highPenalty = 1.0;
+                        
+                        if (high52Val > 0 && price > 0) {
+                            const highRatio = Math.min(price / high52Val, 1.0);
+                            
+                            // RSI 또는 Return 백분위로 과열 판단
+                            const rsiOverheat = d.RSI14 != null && d.RSI14 > 70;
+                            const retOverheat = m60Raw > 80;  // Return60D 백분위 80% 이상
+                            
+                            // AND 조건: 고점 근접 AND 과열 신호 둘 다 충족 시에만 감점
+                            if (highRatio > 0.98 && (rsiOverheat || retOverheat)) {
+                                highPenalty = 0.85;
+                                d._nearHigh = true;
+                            } else if (highRatio > 0.95 && (rsiOverheat && retOverheat)) {
+                                // 95-98%는 둘 다 과열일 때만
+                                highPenalty = 0.92;
+                                d._nearHigh = true;
+                            }
+                            // RSI/Return 과열 없으면 고점 근접해도 감점 없음 (건강한 상승)
+                        }
+                        
+                        // 감점 누적 (최대 30% = 0.70)
+                        const totalPenalty = Math.max(highPenalty, 0.70);
+                        rawTotal *= totalPenalty;
+                        
+                        // ===== STEP 4: 소외 종목 가점 (중복 제한, 최대 12%) =====
+                        let bonusMultiplier = 1.0;
+                        const roePct = percentileRank(cols['ROE(%)'], d['ROE(%)']);
+                        const ret60 = d['Return60D(%)'];
+                        const earnGrowth = d['EarningsGrowth(%)'];
+                        const debtRatio = d['DebtRatio(%)'];
+                        
+                        // 조건 1: 저PBR + 상위 50% ROE
+                        if (d.PBR > 0 && d.PBR < 1 && roePct > 50) {
+                            bonusMultiplier += 0.05;
+                            
+                            // 고배당 추가
+                            if (divYieldVal > 3) {
+                                bonusMultiplier += 0.02;
+                            }
+                        }
+                        
+                        // 조건 2: 하락 + 펀더멘탈 양호 + 이익성장 + 재무건전
+                        if (ret60 != null && ret60 < 0 
+                            && roePct > 60 
+                            && earnGrowth != null && earnGrowth > 0
+                            && (debtRatio == null || debtRatio < 100)) {
+                            bonusMultiplier += 0.07;
+                            d._contrarian = true;
+                        }
+                        
+                        // 조건 3: 섹터 평균 대비 10%p 이상 소외
+                        if (d.Sector && sectorCount >= 10) {
+                            const sectorAvgRet = getSectorAvg(subset, d.Sector, 'Return60D(%)');
+                            if (sectorAvgRet != null && ret60 != null && ret60 < sectorAvgRet - 10 && roePct > 50) {
+                                bonusMultiplier += 0.04;
+                                d._contrarian = true;
+                            }
+                        }
+                        
+                        // 최대 12% 가점 제한
+                        bonusMultiplier = Math.min(bonusMultiplier, 1.12);
+                        rawTotal *= bonusMultiplier;
+                        
+                        // ===== STEP 5: 최종 점수 =====
+                        d.TotalScore = clamp(rawTotal, 0, 100);
+                        
+                    } else if (sheet === 'US_Stocks') {
+                        // ===== US_Stocks =====
+                        const sectorCount = getSectorCount(subset, d.Sector);
+                        
+                        // 1-1. Value Score
+                        let fpeS, pbrS;
+                        
+                        if (d.ForwardPE == null || isNaN(d.ForwardPE)) {
+                            fpeS = 50;
+                        } else if (d.ForwardPE <= 0) {
+                            fpeS = 20;
+                        } else if (d.ForwardPE > 200) {
+                            fpeS = 30;
+                        } else {
+                            fpeS = sectorPercentileRank(subset, d.Sector, 'ForwardPE', d.ForwardPE, true);
+                        }
+                        
+                        if (d.PBR == null || isNaN(d.PBR) || d.PBR <= 0 || d.PBR > 50) {
+                            pbrS = 50;
+                        } else {
+                            pbrS = sectorPercentileRank(subset, d.Sector, 'PBR', d.PBR, true);
+                        }
+                        
+                        const fcfS = d['FCFYield(%)'] != null ? percentileRank(cols['FCFYield(%)'], d['FCFYield(%)']) : 50;
+                        d.ValueScore = (fpeS + pbrS + fcfS) / 3;
+                        
+                        // 1-2. Quality Score
+                        const roeS = d['ROE(%)'] != null ? percentileRank(cols['ROE(%)'], d['ROE(%)']) : 50;
+                        const roaS = d['ROA(%)'] != null ? percentileRank(cols['ROA(%)'], d['ROA(%)']) : 50;
+                        const gmS = d['GrossMargin(%)'] != null ? percentileRank(cols['GrossMargin(%)'], d['GrossMargin(%)']) : 50;
+                        const opmS = d['OpMargin(%)'] != null ? percentileRank(cols['OpMargin(%)'], d['OpMargin(%)']) : 50;
+                        const crS = d.CurrentRatio != null ? percentileRank(cols['CurrentRatio'], d.CurrentRatio) : 50;
+                        const deCol = d['Debt/Equity'] != null ? 'Debt/Equity' : 'DebtRatio(%)';
+                        const deS = d[deCol] != null ? percentileRank(cols[deCol] || cols['DebtRatio(%)'], d[deCol], true) : 50;
+                        d.QualityScore = (roeS + roaS + gmS + opmS + crS + deS) / 6;
+                        
+                        // 1-3. Growth Score (D-4.3: 적자전환 패널티)
+                        const revG = d['RevenueGrowth(%)'] != null ? percentileRank(cols['RevenueGrowth(%)'], d['RevenueGrowth(%)']) : 50;
+                        let earnG = d['EarningsGrowth(%)'] != null ? percentileRank(cols['EarningsGrowth(%)'], d['EarningsGrowth(%)']) : 50;
+                        
+                        // 적자전환 패널티
+                        if (d['EarningsGrowth(%)'] != null && d['EarningsGrowth(%)'] < -100) {
+                            earnG *= 0.5;
+                        }
+                        d.GrowthScore = (revG + earnG) / 2;
+                        
+                        // 1-4. Momentum Score
+                        const m60Raw = d['Return60D(%)'] != null ? percentileRank(cols['Return60D(%)'], d['Return60D(%)']) : 50;
+                        const m120Raw = d['Return120D(%)'] != null ? percentileRank(cols['Return120D(%)'], d['Return120D(%)']) : 50;
+                        const m250Raw = d['Return250D(%)'] != null ? percentileRank(cols['Return250D(%)'], d['Return250D(%)']) : 50;
+                        let momScore = (m60Raw + m120Raw + m250Raw) / 3;
+                        
+                        // 과열 감점 (최악의 것만)
+                        let overheatPenalty = 1.0;
+                        const rsi = d.RSI14;
+                        
+                        if (rsi != null && rsi > 80) {
+                            overheatPenalty = Math.min(overheatPenalty, 0.5);
+                        } else if (rsi != null && rsi > 70) {
+                            overheatPenalty = Math.min(overheatPenalty, 0.7);
+                        }
+                        
+                        if (m60Raw > 90) {
+                            overheatPenalty = Math.min(overheatPenalty, 0.5);
+                        } else if (m60Raw > 80) {
+                            overheatPenalty = Math.min(overheatPenalty, 0.7);
+                        }
+                        
+                        momScore = momScore * overheatPenalty;
+                        if (overheatPenalty < 1.0) d._overbought = true;
+                        
+                        d.MomentumScore = clamp(momScore, 10, 100);
+                        
+                        // 1-5. Risk Score (D-4.3: Vol 45%, MDD 35%, Beta 20%)
+                        const volS = d.Volatility20D != null ? percentileRank(cols['Volatility20D'], d.Volatility20D, true) : 50;
+                        const mddS = mddVal != null ? percentileRank(mddArr, mddVal, true) : 50;
+                        const betaS = d.Beta != null ? clamp(100 - Math.abs(d.Beta - 1) * 30, 0, 100) : null;
+                        
+                        if (betaS != null) {
+                            d.RiskScore = volS * 0.45 + mddS * 0.35 + betaS * 0.20;
+                        } else {
+                            // Beta 없으면 55:45 (D-4.3)
+                            d.RiskScore = volS * 0.55 + mddS * 0.45;
+                        }
+                        
+                        // STEP 2: 기본 총점 (US: V20 Q25 G15 M20 R20) - D-4.3
+                        let rawTotal = d.ValueScore * 0.20 + d.QualityScore * 0.25 + d.GrowthScore * 0.15 + d.MomentumScore * 0.20 + d.RiskScore * 0.20;
+                        
+                        // STEP 3: 52주 고점 감점 (D-4.3: AND 조건)
+                        const price = d.Price || d.Close;
+                        let highPenalty = 1.0;
+                        
+                        if (high52Val > 0 && price > 0) {
+                            const highRatio = Math.min(price / high52Val, 1.0);
+                            
+                            // RSI 또는 Return 백분위로 과열 판단
+                            const rsiOverheat = d.RSI14 != null && d.RSI14 > 70;
+                            const retOverheat = m60Raw > 80;
+                            
+                            // AND 조건: 고점 근접 AND 과열 신호 충족 시에만 감점
+                            if (highRatio > 0.98 && (rsiOverheat || retOverheat)) {
+                                highPenalty = 0.85;
+                                d._nearHigh = true;
+                            } else if (highRatio > 0.95 && (rsiOverheat && retOverheat)) {
+                                highPenalty = 0.92;
+                                d._nearHigh = true;
+                            }
+                        }
+                        
+                        // 감점 누적 (최대 30%)
+                        const totalPenalty = Math.max(highPenalty, 0.70);
+                        rawTotal *= totalPenalty;
+                        
+                        // STEP 4: 소외 가점 (중복 제한)
+                        let bonusMultiplier = 1.0;
+                        const roePct = percentileRank(cols['ROE(%)'], d['ROE(%)']);
+                        const ret60 = d['Return60D(%)'];
+                        const earnGrowth = d['EarningsGrowth(%)'];
+                        const debtVal = d['Debt/Equity'] || d['DebtRatio(%)'];
+                        
+                        if (d.PBR > 0 && d.PBR < 1 && roePct > 50) {
+                            bonusMultiplier += 0.05;
+                            if (divYieldVal > 3) bonusMultiplier += 0.02;
+                        }
+                        
+                        if (ret60 != null && ret60 < 0 
+                            && roePct > 60 
+                            && earnGrowth != null && earnGrowth > 0
+                            && (debtVal == null || debtVal < 100)) {
+                            bonusMultiplier += 0.07;
+                            d._contrarian = true;
+                        }
+                        
+                        if (d.Sector && sectorCount >= 10) {
+                            const sectorAvgRet = getSectorAvg(subset, d.Sector, 'Return60D(%)');
+                            if (sectorAvgRet != null && ret60 != null && ret60 < sectorAvgRet - 10 && roePct > 50) {
+                                bonusMultiplier += 0.04;
+                                d._contrarian = true;
+                            }
+                        }
+                        
+                        bonusMultiplier = Math.min(bonusMultiplier, 1.12);
+                        rawTotal *= bonusMultiplier;
+                        
+                        d.TotalScore = clamp(rawTotal, 0, 100);
+                        
+                    } else if (sheet.includes('ETF')) {
+                        // ===== ETF: D-4.3 개선 =====
+                        // Cost Score (30%)
+                        const expR = d['ExpenseRatio(%)'] != null ? d['ExpenseRatio(%)'] : 0;
+                        d.Cost_Score = 100 - clamp(expR * 10, 0, 80);
+                        
+                        // Momentum Score (25%) - 백분위 방식으로 수정 (D-4.3)
+                        const r3m = d['Return3M(%)'] || d['Return60D(%)'] || 0;
+                        const r6m = d['Return6M(%)'] || d['Return120D(%)'] || 0;
+                        const r1y = d['Return1Y(%)'] || d['Return250D(%)'] || 0;
+                        
+                        // ETF 전체에서 백분위 계산
+                        const etfSubset = data.filter(x => x._sheet && x._sheet.includes('ETF'));
+                        const r3mArr = etfSubset.map(x => x['Return3M(%)'] || x['Return60D(%)']).filter(x => x != null && !isNaN(x));
+                        const r6mArr = etfSubset.map(x => x['Return6M(%)'] || x['Return120D(%)']).filter(x => x != null && !isNaN(x));
+                        const r1yArr = etfSubset.map(x => x['Return1Y(%)'] || x['Return250D(%)']).filter(x => x != null && !isNaN(x));
+                        
+                        const r3mPct = percentileRank(r3mArr, r3m, false);
+                        const r6mPct = percentileRank(r6mArr, r6m, false);
+                        const r1yPct = percentileRank(r1yArr, r1y, false);
+                        
+                        // 가중치: 최근 > 과거 (0.4 / 0.35 / 0.25)
+                        d.MomentumScore = r3mPct * 0.4 + r6mPct * 0.35 + r1yPct * 0.25;
+                        
+                        // Risk Score (25%)
+                        d.RiskScore = d.Volatility20D != null ? percentileRank(cols['Volatility20D'], d.Volatility20D, true) : 50;
+                        
+                        // Income Score (20%)
+                        const divArr = cols['DivYield(%)'].length > 0 ? cols['DivYield(%)'] : cols['DividendYield(%)'];
+                        d.IncomeScore = divYieldVal != null ? percentileRank(divArr, divYieldVal) : 50;
+                        
+                        // Total (D-4.3 가중치: Cost 30%, Mom 25%, Risk 25%, Income 20%)
+                        d.TotalScore = d.Cost_Score * 0.30 + d.MomentumScore * 0.25 + d.RiskScore * 0.25 + d.IncomeScore * 0.20;
+                        
+                        // ETF는 52주 고점 감점 미적용 (D-4.3)
+                        d._nearHigh = false;
+                        
+                        d.ValueScore = d.Cost_Score;
+                        d.GrowthScore = null;
+                        d.QualityScore = null;
+                    }
+                });
+            });
+            return data;
+        }
+        
+        // 현재 선택된 버전 가져오기
+        function getSelectedVersion() {
+            const radio = document.querySelector('input[name="scoringVersion"]:checked');
+            return radio ? radio.value : 'A';
+        }
+        
+        // 버전 라디오 버튼 변경 시 설명 토글 + 재계산
+        document.querySelectorAll('input[name="scoringVersion"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.getElementById('logicDescA').style.display = this.value === 'A' ? 'block' : 'none';
+                document.getElementById('logicDescB').style.display = this.value === 'B' ? 'block' : 'none';
+                document.getElementById('logicDescC').style.display = this.value === 'C' ? 'block' : 'none';
+                document.getElementById('versionCFilters').style.display = this.value === 'C' ? 'block' : 'none';
+                
+                // 현재 데이터가 있으면 재계산
+                if (screeningData.length > 0) {
+                    if (this.value === 'A') {
+                        calcScoresVersionA(screeningData);
+                    } else if (this.value === 'B') {
+                        calcScoresVersionB(screeningData);
+                    } else {
+                        calcScoresVersionC(screeningData);
+                    }
+                    document.getElementById('totalBadge').textContent = `✅ ${screeningData.length}개 종목 (v${this.value})`;
+                    renderTable();
+                    console.log(`버전 ${this.value}로 재계산 완료`);
+                }
+            });
+        });
+        
+        // 버전 C 전용 필터 이벤트
+        ['filterOverbought', 'filterNearHigh', 'filterContrarianOnly'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('change', renderTable);
+            }
+        });
+        
         // 엑셀 업로드 처리
         document.getElementById('excelUpload').addEventListener('change', async function(e) {
             const file = e.target.files[0];
@@ -2761,12 +3848,24 @@
                     screeningData.length = 0;
                     screeningData.push(...newData);
                     
+                    // 선택된 버전에 따라 점수 계산
+                    const version = getSelectedVersion();
+                    if (version === 'A') {
+                        calcScoresVersionA(screeningData);
+                    } else if (version === 'B') {
+                        calcScoresVersionB(screeningData);
+                    } else {
+                        calcScoresVersionC(screeningData);
+                    }
+                    console.log(`스크리닝 점수 계산 완료 (버전 ${version})`);
+                    
                     // 필터 버튼 업데이트
                     document.querySelector('[data-filter="sheet"][data-value="ALL"]').textContent = `전체 (${newData.length})`;
-                    document.getElementById('totalBadge').textContent = `✅ ${newData.length}개 종목`;
+                    document.getElementById('totalBadge').textContent = `✅ ${newData.length}개 종목 (v${version})`;
                     
                     renderTable();
-                    alert(`✅ ${newData.length}개 종목 로드 완료!`);
+                    const versionNames = { A: 'A (기존 가중치)', B: 'B (등가중)', C: 'C (역발상)' };
+                    alert(`✅ ${newData.length}개 종목 로드 완료!\n스크리닝 버전: ${versionNames[version]}`);
                 } else {
                     alert('⚠️ 유효한 시트를 찾을 수 없습니다.\n시트명: KR_Stocks, US_Stocks, KR_ETF 등');
                 }
@@ -2795,15 +3894,15 @@
         // ========== localStorage 및 보유종목 관리 ==========
         const STORAGE_KEY = 'investmentDashboard_v2';
         
-        // 기본 목표 비중
+        // 기본 목표 비중 (2026.1 권고)
         const defaultTargetAllocation = {
-            US_Stock: 25,
+            US_Stock: 20,
             KR_Stock: 15,
-            EU_Stock: 12,
-            EM_Stock: 10,
-            Gold: 15,
+            EU_Stock: 10,
+            EM_Stock: 8,
+            Gold: 17,
             Bond: 15,
-            Cash: 8
+            Cash: 15
         };
         
         const assetClassLabels = {
@@ -3277,42 +4376,51 @@
             document.getElementById('riskWarnings').innerHTML = warnings.join('');
         }
 
-        // 설정값 변경 시 저장 및 재계산
+        // 설정값 변경 시 저장 및 재계산 (null 체크 추가)
         ['investStartDate', 'riskFreeRate', 'benchmarkReturn'].forEach(id => {
-            document.getElementById(id).addEventListener('change', function() {
-                updatePerformance();
-            });
-        });
-
-        // JSON 내보내기
-        document.getElementById('exportDataBtn').addEventListener('click', function() {
-            const dataStr = JSON.stringify(appData, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'investment_backup_' + new Date().toISOString().slice(0, 10) + '.json';
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-
-        // JSON 가져오기
-        document.getElementById('importDataInput').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            try {
-                const text = await file.text();
-                const imported = JSON.parse(text);
-                appData = { ...appData, ...imported };
-                saveToStorage();
-                renderHoldings();
-                alert('✅ 데이터 복원 완료!');
-            } catch (err) {
-                alert('❌ 파일 읽기 실패: ' + err.message);
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('change', function() {
+                    updatePerformance();
+                });
             }
-            this.value = '';
         });
+
+        // JSON 내보내기 (null 체크 추가)
+        const exportBtn = document.getElementById('exportDataBtn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', function() {
+                const dataStr = JSON.stringify(appData, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'investment_backup_' + new Date().toISOString().slice(0, 10) + '.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        // JSON 가져오기 (null 체크 추가)
+        const importInput = document.getElementById('importDataInput');
+        if (importInput) {
+            importInput.addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                try {
+                    const text = await file.text();
+                    const imported = JSON.parse(text);
+                    appData = { ...appData, ...imported };
+                    saveToStorage();
+                    renderHoldings();
+                    alert('✅ 데이터 복원 완료!');
+                } catch (err) {
+                    alert('❌ 파일 읽기 실패: ' + err.message);
+                }
+                this.value = '';
+            });
+        }
 
         // 엑셀 업로드 시 보유종목 현재가 자동 업데이트 (기존 엑셀 업로드 핸들러 수정)
         const originalExcelHandler = document.getElementById('excelUpload').onchange;
