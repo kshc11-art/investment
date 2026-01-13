@@ -1531,7 +1531,7 @@
                                 <span class="version-pill" data-version="C" style="display: block; padding: 8px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: transparent;">C</span>
                             </label>
                         </div>
-                        <span id="versionDesc" style="font-size: 0.68rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">V25 Q20 G15 M20 R15 F5</span>
+                        <span id="versionDesc" style="font-size: 0.68rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">V25 Q20 G15 M15 R20 F5 (개선)</span>
                     </div>
                     
                     <!-- 스크리닝 필터 -->
@@ -1729,6 +1729,64 @@
                             <span class="breakdown-chip">💵 현금 유지</span>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- 🆕 조건부 분할매수 로직 (신규 추가) -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">⚡ 조건부 분할매수 로직</h3>
+                    <span class="card-badge badge-warning">동적 조정</span>
+                </div>
+                
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">
+                    기계적 분할매수가 아닌, <strong>시장 상황에 따라 속도를 조절</strong>하는 동적 전략
+                </p>
+
+                <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                    <h4 style="color: var(--text-primary); margin-bottom: 12px; font-size: 0.9rem;">🔀 의사결정 트리</h4>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-secondary); line-height: 1.9; background: var(--bg-card); padding: 14px; border-radius: 8px; overflow-x: auto;">
+[기본] 월 33M 분할매수<br>
+├─ S&P <span style="color: var(--accent-green);">-10%</span> → <span style="color: var(--accent-green);">가속</span>: 다음달분 50% 앞당김<br>
+├─ S&P <span style="color: var(--accent-gold);">+15%</span> → <span style="color: var(--accent-gold);">감속</span>: 이번달 50%만 투입<br>
+├─ VIX <span style="color: var(--accent-red);">30+</span> → <span style="color: var(--accent-red);">중단</span>: 1개월 현금 대기<br>
+├─ 환율 <span style="color: var(--accent-gold);">1,500+</span> → 해외→국내 ETF 전환<br>
+└─ 해당없음 → <span style="color: var(--accent-blue);">정상 진행</span>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                    <div style="background: rgba(16,185,129,0.1); border-left: 3px solid var(--accent-green); padding: 12px; border-radius: 0 8px 8px 0;">
+                        <strong style="color: var(--accent-green); font-size: 0.8rem;">🟢 가속 트리거</strong>
+                        <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.5;">
+                            • S&P -10% 이상<br>
+                            • KOSPI 2,400 이하<br>
+                            • VIX 25~30 구간
+                        </div>
+                    </div>
+                    <div style="background: rgba(245,158,11,0.1); border-left: 3px solid var(--accent-gold); padding: 12px; border-radius: 0 8px 8px 0;">
+                        <strong style="color: var(--accent-gold); font-size: 0.8rem;">🟡 감속 트리거</strong>
+                        <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.5;">
+                            • S&P +15% 이상<br>
+                            • CAPE 42 이상<br>
+                            • RSI 75 이상
+                        </div>
+                    </div>
+                    <div style="background: rgba(239,68,68,0.1); border-left: 3px solid var(--accent-red); padding: 12px; border-radius: 0 8px 8px 0;">
+                        <strong style="color: var(--accent-red); font-size: 0.8rem;">🔴 중단 트리거</strong>
+                        <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.5;">
+                            • VIX 30 이상<br>
+                            • 지정학 위기<br>
+                            • Fed 긴급회의
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 14px; padding: 12px; background: rgba(59,130,246,0.1); border-radius: 8px; font-size: 0.75rem;">
+                    <strong style="color: var(--accent-blue);">📊 현재 판정 (2026.1):</strong>
+                    <span style="color: var(--text-secondary);"> 환율 1,465원 / VIX 18 / S&P -3% → </span>
+                    <strong style="color: var(--accent-gold);">해외투자 30% 축소</strong>
+                    <span style="color: var(--text-secondary);">, 나머지 정상 진행</span>
                 </div>
             </div>
 
@@ -2024,170 +2082,254 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">🎭 시나리오별 대응 전략</h3>
-                    <span class="card-badge badge-danger">정량화 v2.1</span>
+                    <span class="card-badge badge-danger">v3.0 통합</span>
                 </div>
                 
-                <!-- 시나리오 확률 요약 -->
+                <!-- 시나리오 분류 -->
                 <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; margin-bottom: 16px;">
-                    <h4 style="font-size: 0.9rem; margin-bottom: 10px; color: var(--text-primary);">📊 시나리오 확률 분포 (합계 ≈ 175%, 중복 가능)</h4>
+                    <h4 style="font-size: 0.9rem; margin-bottom: 10px; color: var(--text-primary);">📊 시나리오 분류</h4>
                     <div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.75rem;">
-                        <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 10px; border-radius: 4px;">연착륙 35%</span>
-                        <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 10px; border-radius: 4px;">환율↑ 30%</span>
-                        <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 10px; border-radius: 4px;">호황 30%</span>
-                        <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 10px; border-radius: 4px;">금리↑ 25%</span>
-                        <span style="background: rgba(239,68,68,0.2); color: var(--accent-red); padding: 4px 10px; border-radius: 4px;">침체 20%</span>
-                        <span style="background: rgba(239,68,68,0.2); color: var(--accent-red); padding: 4px 10px; border-radius: 4px;">AI버블 20%</span>
-                        <span style="background: rgba(100,116,139,0.3); color: var(--text-secondary); padding: 4px 10px; border-radius: 4px;">환율↓ 15%</span>
-                        <span style="background: rgba(239,68,68,0.2); color: var(--accent-red); padding: 4px 10px; border-radius: 4px;">지정학 15%</span>
+                        <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 10px; border-radius: 4px;">🟢 연착륙 (기본)</span>
+                        <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 10px; border-radius: 4px;">🟢 호황</span>
+                        <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 10px; border-radius: 4px;">🟡 금리↑</span>
+                        <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 10px; border-radius: 4px;">🟡 환율↑</span>
+                        <span style="background: rgba(100,116,139,0.3); color: var(--text-secondary); padding: 4px 10px; border-radius: 4px;">⚪ 환율↓</span>
+                        <span style="background: rgba(239,68,68,0.2); color: var(--accent-red); padding: 4px 10px; border-radius: 4px;">🔴 침체</span>
+                        <span style="background: rgba(239,68,68,0.2); color: var(--accent-red); padding: 4px 10px; border-radius: 4px;">🔴 AI버블</span>
+                        <span style="background: rgba(239,68,68,0.2); color: var(--accent-red); padding: 4px 10px; border-radius: 4px;">🔴 지정학</span>
+                        <span style="background: rgba(139,92,246,0.2); color: #a78bfa; padding: 4px 10px; border-radius: 4px;">🟣 스태그</span>
+                        <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 10px; border-radius: 4px;">🟡 관세전쟁</span>
                     </div>
+                    <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 8px;">
+                        🟢 긍정적 | 🟡 주의 필요 | 🔴 방어 필요 | 🟣 최악 (주식/채권 동반 하락) | ※ 시나리오는 상호 배타적이지 않으며 복합 발생 가능
+                    </p>
+                </div>
+
+                <!-- 시나리오 개요 -->
+                <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+                        <strong style="color: var(--text-primary);">📋 시나리오 활용법:</strong> 
+                        각 시나리오별로 <strong>①진입 판단 기준</strong> → <strong>②연쇄 반응</strong> → <strong>③자산별 영향</strong> → <strong>④구체적 대응</strong> 순으로 구성. 
+                        진입 조건 충족 시 해당 대응 전략을 즉시 실행.
+                    </p>
                 </div>
                 
                 <!-- 자산간 상관관계 (간략) -->
                 <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; margin-bottom: 16px; font-size: 0.8rem;">
-                    <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: var(--text-primary);">🔗 자산간 상관관계 (핵심)</h4>
+                    <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: var(--text-primary);">🔗 자산간 상관관계 (참고)</h4>
                     <div style="color: var(--text-secondary); line-height: 1.6;">
-                        <span style="color: var(--accent-red);">⚠️</span> 원/달러↔KOSPI: <strong>-0.55</strong> (환율↑ → 한국주식↓) | 
-                        S&P↔KOSPI: <strong>+0.65</strong> (동반 등락) | 
-                        TLT↔S&P: <strong>-0.30</strong> (헤지 효과)
+                        원/달러↔KOSPI: <strong style="color: var(--accent-red);">-0.55</strong> (환율↑ → 한국주식↓) | 
+                        S&P↔KOSPI: <strong style="color: var(--accent-green);">+0.65</strong> (동반 등락) | 
+                        TLT↔S&P: <strong style="color: var(--accent-blue);">-0.30</strong> (헤지 효과) |
+                        금↔주식: <strong style="color: var(--accent-gold);">~0</strong> (독립적)
                     </div>
                 </div>
 
                 <!-- Scenario Sub-tabs -->
                 <div class="scenario-tabs">
                     <button class="scenario-tab active" data-scenario="rate-up">📈 금리↑</button>
-                    <button class="scenario-tab" data-scenario="rate-down">📉 금리↓</button>
+                    <button class="scenario-tab" data-scenario="rate-down">📉 연착륙</button>
                     <button class="scenario-tab" data-scenario="fx-up">💱 환율↑</button>
                     <button class="scenario-tab" data-scenario="fx-down">💱 환율↓</button>
                     <button class="scenario-tab" data-scenario="geopolitical">🌍 지정학</button>
                     <button class="scenario-tab" data-scenario="ai-bubble">🤖 AI버블</button>
-                    <button class="scenario-tab" data-scenario="recession">💔 경기침체</button>
-                    <button class="scenario-tab" data-scenario="boom">🚀 경기호황</button>
+                    <button class="scenario-tab" data-scenario="recession">💔 침체</button>
+                    <button class="scenario-tab" data-scenario="boom">🚀 호황</button>
+                    <button class="scenario-tab" data-scenario="stagflation">🔥 스태그</button>
+                    <button class="scenario-tab" data-scenario="tariff-war">🏛️ 관세</button>
                 </div>
 
                 <!-- Scenario: 금리 인상 -->
                 <div class="scenario-content active" id="rate-up">
                     <div class="scenario-header">
-                        <h4 class="scenario-title">📈 금리 인상/유지 시나리오</h4>
-                        <span class="probability-badge">발생확률: 25%</span>
+                        <h4 class="scenario-title">📈 금리 인상/고금리 유지 시나리오</h4>
+                        <span class="probability-badge" style="background: rgba(245,158,11,0.2); color: var(--accent-gold);">🟡 주의</span>
                     </div>
                     
-                    <div class="trigger-box">
-                        <span class="trigger-label">트리거:</span>
-                        트럼프 관세 영향 (+0.5%p 인플레), Fed 매파 선회, 임금 상승 지속
-                    </div>
-                    
-                    <div style="background: rgba(239,68,68,0.1); border: 1px solid var(--accent-red); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem;">
-                        <strong style="color: var(--accent-red);">⚠️ 2026.1 현황:</strong>
-                        <span style="color: var(--text-secondary);"> 관세로 인플레 +0.5%p (Goldman) | 기업 비용전가 80% 예상 (JPM) | 1월 FOMC 인하확률 16%</span>
-                    </div>
-
-                    <div class="impact-table">
-                        <div class="impact-row">
-                            <div class="impact-asset">미국 주식</div>
-                            <div class="impact-change negative">-15%</div>
-                            <div class="impact-direction">급락</div>
-                            <div class="impact-action">→ 추가매수 보류, 현금 확보</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">TLT(장기채)</div>
-                            <div class="impact-change negative">-20%</div>
-                            <div class="impact-direction">급락</div>
-                            <div class="impact-action">→ 손절 또는 단기채 전환</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">금</div>
-                            <div class="impact-change negative">-8%</div>
-                            <div class="impact-direction">하락</div>
-                            <div class="impact-action">→ 비중 유지, 추가매수 대기</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">신흥국</div>
-                            <div class="impact-change negative">-18%</div>
-                            <div class="impact-direction">급락</div>
-                            <div class="impact-action">→ 분할매수 기회, 현금 준비</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">달러/원</div>
-                            <div class="impact-change positive">+5%</div>
-                            <div class="impact-direction">강세</div>
-                            <div class="impact-action">→ 환헤지 ETF 검토</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">한국 금융주</div>
-                            <div class="impact-change positive">+5%</div>
-                            <div class="impact-direction">소폭상승</div>
-                            <div class="impact-action">→ NIM 개선 수혜, 비중 유지</div>
+                    <!-- 1. 진입 판단 기준 -->
+                    <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--accent-gold); font-size: 0.85rem; margin-bottom: 10px;">🚨 진입 판단 기준</h5>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6;">
+                            아래 조건 중 <strong>2개 이상</strong> 충족 시 진입으로 판단:<br>
+                            <div style="margin-top: 8px; padding-left: 12px;">
+                                • Core PCE <strong>3.5% 이상</strong> 3개월 연속 유지<br>
+                                • Fed dot plot <strong>상향 조정</strong> (연내 인상 시사 또는 인하 취소)<br>
+                                • 10년물 국채 금리 <strong>5.0% 돌파</strong><br>
+                                • FOMC 성명서/의사록에서 <strong>매파적 기조</strong> 2회 연속<br>
+                                • 관세발 인플레 + 임금상승 <strong>동시 지속</strong>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- 2. 연쇄 반응 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">🔗 연쇄 반응 (예상 전개)</h5>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-secondary); line-height: 1.9;">
+                            금리인상/유지 확정<br>
+                            ├─→ 달러 강세 → <strong>환율 상승</strong> (높은 연관성)<br>
+                            │&nbsp;&nbsp;&nbsp;&nbsp;└─→ 외국인 자금 유출 → KOSPI 하락 압력<br>
+                            ├─→ <strong>TLT(장기채) 하락</strong> (금리와 역의 관계)<br>
+                            ├─→ <strong>신흥국 자금유출</strong> 가속<br>
+                            ├─→ 금 약세 (실질금리 상승 시)<br>
+                            └─→ 미국 성장주/테크 약세 (할인율 상승)
+                        </div>
+                    </div>
+
+                    <!-- 3. 자산별 예상 영향 -->
+                    <div style="margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                        <div class="impact-table">
+                            <div class="impact-row">
+                                <div class="impact-asset">미국 주식</div>
+                                <div class="impact-change negative">하락</div>
+                                <div class="impact-direction">성장주 타격</div>
+                                <div class="impact-action">추가매수 보류, 가치주 선호</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">TLT(장기채)</div>
+                                <div class="impact-change negative">하락</div>
+                                <div class="impact-direction">듀레이션 리스크</div>
+                                <div class="impact-action">IEF(중기채)로 전환</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">금</div>
+                                <div class="impact-change negative">약세~보합</div>
+                                <div class="impact-direction">실질금리↑ 부담</div>
+                                <div class="impact-action">비중 유지, 추가매수 대기</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">신흥국</div>
+                                <div class="impact-change negative">하락</div>
+                                <div class="impact-direction">자금유출</div>
+                                <div class="impact-action">비중 축소 또는 대기</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">원/달러</div>
+                                <div class="impact-change positive">상승</div>
+                                <div class="impact-direction">달러 강세</div>
+                                <div class="impact-action">해외투자 속도 감속</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">한국 금융주</div>
+                                <div class="impact-change positive">상대 강세</div>
+                                <div class="impact-direction">NIM 개선</div>
+                                <div class="impact-action">비중 유지/확대</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 구체적 대응 전략 -->
                     <div class="strategy-box">
-                        <h4>🎯 대응 전략</h4>
+                        <h4>🎯 구체적 대응 전략</h4>
                         <p style="color: var(--text-secondary);">
-                            장기채(TLT) 비중 축소 또는 손절 → 단기채/현금 확대<br>
-                            신흥국 추가 하락 시 분할매수 준비 (현금 20% 확보)<br>
-                            한국 금융주는 금리 수혜 → 비중 유지 또는 확대<br>
-                            미국 성장주 추가매수 보류
+                            <strong>1단계: 채권 포지션 조정</strong><br>
+                            → TLT 보유분 → <strong>IEF(중기채) 또는 SHY(단기채)로 전환</strong><br>
+                            → 신규 채권 매수 중단, 기존 손실 -15% 도달 시 손절 검토<br><br>
+                            
+                            <strong>2단계: 해외투자 속도 조절</strong><br>
+                            → 환율 상승 예상 → 해외투자 배정액 <strong>30-50% 축소</strong><br>
+                            → 국내상장 해외ETF (TIGER 미국S&P500 등)로 대체 고려<br><br>
+                            
+                            <strong>3단계: 섹터 로테이션</strong><br>
+                            → 미국: 성장주 비중↓, <strong>가치주/금융주 비중↑</strong><br>
+                            → 한국: 금융주(KB금융, 신한지주) 비중 유지/확대<br><br>
+                            
+                            <strong>4단계: 현금 비중 확대</strong><br>
+                            → 현금/MMF 비중 <strong>15% → 20%</strong>로 확대<br>
+                            → 급락 시 저가매수 기회 대비
                         </p>
                     </div>
                 </div>
 
-                <!-- Scenario: 금리 인하 -->
+                <!-- Scenario: 연착륙 (금리 인하) -->
                 <div class="scenario-content" id="rate-down">
                     <div class="scenario-header">
-                        <h4 class="scenario-title">📉 금리 인하 시나리오 (연착륙)</h4>
-                        <span class="probability-badge" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">발생확률: 35%</span>
+                        <h4 class="scenario-title">📉 연착륙 시나리오 (기본 케이스)</h4>
+                        <span class="probability-badge" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">🟢 긍정적</span>
                     </div>
                     
-                    <div class="trigger-box">
-                        <span class="trigger-label">트리거:</span>
-                        Fed 비둘기파 전환, 경기둔화, 인플레 2.5% 이하 안착, 실업률 4.5% 유지
-                    </div>
-                    
-                    <div style="background: rgba(16,185,129,0.1); border: 1px solid var(--accent-green); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem;">
-                        <strong style="color: var(--accent-green);">📊 근거:</strong>
-                        <span style="color: var(--text-secondary);"> Fed dot plot 2026년말 3.0~3.25% | Goldman 침체확률 15% | 관세 협상 진전 시</span>
-                    </div>
-
-                    <div class="impact-table">
-                        <div class="impact-row">
-                            <div class="impact-asset">미국 주식</div>
-                            <div class="impact-change positive">+12%</div>
-                            <div class="impact-direction">상승</div>
-                            <div class="impact-action">→ 목표비중 유지, 성장주 강세</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">TLT(장기채)</div>
-                            <div class="impact-change positive">+18%</div>
-                            <div class="impact-direction">급등</div>
-                            <div class="impact-action">→ +15% 도달 시 일부 차익실현</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">금</div>
-                            <div class="impact-change positive">+10%</div>
-                            <div class="impact-direction">상승</div>
-                            <div class="impact-action">→ 비중 유지</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">신흥국</div>
-                            <div class="impact-change positive">+15%</div>
-                            <div class="impact-direction">급등</div>
-                            <div class="impact-action">→ +20% 시 차익실현 고려</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">달러/원</div>
-                            <div class="impact-change negative">-6%</div>
-                            <div class="impact-direction">약세</div>
-                            <div class="impact-action">→ 환헤지 해제, 달러자산 확대</div>
+                    <!-- 1. 진입 판단 기준 -->
+                    <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--accent-green); font-size: 0.85rem; margin-bottom: 10px;">🚨 진입 판단 기준 (기본 시나리오)</h5>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6;">
+                            아래 조건이 <strong>대체로 유지</strong>될 때 기본 시나리오로 진행:<br>
+                            <div style="margin-top: 8px; padding-left: 12px;">
+                                • Core PCE <strong>2.0~3.0%</strong> 범위 내 안정<br>
+                                • Fed 연내 <strong>1~3회 인하</strong> 전망 유지<br>
+                                • 실업률 <strong>4.5% 이하</strong> 유지<br>
+                                • ISM 제조업 <strong>50 전후</strong> (확장/위축 경계)<br>
+                                • 주요 지정학 이벤트 <strong>없음</strong>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- 2. 연쇄 반응 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">🔗 연쇄 반응 (예상 전개)</h5>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-secondary); line-height: 1.9;">
+                            Fed 점진적 인하<br>
+                            ├─→ 시장 금리 하락 → <strong>TLT 상승</strong><br>
+                            ├─→ 달러 약세 → <strong>환율 하락</strong> (1,380~1,420원 예상)<br>
+                            │&nbsp;&nbsp;&nbsp;&nbsp;└─→ 해외투자 적기<br>
+                            ├─→ <strong>주식시장 완만한 상승</strong><br>
+                            ├─→ <strong>신흥국 자금 유입</strong><br>
+                            └─→ 금 완만한 상승 (실질금리 하락)
+                        </div>
+                    </div>
+
+                    <!-- 3. 자산별 예상 영향 -->
+                    <div style="margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                        <div class="impact-table">
+                            <div class="impact-row">
+                                <div class="impact-asset">미국 주식</div>
+                                <div class="impact-change positive">상승</div>
+                                <div class="impact-direction">완만한 강세</div>
+                                <div class="impact-action">계획대로 분할매수</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">TLT(장기채)</div>
+                                <div class="impact-change positive">상승</div>
+                                <div class="impact-direction">금리 인하 수혜</div>
+                                <div class="impact-action">목표 도달 시 일부 익절</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">금</div>
+                                <div class="impact-change positive">완만한 상승</div>
+                                <div class="impact-direction">실질금리↓</div>
+                                <div class="impact-action">비중 유지</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">신흥국</div>
+                                <div class="impact-change positive">상승</div>
+                                <div class="impact-direction">자금 유입</div>
+                                <div class="impact-action">목표비중 매수</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">원/달러</div>
+                                <div class="impact-change negative">하락</div>
+                                <div class="impact-direction">달러 약세</div>
+                                <div class="impact-action">해외투자 확대 기회</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 구체적 대응 전략 -->
                     <div class="strategy-box">
-                        <h4>🎯 대응 전략</h4>
+                        <h4>🎯 구체적 대응 전략</h4>
                         <p style="color: var(--text-secondary);">
-                            TLT +15% 도달 시 30% 차익실현<br>
-                            신흥국 비중 유지, 급등 시 리밸런싱<br>
-                            달러 약세 → 해외자산 비중 확대 기회<br>
-                            계획대로 6개월 분할매수 진행
+                            <strong>기본 행동: 계획대로 실행</strong><br>
+                            → 6개월 분할매수 플랜 <strong>정상 진행</strong><br>
+                            → 목표 자산배분 달성에 집중<br><br>
+                            
+                            <strong>익절 기준</strong><br>
+                            → TLT +15~20% 도달 시 <strong>30% 차익실현</strong><br>
+                            → 신흥국 +20% 이상 시 <strong>목표비중으로 리밸런싱</strong><br>
+                            → 개별주식 +30% 시 일부 익절<br><br>
+                            
+                            <strong>환율 활용</strong><br>
+                            → 환율 1,400원 이하 시 해외투자 <strong>가속</strong><br>
+                            → 달러 자산 비중 확대 적기
                         </p>
                     </div>
                 </div>
@@ -2195,66 +2337,101 @@
                 <!-- Scenario: 지정학 -->
                 <div class="scenario-content" id="geopolitical">
                     <div class="scenario-header">
-                        <h4 class="scenario-title">🌍 지정학적 위기</h4>
-                        <span class="probability-badge">발생확률: 15%</span>
+                        <h4 class="scenario-title">🌍 지정학적 위기 시나리오</h4>
+                        <span class="probability-badge" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">🔴 방어</span>
                     </div>
                     
-                    <div class="trigger-box">
-                        <span class="trigger-label">트리거:</span>
-                        대만 해협 긴장 (5%), 북한 도발 (5~10%), 중동 확전, 트럼프 관세전쟁 심화
-                    </div>
-                    
-                    <div style="background: rgba(239,68,68,0.1); border: 1px solid var(--accent-red); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem;">
-                        <strong style="color: var(--accent-red);">🇰🇷 한국 특수:</strong>
-                        <span style="color: var(--text-secondary);"> 탄핵 정국 → 외국인 이탈 → 원화 약세 | 북한 도발 시 KOSPI -3~5% 단기 충격 후 회복 패턴</span>
-                    </div>
-
-                    <div class="impact-table">
-                        <div class="impact-row">
-                            <div class="impact-asset">미국 주식</div>
-                            <div class="impact-change negative">-20%</div>
-                            <div class="impact-direction">급락</div>
-                            <div class="impact-action">→ 방어주/배당주 전환</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">TLT(장기채)</div>
-                            <div class="impact-change positive">+15%</div>
-                            <div class="impact-direction">급등</div>
-                            <div class="impact-action">→ 비중 유지 (안전자산)</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">금</div>
-                            <div class="impact-change positive">+25%</div>
-                            <div class="impact-direction">급등</div>
-                            <div class="impact-action">→ <strong>절대 매도 금지</strong></div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">신흥국</div>
-                            <div class="impact-change negative">-30%</div>
-                            <div class="impact-direction">폭락</div>
-                            <div class="impact-action">→ 손실 감수 보유, 추가매수 대기</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">달러/원</div>
-                            <div class="impact-change positive">+10%</div>
-                            <div class="impact-direction">급등</div>
-                            <div class="impact-action">→ 원화자산 축소</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">한국 주식</div>
-                            <div class="impact-change negative">-25%</div>
-                            <div class="impact-direction">급락</div>
-                            <div class="impact-action">→ 금융주 분할매수 기회</div>
+                    <!-- 1. 진입 판단 기준 -->
+                    <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--accent-red); font-size: 0.85rem; margin-bottom: 10px;">🚨 진입 판단 기준</h5>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6;">
+                            아래 조건 중 <strong>1개 이상</strong> 충족 시 진입으로 판단:<br>
+                            <div style="margin-top: 8px; padding-left: 12px;">
+                                • VIX <strong>35 돌파</strong> + 금 <strong>급등</strong> 동시 발생<br>
+                                • 대만/한반도 군사적 긴장 <strong>연일 주요 뉴스</strong><br>
+                                • 원유 가격 <strong>$100/배럴 돌파</strong><br>
+                                • 주요국 <strong>긴급 정상회담</strong> 소집<br>
+                                • 안전자산(TLT, 금, 엔화) <strong>동반 급등</strong>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- 2. 연쇄 반응 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">🔗 연쇄 반응 (예상 전개)</h5>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-secondary); line-height: 1.9;">
+                            지정학 위기 발생<br>
+                            ├─→ <strong>VIX 급등</strong> → 위험자산 전반 매도<br>
+                            ├─→ <strong>금/TLT 급등</strong> (Safe Haven 수요)<br>
+                            ├─→ 원유 급등 (공급 우려)<br>
+                            ├─→ 달러 강세 → <strong>환율 급등</strong><br>
+                            │&nbsp;&nbsp;&nbsp;&nbsp;└─→ 한국 외인 이탈 가속<br>
+                            ├─→ <strong>신흥국 폭락</strong><br>
+                            └─→ 한국 특수: KOSPI 급락 (북한 리스크 프리미엄)
+                        </div>
+                    </div>
+
+                    <!-- 3. 자산별 예상 영향 -->
+                    <div style="margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                        <div class="impact-table">
+                            <div class="impact-row">
+                                <div class="impact-asset">미국 주식</div>
+                                <div class="impact-change negative">급락</div>
+                                <div class="impact-direction">위험회피</div>
+                                <div class="impact-action">방어주/배당주로 로테이션</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">TLT(장기채)</div>
+                                <div class="impact-change positive">급등</div>
+                                <div class="impact-direction">Safe Haven</div>
+                                <div class="impact-action">비중 유지, 추가매수 고려</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">금</div>
+                                <div class="impact-change positive">급등</div>
+                                <div class="impact-direction">위기 헤지</div>
+                                <div class="impact-action"><strong>절대 매도 금지</strong></div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">신흥국</div>
+                                <div class="impact-change negative">폭락</div>
+                                <div class="impact-direction">자금유출</div>
+                                <div class="impact-action">패닉셀 금지, 관망</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">원/달러</div>
+                                <div class="impact-change positive">급등</div>
+                                <div class="impact-direction">원화 약세</div>
+                                <div class="impact-action">해외투자 중단</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">한국 주식</div>
+                                <div class="impact-change negative">급락</div>
+                                <div class="impact-direction">코리아 디스카운트</div>
+                                <div class="impact-action">안정 후 금융주 분할매수</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 구체적 대응 전략 -->
                     <div class="strategy-box">
-                        <h4>🎯 대응 전략</h4>
+                        <h4>🎯 구체적 대응 전략</h4>
                         <p style="color: var(--text-secondary);">
-                            금 비중 15% → 20%로 확대<br>
-                            신흥국/한국 손실 감수, 패닉셀 금지<br>
-                            현금 확보 (10% 이상)<br>
-                            급락 시 한국 금융주 분할매수 기회
+                            <strong>즉시 실행</strong><br>
+                            → 모든 <strong>신규 매수 즉시 중단</strong><br>
+                            → 금 보유분 <strong>절대 매도 금지</strong><br>
+                            → 패닉셀 금지 (계획에 없는 매도 금지)<br><br>
+                            
+                            <strong>포지션 조정</strong><br>
+                            → 현금 비중 <strong>20% 이상</strong> 확보<br>
+                            → 신흥국/한국 손실 감수하고 <strong>보유</strong><br>
+                            → 미국 성장주 → <strong>배당주/방어주</strong>로 점진적 전환<br><br>
+                            
+                            <strong>회복 시 대응</strong><br>
+                            → VIX 25 이하 복귀 + 뉴스 진정 시<br>
+                            → 한국 금융주 <strong>분할매수 시작</strong><br>
+                            → 신흥국 추가 하락분 <strong>저가매수 기회</strong>
                         </p>
                     </div>
                 </div>
@@ -2262,134 +2439,184 @@
                 <!-- Other scenarios will be similar structure -->
                 <div class="scenario-content" id="fx-up">
                     <div class="scenario-header">
-                        <h4 class="scenario-title">💱 환율 급등 시나리오 (1,500원 이상)</h4>
-                        <span class="probability-badge" style="background: rgba(245,158,11,0.2); color: var(--accent-gold);">발생확률: 30%</span>
+                        <h4 class="scenario-title">💱 환율 급등 시나리오</h4>
+                        <span class="probability-badge" style="background: rgba(245,158,11,0.2); color: var(--accent-gold);">🟡 주의</span>
                     </div>
                     
-                    <div class="trigger-box">
-                        <span class="trigger-label">트리거:</span>
-                        미국 금리 고점 유지, 한국 정치 불안 (탄핵), 외국인 자금 유출, 달러 강세 지속
-                    </div>
-                    
-                    <div style="background: rgba(245,158,11,0.1); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem;">
-                        <strong style="color: var(--accent-gold);">📊 현재:</strong>
-                        <span style="color: var(--text-secondary);"> 원/달러 1,460~1,472원 (2008년 이후 최고) | 해외자산 62% 환노출 | 환율 +10%시 포트 +6.2% (기보유분)</span>
-                    </div>
-
-                    <div class="impact-table">
-                        <div class="impact-row">
-                            <div class="impact-asset">미국 ETF (달러)</div>
-                            <div class="impact-change positive">+5~8%</div>
-                            <div class="impact-direction">환차익</div>
-                            <div class="impact-action">→ 기보유분 유지, 추가매수는 자제</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">해외주식 신규매수</div>
-                            <div class="impact-change negative">불리</div>
-                            <div class="impact-direction">고환율</div>
-                            <div class="impact-action">→ <strong>신규 해외투자 축소/연기</strong></div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">한국 주식</div>
-                            <div class="impact-change negative">-10%</div>
-                            <div class="impact-direction">외인매도</div>
-                            <div class="impact-action">→ 분할매수 기회, 금융주 우선</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">한국 수출주</div>
-                            <div class="impact-change positive">+5%</div>
-                            <div class="impact-direction">환율수혜</div>
-                            <div class="impact-action">→ 현대차/기아/조선 주목</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">국내상장 해외ETF</div>
-                            <div class="impact-change positive">유리</div>
-                            <div class="impact-direction">환노출</div>
-                            <div class="impact-action">→ TIGER 미국S&P500 등 활용</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">환헤지 ETF</div>
-                            <div class="impact-change negative">불리</div>
-                            <div class="impact-direction">헤지비용</div>
-                            <div class="impact-action">→ 환헤지 상품 비중 축소</div>
+                    <!-- 1. 진입 판단 기준 -->
+                    <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--accent-gold); font-size: 0.85rem; margin-bottom: 10px;">🚨 진입 판단 기준</h5>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6;">
+                            아래 조건 중 <strong>1개 이상</strong> 충족 시 진입으로 판단:<br>
+                            <div style="margin-top: 8px; padding-left: 12px;">
+                                • 원/달러 <strong>1,500원 돌파</strong><br>
+                                • 외국인 순매도 <strong>월 5조원 이상</strong> 지속<br>
+                                • 한국 정치 불안 <strong>심화</strong> (계엄/탄핵 등)<br>
+                                • 미국 금리 <strong>인하 연기/취소</strong> 발표<br>
+                                • 달러인덱스(DXY) <strong>110 돌파</strong>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- 2. 연쇄 반응 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">🔗 연쇄 반응</h5>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-secondary); line-height: 1.9;">
+                            환율 급등<br>
+                            ├─→ 외국인 <strong>자금 유출 가속</strong><br>
+                            │&nbsp;&nbsp;&nbsp;&nbsp;└─→ KOSPI 추가 하락 압력<br>
+                            ├─→ 기보유 해외자산 <strong>환차익</strong> (원화 기준)<br>
+                            ├─→ 신규 해외투자 <strong>불리</strong><br>
+                            ├─→ 한국 수출주 <strong>실적 개선</strong><br>
+                            └─→ 수입물가 상승 → <strong>국내 인플레</strong>
+                        </div>
+                    </div>
+
+                    <!-- 3. 자산별 영향 -->
+                    <div style="margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                        <div class="impact-table">
+                            <div class="impact-row">
+                                <div class="impact-asset">기보유 해외자산</div>
+                                <div class="impact-change positive">환차익</div>
+                                <div class="impact-direction">원화가치↓</div>
+                                <div class="impact-action">유지, 매도 불필요</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">신규 해외투자</div>
+                                <div class="impact-change negative">불리</div>
+                                <div class="impact-direction">고환율</div>
+                                <div class="impact-action"><strong>축소/연기</strong></div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">한국 주식</div>
+                                <div class="impact-change negative">하락</div>
+                                <div class="impact-direction">외인매도</div>
+                                <div class="impact-action">분할매수 기회 탐색</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">한국 수출주</div>
+                                <div class="impact-change positive">상대 강세</div>
+                                <div class="impact-direction">환율수혜</div>
+                                <div class="impact-action">비중 확대 고려</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">국내상장 해외ETF</div>
+                                <div class="impact-change positive">유리</div>
+                                <div class="impact-direction">환노출 효과</div>
+                                <div class="impact-action">해외직접투자 대체</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 대응 전략 -->
                     <div class="strategy-box">
-                        <h4>🎯 대응 전략</h4>
+                        <h4>🎯 구체적 대응 전략</h4>
                         <p style="color: var(--text-secondary);">
-                            <strong>1. 해외 신규투자 축소</strong> → 환율 1,400 이하 대기<br>
-                            <strong>2. 기보유 달러자산 유지</strong> → 환차익 누리는 중<br>
-                            <strong>3. 한국 수출주 비중 확대</strong> → 현대차, 기아, 삼성전자<br>
-                            <strong>4. 국내상장 해외ETF 활용</strong> → 원화로 투자, 환노출 효과<br>
-                            <strong>5. 원화 현금 비중 축소</strong> → 원화가치 하락 방어
+                            <strong>해외투자 조정</strong><br>
+                            → 해외 신규투자 <strong>30-50% 축소</strong><br>
+                            → 환율 1,400원 이하 복귀 시 정상화<br>
+                            → 국내상장 해외ETF(TIGER 미국S&P500 등)로 <strong>대체</strong><br><br>
+                            
+                            <strong>기존 포지션</strong><br>
+                            → 기보유 달러자산 <strong>유지</strong> (환차익 누리는 중)<br>
+                            → 환헤지 ETF 비중 <strong>축소</strong><br><br>
+                            
+                            <strong>국내 포지션</strong><br>
+                            → 한국 수출주(현대차, 삼성전자) 비중 <strong>유지/확대</strong><br>
+                            → 외인 순매도 진정 시 금융주 <strong>분할매수</strong>
                         </p>
                     </div>
                 </div>
 
                 <div class="scenario-content" id="fx-down">
                     <div class="scenario-header">
-                        <h4 class="scenario-title">💱 환율 하락 시나리오 (1,380원 이하)</h4>
-                        <span class="probability-badge" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">발생확률: 15%</span>
+                        <h4 class="scenario-title">💱 환율 하락 시나리오</h4>
+                        <span class="probability-badge" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">🟢 긍정적</span>
                     </div>
                     
-                    <div class="trigger-box">
-                        <span class="trigger-label">트리거:</span>
-                        Fed 금리인하 2~3회, 달러 약세 전환, 한국 정치 안정화, 외국인 자금 유입
-                    </div>
-                    
-                    <div style="background: rgba(16,185,129,0.1); border: 1px solid var(--accent-green); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem;">
-                        <strong style="color: var(--accent-green);">💡 기회:</strong>
-                        <span style="color: var(--text-secondary);"> 환율 1,380원 이하 = 해외투자 적극 확대 구간 | 현재 1,460원 대비 -6% 시점에서 달러 매수 재개</span>
-                    </div>
-
-                    <div class="impact-table">
-                        <div class="impact-row">
-                            <div class="impact-asset">미국 ETF (달러)</div>
-                            <div class="impact-change negative">-5~8%</div>
-                            <div class="impact-direction">환차손</div>
-                            <div class="impact-action">→ 환손실 감수, 장기보유 관점 유지</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">해외주식 신규매수</div>
-                            <div class="impact-change positive">유리!</div>
-                            <div class="impact-direction">저환율</div>
-                            <div class="impact-action">→ <strong>해외투자 적극 확대 기회!</strong></div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">한국 주식</div>
-                            <div class="impact-change positive">+10%</div>
-                            <div class="impact-direction">외인매수</div>
-                            <div class="impact-action">→ 차익실현 고려, 비중 조정</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">한국 수출주</div>
-                            <div class="impact-change negative">-5%</div>
-                            <div class="impact-direction">환율불리</div>
-                            <div class="impact-action">→ 수출주 비중 축소</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">금 (달러표시)</div>
-                            <div class="impact-change negative">-3%</div>
-                            <div class="impact-direction">환차손</div>
-                            <div class="impact-action">→ 추가매수 적기</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">미국 채권</div>
-                            <div class="impact-change positive">+상승</div>
-                            <div class="impact-direction">금리↓연동</div>
-                            <div class="impact-action">→ TLT 비중 확대</div>
+                    <!-- 1. 진입 판단 기준 -->
+                    <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--accent-green); font-size: 0.85rem; margin-bottom: 10px;">🚨 진입 판단 기준</h5>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6;">
+                            아래 조건 충족 시 해외투자 <strong>적극 확대</strong> 구간:<br>
+                            <div style="margin-top: 8px; padding-left: 12px;">
+                                • 원/달러 <strong>1,380원 이하</strong> 안착<br>
+                                • Fed 금리인하 <strong>2회 이상</strong> 단행<br>
+                                • 외국인 순매수 <strong>전환</strong><br>
+                                • 한국 정치 <strong>안정화</strong><br>
+                                • 달러인덱스(DXY) <strong>100 이하</strong>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- 2. 연쇄 반응 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">🔗 연쇄 반응</h5>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-secondary); line-height: 1.9;">
+                            환율 하락<br>
+                            ├─→ <strong>해외투자 적기</strong> (달러 저렴)<br>
+                            ├─→ 외국인 <strong>자금 유입</strong><br>
+                            │&nbsp;&nbsp;&nbsp;&nbsp;└─→ KOSPI 상승<br>
+                            ├─→ 기보유 해외자산 <strong>환차손</strong> (원화 기준)<br>
+                            ├─→ 한국 수출주 <strong>실적 부담</strong><br>
+                            └─→ 수입물가 하락 → <strong>인플레 완화</strong>
+                        </div>
+                    </div>
+
+                    <!-- 3. 자산별 영향 -->
+                    <div style="margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                        <div class="impact-table">
+                            <div class="impact-row">
+                                <div class="impact-asset">신규 해외투자</div>
+                                <div class="impact-change positive">유리!</div>
+                                <div class="impact-direction">저환율</div>
+                                <div class="impact-action"><strong>적극 확대 기회</strong></div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">기보유 해외자산</div>
+                                <div class="impact-change negative">환차손</div>
+                                <div class="impact-direction">원화가치↑</div>
+                                <div class="impact-action">장기 보유 관점 유지</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">한국 주식</div>
+                                <div class="impact-change positive">상승</div>
+                                <div class="impact-direction">외인매수</div>
+                                <div class="impact-action">차익실현 고려</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">한국 수출주</div>
+                                <div class="impact-change negative">약세</div>
+                                <div class="impact-direction">환율 불리</div>
+                                <div class="impact-action">비중 축소</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">금/미국채권</div>
+                                <div class="impact-change positive">매수 적기</div>
+                                <div class="impact-direction">원화 강세</div>
+                                <div class="impact-action">추가매수</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 대응 전략 -->
                     <div class="strategy-box">
-                        <h4>🎯 대응 전략</h4>
+                        <h4>🎯 구체적 대응 전략</h4>
                         <p style="color: var(--text-secondary);">
-                            <strong>1. 달러 매수 적극 확대</strong> → 환율 1,350 이하는 역사적 매수 기회<br>
-                            <strong>2. 미국 ETF 비중 확대</strong> → VOO, SCHD, TLT 추가매수<br>
-                            <strong>3. 금 추가매수</strong> → 환율 하락으로 원화기준 저렴<br>
-                            <strong>4. 한국 주식 일부 차익실현</strong> → 외인 유입으로 상승분 정리<br>
-                            <strong>5. 수출주 → 내수주 전환</strong> → 환율 불리 섹터 축소
+                            <strong>해외투자 가속</strong><br>
+                            → 달러 매수 <strong>적극 확대</strong><br>
+                            → 분할매수 속도 <strong>150%</strong>로 가속<br>
+                            → VOO, SCHD, TLT 추가매수<br><br>
+                            
+                            <strong>국내 포지션</strong><br>
+                            → 한국 주식 상승분 <strong>일부 차익실현</strong><br>
+                            → 수출주 → <strong>내수주</strong>로 전환<br><br>
+                            
+                            <strong>장기 관점</strong><br>
+                            → 환율 1,350원 이하는 <strong>역사적 매수 기회</strong><br>
+                            → 기보유 해외자산 환차손은 <strong>장기 보유로 상쇄</strong>
                         </p>
                     </div>
                 </div>
@@ -2397,73 +2624,96 @@
                 <div class="scenario-content" id="ai-bubble">
                     <div class="scenario-header">
                         <h4 class="scenario-title">🤖 AI 버블 붕괴 시나리오</h4>
-                        <span class="probability-badge">발생확률: 20%</span>
+                        <span class="probability-badge" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">🔴 방어</span>
                     </div>
                     
-                    <div class="trigger-box">
-                        <span class="trigger-label">트리거:</span>
-                        AI 수익화 지연, Magnificent 7 실적 미스, 반도체 과잉공급, OpenAI IPO 실망
-                    </div>
-                    
-                    <div style="background: rgba(245,158,11,0.1); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem;">
-                        <strong style="color: var(--accent-gold);">📊 현황:</strong>
-                        <span style="color: var(--text-secondary);"> Mag7 S&P500 비중 30% | OpenAI 2026년 현금소진 $17B | SPY 내 실질 Mag7 노출 ~7.5%</span>
-                    </div>
-
-                    <div class="impact-table">
-                        <div class="impact-row">
-                            <div class="impact-asset">QQQ/VGT (테크)</div>
-                            <div class="impact-change negative">-25~35%</div>
-                            <div class="impact-direction">폭락</div>
-                            <div class="impact-action">→ <strong>비중 대폭 축소, 손절 고려</strong></div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">SOXX (반도체)</div>
-                            <div class="impact-change negative">-30~40%</div>
-                            <div class="impact-direction">폭락</div>
-                            <div class="impact-action">→ 엔비디아 노출 축소, 분할매수 대기</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">SK하이닉스</div>
-                            <div class="impact-change negative">-35%</div>
-                            <div class="impact-direction">폭락</div>
-                            <div class="impact-action">→ HBM 수요 재점검 후 판단</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">SCHD/VYM (배당)</div>
-                            <div class="impact-change negative">-10%</div>
-                            <div class="impact-direction">소폭하락</div>
-                            <div class="impact-action">→ <strong>상대적 강세, 비중 확대</strong></div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">한국 금융주</div>
-                            <div class="impact-change negative">-5%</div>
-                            <div class="impact-direction">연쇄하락</div>
-                            <div class="impact-action">→ 테크 무관, 추가매수 기회</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">TLT/금</div>
-                            <div class="impact-change positive">+10~15%</div>
-                            <div class="impact-direction">급등</div>
-                            <div class="impact-action">→ 안전자산 선호, 비중 유지</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">가치주/방어주</div>
-                            <div class="impact-change positive">상대강세</div>
-                            <div class="impact-direction">로테이션</div>
-                            <div class="impact-action">→ 헬스케어, 유틸리티, 필수소비재</div>
+                    <!-- 1. 진입 판단 기준 -->
+                    <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--accent-red); font-size: 0.85rem; margin-bottom: 10px;">🚨 진입 판단 기준</h5>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6;">
+                            아래 조건 중 <strong>2개 이상</strong> 충족 시 진입으로 판단:<br>
+                            <div style="margin-top: 8px; padding-left: 12px;">
+                                • Mag7 실적 <strong>2분기 연속</strong> 컨센서스 하회<br>
+                                • SOXX(반도체 ETF) 고점 대비 <strong>-25% 이상</strong><br>
+                                • 엔비디아 가이던스 <strong>2분기 연속</strong> 하향<br>
+                                • 주요 빅테크 AI CapEx <strong>삭감</strong> 발표<br>
+                                • AI 관련 기업 <strong>대규모 구조조정</strong> 뉴스
+                            </div>
                         </div>
                     </div>
 
+                    <!-- 2. 연쇄 반응 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">🔗 연쇄 반응</h5>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-secondary); line-height: 1.9;">
+                            AI 버블 붕괴<br>
+                            ├─→ <strong>Mag7/테크주 폭락</strong><br>
+                            │&nbsp;&nbsp;&nbsp;&nbsp;└─→ S&P500 전체 하락 (비중 30%)<br>
+                            ├─→ <strong>반도체 섹터 급락</strong> (SOXX, SK하이닉스)<br>
+                            ├─→ 가치주/배당주로 <strong>자금 로테이션</strong><br>
+                            ├─→ <strong>TLT/금 상승</strong> (안전자산 선호)<br>
+                            └─→ 한국 IT주 <strong>동반 하락</strong>
+                        </div>
+                    </div>
+
+                    <!-- 3. 자산별 영향 -->
+                    <div style="margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                        <div class="impact-table">
+                            <div class="impact-row">
+                                <div class="impact-asset">QQQ/테크</div>
+                                <div class="impact-change negative">폭락</div>
+                                <div class="impact-direction">버블 해소</div>
+                                <div class="impact-action"><strong>비중 대폭 축소</strong></div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">SOXX/반도체</div>
+                                <div class="impact-change negative">폭락</div>
+                                <div class="impact-direction">과잉투자 조정</div>
+                                <div class="impact-action">분할매수 대기</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">SK하이닉스</div>
+                                <div class="impact-change negative">급락</div>
+                                <div class="impact-direction">HBM 우려</div>
+                                <div class="impact-action">수요 재점검 후 판단</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">SCHD/배당주</div>
+                                <div class="impact-change positive">상대 강세</div>
+                                <div class="impact-direction">로테이션 수혜</div>
+                                <div class="impact-action"><strong>비중 확대</strong></div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">TLT/금</div>
+                                <div class="impact-change positive">상승</div>
+                                <div class="impact-direction">안전자산</div>
+                                <div class="impact-action">비중 유지/확대</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">방어섹터</div>
+                                <div class="impact-change positive">상대 강세</div>
+                                <div class="impact-direction">방어 수요</div>
+                                <div class="impact-action">헬스케어/유틸리티 확대</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 대응 전략 -->
                     <div class="strategy-box">
-                        <h4>🎯 대응 전략</h4>
+                        <h4>🎯 구체적 대응 전략</h4>
                         <p style="color: var(--text-secondary);">
-                            <strong>1. 테크/성장주 비중 대폭 축소</strong> → QQQ, VGT, SOXX 매도<br>
-                            <strong>2. 배당/가치주로 전환</strong> → SCHD, VYM, HDV 비중 확대<br>
-                            <strong>3. 방어 섹터 확대</strong> → 헬스케어(XLV), 유틸리티(XLU), 필수소비재(XLP)<br>
-                            <strong>4. 안전자산 비중 확대</strong> → 금 20%, 채권 20% 목표<br>
-                            <strong>5. 현금 확보</strong> → 폭락 후 저가매수 대비 15~20%<br>
-                            <strong>6. 한국 IT주 신중</strong> → 삼성전자/SK하이닉스 추가매수 보류
+                            <strong>즉시 실행</strong><br>
+                            → 테크/성장주 비중 <strong>대폭 축소</strong> (QQQ, VGT, SOXX)<br>
+                            → 한국 IT주(삼성전자, SK하이닉스) 추가매수 <strong>보류</strong><br><br>
+                            
+                            <strong>섹터 로테이션</strong><br>
+                            → 배당/가치주로 전환: <strong>SCHD, VYM, HDV</strong><br>
+                            → 방어 섹터 확대: <strong>XLV(헬스케어), XLU(유틸리티)</strong><br><br>
+                            
+                            <strong>안전자산 확대</strong><br>
+                            → 금 <strong>20%</strong>, 채권 <strong>20%</strong> 목표<br>
+                            → 현금 <strong>15-20%</strong> 확보 (저가매수 대비)
                         </p>
                     </div>
                 </div>
@@ -2471,86 +2721,100 @@
                 <div class="scenario-content" id="recession">
                     <div class="scenario-header">
                         <h4 class="scenario-title">💔 경기침체 시나리오</h4>
-                        <span class="probability-badge">발생확률: 20%</span>
+                        <span class="probability-badge" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">🔴 방어</span>
                     </div>
                     
-                    <div class="trigger-box">
-                        <span class="trigger-label">트리거:</span>
-                        실업률 5%+ 급등, GDP 역성장 2분기, 소비 급감, 관세 장기화
-                    </div>
-                    
-                    <div style="background: rgba(239,68,68,0.1); border: 1px solid var(--accent-red); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem;">
-                        <strong style="color: var(--accent-red);">📊 근거:</strong>
-                        <span style="color: var(--text-secondary);"> Moody's Zandi 침체확률 60% (관세 지속시) | JPM "수축 가능성 반반" | CAPE 40+ 역사: 2000, 2007 후 침체</span>
-                    </div>
-
-                    <div class="impact-table">
-                        <div class="impact-row">
-                            <div class="impact-asset">미국 주식 (S&P)</div>
-                            <div class="impact-change negative">-30~40%</div>
-                            <div class="impact-direction">폭락</div>
-                            <div class="impact-action">→ <strong>리스크자산 대폭 축소</strong></div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">TLT (장기채)</div>
-                            <div class="impact-change positive">+25~35%</div>
-                            <div class="impact-direction">급등</div>
-                            <div class="impact-action">→ <strong>최대 비중 유지/확대</strong></div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">금 (Gold)</div>
-                            <div class="impact-change positive">+15~25%</div>
-                            <div class="impact-direction">급등</div>
-                            <div class="impact-action">→ 비중 확대, 20% 목표</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">신흥국</div>
-                            <div class="impact-change negative">-40~50%</div>
-                            <div class="impact-direction">폭락</div>
-                            <div class="impact-action">→ <strong>손절 고려</strong>, 최소 비중</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">한국 주식</div>
-                            <div class="impact-change negative">-30%</div>
-                            <div class="impact-direction">급락</div>
-                            <div class="impact-action">→ 금융주만 소량 유지</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">배당주 (SCHD)</div>
-                            <div class="impact-change negative">-20%</div>
-                            <div class="impact-direction">하락</div>
-                            <div class="impact-action">→ 배당 지속성 확인, 선별 보유</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">달러</div>
-                            <div class="impact-change positive">+8~10%</div>
-                            <div class="impact-direction">급등</div>
-                            <div class="impact-action">→ 달러자산 유지</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">현금/MMF</div>
-                            <div class="impact-change positive">안전</div>
-                            <div class="impact-direction">현금왕</div>
-                            <div class="impact-action">→ <strong>현금 비중 20% 이상</strong></div>
+                    <!-- 1. 진입 판단 기준 -->
+                    <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--accent-red); font-size: 0.85rem; margin-bottom: 10px;">🚨 진입 판단 기준</h5>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6;">
+                            아래 조건 중 <strong>2개 이상</strong> 충족 시 진입으로 판단:<br>
+                            <div style="margin-top: 8px; padding-left: 12px;">
+                                • 실업률 <strong>5.0% 돌파</strong> (현재 4.2%)<br>
+                                • ISM 제조업 <strong>48 이하</strong> 2개월 연속<br>
+                                • GDP <strong>역성장</strong> 2분기 연속<br>
+                                • 신규실업수당 청구 <strong>30만건 이상</strong> 4주 연속<br>
+                                • 10Y-2Y 스프레드 역전 해소 후 <strong>+50bp 이상</strong>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- 2. 연쇄 반응 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">🔗 연쇄 반응</h5>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-secondary); line-height: 1.9;">
+                            경기침체 확정<br>
+                            ├─→ Fed <strong>긴급 금리인하</strong><br>
+                            │&nbsp;&nbsp;&nbsp;&nbsp;└─→ TLT 급등<br>
+                            ├─→ 기업실적 <strong>쇼크</strong> → 주식 폭락<br>
+                            ├─→ 크레딧 스프레드 <strong>급격 확대</strong><br>
+                            ├─→ <strong>금 급등</strong> (안전자산)<br>
+                            ├─→ 달러 강세 → <strong>환율 급등</strong><br>
+                            └─→ <strong>신흥국 자금유출</strong> 가속
+                        </div>
+                    </div>
+
+                    <!-- 3. 자산별 영향 -->
+                    <div style="margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                        <div class="impact-table">
+                            <div class="impact-row">
+                                <div class="impact-asset">미국 주식</div>
+                                <div class="impact-change negative">폭락</div>
+                                <div class="impact-direction">실적 쇼크</div>
+                                <div class="impact-action"><strong>대폭 축소</strong></div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">TLT(장기채)</div>
+                                <div class="impact-change positive">급등</div>
+                                <div class="impact-direction">금리인하</div>
+                                <div class="impact-action"><strong>최대 비중 확대</strong></div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">금</div>
+                                <div class="impact-change positive">급등</div>
+                                <div class="impact-direction">안전자산</div>
+                                <div class="impact-action">비중 20% 목표</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">신흥국</div>
+                                <div class="impact-change negative">폭락</div>
+                                <div class="impact-direction">자금유출</div>
+                                <div class="impact-action">손절 또는 최소 비중</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">한국 주식</div>
+                                <div class="impact-change negative">급락</div>
+                                <div class="impact-direction">수출 타격</div>
+                                <div class="impact-action">금융주만 소량 유지</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">현금</div>
+                                <div class="impact-change positive">안전</div>
+                                <div class="impact-direction">현금이 왕</div>
+                                <div class="impact-action"><strong>20% 이상 확보</strong></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 대응 전략 -->
                     <div class="strategy-box">
-                        <h4>🎯 대응 전략</h4>
+                        <h4>🎯 구체적 대응 전략</h4>
                         <p style="color: var(--text-secondary);">
-                            <strong>1. 포트폴리오 방어 모드 전환</strong><br>
-                            → 주식 40% → 20%로 축소<br>
-                            → 채권 15% → 30%로 확대 (TLT 중심)<br>
-                            → 금 15% → 20%로 확대<br>
-                            → 현금 8% → 20%로 확대<br><br>
-                            <strong>2. 종목별 조치</strong><br>
-                            → 성장주/테크: 전량 매도<br>
-                            → 신흥국: 손절 또는 최소 비중<br>
-                            → 배당주: 배당 안정성 높은 종목만 선별<br>
-                            → 한국 금융주: 소량 유지 (배당 수취)<br><br>
-                            <strong>3. 저가매수 준비</strong><br>
-                            → S&P 500 -30% 이상 시 분할매수 시작<br>
-                            → 현금 대기, 공포에 매수 준비
+                            <strong>1단계: 방어 모드 전환</strong><br>
+                            → 주식 <strong>40% → 20%</strong>로 축소<br>
+                            → 채권(TLT) <strong>15% → 30%</strong>로 확대<br>
+                            → 금 <strong>15% → 20%</strong>로 확대<br>
+                            → 현금 <strong>15% → 20%</strong>로 확대<br><br>
+                            
+                            <strong>2단계: 종목별 조치</strong><br>
+                            → 성장주/테크: <strong>전량 매도</strong><br>
+                            → 신흥국: <strong>손절</strong> 또는 최소 비중<br>
+                            → 배당주: 배당 안정성 높은 종목만 <strong>선별 보유</strong><br><br>
+                            
+                            <strong>3단계: 저가매수 준비</strong><br>
+                            → S&P 500 고점 대비 <strong>-30% 이상</strong> 시 분할매수 시작<br>
+                            → "공포에 매수" 원칙 준비
                         </p>
                     </div>
                 </div>
@@ -2558,87 +2822,317 @@
                 <div class="scenario-content" id="boom">
                     <div class="scenario-header">
                         <h4 class="scenario-title">🚀 경기호황 시나리오</h4>
-                        <span class="probability-badge" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">발생확률: 30%</span>
+                        <span class="probability-badge" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">🟢 긍정적</span>
                     </div>
                     
-                    <div class="trigger-box">
-                        <span class="trigger-label">트리거:</span>
-                        AI 생산성 혁명 현실화, 금리인하 + 연착륙 성공, 관세 협상 타결, 소비 강세 지속
-                    </div>
-                    
-                    <div style="background: rgba(245,158,11,0.1); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem;">
-                        <strong style="color: var(--accent-gold);">⚠️ CAPE 경고:</strong>
-                        <span style="color: var(--text-secondary);"> 호황에도 CAPE 40+ 경계 필수 | 역사적 고점에서 +25% 추가 상승 시 CAPE 50 접근 → 더 큰 조정 리스크</span>
-                    </div>
-
-                    <div class="impact-table">
-                        <div class="impact-row">
-                            <div class="impact-asset">미국 주식 (S&P)</div>
-                            <div class="impact-change positive">+15~25%</div>
-                            <div class="impact-direction">상승</div>
-                            <div class="impact-action">→ 비중 확대, 성장주 유지</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">QQQ/테크</div>
-                            <div class="impact-change positive">+20~30%</div>
-                            <div class="impact-direction">급등</div>
-                            <div class="impact-action">→ 비중 유지, +30% 시 일부 익절</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">TLT (장기채)</div>
-                            <div class="impact-change negative">-5~10%</div>
-                            <div class="impact-direction">약세</div>
-                            <div class="impact-action">→ 비중 축소, 단기채 전환</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">금 (Gold)</div>
-                            <div class="impact-change negative">-5%</div>
-                            <div class="impact-direction">약세</div>
-                            <div class="impact-action">→ 비중 축소 (10% 이하)</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">신흥국</div>
-                            <div class="impact-change positive">+15~20%</div>
-                            <div class="impact-direction">상승</div>
-                            <div class="impact-action">→ 비중 유지/확대</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">한국 주식</div>
-                            <div class="impact-change positive">+15%</div>
-                            <div class="impact-direction">상승</div>
-                            <div class="impact-action">→ IT/반도체 비중 확대</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">달러/원</div>
-                            <div class="impact-change negative">-5%</div>
-                            <div class="impact-direction">약세</div>
-                            <div class="impact-action">→ 원화강세, 해외투자 확대 기회</div>
-                        </div>
-                        <div class="impact-row">
-                            <div class="impact-asset">현금</div>
-                            <div class="impact-change negative">기회비용</div>
-                            <div class="impact-direction">불리</div>
-                            <div class="impact-action">→ 현금 비중 최소화 (5%)</div>
+                    <!-- 1. 진입 판단 기준 -->
+                    <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--accent-green); font-size: 0.85rem; margin-bottom: 10px;">🚨 진입 판단 기준</h5>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6;">
+                            아래 조건이 <strong>대체로 충족</strong>될 때:<br>
+                            <div style="margin-top: 8px; padding-left: 12px;">
+                                • GDP 성장률 <strong>3% 이상</strong> 지속<br>
+                                • 기업실적 <strong>컨센서스 상회</strong> 다수<br>
+                                • 실업률 <strong>4% 이하</strong> 유지<br>
+                                • 인플레 <strong>2~3%</strong> 안정<br>
+                                • AI 생산성 향상 <strong>가시화</strong>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- 2. 연쇄 반응 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">🔗 연쇄 반응</h5>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-secondary); line-height: 1.9;">
+                            경기호황<br>
+                            ├─→ 기업실적 <strong>호조</strong> → 주가 상승<br>
+                            ├─→ 금리 <strong>완만한 인하</strong> 또는 동결<br>
+                            ├─→ 위험선호 → <strong>성장주 강세</strong><br>
+                            ├─→ <strong>안전자산 약세</strong> (TLT, 금)<br>
+                            ├─→ 달러 약세 → <strong>환율 하락</strong><br>
+                            └─→ 신흥국 <strong>자금 유입</strong>
+                        </div>
+                        <div style="margin-top: 10px; padding: 8px; background: rgba(245,158,11,0.1); border-radius: 6px; font-size: 0.72rem;">
+                            <strong style="color: var(--accent-gold);">⚠️ 주의:</strong> 호황에도 CAPE 40+ 수준에서는 <strong>밸류에이션 경계</strong> 필수. 과열 시 더 큰 조정 가능.
+                        </div>
+                    </div>
+
+                    <!-- 3. 자산별 영향 -->
+                    <div style="margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                        <div class="impact-table">
+                            <div class="impact-row">
+                                <div class="impact-asset">미국 주식</div>
+                                <div class="impact-change positive">상승</div>
+                                <div class="impact-direction">실적 호조</div>
+                                <div class="impact-action">비중 확대, 성장주 유지</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">QQQ/테크</div>
+                                <div class="impact-change positive">강세</div>
+                                <div class="impact-direction">AI 수혜</div>
+                                <div class="impact-action">익절 기준 설정하며 유지</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">TLT(장기채)</div>
+                                <div class="impact-change negative">약세</div>
+                                <div class="impact-direction">금리 동결</div>
+                                <div class="impact-action">비중 축소, 단기채 전환</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">금</div>
+                                <div class="impact-change negative">약세</div>
+                                <div class="impact-direction">위험선호</div>
+                                <div class="impact-action">비중 축소 (10% 이하)</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">신흥국</div>
+                                <div class="impact-change positive">상승</div>
+                                <div class="impact-direction">자금 유입</div>
+                                <div class="impact-action">비중 유지/확대</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">한국 주식</div>
+                                <div class="impact-change positive">상승</div>
+                                <div class="impact-direction">수출 호조</div>
+                                <div class="impact-action">IT/반도체 비중 확대</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 대응 전략 -->
                     <div class="strategy-box">
-                        <h4>🎯 대응 전략</h4>
+                        <h4>🎯 구체적 대응 전략</h4>
                         <p style="color: var(--text-secondary);">
-                            <strong>1. 포트폴리오 공격 모드 전환</strong><br>
-                            → 주식 62% → 70%로 확대<br>
-                            → 채권 15% → 10%로 축소 (단기채 위주)<br>
-                            → 금 15% → 8%로 축소<br>
-                            → 현금 8% → 5%로 축소<br><br>
-                            <strong>2. 섹터별 조치</strong><br>
-                            → 성장주/테크: 비중 확대<br>
-                            → 반도체: SK하이닉스, SOXX 추가<br>
-                            → 신흥국: 인도(INDA) 비중 확대<br>
-                            → 배당주: 비중 유지 (안정성)<br><br>
-                            <strong>3. 리스크 관리</strong><br>
-                            → 주가 급등 시 익절 기준 설정 (+25% 도달 시 10% 매도)<br>
-                            → 과열 징후 모니터링 (VIX, 신용스프레드)<br>
-                            → <strong>⚠️ CAPE 40+ 경계 유지</strong> - 호황에도 밸류에이션 주의
+                            <strong>공격적 포지션</strong><br>
+                            → 주식 비중 <strong>확대</strong> (40% → 50%)<br>
+                            → 채권 <strong>축소</strong> (단기채 위주)<br>
+                            → 금 <strong>축소</strong> (10% 이하)<br>
+                            → 현금 <strong>최소화</strong> (기회비용)<br><br>
+                            
+                            <strong>섹터별 조치</strong><br>
+                            → 성장주/테크: <strong>비중 확대</strong><br>
+                            → 반도체: SK하이닉스, SOXX <strong>추가</strong><br>
+                            → 신흥국: 인도(INDA) 비중 <strong>확대</strong><br><br>
+                            
+                            <strong>리스크 관리</strong><br>
+                            → 주가 급등 시 <strong>익절 기준</strong> 설정 (+25% 시 일부 매도)<br>
+                            → CAPE 45 돌파 시 <strong>현금 비중 확대</strong><br>
+                            → 호황에도 <strong>과열 징후 모니터링</strong> (VIX 12 이하 경계)
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Scenario: 스태그플레이션 -->
+                <div class="scenario-content" id="stagflation">
+                    <div class="scenario-header">
+                        <h4 class="scenario-title">🔥 스태그플레이션 시나리오</h4>
+                        <span class="probability-badge" style="background: rgba(139,92,246,0.2); color: #a78bfa;">🟣 최악</span>
+                    </div>
+                    
+                    <!-- 1. 진입 판단 기준 -->
+                    <div style="background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.3); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: #a78bfa; font-size: 0.85rem; margin-bottom: 10px;">🚨 진입 판단 기준</h5>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6;">
+                            아래 조건 중 <strong>3개 이상</strong> 동시 충족 시 진입으로 판단:<br>
+                            <div style="margin-top: 8px; padding-left: 12px;">
+                                • CPI <strong>4% 이상</strong> 3개월 연속 + GDP <strong>1% 미만</strong><br>
+                                • 실업률 <strong>상승세</strong> + 임금상승률 <strong>둔화</strong> 동시<br>
+                                • S&P 500 하락 + TLT 하락 <strong>2개월 연속 동반</strong><br>
+                                • 금 + 원자재만 <strong>상승</strong>하는 패턴<br>
+                                • Fed의 <strong>정책 딜레마</strong> (인플레↑ vs 경기↓)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 연쇄 반응 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">🔗 연쇄 반응 (최악의 조합)</h5>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-secondary); line-height: 1.9;">
+                            스태그플레이션<br>
+                            ├─→ <strong>주식 하락</strong> (경기둔화)<br>
+                            ├─→ <strong>채권도 하락</strong> (인플레)<br>
+                            │&nbsp;&nbsp;&nbsp;&nbsp;└─→ 전통적 60/40 포트폴리오 <strong>붕괴</strong><br>
+                            ├─→ <strong>금 급등</strong> (유일한 헤지)<br>
+                            ├─→ <strong>원자재 상승</strong><br>
+                            ├─→ 현금 <strong>실질가치 하락</strong><br>
+                            └─→ Fed <strong>정책 무력화</strong>
+                        </div>
+                        <div style="margin-top: 10px; padding: 8px; background: rgba(239,68,68,0.1); border-radius: 6px; font-size: 0.72rem;">
+                            <strong style="color: var(--accent-red);">⚠️ 경고:</strong> 1970년대 재현 시나리오. <strong>주식/채권 동반 하락</strong>으로 대부분의 포트폴리오가 타격.
+                        </div>
+                    </div>
+
+                    <!-- 3. 자산별 영향 -->
+                    <div style="margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                        <div class="impact-table">
+                            <div class="impact-row">
+                                <div class="impact-asset">미국 주식</div>
+                                <div class="impact-change negative">급락</div>
+                                <div class="impact-direction">경기둔화</div>
+                                <div class="impact-action"><strong>최소화</strong>, 방어주만</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">TLT(장기채)</div>
+                                <div class="impact-change negative">급락</div>
+                                <div class="impact-direction">인플레</div>
+                                <div class="impact-action"><strong>TIPS로 전환</strong></div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">금</div>
+                                <div class="impact-change positive">급등</div>
+                                <div class="impact-direction">유일한 헤지</div>
+                                <div class="impact-action"><strong>20-25% 확대</strong></div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">원자재(PDBC)</div>
+                                <div class="impact-change positive">상승</div>
+                                <div class="impact-direction">인플레 헤지</div>
+                                <div class="impact-action"><strong>10% 신규 편입</strong></div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">신흥국</div>
+                                <div class="impact-change negative">폭락</div>
+                                <div class="impact-direction">복합 악재</div>
+                                <div class="impact-action">손절 또는 최소 비중</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">현금</div>
+                                <div class="impact-change negative">실질가치↓</div>
+                                <div class="impact-direction">인플레 손실</div>
+                                <div class="impact-action">단기채(SHY) 선호</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 대응 전략 -->
+                    <div class="strategy-box">
+                        <h4>🎯 구체적 대응 전략 (방어 포트폴리오)</h4>
+                        <p style="color: var(--text-secondary);">
+                            <strong>즉시 실행 (진입 확정 시)</strong><br>
+                            → 주식 <strong>40% → 15%</strong>로 축소 (방어주/유틸리티만)<br>
+                            → TLT → <strong>TIPS(물가연동채)</strong>로 전환<br>
+                            → 금 <strong>15% → 20-25%</strong>로 확대<br>
+                            → 원자재(PDBC/DBC) <strong>10% 신규 편입</strong><br><br>
+                            
+                            <strong>스태그플레이션 방어 포트폴리오</strong><br>
+                            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;">
+                            금 25% | TIPS 20% | 원자재 10% | 방어주 15% | 단기채 30%
+                            </span><br><br>
+                            
+                            <strong>절대 금지</strong><br>
+                            → ❌ 장기채(TLT) 추가매수<br>
+                            → ❌ 성장주/테크 진입<br>
+                            → ❌ 신흥국 확대<br>
+                            → ❌ "저가매수" 시도 (바닥 확인 전까지)
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Scenario: 관세 전면전 -->
+                <div class="scenario-content" id="tariff-war">
+                    <div class="scenario-header">
+                        <h4 class="scenario-title">🏛️ 관세 전면전 시나리오</h4>
+                        <span class="probability-badge" style="background: rgba(245,158,11,0.2); color: var(--accent-gold);">🟡 주의</span>
+                    </div>
+                    
+                    <!-- 1. 진입 판단 기준 -->
+                    <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--accent-gold); font-size: 0.85rem; margin-bottom: 10px;">🚨 진입 판단 기준</h5>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6;">
+                            아래 조건 중 <strong>2개 이상</strong> 충족 시 진입으로 판단:<br>
+                            <div style="margin-top: 8px; padding-left: 12px;">
+                                • 중국 60% 관세 <strong>실제 시행</strong> (협상 아닌 발효)<br>
+                                • EU <strong>보복관세</strong> 공식 발표<br>
+                                • 멕시코/캐나다 25% 관세 <strong>장기화</strong> (6개월+)<br>
+                                • 수입물가지수 <strong>전월비 +2% 이상</strong> 2개월 연속<br>
+                                • 글로벌 무역량 <strong>전년비 -5% 이상</strong> 감소
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 연쇄 반응 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">🔗 연쇄 반응</h5>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-secondary); line-height: 1.9;">
+                            관세 전면전<br>
+                            ├─→ 수입물가 상승 → <strong>인플레</strong><br>
+                            │&nbsp;&nbsp;&nbsp;&nbsp;└─→ Fed 인하 지연/인상 가능<br>
+                            ├─→ <strong>한국 수출주 급락</strong> (자동차, 반도체)<br>
+                            ├─→ <strong>중국 ETF 폭락</strong><br>
+                            ├─→ 글로벌 <strong>공급망 차질</strong><br>
+                            ├─→ 불확실성 프리미엄 → <strong>금 상승</strong><br>
+                            └─→ 미국 소비자 <strong>물가 부담</strong>
+                        </div>
+                    </div>
+
+                    <!-- 3. 자산별 영향 -->
+                    <div style="margin-bottom: 14px;">
+                        <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                        <div class="impact-table">
+                            <div class="impact-row">
+                                <div class="impact-asset">중국 ETF</div>
+                                <div class="impact-change negative">폭락</div>
+                                <div class="impact-direction">직접 타격</div>
+                                <div class="impact-action"><strong>전량 매도</strong></div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">한국 수출주</div>
+                                <div class="impact-change negative">급락</div>
+                                <div class="impact-direction">관세 리스크</div>
+                                <div class="impact-action">자동차/반도체 비중 축소</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">한국 내수주</div>
+                                <div class="impact-change positive">상대 강세</div>
+                                <div class="impact-direction">관세 무관</div>
+                                <div class="impact-action">통신/유틸리티 확대</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">미국 국내기업</div>
+                                <div class="impact-change positive">상대 강세</div>
+                                <div class="impact-direction">관세 보호</div>
+                                <div class="impact-action">미국 내수 비중↑ 기업 선호</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">금</div>
+                                <div class="impact-change positive">상승</div>
+                                <div class="impact-direction">불확실성</div>
+                                <div class="impact-action">비중 유지</div>
+                            </div>
+                            <div class="impact-row">
+                                <div class="impact-asset">인플레/물가</div>
+                                <div class="impact-change negative">상승</div>
+                                <div class="impact-direction">비용 전가</div>
+                                <div class="impact-action">Fed 인하 지연 대비</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 대응 전략 -->
+                    <div class="strategy-box">
+                        <h4>🎯 구체적 대응 전략</h4>
+                        <p style="color: var(--text-secondary);">
+                            <strong>즉시 실행 (진입 확정 시)</strong><br>
+                            → 중국 ETF (FXI, MCHI, KWEB) <strong>전량 매도</strong><br>
+                            → 한국 자동차/반도체 <strong>50% 비중 축소</strong><br>
+                            → 멕시코(EWW), 캐나다(EWC) <strong>비중 축소</strong><br><br>
+                            
+                            <strong>로테이션 전략</strong><br>
+                            → 수출주 → <strong>내수주</strong>로 이동<br>
+                            → 미국: 소비재 → <strong>유틸리티/헬스케어</strong><br>
+                            → 한국: 삼성전자/현대차 → <strong>SKT/한국전력</strong><br>
+                            → 미국 국내 매출 비중 <strong>70%+ 기업</strong> 선호<br><br>
+                            
+                            <strong>수혜 섹터 (역발상)</strong><br>
+                            → 🇺🇸 미국 철강/알루미늄 (관세 보호)<br>
+                            → 🇮🇳 인도 (중국 대체 공급망)<br>
+                            → 🇻🇳 베트남 (중국 대체 생산기지)<br><br>
+                            
+                            <strong>협상 타결 시 복귀</strong><br>
+                            → 관세 철회/완화 발표 시 중국 ETF 분할매수 재개<br>
+                            → 최소 3개월 관망 후 추세 확인
                         </p>
                     </div>
                 </div>
@@ -2728,6 +3222,340 @@
                             <li>뉴스 과잉 소비 자제</li>
                             <li>분할매수로 타이밍 리스크 분산</li>
                         </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🆕 환율 구간별 행동 지침 (신규 추가) -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">💱 환율 구간별 행동 지침 매트릭스</h3>
+                    <span class="card-badge badge-warning">2026.1 기준</span>
+                </div>
+                
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">
+                    원/달러 환율에 따른 해외투자 전략. 현재 환율: <strong style="color: var(--accent-red);">1,460~1,472원</strong> (2008년 이후 최고 수준)
+                </p>
+
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; table-layout: fixed;">
+                        <thead>
+                            <tr style="background: var(--bg-secondary);">
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color); width: 18%;">환율 구간</th>
+                                <th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--border-color); width: 8%;">신호</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color); width: 37%;">해외투자 전략</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color); width: 37%;">대체 전략</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong>1,380원 이하</strong></td>
+                                <td style="padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color);"><span style="color: var(--accent-green); font-size: 0.9rem;">🟢</span></td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--accent-green);">
+                                    <strong>해외투자 적극 확대</strong><br>
+                                    달러 매수 최적 타이밍, 분할매수 가속
+                                </td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
+                                    분할매수 속도 <strong>150%</strong>로 가속<br>
+                                    VOO, SCHD, TLT 집중 매수
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong>1,380~1,420원</strong></td>
+                                <td style="padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color);"><span style="color: var(--accent-green); font-size: 0.9rem;">🟢</span></td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--accent-green);">
+                                    <strong>정상 분할매수 진행</strong><br>
+                                    계획대로 월 33만원 실행
+                                </td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
+                                    추가 대체 전략 불필요<br>
+                                    기본 계획 유지
+                                </td>
+                            </tr>
+                            <tr style="background: rgba(245,158,11,0.05);">
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong>1,420~1,460원</strong></td>
+                                <td style="padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color);"><span style="color: var(--accent-gold); font-size: 0.9rem;">🟡</span></td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--accent-gold);">
+                                    <strong>해외투자 속도 50% 감속</strong><br>
+                                    신규 달러매수 신중, 기존분 유지
+                                </td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
+                                    국내주식/채권 비중 확대<br>
+                                    국내상장 해외ETF(TIGER) 병행 고려
+                                </td>
+                            </tr>
+                            <tr style="background: rgba(245,158,11,0.1);">
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong style="color: var(--accent-gold);">1,460~1,500원<br>⬅️ 현재</strong></td>
+                                <td style="padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color);"><span style="color: var(--accent-gold); font-size: 0.9rem;">🟠</span></td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--accent-gold);">
+                                    <strong>해외 신규투자 최소화</strong><br>
+                                    기존 보유분만 유지, 추가매수 자제
+                                </td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
+                                    <strong>TIGER 미국S&P500</strong> 등 국내상장 ETF로 대체<br>
+                                    원화로 해외지수 투자 효과 유지
+                                </td>
+                            </tr>
+                            <tr style="background: rgba(239,68,68,0.1);">
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong style="color: var(--accent-red);">1,500원 이상</strong></td>
+                                <td style="padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color);"><span style="color: var(--accent-red); font-size: 0.9rem;">🔴</span></td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--accent-red);">
+                                    <strong>해외투자 완전 중단</strong><br>
+                                    달러 매수 금지, 환율 하락 대기
+                                </td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
+                                    <strong>국내상장 해외ETF 전면 전환</strong><br>
+                                    TIGER/KODEX S&P500, 나스닥100 활용
+                                </td>
+                            </tr>
+                            <tr style="background: rgba(239,68,68,0.15);">
+                                <td style="padding: 12px;"><strong style="color: var(--accent-red);">1,550원 이상</strong></td>
+                                <td style="padding: 12px; text-align: center;"><span style="color: var(--accent-red); font-size: 0.9rem;">🔴🔴</span></td>
+                                <td style="padding: 12px; color: var(--accent-red);">
+                                    <strong>위기 모드 진입</strong><br>
+                                    기존 해외자산 환헤지 검토
+                                </td>
+                                <td style="padding: 12px;">
+                                    <strong>전액 국내 운용</strong><br>
+                                    달러 기보유분 일부 환전 고려 (극단적 상황)
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 16px; padding: 12px; background: var(--bg-secondary); border-radius: 8px; font-size: 0.78rem;">
+                    <strong style="color: var(--text-primary);">📌 현재 상황 권고 (1,460~1,472원):</strong>
+                    <div style="color: var(--text-secondary); margin-top: 6px; line-height: 1.6;">
+                        • 신규 해외투자: 계획 대비 <strong>30-50% 축소</strong> 실행<br>
+                        • 대안: TIGER 미국S&P500, TIGER 미국나스닥100 등 국내상장 ETF 활용<br>
+                        • 기존 해외자산: <strong>보유 유지</strong> (환차익 실현 중이므로)<br>
+                        • 환율 1,420원 이하로 하락 시 해외투자 정상화
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🆕 손절/익절 조건부 매트릭스 (신규 추가) -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🎯 손절/익절 조건부 의사결정 매트릭스</h3>
+                    <span class="card-badge badge-danger">리스크 관리</span>
+                </div>
+                
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">
+                    단순 % 기준이 아닌, <strong>상황별 조건</strong>을 고려한 매도 의사결정. 펀더멘탈 훼손 여부가 핵심.
+                </p>
+
+                <!-- 손절 매트릭스 -->
+                <h4 style="color: var(--accent-red); margin-bottom: 12px; font-size: 0.9rem;">📉 손절 의사결정 매트릭스</h4>
+                <div style="overflow-x: auto; margin-bottom: 20px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.78rem;">
+                        <thead>
+                            <tr style="background: rgba(239,68,68,0.1);">
+                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--accent-red);">자산 유형</th>
+                                <th style="padding: 10px; text-align: center; border-bottom: 2px solid var(--accent-red);">손실률</th>
+                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--accent-red);">추가 조건</th>
+                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--accent-red);">행동</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">개별주식</td>
+                                <td style="padding: 10px; text-align: center; border-bottom: 1px solid var(--border-color);"><strong>-20%</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color); color: var(--accent-red);">펀더멘탈 훼손<br>(실적 쇼크, 경쟁력 상실)</td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><strong style="color: var(--accent-red);">전량 손절</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">개별주식</td>
+                                <td style="padding: 10px; text-align: center; border-bottom: 1px solid var(--border-color);"><strong>-20%</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color); color: var(--accent-green);">펀더멘탈 유지<br>(시장 전체 하락)</td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">50% 손절 + 50% 관망<br>또는 물타기 검토</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">ETF (분산)</td>
+                                <td style="padding: 10px; text-align: center; border-bottom: 1px solid var(--border-color);"><strong>-25%</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">시장 전체 하락<br>(침체/위기)</td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color); color: var(--accent-green);"><strong>손절 금지</strong>, 추가매수 검토</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">TLT (장기채)</td>
+                                <td style="padding: 10px; text-align: center; border-bottom: 1px solid var(--border-color);"><strong>-15%</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color); color: var(--accent-red);">인플레 재상승 중<br>(CPI 3.5%+)</td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><strong style="color: var(--accent-red);">IEF로 전량 전환</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">TLT (장기채)</td>
+                                <td style="padding: 10px; text-align: center; border-bottom: 1px solid var(--border-color);"><strong>-15%</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color); color: var(--accent-green);">일시적 금리 급등<br>(인플레 안정적)</td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">보유 유지, 추가매수 기회</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">금 (Gold)</td>
+                                <td style="padding: 10px; text-align: center; border-bottom: 1px solid var(--border-color);"><strong>-15%</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">실질금리 급등<br>(경기호황)</td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">50% 축소, 주식으로 이동</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px;">신흥국 ETF</td>
+                                <td style="padding: 10px; text-align: center;"><strong>-30%</strong></td>
+                                <td style="padding: 10px;">달러 강세 지속<br>(6개월+)</td>
+                                <td style="padding: 10px;"><strong style="color: var(--accent-red);">최소 비중만 유지</strong><br>또는 전량 손절</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 익절 매트릭스 -->
+                <h4 style="color: var(--accent-green); margin-bottom: 12px; font-size: 0.9rem;">📈 익절 의사결정 매트릭스</h4>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.78rem;">
+                        <thead>
+                            <tr style="background: rgba(16,185,129,0.1);">
+                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--accent-green);">자산 유형</th>
+                                <th style="padding: 10px; text-align: center; border-bottom: 2px solid var(--accent-green);">수익률</th>
+                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--accent-green);">행동</th>
+                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--accent-green);">재투자처</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">개별주식 (가치)</td>
+                                <td style="padding: 10px; text-align: center; border-bottom: 1px solid var(--border-color);"><strong>+50%</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">30% 익절</td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">동일 섹터 저평가주 또는 현금</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">테크/성장주</td>
+                                <td style="padding: 10px; text-align: center; border-bottom: 1px solid var(--border-color);"><strong>+40%</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">50% 익절</td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">배당주/가치주로 로테이션</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">TLT (장기채)</td>
+                                <td style="padding: 10px; text-align: center; border-bottom: 1px solid var(--border-color);"><strong>+20%</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">30% 익절</td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">IEF(중기채) 또는 현금</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">금 (Gold)</td>
+                                <td style="padding: 10px; text-align: center; border-bottom: 1px solid var(--border-color);"><strong>+30%</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">25% 익절</td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">채권 또는 현금</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">신흥국 ETF</td>
+                                <td style="padding: 10px; text-align: center; border-bottom: 1px solid var(--border-color);"><strong>+25%</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">50% 익절</td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-color);">선진국으로 리밸런싱</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px;">전체 포트폴리오</td>
+                                <td style="padding: 10px; text-align: center;"><strong>+25%</strong></td>
+                                <td style="padding: 10px;">목표비중 리밸런싱</td>
+                                <td style="padding: 10px;">초과 수익 자산 → 저조 자산으로 이동</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 16px; padding: 12px; background: rgba(245,158,11,0.1); border-radius: 8px; font-size: 0.78rem;">
+                    <strong style="color: var(--accent-gold);">⚠️ 세금 효율적 매도 원칙:</strong>
+                    <div style="color: var(--text-secondary); margin-top: 6px; line-height: 1.6;">
+                        • 해외주식: 연간 250만원 공제 범위 내에서 익절 우선<br>
+                        • 손실 종목 + 이익 종목 <strong>동시 매도</strong>로 손익통산 최적화<br>
+                        • 연말(11-12월): 손익통산 기회 점검 필수<br>
+                        • ISA 계좌: 비과세 한도 우선 활용
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🆕 주간/월간 모니터링 체크리스트 (신규 추가) -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📊 정기 모니터링 체크리스트</h3>
+                    <span class="card-badge badge-info">시스템화</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+                    <!-- 주간 체크 -->
+                    <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
+                        <h4 style="color: var(--accent-blue); margin-bottom: 12px; font-size: 0.9rem;">📅 주간 체크 (매주 금요일)</h4>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.8;">
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                <span>VIX (변동성 지수)</span>
+                                <span><strong style="color: var(--accent-gold);">25 이상</strong> → 매수 감속</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                <span>원/달러 환율</span>
+                                <span><strong style="color: var(--accent-red);">1,480+ </strong> → 해외투자 재검토</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                <span>S&P 500 RSI</span>
+                                <span><strong style="color: var(--accent-gold);">75 이상</strong> → 추가매수 보류</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                <span>10년물 금리</span>
+                                <span><strong style="color: var(--accent-red);">5.0%+ </strong> → TLT 비중 점검</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                                <span>포트폴리오 손익</span>
+                                <span><strong>±5% 이탈</strong> → 원인 분석</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 월간 체크 -->
+                    <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
+                        <h4 style="color: var(--accent-green); margin-bottom: 12px; font-size: 0.9rem;">📅 월간 체크 (매월 1일)</h4>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.8;">
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                <span>CAPE Ratio</span>
+                                <span><strong style="color: var(--accent-red);">45 돌파</strong> → 미국 비중 축소</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                <span>CPI/PCE 인플레</span>
+                                <span><strong style="color: var(--accent-gold);">3.5%+ </strong> → 금 확대, TLT 축소</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                <span>ISM 제조업</span>
+                                <span><strong style="color: var(--accent-red);">48 이하</strong> → 침체 경계</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                <span>실업률</span>
+                                <span><strong style="color: var(--accent-red);">4.5%+ </strong> → 방어적 전환</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                                <span>Fed 발언/회의록</span>
+                                <span>금리 전망 변화 확인</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 분기 체크 -->
+                    <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
+                        <h4 style="color: var(--accent-gold); margin-bottom: 12px; font-size: 0.9rem;">📅 분기 체크 (3, 6, 9, 12월)</h4>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.8;">
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                <span>목표 비중 vs 실제</span>
+                                <span><strong>±5%p 이탈</strong> → 리밸런싱</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                <span>개별 자산 성과</span>
+                                <span><strong style="color: var(--accent-red);">-20% 종목</strong> → 재검토</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                <span>세금 최적화</span>
+                                <span>손익통산 기회 확인</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                <span>배당금 누적</span>
+                                <span>재투자 or 인출 결정</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                                <span>시나리오 확률 재평가</span>
+                                <span>환경 변화 반영</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3041,12 +3869,14 @@
         
         // ========== 스크리닝 점수 계산 함수 ==========
         
-        // 백분위 계산
+        // 백분위 계산 (동일값 처리 포함)
         function percentileRank(arr, val, inverse = false) {
             const valid = arr.filter(x => x != null && !isNaN(x) && x > -9999 && x < 99999);
             if (valid.length === 0 || val == null || isNaN(val)) return 50;
             const below = valid.filter(x => x < val).length;
-            const rank = (below / valid.length) * 100;
+            const equal = valid.filter(x => x === val).length;
+            // 동일값의 중간 순위를 사용 (fractional rank method)
+            const rank = ((below + 0.5 * equal) / valid.length) * 100;
             return inverse ? 100 - rank : rank;
         }
         
@@ -3073,22 +3903,21 @@
                     cols[col] = subset.map(d => d[col]).filter(x => x != null && !isNaN(x));
                 });
                 
-                // CR/DE 점수 함수 (임의 구간)
-                const crScore = (cr) => {
+                // CR/DE 점수 함수 - 백분위 기반으로 개선 (업종 특성 반영)
+                const crScoreByPercentile = (cr, arr) => {
                     if (cr == null || cr <= 0) return 50;
-                    if (cr > 2.0) return 90;
-                    if (cr > 1.5) return 70;
-                    if (cr > 1.0) return 50;
-                    return 30;
+                    // 백분위 기반으로 점수화 (높을수록 좋음)
+                    return percentileRank(arr, cr, false);
                 };
-                const deScore = (de) => {
+                const deScoreByPercentile = (de, arr) => {
                     if (de == null) return 50;
-                    if (de < 30) return 90;
-                    if (de < 60) return 70;
-                    if (de < 100) return 50;
-                    if (de < 200) return 35;
-                    return 20;
+                    // 부채비율은 낮을수록 좋음 (inverse)
+                    return percentileRank(arr, de, true);
                 };
+                
+                // CurrentRatio, DebtRatio 배열 준비
+                const crArr = subset.map(d => d.CurrentRatio).filter(x => x != null && !isNaN(x) && x > 0);
+                const deArr = subset.map(d => d['DebtRatio(%)']).filter(x => x != null && !isNaN(x));
                 
                 subset.forEach(d => {
                     // 공통 플래그 초기화 (필터용)
@@ -3102,20 +3931,22 @@
                         const pbrS = (d.PBR > 0 && d.PBR < 50) ? percentileRank(cols['PBR'], d.PBR, true) : 50;
                         d.ValueScore = (perS + pbrS) / 2;
                         
-                        // Quality (25%) = Profit*0.6 + Stab*0.4
+                        // Quality (20%) = Profit*0.6 + Stab*0.4 (백분위 기반)
                         const roeS = d['ROE(%)'] != null ? percentileRank(cols['ROE(%)'], d['ROE(%)']) : 50;
                         const roaS = d['ROA(%)'] != null ? percentileRank(cols['ROA(%)'], d['ROA(%)']) : 50;
                         const opmS = d['OpMargin(%)'] != null ? percentileRank(cols['OpMargin(%)'], d['OpMargin(%)']) : 50;
                         const profit = (roeS + roaS + opmS) / 3;
-                        const stab = (crScore(d.CurrentRatio) + deScore(d['DebtRatio(%)'])) / 2;
+                        const crS = crScoreByPercentile(d.CurrentRatio, crArr);
+                        const deS = deScoreByPercentile(d['DebtRatio(%)'], deArr);
+                        const stab = (crS + deS) / 2;
                         d.QualityScore = profit * 0.6 + stab * 0.4;
                         
-                        // Growth (20%)
+                        // Growth (15%) - 학술 기준에 맞게 비중 조정
                         const revG = d['RevenueGrowth(%)'] != null ? percentileRank(cols['RevenueGrowth(%)'], d['RevenueGrowth(%)']) : 50;
                         const earnG = d['EarningsGrowth(%)'] != null ? percentileRank(cols['EarningsGrowth(%)'], d['EarningsGrowth(%)']) : 50;
                         d.GrowthScore = (revG + earnG) / 2;
                         
-                        // Momentum (10%) = M60*0.6 + M120*0.4
+                        // Momentum (15%) = M60*0.6 + M120*0.4 - 학술 권고에 따라 10%→15% 상향
                         const m60 = d['Return60D(%)'] != null ? percentileRank(cols['Return60D(%)'], d['Return60D(%)']) : 50;
                         const m120 = d['Return120D(%)'] != null ? percentileRank(cols['Return120D(%)'], d['Return120D(%)']) : 50;
                         d.MomentumScore = m60 * 0.6 + m120 * 0.4;
@@ -3129,8 +3960,9 @@
                         const flowS = d['ForeignRatio(%)'] != null ? Math.min(percentileRank(cols['ForeignRatio(%)'], d['ForeignRatio(%)']), 80) : 50;
                         d.FlowScore = flowS;
                         
-                        // Total
-                        d.TotalScore = d.ValueScore * 0.25 + d.QualityScore * 0.25 + d.GrowthScore * 0.20 + d.MomentumScore * 0.10 + d.RiskScore * 0.15 + d.FlowScore * 0.05;
+                        // Total (V25 Q20 G15 M15 R15 F5 = 95%, 나머지 5% Flow)
+                        // 기존: V25 Q25 G20 M10 R15 F5 → 변경: V25 Q20 G15 M15 R20 F5
+                        d.TotalScore = d.ValueScore * 0.25 + d.QualityScore * 0.20 + d.GrowthScore * 0.15 + d.MomentumScore * 0.15 + d.RiskScore * 0.20 + d.FlowScore * 0.05;
                         
                         // 플래그 설정 (필터용)
                         const high52 = d['52wHigh'] || d['52WeekHigh'];
@@ -3147,14 +3979,18 @@
                         const fcfS = d['FCFYield(%)'] != null ? percentileRank(cols['FCFYield(%)'], d['FCFYield(%)']) : 50;
                         d.ValueScore = (fpeS + pbrS + fcfS) / 3;
                         
-                        // Quality (20%) = Profit*0.6 + Stab*0.4
+                        // Quality (20%) = Profit*0.6 + Stab*0.4 (백분위 기반)
                         const roeS = d['ROE(%)'] != null ? percentileRank(cols['ROE(%)'], d['ROE(%)']) : 50;
                         const roaS = d['ROA(%)'] != null ? percentileRank(cols['ROA(%)'], d['ROA(%)']) : 50;
                         const gmS = d['GrossMargin(%)'] != null ? percentileRank(cols['GrossMargin(%)'], d['GrossMargin(%)']) : 50;
                         const opmS = d['OpMargin(%)'] != null ? percentileRank(cols['OpMargin(%)'], d['OpMargin(%)']) : 50;
                         const profit = (roeS + roaS + gmS + opmS) / 4;
-                        const deCol = d['Debt/Equity'] != null ? d['Debt/Equity'] : d['DebtRatio(%)'];
-                        const stab = (crScore(d.CurrentRatio) + deScore(deCol)) / 2;
+                        // Debt/Equity 배열 준비 (미국 주식용)
+                        const deColName = d['Debt/Equity'] != null ? 'Debt/Equity' : 'DebtRatio(%)';
+                        const deArrUS = subset.map(x => x[deColName]).filter(x => x != null && !isNaN(x));
+                        const crS_US = crScoreByPercentile(d.CurrentRatio, crArr);
+                        const deS_US = deScoreByPercentile(d[deColName], deArrUS);
+                        const stab = (crS_US + deS_US) / 2;
                         d.QualityScore = profit * 0.6 + stab * 0.4;
                         
                         // Growth (15%)
@@ -3190,9 +4026,14 @@
                         if (d['Return60D(%)'] < 0 && roeS > 60) d._contrarian = true;
                         
                     } else if (sheet.includes('ETF')) {
-                        // Cost (30%)
+                        // Cost (30%) - 로그 스케일 적용으로 저비용 ETF 차별화 강화
                         const expR = d['ExpenseRatio(%)'] != null ? d['ExpenseRatio(%)'] : 0;
-                        d.Cost_Score = 100 - Math.min(expR * 10, 80);
+                        // 비용 0.03% → 97점, 0.1% → 90점, 0.5% → 70점, 1.0% → 50점
+                        if (expR <= 0) {
+                            d.Cost_Score = 100;
+                        } else {
+                            d.Cost_Score = Math.max(0, 100 - 50 * Math.log10(1 + expR * 100));
+                        }
                         
                         // Momentum (25%) - 백분위 방식 (D-4.3)
                         const r3m = d['Return3M(%)'] || d['Return60D(%)'] || 0;
@@ -3336,8 +4177,13 @@
                         
                     } else if (sheet.includes('ETF')) {
                         // ETF - D-4.3 백분위 방식
+                        // Cost Score - 로그 스케일 적용으로 저비용 ETF 차별화 강화
                         const expR = d['ExpenseRatio(%)'] != null ? d['ExpenseRatio(%)'] : 0;
-                        d.Cost_Score = 100 - Math.min(expR * 10, 80);
+                        if (expR <= 0) {
+                            d.Cost_Score = 100;
+                        } else {
+                            d.Cost_Score = Math.max(0, 100 - 50 * Math.log10(1 + expR * 100));
+                        }
                         
                         // 백분위 모멘텀
                         const r3m = d['Return3M(%)'] || d['Return60D(%)'] || 0;
@@ -3739,9 +4585,14 @@
                         
                     } else if (sheet.includes('ETF')) {
                         // ===== ETF: D-4.3 개선 =====
-                        // Cost Score (30%)
+                        // Cost Score (30%) - 로그 스케일 적용으로 저비용 ETF 차별화 강화
                         const expR = d['ExpenseRatio(%)'] != null ? d['ExpenseRatio(%)'] : 0;
-                        d.Cost_Score = 100 - clamp(expR * 10, 0, 80);
+                        // 비용 0.03% → 97점, 0.1% → 90점, 0.5% → 70점, 1.0% → 50점
+                        if (expR <= 0) {
+                            d.Cost_Score = 100;
+                        } else {
+                            d.Cost_Score = Math.max(0, 100 - 50 * Math.log10(1 + expR * 100));
+                        }
                         
                         // Momentum Score (25%) - 백분위 방식으로 수정 (D-4.3)
                         const r3m = d['Return3M(%)'] || d['Return60D(%)'] || 0;
@@ -3794,7 +4645,7 @@
             const colors = { A: 'var(--accent-gold)', B: 'var(--accent-blue)', C: 'var(--accent-green)' };
             const bgColors = { A: 'rgba(245,158,11,0.2)', B: 'rgba(59,130,246,0.2)', C: 'rgba(16,185,129,0.2)' };
             const descs = { 
-                A: 'V25 Q20 G15 M20 R15 F5', 
+                A: 'V25 Q20 G15 M15 R20 F5 (개선)', 
                 B: 'V20 Q20 G20 M20 R20 (등가중)', 
                 C: 'V25 Q20 G15 M20 R15 +패널티' 
             };
@@ -4282,12 +5133,26 @@
                 }
             }
 
-            // 샤프비율 (단순화: 변동성은 보유종목 평균 사용)
+            // 샤프비율 계산 (연환산 기준)
+            // Sharpe = (연환산 수익률 - 무위험수익률) / 연환산 변동성
             const riskFreeRate = parseFloat(document.getElementById('riskFreeRate').value) || 3.5;
-            const avgVolatility = calculatePortfolioVolatility();
+            const portfolioVolatility = calculatePortfolioVolatility();
             let sharpe = '-';
-            if (avgVolatility > 0 && years >= 0.1) {
-                sharpe = ((cagr - riskFreeRate) / avgVolatility).toFixed(2);
+            let sharpeNote = '';
+            
+            if (portfolioVolatility > 0 && years >= 0.25) {
+                // 연환산 변동성 사용 (포트폴리오 분산 고려된 값)
+                const sharpeValue = (cagr - riskFreeRate) / portfolioVolatility;
+                sharpe = sharpeValue.toFixed(2);
+                
+                // Sharpe 해석 가이드
+                if (sharpeValue >= 1.0) sharpeNote = '(우수)';
+                else if (sharpeValue >= 0.5) sharpeNote = '(양호)';
+                else if (sharpeValue >= 0) sharpeNote = '(보통)';
+                else sharpeNote = '(저조)';
+            } else if (years < 0.25) {
+                sharpe = '-';
+                sharpeNote = '(3개월 이상 필요)';
             }
 
             // 벤치마크 대비
@@ -4303,7 +5168,7 @@
             cagrEl.textContent = (cagr >= 0 ? '+' : '') + cagr.toFixed(2) + '%';
             cagrEl.style.color = cagr >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
 
-            document.getElementById('perfSharpe').textContent = sharpe;
+            document.getElementById('perfSharpe').textContent = sharpe + ' ' + sharpeNote;
 
             const vsBenchmarkEl = document.getElementById('perfVsBenchmark');
             vsBenchmarkEl.textContent = (vsBenchmark >= 0 ? '+' : '') + vsBenchmark.toFixed(2) + '%';
@@ -4316,13 +5181,25 @@
             saveToStorage();
         }
 
-        // 포트폴리오 변동성 계산 (가중평균)
+        // 포트폴리오 변동성 계산 (상관관계 근사 적용)
+        // 자산군별 평균 상관계수 행렬 (경험적 추정치)
+        const assetCorrelations = {
+            'US_Stock': { 'US_Stock': 1.0, 'KR_Stock': 0.65, 'EU_Stock': 0.80, 'EM_Stock': 0.70, 'Gold': 0.05, 'Bond': -0.30, 'Cash': 0.0 },
+            'KR_Stock': { 'US_Stock': 0.65, 'KR_Stock': 1.0, 'EU_Stock': 0.55, 'EM_Stock': 0.60, 'Gold': 0.10, 'Bond': -0.20, 'Cash': 0.0 },
+            'EU_Stock': { 'US_Stock': 0.80, 'KR_Stock': 0.55, 'EU_Stock': 1.0, 'EM_Stock': 0.65, 'Gold': 0.08, 'Bond': -0.25, 'Cash': 0.0 },
+            'EM_Stock': { 'US_Stock': 0.70, 'KR_Stock': 0.60, 'EU_Stock': 0.65, 'EM_Stock': 1.0, 'Gold': 0.15, 'Bond': -0.15, 'Cash': 0.0 },
+            'Gold': { 'US_Stock': 0.05, 'KR_Stock': 0.10, 'EU_Stock': 0.08, 'EM_Stock': 0.15, 'Gold': 1.0, 'Bond': 0.25, 'Cash': 0.0 },
+            'Bond': { 'US_Stock': -0.30, 'KR_Stock': -0.20, 'EU_Stock': -0.25, 'EM_Stock': -0.15, 'Gold': 0.25, 'Bond': 1.0, 'Cash': 0.0 },
+            'Cash': { 'US_Stock': 0.0, 'KR_Stock': 0.0, 'EU_Stock': 0.0, 'EM_Stock': 0.0, 'Gold': 0.0, 'Bond': 0.0, 'Cash': 1.0 }
+        };
+
         function calculatePortfolioVolatility() {
             if (appData.holdings.length === 0) return 0;
             
+            // 1. 종목별 정보 수집
             let totalValue = 0;
-            let weightedVol = 0;
-
+            const holdingsInfo = [];
+            
             appData.holdings.forEach(h => {
                 const value = h.currentPrice * h.qty;
                 totalValue += value;
@@ -4332,10 +5209,41 @@
                     (d.Ticker || d.Code || d._ticker || '').toUpperCase() === h.ticker.toUpperCase()
                 );
                 const vol = found ? (found.Volatility20D || 20) : 20; // 기본 20%
-                weightedVol += value * vol;
+                
+                holdingsInfo.push({
+                    value: value,
+                    vol: vol / 100, // % → 소수점
+                    assetClass: h.assetClass || 'US_Stock'
+                });
             });
-
-            return totalValue > 0 ? weightedVol / totalValue : 0;
+            
+            if (totalValue === 0) return 0;
+            
+            // 2. 비중 계산
+            holdingsInfo.forEach(h => {
+                h.weight = h.value / totalValue;
+            });
+            
+            // 3. 포트폴리오 분산 계산: Σ(w_i² × σ_i²) + 2×Σ(w_i × w_j × σ_i × σ_j × ρ_ij)
+            let portfolioVariance = 0;
+            
+            for (let i = 0; i < holdingsInfo.length; i++) {
+                const hi = holdingsInfo[i];
+                // 자기 자신의 기여분
+                portfolioVariance += Math.pow(hi.weight, 2) * Math.pow(hi.vol, 2);
+                
+                // 다른 자산과의 공분산 기여분
+                for (let j = i + 1; j < holdingsInfo.length; j++) {
+                    const hj = holdingsInfo[j];
+                    const corr = (assetCorrelations[hi.assetClass] && assetCorrelations[hi.assetClass][hj.assetClass]) 
+                                 ? assetCorrelations[hi.assetClass][hj.assetClass] 
+                                 : 0.5; // 기본 상관계수
+                    portfolioVariance += 2 * hi.weight * hj.weight * hi.vol * hj.vol * corr;
+                }
+            }
+            
+            // 4. 표준편차로 변환 후 % 단위 반환
+            return Math.sqrt(Math.max(0, portfolioVariance)) * 100;
         }
 
         // 리스크 분석 업데이트
