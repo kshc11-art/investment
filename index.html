@@ -402,6 +402,12 @@
             font-weight: 600;
         }
 
+        /* 버전 pill 스타일 */
+        .version-pill {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
         /* 테이블 모바일 최적화 - 수평 스크롤 */
         .table-wrapper {
             overflow-x: auto;
@@ -1506,100 +1512,72 @@
                     </div>
                 </div>
 
-                <!-- Method Box with Version Selection -->
-                <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.75rem; color: var(--text-secondary);">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
-                        <div style="flex: 1; min-width: 200px;">
-                            <strong style="color: var(--accent-gold);">스크리닝 로직 (D-4.3):</strong>
-                            <div id="logicDescA" style="margin-top: 4px;">
-                                <strong>버전 A:</strong> 기본 가중치 (ETF 백분위 적용)<br>
-                                • KR: V25% Q20% G15% M20% R15% Flow5%<br>
-                                • US: V20% Q25% G15% M20% R20%<br>
-                                • ETF: Cost30% Mom25% Risk25% Inc20%
-                            </div>
-                            <div id="logicDescB" style="margin-top: 4px; display: none;">
-                                <strong>버전 B (등가중):</strong> DeMiguel 1/N 기반<br>
-                                • KR/US: V20% Q20% G20% M20% R20%<br>
-                                • 모든 하위지표 등가중
-                            </div>
-                            <div id="logicDescC" style="margin-top: 4px; display: none;">
-                                <strong>버전 C (역발상):</strong> D-4.3 개선 적용<br>
-                                • 52주 고점: AND조건 (RSI70+&Return80%+)<br>
-                                • 적자전환: EarningsGrowth -100% 감점<br>
-                                • ETF 백분위, 감점 최대 30% 제한
-                            </div>
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 8px; background: var(--bg-card); padding: 8px 12px; border-radius: 6px;">
-                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                                <input type="radio" name="scoringVersion" value="A" checked style="accent-color: var(--accent-gold);">
-                                <span style="color: var(--accent-gold); font-weight: 600;">버전 A</span>
+                <!-- 버전 선택 + 필터 통합 박스 -->
+                <div style="background: var(--bg-secondary); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+                    <!-- 버전 선택 -->
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                        <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">버전</span>
+                        <div style="display: flex; gap: 4px; background: var(--bg-card); padding: 3px; border-radius: 8px;">
+                            <label style="cursor: pointer;">
+                                <input type="radio" name="scoringVersion" value="A" checked style="display: none;">
+                                <span class="version-pill" data-version="A" style="display: block; padding: 8px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--accent-gold); background: rgba(245,158,11,0.2);">A</span>
                             </label>
-                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                                <input type="radio" name="scoringVersion" value="B" style="accent-color: var(--accent-blue);">
-                                <span style="color: var(--accent-blue); font-weight: 600;">버전 B (등가중)</span>
+                            <label style="cursor: pointer;">
+                                <input type="radio" name="scoringVersion" value="B" style="display: none;">
+                                <span class="version-pill" data-version="B" style="display: block; padding: 8px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: transparent;">B</span>
                             </label>
-                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                                <input type="radio" name="scoringVersion" value="C" style="accent-color: var(--accent-green);">
-                                <span style="color: var(--accent-green); font-weight: 600;">버전 C (역발상)</span>
+                            <label style="cursor: pointer;">
+                                <input type="radio" name="scoringVersion" value="C" style="display: none;">
+                                <span class="version-pill" data-version="C" style="display: block; padding: 8px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: transparent;">C</span>
                             </label>
                         </div>
+                        <span id="versionDesc" style="font-size: 0.68rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">V25 Q20 G15 M20 R15 F5</span>
                     </div>
-                </div>
-
-                <!-- 버전 C 전용 필터 -->
-                <div id="versionCFilters" style="display: none; background: var(--bg-secondary); border: 1px solid var(--accent-green); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.8rem;">
-                    <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
-                        <span style="color: var(--accent-green); font-weight: 600;">🎯 역발상 필터:</span>
-                        <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                            <input type="checkbox" id="filterOverbought" style="accent-color: var(--accent-red);">
-                            <span>🔥 과매수(RSI&gt;70) 제외</span>
+                    
+                    <!-- 스크리닝 필터 -->
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">필터</span>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 10px; background: var(--bg-card); border-radius: 6px;">
+                            <input type="checkbox" id="filterOverbought" style="width: 16px; height: 16px; accent-color: var(--accent-red);">
+                            <span style="font-size: 0.75rem;">🔥 과매수 제외</span>
                         </label>
-                        <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                            <input type="checkbox" id="filterNearHigh" style="accent-color: var(--accent-gold);">
-                            <span>⚠️ 52주고점 95%+ 제외</span>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 10px; background: var(--bg-card); border-radius: 6px;">
+                            <input type="checkbox" id="filterNearHigh" style="width: 16px; height: 16px; accent-color: var(--accent-gold);">
+                            <span style="font-size: 0.75rem;">⚠️ 고점 제외</span>
                         </label>
-                        <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                            <input type="checkbox" id="filterContrarianOnly" style="accent-color: var(--accent-blue);">
-                            <span>💎 역발상 후보만</span>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 10px; background: var(--bg-card); border-radius: 6px;">
+                            <input type="checkbox" id="filterContrarianOnly" style="width: 16px; height: 16px; accent-color: var(--accent-blue);">
+                            <span style="font-size: 0.75rem;">💎 역발상만</span>
                         </label>
                     </div>
                 </div>
 
-                <!-- Filters -->
-                <div style="background: var(--bg-secondary); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                <!-- 시장/점수 필터 -->
+                <div style="background: var(--bg-secondary); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
                     <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
-                        <span style="font-size: 0.75rem; color: var(--text-muted); min-width: 50px; display: flex; align-items: center;">시장:</span>
-                        <button class="filter-btn active" data-filter="sheet" data-value="ALL">전체 (511)</button>
-                        <button class="filter-btn" data-filter="sheet" data-value="KR_Stocks">🇰🇷 한국주식</button>
-                        <button class="filter-btn" data-filter="sheet" data-value="US_Stocks">🇺🇸 미국주식</button>
-                        <button class="filter-btn" data-filter="sheet" data-value="KR_ETF">🇰🇷 한국ETF</button>
-                        <button class="filter-btn" data-filter="sheet" data-value="US_ETF">🇺🇸 미국ETF</button>
-                        <button class="filter-btn" data-filter="sheet" data-value="EU_ETF">🇪🇺 유럽</button>
-                        <button class="filter-btn" data-filter="sheet" data-value="JP_ETF">🇯🇵 일본</button>
-                        <button class="filter-btn" data-filter="sheet" data-value="CN_ETF">🇨🇳 중국</button>
-                        <button class="filter-btn" data-filter="sheet" data-value="IN_ETF">🇮🇳 인도</button>
-                        <button class="filter-btn" data-filter="sheet" data-value="BR_ETF">🇧🇷 브라질</button>
-                        <button class="filter-btn" data-filter="sheet" data-value="Global_ETF">🌐 글로벌</button>
+                        <button class="filter-btn active" data-filter="sheet" data-value="ALL">전체</button>
+                        <button class="filter-btn" data-filter="sheet" data-value="KR_Stocks">🇰🇷주식</button>
+                        <button class="filter-btn" data-filter="sheet" data-value="US_Stocks">🇺🇸주식</button>
+                        <button class="filter-btn" data-filter="sheet" data-value="KR_ETF">🇰🇷ETF</button>
+                        <button class="filter-btn" data-filter="sheet" data-value="US_ETF">🇺🇸ETF</button>
+                        <button class="filter-btn" data-filter="sheet" data-value="EU_ETF">🇪🇺</button>
+                        <button class="filter-btn" data-filter="sheet" data-value="JP_ETF">🇯🇵</button>
+                        <button class="filter-btn" data-filter="sheet" data-value="CN_ETF">🇨🇳</button>
+                        <button class="filter-btn" data-filter="sheet" data-value="IN_ETF">🇮🇳</button>
+                        <button class="filter-btn" data-filter="sheet" data-value="BR_ETF">🇧🇷</button>
+                        <button class="filter-btn" data-filter="sheet" data-value="Global_ETF">🌐</button>
                     </div>
-                    <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
-                        <span style="font-size: 0.75rem; color: var(--text-muted); min-width: 50px; display: flex; align-items: center;">점수:</span>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">점수</span>
                         <button class="filter-btn active" data-filter="score" data-value="all">전체</button>
-                        <button class="filter-btn" data-filter="score" data-value="80">80+</button>
                         <button class="filter-btn" data-filter="score" data-value="70">70+</button>
                         <button class="filter-btn" data-filter="score" data-value="60">60+</button>
                         <button class="filter-btn" data-filter="score" data-value="50">50+</button>
-                    </div>
-                    <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
-                        <span style="font-size: 0.75rem; color: var(--text-muted); min-width: 50px; display: flex; align-items: center;">유형:</span>
-                        <button class="filter-btn active" data-filter="type" data-value="all">전체</button>
-                        <button class="filter-btn" data-filter="type" data-value="Stock">주식</button>
-                        <button class="filter-btn" data-filter="type" data-value="ETF">ETF</button>
-                    </div>
-                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                        <span style="font-size: 0.75rem; color: var(--text-muted); min-width: 50px; display: flex; align-items: center;">모멘텀:</span>
+                        <span style="width: 12px;"></span>
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">추세</span>
                         <button class="filter-btn active" data-filter="momentum" data-value="all">전체</button>
-                        <button class="filter-btn" data-filter="momentum" data-value="up">📈 상승</button>
-                        <button class="filter-btn" data-filter="momentum" data-value="down">📉 하락</button>
+                        <button class="filter-btn" data-filter="momentum" data-value="up">📈</button>
+                        <button class="filter-btn" data-filter="momentum" data-value="down">📉</button>
                     </div>
                 </div>
 
@@ -2908,22 +2886,22 @@
         function renderTable() {
             let filtered = applyFilters();
             
-            // 버전 C 전용 필터 적용
+            // 현재 버전 가져오기
             const version = getSelectedVersion();
-            if (version === 'C') {
-                const filterOverbought = document.getElementById('filterOverbought')?.checked;
-                const filterNearHigh = document.getElementById('filterNearHigh')?.checked;
-                const filterContrarianOnly = document.getElementById('filterContrarianOnly')?.checked;
-                
-                if (filterOverbought) {
-                    filtered = filtered.filter(d => !d._overbought);
-                }
-                if (filterNearHigh) {
-                    filtered = filtered.filter(d => !d._nearHigh);
-                }
-                if (filterContrarianOnly) {
-                    filtered = filtered.filter(d => d._contrarian);
-                }
+            
+            // 공통 스크리닝 필터 적용 (모든 버전)
+            const filterOverbought = document.getElementById('filterOverbought')?.checked;
+            const filterNearHigh = document.getElementById('filterNearHigh')?.checked;
+            const filterContrarianOnly = document.getElementById('filterContrarianOnly')?.checked;
+            
+            if (filterOverbought) {
+                filtered = filtered.filter(d => !d._overbought);
+            }
+            if (filterNearHigh) {
+                filtered = filtered.filter(d => !d._nearHigh);
+            }
+            if (filterContrarianOnly) {
+                filtered = filtered.filter(d => d._contrarian);
             }
             
             let sorted = [...filtered];
@@ -2983,13 +2961,11 @@
                 const name = d.Name || '-';
                 const sector = d.Sector || d.ETF_Type || d.Category || '-';
                 
-                // 버전 C 플래그 아이콘
+                // 플래그 아이콘 (모든 버전에서 표시)
                 let statusIcons = '';
-                if (version === 'C') {
-                    if (d._overbought) statusIcons += '🔥';
-                    if (d._nearHigh) statusIcons += '⚠️';
-                    if (d._contrarian) statusIcons += '💎';
-                }
+                if (d._overbought) statusIcons += '🔥';
+                if (d._nearHigh) statusIcons += '⚠️';
+                if (d._contrarian) statusIcons += '💎';
                 
                 // 점수들
                 const totalScore = d.TotalScore ? Math.round(d.TotalScore) : '-';
@@ -3115,6 +3091,11 @@
                 };
                 
                 subset.forEach(d => {
+                    // 공통 플래그 초기화 (필터용)
+                    d._overbought = false;
+                    d._nearHigh = false;
+                    d._contrarian = false;
+                    
                     if (sheet === 'KR_Stocks') {
                         // Value (25%)
                         const perS = (d.PER > 0 && d.PER < 200) ? percentileRank(cols['PER'], d.PER, true) : 50;
@@ -3150,6 +3131,14 @@
                         
                         // Total
                         d.TotalScore = d.ValueScore * 0.25 + d.QualityScore * 0.25 + d.GrowthScore * 0.20 + d.MomentumScore * 0.10 + d.RiskScore * 0.15 + d.FlowScore * 0.05;
+                        
+                        // 플래그 설정 (필터용)
+                        const high52 = d['52wHigh'] || d['52WeekHigh'];
+                        const price = d.Price || d.Close;
+                        if (d.RSI14 > 70 || m60 > 80) d._overbought = true;
+                        if (high52 > 0 && price > 0 && (price / high52) > 0.95) d._nearHigh = true;
+                        if (d.PBR > 0 && d.PBR < 1 && roeS > 50) d._contrarian = true;
+                        if (d['Return60D(%)'] < 0 && roeS > 60) d._contrarian = true;
                         
                     } else if (sheet === 'US_Stocks') {
                         // Value (25%)
@@ -3191,6 +3180,14 @@
                         
                         // Total
                         d.TotalScore = d.ValueScore * 0.25 + d.QualityScore * 0.20 + d.GrowthScore * 0.15 + d.MomentumScore * 0.15 + d.RiskScore * 0.15 + d.FlowScore * 0.10;
+                        
+                        // 플래그 설정 (필터용)
+                        const high52 = d['52wHigh'] || d['52WeekHigh'];
+                        const price = d.Price || d.Close;
+                        if (d.RSI14 > 70 || m60 > 80) d._overbought = true;
+                        if (high52 > 0 && price > 0 && (price / high52) > 0.95) d._nearHigh = true;
+                        if (d.PBR > 0 && d.PBR < 1 && roeS > 50) d._contrarian = true;
+                        if (d['Return60D(%)'] < 0 && roeS > 60) d._contrarian = true;
                         
                     } else if (sheet.includes('ETF')) {
                         // Cost (30%)
@@ -3245,6 +3242,11 @@
                 });
                 
                 subset.forEach(d => {
+                    // 공통 플래그 초기화 (필터용)
+                    d._overbought = false;
+                    d._nearHigh = false;
+                    d._contrarian = false;
+                    
                     if (sheet === 'KR_Stocks') {
                         // Value (20%) - 등가중
                         const perS = (d.PER > 0 && d.PER < 200) ? percentileRank(cols['PER'], d.PER, true) : 50;
@@ -3277,6 +3279,14 @@
                         
                         // Total (5팩터 등가중, Flow 제외)
                         d.TotalScore = (d.ValueScore + d.QualityScore + d.GrowthScore + d.MomentumScore + d.RiskScore) / 5;
+                        
+                        // 플래그 설정 (필터용)
+                        const high52 = d['52wHigh'] || d['52WeekHigh'];
+                        const price = d.Price || d.Close;
+                        if (d.RSI14 > 70 || m60 > 80) d._overbought = true;
+                        if (high52 > 0 && price > 0 && (price / high52) > 0.95) d._nearHigh = true;
+                        if (d.PBR > 0 && d.PBR < 1 && roeS > 50) d._contrarian = true;
+                        if (d['Return60D(%)'] < 0 && roeS > 60) d._contrarian = true;
                         
                     } else if (sheet === 'US_Stocks') {
                         // Value (20%) - 등가중
@@ -3315,6 +3325,14 @@
                         
                         // Total (5팩터 등가중, Flow 제외)
                         d.TotalScore = (d.ValueScore + d.QualityScore + d.GrowthScore + d.MomentumScore + d.RiskScore) / 5;
+                        
+                        // 플래그 설정 (필터용)
+                        const high52 = d['52wHigh'] || d['52WeekHigh'];
+                        const price = d.Price || d.Close;
+                        if (d.RSI14 > 70 || m60 > 80) d._overbought = true;
+                        if (high52 > 0 && price > 0 && (price / high52) > 0.95) d._nearHigh = true;
+                        if (d.PBR > 0 && d.PBR < 1 && roeS > 50) d._contrarian = true;
+                        if (d['Return60D(%)'] < 0 && roeS > 60) d._contrarian = true;
                         
                     } else if (sheet.includes('ETF')) {
                         // ETF - D-4.3 백분위 방식
@@ -3771,13 +3789,35 @@
             return radio ? radio.value : 'A';
         }
         
-        // 버전 라디오 버튼 변경 시 설명 토글 + 재계산
+        // 버전 pill 스타일 업데이트 함수
+        function updateVersionPillStyles(selectedValue) {
+            const colors = { A: 'var(--accent-gold)', B: 'var(--accent-blue)', C: 'var(--accent-green)' };
+            const bgColors = { A: 'rgba(245,158,11,0.2)', B: 'rgba(59,130,246,0.2)', C: 'rgba(16,185,129,0.2)' };
+            const descs = { 
+                A: 'V25 Q20 G15 M20 R15 F5', 
+                B: 'V20 Q20 G20 M20 R20 (등가중)', 
+                C: 'V25 Q20 G15 M20 R15 +패널티' 
+            };
+            
+            document.querySelectorAll('.version-pill').forEach(pill => {
+                const v = pill.dataset.version;
+                if (v === selectedValue) {
+                    pill.style.background = bgColors[v];
+                    pill.style.color = colors[v];
+                } else {
+                    pill.style.background = 'transparent';
+                    pill.style.color = 'var(--text-muted)';
+                }
+            });
+            
+            const descEl = document.getElementById('versionDesc');
+            if (descEl) descEl.textContent = descs[selectedValue];
+        }
+        
+        // 버전 라디오 버튼 변경 시 스타일 + 재계산
         document.querySelectorAll('input[name="scoringVersion"]').forEach(radio => {
             radio.addEventListener('change', function() {
-                document.getElementById('logicDescA').style.display = this.value === 'A' ? 'block' : 'none';
-                document.getElementById('logicDescB').style.display = this.value === 'B' ? 'block' : 'none';
-                document.getElementById('logicDescC').style.display = this.value === 'C' ? 'block' : 'none';
-                document.getElementById('versionCFilters').style.display = this.value === 'C' ? 'block' : 'none';
+                updateVersionPillStyles(this.value);
                 
                 // 현재 데이터가 있으면 재계산
                 if (screeningData.length > 0) {
@@ -3795,7 +3835,7 @@
             });
         });
         
-        // 버전 C 전용 필터 이벤트
+        // 스크리닝 필터 이벤트 (모든 버전 공통)
         ['filterOverbought', 'filterNearHigh', 'filterContrarianOnly'].forEach(id => {
             const el = document.getElementById(id);
             if (el) {
