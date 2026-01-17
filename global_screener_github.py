@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
-글로벌 주식/ETF 스크리닝 - GitHub Actions 버전 v2
+글로벌 주식/ETF 스크리닝 - GitHub Actions 버전 v2.1
 - 원본: global_screener_github.py
+- v2.1 수정: GitHub Actions 출력 버퍼링 문제 해결
+  * sys.stdout.flush() 추가
+  * 진행 상황 출력 빈도 증가
 - v2 수정: PWA 호환성 개선
   * ForwardPER → ForwardPE
   * Sharpe1Y → SharpeRatio
@@ -33,7 +36,13 @@ import re
 import json
 import argparse
 
-print("라이브러리 로딩 중...")
+# ★ GitHub Actions 버퍼링 해결: 즉시 출력 함수
+def log(msg):
+    """즉시 출력되는 로그 함수"""
+    print(msg)
+    sys.stdout.flush()
+
+log("라이브러리 로딩 중...")
 
 import logging
 logging.getLogger('yfinance').setLevel(logging.CRITICAL)
@@ -44,18 +53,19 @@ try:
     import requests
     from bs4 import BeautifulSoup
 except ImportError as e:
-    print("=" * 60)
-    print("pip install yfinance openpyxl pandas requests beautifulsoup4 lxml numpy pykrx")
-    print("=" * 60)
+    log("=" * 60)
+    log("pip install yfinance openpyxl pandas requests beautifulsoup4 lxml numpy pykrx")
+    log("=" * 60)
     sys.exit(1)
 
 # pykrx 선택적
 try:
     from pykrx import stock as pykrx_stock
     PYKRX_AVAILABLE = True
+    log("✅ pykrx 로드 완료")
 except:
     PYKRX_AVAILABLE = False
-    print("⚠️ pykrx 미설치 - 한국 주식 일부 데이터 제한")
+    log("⚠️ pykrx 미설치 - 한국 주식 일부 데이터 제한")
 
 # ============================================================
 # 설정
@@ -169,7 +179,7 @@ def fetch_naver(url, timeout=10):
         resp = requests.get(url, headers=HEADERS, timeout=timeout)
         if resp.status_code == 403:
             NAVER_AVAILABLE = False
-            print("  ⚠️ 네이버 금융 접근 차단됨 (403)")
+            log("  ⚠️ 네이버 금융 접근 차단됨 (403)")
             return None
         if resp.status_code == 200:
             NAVER_AVAILABLE = True
@@ -184,7 +194,7 @@ def get_naver_stock_list(market='KOSPI', max_pages=10):
     stocks = []
     sosok = '0' if market == 'KOSPI' else '1'
     
-    print(f"  네이버 {market} 시총 순위 로드 시도...")
+    log(f"  네이버 {market} 시총 순위 로드 시도...")
     
     for page in range(1, max_pages + 1):
         url = f"https://finance.naver.com/sise/sise_market_sum.naver?sosok={sosok}&page={page}"
@@ -247,7 +257,7 @@ def get_naver_stock_list(market='KOSPI', max_pages=10):
         
         time.sleep(0.2)
     
-    print(f"  네이버 {market}: {len(stocks)}개 로드")
+    log(f"  네이버 {market}: {len(stocks)}개 로드")
     return stocks
 
 def get_naver_stock_detail(code):
@@ -502,7 +512,7 @@ def get_fnguide_data(code):
 def get_naver_etf_list(max_pages=5):
     """네이버에서 ETF 리스트"""
     etfs = []
-    print("  네이버 ETF 리스트 로드 시도...")
+    log("  네이버 ETF 리스트 로드 시도...")
     
     for page in range(1, max_pages + 1):
         url = f"https://finance.naver.com/sise/etf.naver?page={page}"
@@ -545,7 +555,7 @@ def get_naver_etf_list(max_pages=5):
         
         time.sleep(0.2)
     
-    print(f"  네이버 ETF: {len(etfs)}개 로드")
+    log(f"  네이버 ETF: {len(etfs)}개 로드")
     return etfs
 
 # ============================================================
@@ -651,13 +661,13 @@ def calc_data_quality_score(row, required_cols, data_type='stock'):
 # ============================================================
 def get_korea_stocks():
     """한국 주식 데이터 수집"""
-    print("\n[1/5] 한국 주식 수집 중...")
+    log("\n[1/5] 한국 주식 수집 중...")
     
     all_tickers = []
     
     if PYKRX_AVAILABLE:
         try:
-            print("  pykrx에서 종목 리스트 로드 중...")
+            log("  pykrx에서 종목 리스트 로드 중...")
             kospi_tickers = pykrx_stock.get_market_ticker_list(market="KOSPI")
             kosdaq_tickers = pykrx_stock.get_market_ticker_list(market="KOSDAQ")
             
@@ -677,13 +687,13 @@ def get_korea_stocks():
                 if not is_etf_stock(name, ticker):
                     all_tickers.append((ticker, name, 'KOSDAQ'))
             
-            print(f"  pykrx: {len(all_tickers)}개 종목 로드")
+            log(f"  pykrx: {len(all_tickers)}개 종목 로드")
         except Exception as e:
-            print(f"  ⚠️ pykrx 실패: {e}")
+            log(f"  ⚠️ pykrx 실패: {e}")
             all_tickers = []
     
     if not all_tickers:
-        print("  네이버에서 종목 리스트 로드 시도...")
+        log("  네이버에서 종목 리스트 로드 시도...")
         kospi_stocks = get_naver_stock_list('KOSPI', max_pages=10 if TOP_N_KR is None else 3)
         kosdaq_stocks = get_naver_stock_list('KOSDAQ', max_pages=10 if TOP_N_KR is None else 3)
         
@@ -695,13 +705,13 @@ def get_korea_stocks():
                 all_tickers.append((stock['code'], stock['name'], 'KOSDAQ'))
     
     if not all_tickers:
-        print("  ❌ 종목 리스트를 가져올 수 없음")
+        log("  ❌ 종목 리스트를 가져올 수 없음")
         return pd.DataFrame()
     
     if TOP_N_KR:
         all_tickers = all_tickers[:TOP_N_KR]
     
-    print(f"  대상: {len(all_tickers)}개")
+    log(f"  대상: {len(all_tickers)}개")
     
     results = []
     
@@ -969,12 +979,13 @@ def get_korea_stocks():
         except Exception as e:
             results.append({'Code': ticker, 'Name': name, 'Market': market, 'Remark': str(e)[:30]})
         
-        if (i + 1) % 100 == 0:
-            print(f"  진행: {i+1}/{len(all_tickers)}")
+        # ★ 진행 상황 출력 빈도 증가 (50개마다)
+        if (i + 1) % 50 == 0 or i == 0:
+            log(f"  진행: {i+1}/{len(all_tickers)} ({(i+1)/len(all_tickers)*100:.1f}%)")
         
         time.sleep(0.05)
     
-    print(f"  ✅ 완료: {len(results)}개")
+    log(f"  ✅ 완료: {len(results)}개")
     return pd.DataFrame(results)
 
 # ============================================================
@@ -982,7 +993,7 @@ def get_korea_stocks():
 # ============================================================
 def get_us_stocks():
     """미국 S&P 500 주식 데이터"""
-    print("\n[2/5] 미국 주식 수집 중...")
+    log("\n[2/5] 미국 주식 수집 중...")
     
     sp500_top = [
         'AAPL', 'MSFT', 'AMZN', 'NVDA', 'GOOGL', 'META', 'TSLA', 'BRK-B', 'UNH', 'JNJ',
@@ -1000,7 +1011,7 @@ def get_us_stocks():
     tickers = sp500_top[:TOP_N_US] if TOP_N_US else sp500_top
     results = []
     
-    print(f"  대상: {len(tickers)}개")
+    log(f"  대상: {len(tickers)}개")
     
     for i, ticker in enumerate(tickers):
         try:
@@ -1161,11 +1172,11 @@ def get_us_stocks():
             results.append({'Ticker': ticker, 'Remark': str(e)[:30]})
 
         if (i + 1) % 20 == 0:
-            print(f"  진행: {i+1}/{len(tickers)}")
+            log(f"  진행: {i+1}/{len(tickers)}")
 
         time.sleep(0.15)
 
-    print(f"  ✅ 완료: {len(results)}개")
+    log(f"  ✅ 완료: {len(results)}개")
     return pd.DataFrame(results)
 
 # ============================================================
@@ -1269,7 +1280,7 @@ def get_etf_data(tickers, region=""):
 # ============================================================
 def get_korea_etfs():
     """한국 ETF 데이터"""
-    print("\n[3/5] 한국 ETF 수집 중...")
+    log("\n[3/5] 한국 ETF 수집 중...")
     
     kr_etf_list = [
         '069500', '114800', '122630', '229200', '252670',
@@ -1404,11 +1415,11 @@ def get_korea_etfs():
             pass
         
         if (i + 1) % 30 == 0:
-            print(f"  진행: {i+1}/{len(kr_etf_list)}")
+            log(f"  진행: {i+1}/{len(kr_etf_list)}")
         
         time.sleep(0.1)
     
-    print(f"  ✅ 완료: {len(results)}개")
+    log(f"  ✅ 완료: {len(results)}개")
     return pd.DataFrame(results)
 
 # ============================================================
@@ -1416,7 +1427,7 @@ def get_korea_etfs():
 # ============================================================
 def get_us_etfs():
     """미국 ETF 데이터"""
-    print("\n[4/5] 미국 ETF 수집 중...")
+    log("\n[4/5] 미국 ETF 수집 중...")
     
     tickers = [
         'SPY', 'IVV', 'VOO', 'VTI', 'QQQ', 'DIA', 'IWM', 'IWF', 'IWD', 'VUG',
@@ -1433,7 +1444,7 @@ def get_us_etfs():
     ]
     
     df = get_etf_data(tickers, "US")
-    print(f"  ✅ 완료: {len(df)}개")
+    log(f"  ✅ 완료: {len(df)}개")
     return df
 
 # ============================================================
@@ -1548,13 +1559,13 @@ def get_korea_market_indicators():
             pass
 
     except Exception as e:
-        print(f"  ⚠️ 한국 시장 지표 수집 실패: {e}")
+        log(f"  ⚠️ 한국 시장 지표 수집 실패: {e}")
 
     return indicators
 
 def get_market_indicators():
     """글로벌 시장 지표 - 확장 버전"""
-    print("\n[5/5] 시장 지표 수집 중...")
+    log("\n[5/5] 시장 지표 수집 중...")
 
     # ========================================
     # 1. Yahoo Finance 기본 지표
@@ -1609,7 +1620,7 @@ def get_market_indicators():
 
     results = []
 
-    print("  Yahoo Finance 지표 수집 중...")
+    log("  Yahoo Finance 지표 수집 중...")
     for ticker, (name, category) in indicators.items():
         try:
             t = yf.Ticker(ticker)
@@ -1656,7 +1667,7 @@ def get_market_indicators():
     # ========================================
     # 2. 계산 지표 (스프레드 등)
     # ========================================
-    print("  계산 지표 수집 중...")
+    log("  계산 지표 수집 중...")
 
     # 10Y-3M 스프레드 (침체 신호)
     try:
@@ -1709,7 +1720,7 @@ def get_market_indicators():
     # ========================================
     # 3. 심리 지표 (웹 스크래핑)
     # ========================================
-    print("  심리 지표 수집 중...")
+    log("  심리 지표 수집 중...")
 
     # Fear & Greed Index
     fg_data = get_fear_greed_index()
@@ -1747,7 +1758,7 @@ def get_market_indicators():
     # ========================================
     # 4. 한국 시장 지표 (pykrx)
     # ========================================
-    print("  한국 시장 지표 수집 중...")
+    log("  한국 시장 지표 수집 중...")
 
     kr_indicators = get_korea_market_indicators()
 
@@ -1808,7 +1819,7 @@ def get_market_indicators():
     # ========================================
     # 5. 추가 ETF 기반 지표
     # ========================================
-    print("  추가 ETF 지표 수집 중...")
+    log("  추가 ETF 지표 수집 중...")
 
     additional_etfs = {
         'IEF': ('미국채 7-10년 ETF', '채권'),
@@ -1867,7 +1878,7 @@ def get_market_indicators():
     except:
         pass
 
-    print(f"  ✅ 완료: {len(results)}개")
+    log(f"  ✅ 완료: {len(results)}개")
     return pd.DataFrame(results)
 
 # ============================================================
@@ -1878,7 +1889,7 @@ def save_to_excel(data_dict, filename):
     from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
     from openpyxl.utils.dataframe import dataframe_to_rows
     
-    print("\n엑셀 저장 중...")
+    log("\n엑셀 저장 중...")
     
     wb = Workbook()
     wb.remove(wb.active)
@@ -1907,16 +1918,16 @@ def save_to_excel(data_dict, filename):
             cell.border = thin_border
         
         ws.freeze_panes = 'A2'
-        print(f"  ✅ {sheet_name}: {len(df)}행")
+        log(f"  ✅ {sheet_name}: {len(df)}행")
     
     wb.save(filename)
-    print(f"\n💾 Excel 저장: {filename}")
+    log(f"\n💾 Excel 저장: {filename}")
 
 # ============================================================
 # JSON 저장
 # ============================================================
 def save_to_json(data_dict, filename):
-    print("\nJSON 저장 중...")
+    log("\nJSON 저장 중...")
     
     output = {
         'metadata': {
@@ -1933,15 +1944,15 @@ def save_to_json(data_dict, filename):
         
         records = df.replace({np.nan: None}).to_dict(orient='records')
         output['data'][sheet_name] = records
-        print(f"  ✅ {sheet_name}: {len(records)}개")
+        log(f"  ✅ {sheet_name}: {len(records)}개")
     
     with open(filename, 'w', encoding='utf-8') as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
     
-    print(f"\n💾 JSON 저장: {filename}")
+    log(f"\n💾 JSON 저장: {filename}")
     
     size_mb = os.path.getsize(filename) / (1024 * 1024)
-    print(f"   파일 크기: {size_mb:.2f} MB")
+    log(f"   파일 크기: {size_mb:.2f} MB")
 
 # ============================================================
 # 메인
@@ -1958,12 +1969,12 @@ def main():
     TOP_N_KR = args.kr_stocks
     TOP_N_US = args.us_stocks
     
-    print("=" * 60)
-    print("글로벌 주식/ETF 스크리닝 - GitHub Actions v2 (PWA 호환)")
-    print(f"실행: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"한국 주식: {'전체' if TOP_N_KR is None else TOP_N_KR}개")
-    print(f"미국 주식: {TOP_N_US}개")
-    print("=" * 60)
+    log("=" * 60)
+    log("글로벌 주식/ETF 스크리닝 - GitHub Actions v2.1 (버퍼링 수정)")
+    log(f"실행: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    log(f"한국 주식: {'전체' if TOP_N_KR is None else TOP_N_KR}개")
+    log(f"미국 주식: {TOP_N_US}개")
+    log("=" * 60)
     
     start = time.time()
     
@@ -1986,8 +1997,8 @@ def main():
         save_to_excel(data, excel_file)
     
     elapsed = (time.time() - start) / 60
-    print(f"\n총 소요: {elapsed:.1f}분")
-    print("=" * 60)
+    log(f"\n총 소요: {elapsed:.1f}분")
+    log("=" * 60)
 
 if __name__ == "__main__":
     main()
