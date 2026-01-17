@@ -1503,7 +1503,11 @@
                         <h3 class="card-title">📈 글로벌 스크리닝</h3>
                         <span class="card-badge badge-success" id="totalBadge">✅ 518개 종목</span>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span id="dataLoadTime" style="font-size: 0.65rem; color: var(--text-muted); background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px; display: none;"></span>
+                        <button id="refreshDataBtn" style="background: var(--accent-blue); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;" title="GitHub Actions 데이터 새로고침">
+                            🔄 데이터 갱신
+                        </button>
                         <label for="excelUpload" style="cursor: pointer; background: var(--accent-gold); color: #000; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 4px;">
                             📁 엑셀 업로드
                         </label>
@@ -4779,6 +4783,133 @@
             }
         });
         
+        
+        // ========== data.json 자동 로드 ==========
+        const sheetConfigs = {
+            'KR_Stocks': { flag: '🇰🇷', type: 'Stock' },
+            'US_Stocks': { flag: '🇺🇸', type: 'Stock' },
+            'KR_ETF': { flag: '🇰🇷', type: 'ETF' },
+            'US_ETF': { flag: '🇺🇸', type: 'ETF' },
+            'EU_ETF': { flag: '🇪🇺', type: 'ETF' },
+            'JP_ETF': { flag: '🇯🇵', type: 'ETF' },
+            'CN_ETF': { flag: '🇨🇳', type: 'ETF' },
+            'IN_ETF': { flag: '🇮🇳', type: 'ETF' },
+            'BR_ETF': { flag: '🇧🇷', type: 'ETF' },
+            'Global_ETF': { flag: '🌐', type: 'ETF' }
+        };
+
+        function updateDataLoadTime(metadata, source) {
+            const timeEl = document.getElementById('dataLoadTime');
+            if (timeEl && metadata && metadata.generated) {
+                const genDate = new Date(metadata.generated);
+                const now = new Date();
+                const diffMs = now - genDate;
+                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                
+                let timeAgo = '';
+                if (diffHours > 24) {
+                    timeAgo = Math.floor(diffHours / 24) + '일 전';
+                } else if (diffHours > 0) {
+                    timeAgo = diffHours + '시간 전';
+                } else {
+                    timeAgo = diffMins + '분 전';
+                }
+                
+                const dateStr = genDate.toLocaleString('ko-KR', { 
+                    month: 'short', day: 'numeric', 
+                    hour: '2-digit', minute: '2-digit' 
+                });
+                timeEl.textContent = `📡 ${source}: ${dateStr} (${timeAgo})`;
+                timeEl.style.display = 'inline-block';
+            }
+        }
+
+        async function loadDataFromJson(showAlert = false) {
+            const btn = document.getElementById('refreshDataBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ 로딩...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('data/data.json?t=' + Date.now());
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                
+                const json = await response.json();
+                const newData = [];
+                
+                // data 객체 내의 각 시트 처리
+                if (json.data) {
+                    Object.keys(json.data).forEach(sheetName => {
+                        const config = sheetConfigs[sheetName];
+                        if (!config) return;
+                        
+                        const rows = json.data[sheetName];
+                        rows.forEach(row => {
+                            newData.push({
+                                ...row,
+                                _sheet: sheetName,
+                                _flag: config.flag,
+                                _type: config.type,
+                                _ticker: row.Ticker || row.Code || ''
+                            });
+                        });
+                    });
+                }
+                
+                if (newData.length > 0) {
+                    screeningData.length = 0;
+                    screeningData.push(...newData);
+                    
+                    // 선택된 버전에 따라 점수 계산
+                    const version = getSelectedVersion();
+                    if (version === 'A') {
+                        calcScoresVersionA(screeningData);
+                    } else if (version === 'B') {
+                        calcScoresVersionB(screeningData);
+                    } else {
+                        calcScoresVersionC(screeningData);
+                    }
+                    
+                    // UI 업데이트
+                    const sheetFilter = document.querySelector('[data-filter="sheet"][data-value="ALL"]');
+                    if (sheetFilter) sheetFilter.textContent = `전체 (${newData.length})`;
+                    document.getElementById('totalBadge').textContent = `✅ ${newData.length}개 종목 (v${version})`;
+                    
+                    // 데이터 로드 시간 업데이트
+                    updateDataLoadTime(json.metadata, 'GitHub');
+                    
+                    renderTable();
+                    
+                    if (showAlert) {
+                        alert(`✅ GitHub 데이터 로드 완료!\n${newData.length}개 종목 (버전 ${version})`);
+                    }
+                    console.log(`GitHub data.json 로드 완료: ${newData.length}개 종목`);
+                    return true;
+                } else {
+                    throw new Error('유효한 데이터가 없습니다');
+                }
+            } catch (err) {
+                console.warn('data.json 로드 실패, 내장 데이터 사용:', err.message);
+                updateDataLoadTime({ generated: new Date().toISOString() }, '내장 데이터');
+                if (showAlert) {
+                    alert('⚠️ GitHub 데이터 로드 실패\n내장 데이터를 사용합니다.\n\n오류: ' + err.message);
+                }
+                return false;
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // 새로고침 버튼 이벤트
+        document.getElementById('refreshDataBtn').addEventListener('click', function() {
+            loadDataFromJson(true);
+        });
+
+        // 페이지 로드 시 자동으로 data.json 시도
+        loadDataFromJson(false);
+
         // 초기 렌더링
         renderTable();
 
