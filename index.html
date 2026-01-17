@@ -1505,7 +1505,7 @@
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <span id="dataLoadTime" style="font-size: 0.65rem; color: var(--text-muted); background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px; display: none;"></span>
-                        <button id="refreshDataBtn" style="background: var(--accent-blue); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;" title="GitHub Actions 데이터 새로고침">
+                        <button id="refreshDataBtn" style="background: var(--accent-blue); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; line-height: 1.2; height: auto;" title="GitHub Actions 데이터 새로고침">
                             🔄 데이터 갱신
                         </button>
                         <label for="excelUpload" style="cursor: pointer; background: var(--accent-gold); color: #000; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 4px;">
@@ -1524,15 +1524,15 @@
                         <div style="display: flex; gap: 4px; background: var(--bg-card); padding: 3px; border-radius: 8px;">
                             <label style="cursor: pointer;">
                                 <input type="radio" name="scoringVersion" value="A" checked style="display: none;">
-                                <span class="version-pill" data-version="A" style="display: block; padding: 8px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--accent-gold); background: rgba(245,158,11,0.2);">A</span>
+                                <span class="version-pill" data-version="A" style="display: block; padding: 8px 28px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--accent-gold); background: rgba(245,158,11,0.2);">A</span>
                             </label>
                             <label style="cursor: pointer;">
                                 <input type="radio" name="scoringVersion" value="B" style="display: none;">
-                                <span class="version-pill" data-version="B" style="display: block; padding: 8px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: transparent;">B</span>
+                                <span class="version-pill" data-version="B" style="display: block; padding: 8px 28px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: transparent;">B</span>
                             </label>
                             <label style="cursor: pointer;">
                                 <input type="radio" name="scoringVersion" value="C" style="display: none;">
-                                <span class="version-pill" data-version="C" style="display: block; padding: 8px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: transparent;">C</span>
+                                <span class="version-pill" data-version="C" style="display: block; padding: 8px 28px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: transparent;">C</span>
                             </label>
                         </div>
                         <span id="versionDesc" style="font-size: 0.68rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">V25 Q20 G15 M15 R20 F5 (개선)</span>
@@ -1542,15 +1542,15 @@
                     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                         <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">필터</span>
                         <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 10px; background: var(--bg-card); border-radius: 6px;">
-                            <input type="checkbox" id="filterOverbought" style="width: 16px; height: 16px; accent-color: var(--accent-red);">
+                            <input type="checkbox" id="filterOverbought" style="width: 14px; height: 14px; accent-color: var(--accent-red);">
                             <span style="font-size: 0.75rem;">🔥 과매수 제외</span>
                         </label>
                         <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 10px; background: var(--bg-card); border-radius: 6px;">
-                            <input type="checkbox" id="filterNearHigh" style="width: 16px; height: 16px; accent-color: var(--accent-gold);">
+                            <input type="checkbox" id="filterNearHigh" style="width: 14px; height: 14px; accent-color: var(--accent-gold);">
                             <span style="font-size: 0.75rem;">⚠️ 고점 제외</span>
                         </label>
                         <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 10px; background: var(--bg-card); border-radius: 6px;">
-                            <input type="checkbox" id="filterContrarianOnly" style="width: 16px; height: 16px; accent-color: var(--accent-blue);">
+                            <input type="checkbox" id="filterContrarianOnly" style="width: 14px; height: 14px; accent-color: var(--accent-blue);">
                             <span style="font-size: 0.75rem;">💎 역발상만</span>
                         </label>
                     </div>
@@ -4801,7 +4801,12 @@
         function updateDataLoadTime(metadata, source) {
             const timeEl = document.getElementById('dataLoadTime');
             if (timeEl && metadata && metadata.generated) {
-                const genDate = new Date(metadata.generated);
+                // 한국시간(KST)으로 저장된 것을 그대로 파싱 (+09:00 추가)
+                let dateStr = metadata.generated;
+                if (!dateStr.includes('+') && !dateStr.includes('Z')) {
+                    dateStr = dateStr + '+09:00';
+                }
+                const genDate = new Date(dateStr);
                 const now = new Date();
                 const diffMs = now - genDate;
                 const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
