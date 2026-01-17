@@ -1439,41 +1439,198 @@ def get_us_etfs():
 # ============================================================
 # 시장 지표
 # ============================================================
+def get_fear_greed_index():
+    """CNN Fear & Greed Index 스크래핑"""
+    try:
+        url = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'application/json',
+        }
+        resp = requests.get(url, headers=headers, timeout=10)
+        if resp.status_code == 200:
+            data = resp.json()
+            if 'fear_and_greed' in data:
+                return {
+                    'value': fmt(data['fear_and_greed'].get('score'), 1),
+                    'rating': data['fear_and_greed'].get('rating', ''),
+                    'previous_close': fmt(data['fear_and_greed'].get('previous_close'), 1),
+                }
+    except:
+        pass
+    return None
+
+def get_cape_ratio():
+    """S&P 500 Shiller CAPE Ratio from multpl.com"""
+    try:
+        url = "https://www.multpl.com/shiller-pe"
+        resp = requests.get(url, headers=HEADERS, timeout=10)
+        if resp.status_code == 200:
+            soup = BeautifulSoup(resp.text, 'lxml')
+            # Current value
+            current = soup.select_one('#current')
+            if current:
+                val_text = current.get_text().strip().replace(',', '')
+                match = re.search(r'([\d.]+)', val_text)
+                if match:
+                    return fmt(float(match.group(1)), 2)
+    except:
+        pass
+    return None
+
+def get_sp500_forward_pe():
+    """S&P 500 Forward PE from SPY ETF"""
+    try:
+        spy = yf.Ticker('SPY')
+        info = spy.info
+        # SPY doesn't have forward PE directly, estimate from holdings
+        # Use IVV or VOO as alternatives
+        for ticker in ['SPY', 'IVV', 'VOO']:
+            t = yf.Ticker(ticker)
+            info = t.info
+            pe = safe_get(info, 'trailingPE')
+            if pe and 10 < pe < 50:
+                return fmt(pe, 2)
+    except:
+        pass
+    return None
+
+def get_korea_market_indicators():
+    """한국 시장 지표 (pykrx 활용)"""
+    indicators = {}
+
+    if not PYKRX_AVAILABLE:
+        return indicators
+
+    try:
+        today_str = datetime.now().strftime("%Y%m%d")
+
+        # 코스피 PER, PBR
+        try:
+            from_date = (datetime.now() - timedelta(days=7)).strftime("%Y%m%d")
+
+            # 코스피 펀더멘털
+            kospi_fund = pykrx_stock.get_index_fundamental(from_date, today_str, "1001")  # 코스피
+            if not kospi_fund.empty:
+                latest = kospi_fund.iloc[-1]
+                if 'PER' in kospi_fund.columns:
+                    indicators['kospi_per'] = fmt(latest['PER'], 2)
+                if 'PBR' in kospi_fund.columns:
+                    indicators['kospi_pbr'] = fmt(latest['PBR'], 2)
+                if 'DIV' in kospi_fund.columns:
+                    indicators['kospi_div'] = fmt(latest['DIV'], 2)
+        except:
+            pass
+
+        # 외국인 순매수 (최근 5일 합계)
+        try:
+            from_date = (datetime.now() - timedelta(days=10)).strftime("%Y%m%d")
+
+            # 코스피 투자자별 매매동향
+            investor = pykrx_stock.get_market_trading_value_by_date(from_date, today_str, "KOSPI")
+            if not investor.empty and '외국인' in investor.columns:
+                # 최근 5거래일 순매수 합계 (억원)
+                recent = investor['외국인'].tail(5).sum()
+                indicators['foreign_net_buy'] = fmt(recent / 1e8, 0)  # 억원
+        except:
+            pass
+
+        # 개인/기관 순매수
+        try:
+            from_date = (datetime.now() - timedelta(days=10)).strftime("%Y%m%d")
+            investor = pykrx_stock.get_market_trading_value_by_date(from_date, today_str, "KOSPI")
+            if not investor.empty:
+                if '개인' in investor.columns:
+                    indicators['individual_net_buy'] = fmt(investor['개인'].tail(5).sum() / 1e8, 0)
+                if '기관합계' in investor.columns:
+                    indicators['institution_net_buy'] = fmt(investor['기관합계'].tail(5).sum() / 1e8, 0)
+        except:
+            pass
+
+    except Exception as e:
+        print(f"  ⚠️ 한국 시장 지표 수집 실패: {e}")
+
+    return indicators
+
 def get_market_indicators():
-    """글로벌 시장 지표"""
+    """글로벌 시장 지표 - 확장 버전"""
     print("\n[5/5] 시장 지표 수집 중...")
-    
+
+    # ========================================
+    # 1. Yahoo Finance 기본 지표
+    # ========================================
     indicators = {
-        '^GSPC': ('S&P 500', '지수'), '^DJI': ('다우존스', '지수'),
-        '^IXIC': ('나스닥 종합', '지수'), '^VIX': ('VIX 변동성', '지수'),
-        '^KS11': ('코스피', '지수'), '^KQ11': ('코스닥', '지수'),
-        '^N225': ('니케이 225', '지수'), '^HSI': ('항셍', '지수'),
-        'USDKRW=X': ('USD/KRW', '환율'), 'EURUSD=X': ('EUR/USD', '환율'),
-        'USDJPY=X': ('USD/JPY', '환율'), 'DX-Y.NYB': ('달러 인덱스', '환율'),
-        'GC=F': ('금 선물', '원자재'), 'SI=F': ('은 선물', '원자재'),
-        'CL=F': ('WTI 원유', '원자재'), 'NG=F': ('천연가스', '원자재'),
-        '^TNX': ('미국채 10년', '채권'), '^TYX': ('미국채 30년', '채권'),
-        'BTC-USD': ('비트코인', '암호화폐'), 'ETH-USD': ('이더리움', '암호화폐'),
+        # 지수
+        '^GSPC': ('S&P 500', '지수'),
+        '^DJI': ('다우존스', '지수'),
+        '^IXIC': ('나스닥 종합', '지수'),
+        '^VIX': ('VIX 변동성', '지수'),
+        '^KS11': ('코스피', '지수'),
+        '^KQ11': ('코스닥', '지수'),
+        '^N225': ('니케이 225', '지수'),
+        '^HSI': ('항셍', '지수'),
+        '^STOXX50E': ('유로스톡스50', '지수'),
+        '^FTSE': ('FTSE 100', '지수'),
+
+        # 환율
+        'USDKRW=X': ('USD/KRW', '환율'),
+        'EURUSD=X': ('EUR/USD', '환율'),
+        'USDJPY=X': ('USD/JPY', '환율'),
+        'DX-Y.NYB': ('달러 인덱스', '환율'),
+        'USDCNY=X': ('USD/CNY', '환율'),
+
+        # 원자재
+        'GC=F': ('금 선물', '원자재'),
+        'SI=F': ('은 선물', '원자재'),
+        'CL=F': ('WTI 원유', '원자재'),
+        'BZ=F': ('브렌트유', '원자재'),
+        'NG=F': ('천연가스', '원자재'),
+        'HG=F': ('구리 선물', '원자재'),
+
+        # 채권 - Tier 1 추가
+        '^IRX': ('미국채 3개월', '채권'),
+        '^FVX': ('미국채 5년', '채권'),
+        '^TNX': ('미국채 10년', '채권'),
+        '^TYX': ('미국채 30년', '채권'),
+
+        # 암호화폐
+        'BTC-USD': ('비트코인', '암호화폐'),
+        'ETH-USD': ('이더리움', '암호화폐'),
+
+        # 신용/스프레드 관련 ETF
+        'HYG': ('하이일드 채권 ETF', '신용'),
+        'LQD': ('투자등급 채권 ETF', '신용'),
+        'TLT': ('장기국채 ETF', '채권'),
+        'SHY': ('단기국채 ETF', '채권'),
+
+        # 옵션 심리 - Tier 2
+        '^CPCE': ('Put/Call Ratio', '심리'),
     }
-    
+
     results = []
-    
+
+    print("  Yahoo Finance 지표 수집 중...")
     for ticker, (name, category) in indicators.items():
         try:
             t = yf.Ticker(ticker)
             hist = t.history(period="1y")
-            
+
             if hist.empty:
                 continue
-            
+
             close = hist['Close']
             current_price = close.iloc[-1]
-            
+
+            # 소수점 자릿수 결정
+            decimals = 4 if category == '환율' else (3 if category == '채권' else 2)
+
             row = {
-                'Category': category, 'Ticker': ticker, 'Name': name,
-                'Price': fmt(current_price, 4 if category == '환율' else 2),
+                'Category': category,
+                'Ticker': ticker,
+                'Name': name,
+                'Price': fmt(current_price, decimals),
             }
-            
+
             if len(close) >= 2:
                 row['Change(%)'] = fmt((close.iloc[-1] / close.iloc[-2] - 1) * 100)
             if len(close) >= 6:
@@ -1485,16 +1642,231 @@ def get_market_indicators():
             if len(close) >= 252:
                 row['Return1Y(%)'] = fmt((close.iloc[-1] / close.iloc[-252] - 1) * 100)
                 year_data = close.tail(252)
-                row['52wHigh'] = fmt(year_data.max(), 4 if category == '환율' else 2)
-                row['52wLow'] = fmt(year_data.min(), 4 if category == '환율' else 2)
+                row['52wHigh'] = fmt(year_data.max(), decimals)
+                row['52wLow'] = fmt(year_data.min(), decimals)
                 row['From52wHigh(%)'] = fmt((current_price / year_data.max() - 1) * 100)
-            
+                row['From52wLow(%)'] = fmt((current_price / year_data.min() - 1) * 100)
+
             results.append(row)
         except:
             pass
-        
-        time.sleep(0.1)
-    
+
+        time.sleep(0.05)
+
+    # ========================================
+    # 2. 계산 지표 (스프레드 등)
+    # ========================================
+    print("  계산 지표 수집 중...")
+
+    # 10Y-3M 스프레드 (침체 신호)
+    try:
+        tnx = next((r for r in results if r['Ticker'] == '^TNX'), None)
+        irx = next((r for r in results if r['Ticker'] == '^IRX'), None)
+        if tnx and irx and tnx.get('Price') and irx.get('Price'):
+            spread_10y_3m = float(tnx['Price']) - float(irx['Price'])
+            results.append({
+                'Category': '스프레드',
+                'Ticker': '10Y-3M',
+                'Name': '10년-3개월 스프레드',
+                'Price': fmt(spread_10y_3m, 3),
+                'Signal': '역전' if spread_10y_3m < 0 else '정상',
+            })
+    except:
+        pass
+
+    # 10Y-2Y 스프레드 (5년물로 대체)
+    try:
+        tnx = next((r for r in results if r['Ticker'] == '^TNX'), None)
+        fvx = next((r for r in results if r['Ticker'] == '^FVX'), None)
+        if tnx and fvx and tnx.get('Price') and fvx.get('Price'):
+            spread_10y_5y = float(tnx['Price']) - float(fvx['Price'])
+            results.append({
+                'Category': '스프레드',
+                'Ticker': '10Y-5Y',
+                'Name': '10년-5년 스프레드',
+                'Price': fmt(spread_10y_5y, 3),
+            })
+    except:
+        pass
+
+    # 하이일드 스프레드 (HYG-LQD 차이로 추정)
+    try:
+        hyg = next((r for r in results if r['Ticker'] == 'HYG'), None)
+        lqd = next((r for r in results if r['Ticker'] == 'LQD'), None)
+        if hyg and lqd and hyg.get('Return1M(%)') and lqd.get('Return1M(%)'):
+            # 하이일드가 투자등급 대비 얼마나 언더퍼폼하는지
+            hy_spread_proxy = float(lqd['Return1M(%)']) - float(hyg['Return1M(%)'])
+            results.append({
+                'Category': '스프레드',
+                'Ticker': 'HY-IG',
+                'Name': '하이일드 스프레드 (proxy)',
+                'Price': fmt(hy_spread_proxy, 2),
+                'Description': 'LQD-HYG 1개월 수익률 차이',
+            })
+    except:
+        pass
+
+    # ========================================
+    # 3. 심리 지표 (웹 스크래핑)
+    # ========================================
+    print("  심리 지표 수집 중...")
+
+    # Fear & Greed Index
+    fg_data = get_fear_greed_index()
+    if fg_data:
+        results.append({
+            'Category': '심리',
+            'Ticker': 'F&G',
+            'Name': 'Fear & Greed Index',
+            'Price': fg_data.get('value'),
+            'Signal': fg_data.get('rating', ''),
+            'Previous': fg_data.get('previous_close'),
+        })
+
+    # S&P 500 CAPE
+    cape = get_cape_ratio()
+    if cape:
+        results.append({
+            'Category': '밸류에이션',
+            'Ticker': 'CAPE',
+            'Name': 'Shiller CAPE Ratio',
+            'Price': cape,
+            'Signal': '고평가' if float(cape) > 30 else ('저평가' if float(cape) < 15 else '보통'),
+        })
+
+    # S&P 500 Forward PE
+    forward_pe = get_sp500_forward_pe()
+    if forward_pe:
+        results.append({
+            'Category': '밸류에이션',
+            'Ticker': 'SPY-PE',
+            'Name': 'S&P500 PE (trailing)',
+            'Price': forward_pe,
+        })
+
+    # ========================================
+    # 4. 한국 시장 지표 (pykrx)
+    # ========================================
+    print("  한국 시장 지표 수집 중...")
+
+    kr_indicators = get_korea_market_indicators()
+
+    if kr_indicators.get('kospi_per'):
+        results.append({
+            'Category': '밸류에이션',
+            'Ticker': 'KOSPI-PER',
+            'Name': '코스피 PER',
+            'Price': kr_indicators['kospi_per'],
+        })
+
+    if kr_indicators.get('kospi_pbr'):
+        results.append({
+            'Category': '밸류에이션',
+            'Ticker': 'KOSPI-PBR',
+            'Name': '코스피 PBR',
+            'Price': kr_indicators['kospi_pbr'],
+        })
+
+    if kr_indicators.get('kospi_div'):
+        results.append({
+            'Category': '밸류에이션',
+            'Ticker': 'KOSPI-DIV',
+            'Name': '코스피 배당수익률',
+            'Price': kr_indicators['kospi_div'],
+        })
+
+    if kr_indicators.get('foreign_net_buy') is not None:
+        val = kr_indicators['foreign_net_buy']
+        results.append({
+            'Category': '수급',
+            'Ticker': 'KR-외국인',
+            'Name': '외국인 순매수 (5일, 억원)',
+            'Price': val,
+            'Signal': '매수' if float(val) > 0 else '매도',
+        })
+
+    if kr_indicators.get('individual_net_buy') is not None:
+        val = kr_indicators['individual_net_buy']
+        results.append({
+            'Category': '수급',
+            'Ticker': 'KR-개인',
+            'Name': '개인 순매수 (5일, 억원)',
+            'Price': val,
+            'Signal': '매수' if float(val) > 0 else '매도',
+        })
+
+    if kr_indicators.get('institution_net_buy') is not None:
+        val = kr_indicators['institution_net_buy']
+        results.append({
+            'Category': '수급',
+            'Ticker': 'KR-기관',
+            'Name': '기관 순매수 (5일, 억원)',
+            'Price': val,
+            'Signal': '매수' if float(val) > 0 else '매도',
+        })
+
+    # ========================================
+    # 5. 추가 ETF 기반 지표
+    # ========================================
+    print("  추가 ETF 지표 수집 중...")
+
+    additional_etfs = {
+        'IEF': ('미국채 7-10년 ETF', '채권'),
+        'TIP': ('물가연동채 ETF', '채권'),
+        'EMB': ('신흥국 채권 ETF', '신용'),
+        'GLD': ('금 ETF', '원자재'),
+        'USO': ('원유 ETF', '원자재'),
+        'VXX': ('VIX 선물 ETF', '변동성'),
+        'SVXY': ('VIX 인버스 ETF', '변동성'),
+    }
+
+    for ticker, (name, category) in additional_etfs.items():
+        try:
+            t = yf.Ticker(ticker)
+            hist = t.history(period="3mo")
+
+            if hist.empty:
+                continue
+
+            close = hist['Close']
+            current_price = close.iloc[-1]
+
+            row = {
+                'Category': category,
+                'Ticker': ticker,
+                'Name': name,
+                'Price': fmt(current_price, 2),
+            }
+
+            if len(close) >= 22:
+                row['Return1M(%)'] = fmt((close.iloc[-1] / close.iloc[-22] - 1) * 100)
+
+            results.append(row)
+        except:
+            pass
+
+        time.sleep(0.05)
+
+    # 실질금리 추정 (10Y - TIP 수익률)
+    try:
+        tnx = next((r for r in results if r['Ticker'] == '^TNX'), None)
+        tip = next((r for r in results if r['Ticker'] == 'TIP'), None)
+        if tnx and tip:
+            # TIP의 1년 수익률을 기대 인플레이션 proxy로 사용
+            tip_return = tip.get('Return1M(%)')
+            if tip_return:
+                # 단순 추정: 10Y 금리 - (TIP 수익률 * 12 / 100)
+                real_rate = float(tnx['Price']) - (float(tip_return) * 12 / 100)
+                results.append({
+                    'Category': '금리',
+                    'Ticker': 'REAL-RATE',
+                    'Name': '실질금리 추정',
+                    'Price': fmt(real_rate, 3),
+                    'Description': '10Y - TIP implied inflation',
+                })
+    except:
+        pass
+
     print(f"  ✅ 완료: {len(results)}개")
     return pd.DataFrame(results)
 
