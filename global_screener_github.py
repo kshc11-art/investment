@@ -251,79 +251,252 @@ def get_naver_stock_list(market='KOSPI', max_pages=10):
     return stocks
 
 def get_naver_stock_detail(code):
-    """네이버에서 종목 상세 정보"""
+    """네이버에서 종목 상세 정보 - 확장 버전"""
     data = {}
+
+    # 1. 메인 페이지에서 기본 정보
     url = f"https://finance.naver.com/item/main.naver?code={code}"
     resp = fetch_naver(url)
-    
-    if not resp:
-        return data
-    
-    try:
-        soup = BeautifulSoup(resp.text, 'lxml')
-        
-        for em in soup.select('em'):
-            em_id = em.get('id', '')
+
+    if resp:
+        try:
+            soup = BeautifulSoup(resp.text, 'lxml')
+
+            # PER, PBR, 배당수익률
+            for em in soup.select('em'):
+                em_id = em.get('id', '')
+                try:
+                    if em_id == '_per':
+                        val = float(em.text.replace(',', ''))
+                        if 0 < val < 1000:
+                            data['per'] = val
+                    elif em_id == '_pbr':
+                        val = float(em.text.replace(',', ''))
+                        if 0 < val < 100:
+                            data['pbr'] = val
+                    elif em_id == '_dvr':
+                        val = float(em.text.replace(',', ''))
+                        if 0 <= val < 50:
+                            data['div_yield'] = val
+                    elif em_id == '_eps':
+                        val = float(em.text.replace(',', ''))
+                        data['eps'] = val
+                    elif em_id == '_bps':
+                        val = float(em.text.replace(',', ''))
+                        data['bps'] = val
+                except:
+                    pass
+
+            # 현재가
             try:
-                if em_id == '_per':
-                    val = float(em.text.replace(',', ''))
-                    if 0 < val < 1000:
-                        data['per'] = val
-                elif em_id == '_pbr':
-                    val = float(em.text.replace(',', ''))
-                    if 0 < val < 100:
-                        data['pbr'] = val
-                elif em_id == '_dvr':
-                    val = float(em.text.replace(',', ''))
-                    if 0 <= val < 50:
-                        data['div_yield'] = val
+                price_elem = soup.select_one('p.no_today span.blind')
+                if price_elem:
+                    data['price'] = int(price_elem.text.replace(',', ''))
             except:
                 pass
-        
+
+            # 시가총액
+            try:
+                for em in soup.select('em#_market_sum'):
+                    cap_text = em.text.strip().replace(',', '').replace('조', '').replace('억', '')
+                    # 시가총액은 억 단위로 저장
+                    if '조' in em.text:
+                        data['market_cap'] = int(float(cap_text) * 10000)
+                    else:
+                        data['market_cap'] = int(cap_text)
+            except:
+                pass
+
+            # 외국인 비율
+            try:
+                for table in soup.select('table'):
+                    text = table.get_text()
+                    if '외국인' in text:
+                        match = re.search(r'외국인[^%\d]*([\d.]+)\s*%', text)
+                        if match:
+                            val = float(match.group(1))
+                            if 0 <= val <= 100:
+                                data['foreign_ratio'] = val
+                                break
+            except:
+                pass
+
+            # 52주 고저
+            try:
+                for table in soup.select('table'):
+                    for tr in table.select('tr'):
+                        th = tr.select_one('th')
+                        td = tr.select_one('td')
+                        if th and td:
+                            th_text = th.get_text().strip()
+                            td_text = td.get_text().strip().replace(',', '')
+                            if '52주최고' in th_text or '52주 최고' in th_text:
+                                match = re.search(r'(\d+)', td_text)
+                                if match:
+                                    data['high_52w'] = int(match.group(1))
+                            elif '52주최저' in th_text or '52주 최저' in th_text:
+                                match = re.search(r'(\d+)', td_text)
+                                if match:
+                                    data['low_52w'] = int(match.group(1))
+            except:
+                pass
+
+            # 업종(섹터)
+            try:
+                for a in soup.select('a[href*="upjong"]'):
+                    sector_text = a.get_text().strip()
+                    if sector_text and len(sector_text) > 1:
+                        data['sector'] = sector_text
+                        break
+            except:
+                pass
+
+        except:
+            pass
+
+    # 2. 투자지표 페이지에서 ROE, ROA 등 가져오기
+    time.sleep(0.1)
+    url2 = f"https://finance.naver.com/item/coinfo.naver?code={code}&target=finsum_more"
+    resp2 = fetch_naver(url2)
+
+    if resp2:
+        try:
+            soup2 = BeautifulSoup(resp2.text, 'lxml')
+
+            # iframe 내용이 있을 수 있으므로 테이블에서 직접 추출
+            for table in soup2.select('table'):
+                rows = table.select('tr')
+                for row in rows:
+                    cells = row.select('td, th')
+                    if len(cells) >= 2:
+                        label = cells[0].get_text().strip()
+
+                        # 가장 최근 값 (보통 마지막 td)
+                        for cell in reversed(cells[1:]):
+                            val_text = cell.get_text().strip().replace(',', '').replace('%', '')
+                            if val_text and val_text != '-' and val_text != 'N/A':
+                                try:
+                                    val = float(val_text)
+                                    if 'ROE' in label and 'roe' not in data:
+                                        if -100 < val < 200:
+                                            data['roe'] = val
+                                    elif 'ROA' in label and 'roa' not in data:
+                                        if -100 < val < 100:
+                                            data['roa'] = val
+                                    elif '영업이익률' in label and 'op_margin' not in data:
+                                        if -100 < val < 100:
+                                            data['op_margin'] = val
+                                    elif '순이익률' in label and 'net_margin' not in data:
+                                        if -100 < val < 100:
+                                            data['net_margin'] = val
+                                    elif '부채비율' in label and 'debt_ratio' not in data:
+                                        if 0 <= val < 1000:
+                                            data['debt_ratio'] = val
+                                    elif '유동비율' in label and 'current_ratio' not in data:
+                                        if 0 < val < 1000:
+                                            data['current_ratio'] = val / 100  # 백분율 → 배수
+                                    elif '매출액증가율' in label and 'revenue_growth' not in data:
+                                        if -100 < val < 500:
+                                            data['revenue_growth'] = val
+                                    elif '영업이익증가율' in label and 'op_growth' not in data:
+                                        if -200 < val < 1000:
+                                            data['op_growth'] = val
+                                    break
+                                except:
+                                    pass
+        except:
+            pass
+
+    return data
+
+# ============================================================
+# FnGuide 스크래핑
+# ============================================================
+def get_fnguide_data(code):
+    """FnGuide에서 재무 데이터 가져오기"""
+    data = {}
+
+    url = f"https://comp.fnguide.com/SVO2/ASP/SVD_Main.asp?pGB=1&gicode=A{code}"
+
+    try:
+        resp = requests.get(url, headers=HEADERS, timeout=15)
+        if resp.status_code != 200:
+            return data
+
+        soup = BeautifulSoup(resp.text, 'lxml')
+
+        # 시가총액, PER, PBR 등 기본 정보
+        try:
+            for table in soup.select('table.us_table_ty1'):
+                for tr in table.select('tr'):
+                    tds = tr.select('td')
+                    ths = tr.select('th')
+                    if len(ths) >= 1 and len(tds) >= 1:
+                        for i, th in enumerate(ths):
+                            label = th.get_text().strip()
+                            if i < len(tds):
+                                val_text = tds[i].get_text().strip().replace(',', '').replace('%', '')
+                                if val_text and val_text != '-':
+                                    try:
+                                        val = float(val_text)
+                                        if 'PER' in label and 'per' not in data:
+                                            if 0 < val < 1000:
+                                                data['per'] = val
+                                        elif 'PBR' in label and 'pbr' not in data:
+                                            if 0 < val < 100:
+                                                data['pbr'] = val
+                                        elif 'ROE' in label and 'roe' not in data:
+                                            if -100 < val < 200:
+                                                data['roe'] = val
+                                        elif 'ROA' in label and 'roa' not in data:
+                                            if -100 < val < 100:
+                                                data['roa'] = val
+                                    except:
+                                        pass
+        except:
+            pass
+
+        # 재무비율 테이블에서 추가 정보
         try:
             for table in soup.select('table'):
                 text = table.get_text()
-                if '외국인' in text:
-                    match = re.search(r'외국인[^%\d]*([\d.]+)\s*%', text)
-                    if match:
-                        val = float(match.group(1))
-                        if 0 <= val <= 100:
-                            data['foreign_ratio'] = val
-                            break
+                if '영업이익률' in text or '부채비율' in text:
+                    for tr in table.select('tr'):
+                        cells = tr.select('td, th')
+                        if len(cells) >= 2:
+                            label = cells[0].get_text().strip()
+
+                            # 최신 값 추출 (마지막 유효한 값)
+                            for cell in reversed(cells[1:]):
+                                val_text = cell.get_text().strip().replace(',', '').replace('%', '')
+                                if val_text and val_text != '-' and val_text != 'N/A':
+                                    try:
+                                        val = float(val_text)
+                                        if '영업이익률' in label and 'op_margin' not in data:
+                                            data['op_margin'] = val
+                                        elif '순이익률' in label and 'net_margin' not in data:
+                                            data['net_margin'] = val
+                                        elif '부채비율' in label and 'debt_ratio' not in data:
+                                            if 0 <= val < 1000:
+                                                data['debt_ratio'] = val
+                                        elif '유동비율' in label and 'current_ratio' not in data:
+                                            if val > 0:
+                                                data['current_ratio'] = val / 100
+                                        elif '매출액증가율' in label and 'revenue_growth' not in data:
+                                            data['revenue_growth'] = val
+                                        elif 'EPS' in label and 'eps' not in data:
+                                            data['eps'] = val
+                                        elif 'BPS' in label and 'bps' not in data:
+                                            data['bps'] = val
+                                        break
+                                    except:
+                                        pass
         except:
             pass
-        
-        try:
-            for table in soup.select('table'):
-                for tr in table.select('tr'):
-                    th = tr.select_one('th')
-                    td = tr.select_one('td')
-                    if th and td:
-                        th_text = th.get_text().strip()
-                        td_text = td.get_text().strip().replace(',', '')
-                        if '52주최고' in th_text or '52주 최고' in th_text:
-                            match = re.search(r'(\d+)', td_text)
-                            if match:
-                                data['high_52w'] = int(match.group(1))
-                        elif '52주최저' in th_text or '52주 최저' in th_text:
-                            match = re.search(r'(\d+)', td_text)
-                            if match:
-                                data['low_52w'] = int(match.group(1))
-        except:
-            pass
-        
-        try:
-            for a in soup.select('a[href*="upjong"]'):
-                sector_text = a.get_text().strip()
-                if sector_text and len(sector_text) > 1:
-                    data['sector'] = sector_text
-                    break
-        except:
-            pass
-        
+
     except:
         pass
-    
+
     return data
 
 def get_naver_etf_list(max_pages=5):
@@ -535,8 +708,107 @@ def get_korea_stocks():
     for i, (ticker, name, market) in enumerate(all_tickers):
         try:
             row = {'Code': ticker, 'Name': name, 'Market': market}
-            
-            # pykrx
+
+            # ========================================
+            # 1. 네이버 (주요 소스)
+            # ========================================
+            naver_data = {}
+            if NAVER_AVAILABLE is not False:
+                naver_data = get_naver_stock_detail(ticker)
+                if naver_data:
+                    # 기본 정보
+                    if naver_data.get('price'):
+                        row['Price'] = naver_data['price']
+                    if naver_data.get('market_cap'):
+                        row['MarketCap(억)'] = naver_data['market_cap']
+                    if naver_data.get('sector'):
+                        row['Sector'] = naver_data['sector']
+
+                    # 밸류에이션
+                    if naver_data.get('per'):
+                        row['PER'] = fmt(naver_data['per'])
+                    if naver_data.get('pbr'):
+                        row['PBR'] = fmt(naver_data['pbr'])
+                    if naver_data.get('eps'):
+                        row['EPS'] = fmt(naver_data['eps'], 0)
+                    if naver_data.get('bps'):
+                        row['BPS'] = fmt(naver_data['bps'], 0)
+
+                    # 수익성
+                    if naver_data.get('roe'):
+                        row['ROE(%)'] = fmt(naver_data['roe'])
+                    if naver_data.get('roa'):
+                        row['ROA(%)'] = fmt(naver_data['roa'])
+                    if naver_data.get('op_margin'):
+                        row['OpMargin(%)'] = fmt(naver_data['op_margin'])
+                    if naver_data.get('net_margin'):
+                        row['NetMargin(%)'] = fmt(naver_data['net_margin'])
+
+                    # 성장성
+                    if naver_data.get('revenue_growth'):
+                        row['RevenueGrowth(%)'] = fmt(naver_data['revenue_growth'])
+                    if naver_data.get('op_growth'):
+                        row['EarningsGrowth(%)'] = fmt(naver_data['op_growth'])
+
+                    # 안정성
+                    if naver_data.get('debt_ratio'):
+                        row['DebtRatio(%)'] = fmt(naver_data['debt_ratio'])
+                    if naver_data.get('current_ratio'):
+                        row['CurrentRatio'] = fmt(naver_data['current_ratio'])
+
+                    # 기타
+                    if naver_data.get('foreign_ratio'):
+                        row['ForeignRatio(%)'] = fmt(naver_data['foreign_ratio'])
+                    if naver_data.get('div_yield'):
+                        row['DivYield(%)'] = fmt(naver_data['div_yield'])
+                    if naver_data.get('high_52w'):
+                        row['52wHigh'] = naver_data['high_52w']
+                    if naver_data.get('low_52w'):
+                        row['52wLow'] = naver_data['low_52w']
+
+                time.sleep(0.05)
+
+            # ========================================
+            # 2. FnGuide (결측값 폴백)
+            # ========================================
+            # 주요 지표가 결측인 경우에만 FnGuide 호출
+            need_fnguide = (
+                row.get('ROE(%)') is None or
+                row.get('ROA(%)') is None or
+                row.get('OpMargin(%)') is None or
+                row.get('DebtRatio(%)') is None
+            )
+
+            if need_fnguide:
+                fnguide_data = get_fnguide_data(ticker)
+                if fnguide_data:
+                    if row.get('PER') is None and fnguide_data.get('per'):
+                        row['PER'] = fmt(fnguide_data['per'])
+                    if row.get('PBR') is None and fnguide_data.get('pbr'):
+                        row['PBR'] = fmt(fnguide_data['pbr'])
+                    if row.get('ROE(%)') is None and fnguide_data.get('roe'):
+                        row['ROE(%)'] = fmt(fnguide_data['roe'])
+                    if row.get('ROA(%)') is None and fnguide_data.get('roa'):
+                        row['ROA(%)'] = fmt(fnguide_data['roa'])
+                    if row.get('OpMargin(%)') is None and fnguide_data.get('op_margin'):
+                        row['OpMargin(%)'] = fmt(fnguide_data['op_margin'])
+                    if row.get('NetMargin(%)') is None and fnguide_data.get('net_margin'):
+                        row['NetMargin(%)'] = fmt(fnguide_data['net_margin'])
+                    if row.get('DebtRatio(%)') is None and fnguide_data.get('debt_ratio'):
+                        row['DebtRatio(%)'] = fmt(fnguide_data['debt_ratio'])
+                    if row.get('CurrentRatio') is None and fnguide_data.get('current_ratio'):
+                        row['CurrentRatio'] = fmt(fnguide_data['current_ratio'])
+                    if row.get('RevenueGrowth(%)') is None and fnguide_data.get('revenue_growth'):
+                        row['RevenueGrowth(%)'] = fmt(fnguide_data['revenue_growth'])
+                    if row.get('EPS') is None and fnguide_data.get('eps'):
+                        row['EPS'] = fmt(fnguide_data['eps'], 0)
+                    if row.get('BPS') is None and fnguide_data.get('bps'):
+                        row['BPS'] = fmt(fnguide_data['bps'], 0)
+                time.sleep(0.1)
+
+            # ========================================
+            # 3. pykrx (결측값 폴백 - 가격/거래량/시총)
+            # ========================================
             if PYKRX_AVAILABLE:
                 try:
                     today_str = datetime.now().strftime("%Y%m%d")
@@ -545,41 +817,28 @@ def get_korea_stocks():
                         today_str, ticker
                     )
                     if not ohlcv.empty:
-                        row['Price'] = fmt(ohlcv['종가'].iloc[-1], 0)
-                        row['Volume'] = int(ohlcv['거래량'].iloc[-1]) if ohlcv['거래량'].iloc[-1] else None
+                        if row.get('Price') is None:
+                            row['Price'] = fmt(ohlcv['종가'].iloc[-1], 0)
+                        if row.get('Volume') is None:
+                            row['Volume'] = int(ohlcv['거래량'].iloc[-1]) if ohlcv['거래량'].iloc[-1] else None
                 except:
                     pass
-            
-            # 네이버
-            if NAVER_AVAILABLE is not False:
-                naver_data = get_naver_stock_detail(ticker)
-                if naver_data:
-                    if not row.get('Price') and naver_data.get('price'):
-                        row['Price'] = naver_data['price']
-                    if naver_data.get('per'):
-                        row['PER'] = fmt(naver_data['per'])
-                    if naver_data.get('pbr'):
-                        row['PBR'] = fmt(naver_data['pbr'])
-                    if naver_data.get('foreign_ratio'):
-                        row['ForeignRatio(%)'] = fmt(naver_data['foreign_ratio'])
-                    if naver_data.get('high_52w'):
-                        row['52wHigh'] = naver_data['high_52w']
-                    if naver_data.get('low_52w'):
-                        row['52wLow'] = naver_data['low_52w']
-                    if naver_data.get('div_yield'):
-                        row['DivYield(%)'] = fmt(naver_data['div_yield'])
-                    if naver_data.get('sector'):
-                        row['Sector'] = naver_data['sector']
-                time.sleep(0.1)
-            
-            # yfinance - 다중 티커 형식 시도
+
+            # ========================================
+            # 4. yfinance (최후의 수단 - 기술적 지표)
+            # ========================================
+            hist = pd.DataFrame()
+            info = {}
+
+            # yfinance는 기술적 지표(RSI, 변동성 등)와 여전히 결측인 필드에만 사용
             if market == 'KOSPI':
                 ticker_variants = [f"{ticker}.KS", f"{ticker}.KQ"]
             else:
                 ticker_variants = [f"{ticker}.KQ", f"{ticker}.KS"]
 
-            t, hist, info = try_multiple_tickers(ticker_variants, max_retries=2)
-            
+            t, hist, info = try_multiple_tickers(ticker_variants, max_retries=1)  # 재시도 최소화
+
+            # 여전히 결측인 기본 정보만 폴백
             if not row.get('Price'):
                 row['Price'] = fmt(safe_get(info, 'regularMarketPrice'))
             if not row.get('Sector'):
@@ -607,15 +866,17 @@ def get_korea_stocks():
             if row.get('GrossMargin(%)') is None and safe_get(info, 'grossMargins'):
                 row['GrossMargin(%)'] = fmt(safe_get(info, 'grossMargins') * 100)
             
-            # 성장성
-            if safe_get(info, 'revenueGrowth'):
+            # 성장성 (결측인 경우만)
+            if row.get('RevenueGrowth(%)') is None and safe_get(info, 'revenueGrowth'):
                 row['RevenueGrowth(%)'] = fmt(safe_get(info, 'revenueGrowth') * 100)
-            if safe_get(info, 'earningsGrowth'):
+            if row.get('EarningsGrowth(%)') is None and safe_get(info, 'earningsGrowth'):
                 row['EarningsGrowth(%)'] = fmt(safe_get(info, 'earningsGrowth') * 100)
-            
-            # 안정성 - PWA 호환: DebtRatio(%)
-            row['CurrentRatio'] = fmt(safe_get(info, 'currentRatio'))
-            row['DebtRatio(%)'] = fmt(safe_get(info, 'debtToEquity'))  # ← PWA 호환
+
+            # 안정성 (결측인 경우만) - PWA 호환: DebtRatio(%)
+            if row.get('CurrentRatio') is None:
+                row['CurrentRatio'] = fmt(safe_get(info, 'currentRatio'))
+            if row.get('DebtRatio(%)') is None:
+                row['DebtRatio(%)'] = fmt(safe_get(info, 'debtToEquity'))
             
             # 배당
             if row.get('DivYield(%)') is None and safe_get(info, 'dividendYield'):
@@ -1048,39 +1309,49 @@ def get_korea_etfs():
     for i, code in enumerate(kr_etf_list):
         try:
             row = {'Code': code, 'Region': 'KR'}
-            
+
+            # ========================================
+            # 1. 네이버 (주요 소스)
+            # ========================================
+            if NAVER_AVAILABLE is not False:
+                for naver_etf in naver_etfs:
+                    if naver_etf['code'] == code:
+                        row['Name'] = naver_etf.get('name')
+                        if naver_etf.get('price'):
+                            row['Price'] = naver_etf['price']
+                        break
+
+            # ========================================
+            # 2. pykrx (결측값 폴백)
+            # ========================================
             if PYKRX_AVAILABLE:
                 try:
-                    row['Name'] = pykrx_stock.get_market_ticker_name(code)
+                    if not row.get('Name'):
+                        row['Name'] = pykrx_stock.get_market_ticker_name(code)
                     today_str = datetime.now().strftime("%Y%m%d")
                     ohlcv = pykrx_stock.get_market_ohlcv_by_date(
                         (datetime.now() - timedelta(days=7)).strftime("%Y%m%d"),
                         today_str, code
                     )
                     if not ohlcv.empty:
-                        row['Price'] = fmt(ohlcv['종가'].iloc[-1], 0)
-                        row['Volume'] = int(ohlcv['거래량'].iloc[-1]) if ohlcv['거래량'].iloc[-1] else None
+                        if row.get('Price') is None:
+                            row['Price'] = fmt(ohlcv['종가'].iloc[-1], 0)
+                        if row.get('Volume') is None:
+                            row['Volume'] = int(ohlcv['거래량'].iloc[-1]) if ohlcv['거래량'].iloc[-1] else None
                 except:
                     pass
-            
-            if NAVER_AVAILABLE is not False:
-                for naver_etf in naver_etfs:
-                    if naver_etf['code'] == code:
-                        if not row.get('Name'):
-                            row['Name'] = naver_etf.get('name')
-                        if not row.get('Price') and naver_etf.get('price'):
-                            row['Price'] = naver_etf['price']
-                        break
-            
-            # yfinance - 다중 티커 형식 시도
+
+            # ========================================
+            # 3. yfinance (최후의 수단 - 기술적 지표)
+            # ========================================
             ticker_variants = [f"{code}.KS", f"{code}.KQ"]
-            t, hist, info = try_multiple_tickers(ticker_variants, max_retries=2)
-            
+            t, hist, info = try_multiple_tickers(ticker_variants, max_retries=1)
+
             if not row.get('Name'):
                 row['Name'] = safe_get(info, 'shortName', 'longName') or code
             if not row.get('Price'):
                 row['Price'] = fmt(safe_get(info, 'regularMarketPrice'))
-            
+
             row['Category'] = safe_get(info, 'category')
             row['ExpenseRatio(%)'] = fmt(safe_get(info, 'expenseRatio', default=0) * 100) if safe_get(info, 'expenseRatio') else None
             
