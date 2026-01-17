@@ -1,0 +1,107 @@
+# .github/workflows/screener.yml
+# 글로벌 주식/ETF 스크리너 자동 실행
+
+name: Stock Screener
+
+on:
+  # 매일 한국시간 오전 8시 (UTC 23:00 전날)
+  schedule:
+    - cron: '0 23 * * *'  # UTC 23:00 = KST 08:00
+  
+  # 수동 실행 가능
+  workflow_dispatch:
+    inputs:
+      kr_stocks:
+        description: '한국 주식 수 (빈칸=전체)'
+        required: false
+        default: ''
+      us_stocks:
+        description: '미국 주식 수'
+        required: false
+        default: '100'
+
+jobs:
+  run-screener:
+    runs-on: ubuntu-latest
+    
+    # 긴 실행 시간 허용 (최대 6시간, 보통 10-30분 소요)
+    timeout-minutes: 60
+    
+    steps:
+      # 1. 코드 체크아웃
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      # 2. Python 설정
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      # 3. 의존성 설치
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas numpy requests beautifulsoup4 lxml openpyxl pykrx
+      
+      # 4. 스크리너 실행
+      - name: Run screener
+        run: |
+          # 파라미터 설정
+          KR_STOCKS="${{ github.event.inputs.kr_stocks }}"
+          US_STOCKS="${{ github.event.inputs.us_stocks || '100' }}"
+          
+          # 명령어 구성
+          CMD="python global_screener_github.py --output-dir ./data --us-stocks $US_STOCKS"
+          
+          # 한국 주식 수 제한 (입력값이 있으면)
+          if [ -n "$KR_STOCKS" ]; then
+            CMD="$CMD --kr-stocks $KR_STOCKS"
+          fi
+          
+          echo "실행: $CMD"
+          $CMD
+      
+      # 5. 결과 확인
+      - name: Check output
+        run: |
+          echo "=== 생성된 파일 ==="
+          ls -la ./data/
+          echo ""
+          echo "=== data.json 미리보기 (첫 500자) ==="
+          head -c 500 ./data/data.json
+      
+      # 6. Git 설정
+      - name: Configure Git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+      
+      # 7. 변경사항 커밋 & 푸시
+      - name: Commit and push
+        run: |
+          # data 폴더의 변경사항만 추가
+          git add ./data/
+          
+          # 변경사항 있으면 커밋
+          if git diff --staged --quiet; then
+            echo "변경사항 없음"
+          else
+            DATE=$(TZ='Asia/Seoul' date '+%Y-%m-%d %H:%M')
+            git commit -m "📊 데이터 업데이트: $DATE KST"
+            git push
+            echo "✅ 푸시 완료"
+          fi
+      
+      # 8. 요약 출력
+      - name: Summary
+        run: |
+          echo "## 📊 스크리닝 완료" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- 실행 시간: $(TZ='Asia/Seoul' date '+%Y-%m-%d %H:%M KST')" >> $GITHUB_STEP_SUMMARY
+          echo "- 파일: data/data.json" >> $GITHUB_STEP_SUMMARY
+          
+          # JSON 파일 크기
+          SIZE=$(ls -lh ./data/data.json | awk '{print $5}')
+          echo "- 크기: $SIZE" >> $GITHUB_STEP_SUMMARY
