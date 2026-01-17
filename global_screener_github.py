@@ -103,6 +103,60 @@ def safe_get(d, *keys, default=None):
             return d[k]
     return default
 
+def fetch_yf_with_retry(ticker, max_retries=3, delay=1.0):
+    """yfinance 데이터를 재시도 로직과 함께 가져오기"""
+    for attempt in range(max_retries):
+        try:
+            t = yf.Ticker(ticker)
+            hist = t.history(period="2y")
+            info = t.info
+
+            # 유효한 데이터인지 확인
+            if not hist.empty or (info and len(info) > 5):
+                return t, hist, info
+
+            if attempt < max_retries - 1:
+                time.sleep(delay * (attempt + 1))
+        except Exception as e:
+            if attempt < max_retries - 1:
+                time.sleep(delay * (attempt + 1))
+            else:
+                pass
+
+    return None, pd.DataFrame(), {}
+
+def try_multiple_tickers(ticker_variants, max_retries=2):
+    """여러 티커 형식을 시도하여 가장 좋은 결과 반환"""
+    best_result = (None, pd.DataFrame(), {})
+    best_score = 0
+
+    for ticker in ticker_variants:
+        t, hist, info = fetch_yf_with_retry(ticker, max_retries=max_retries)
+
+        # 점수 계산: hist 길이 + info 키 수
+        score = len(hist) + len(info) if info else len(hist)
+
+        if score > best_score:
+            best_score = score
+            best_result = (t, hist, info)
+
+            # 충분히 좋은 결과면 조기 종료
+            if len(hist) > 200 and len(info) > 20:
+                break
+
+    return best_result
+
+def fill_missing_from_info(row, info, field_mapping):
+    """info 딕셔너리에서 결측값 채우기"""
+    for row_field, (info_keys, multiplier, decimals) in field_mapping.items():
+        if row.get(row_field) is None:
+            val = safe_get(info, *info_keys) if isinstance(info_keys, tuple) else safe_get(info, info_keys)
+            if val is not None:
+                if multiplier != 1:
+                    val = val * multiplier
+                row[row_field] = fmt(val, decimals)
+    return row
+
 # ============================================================
 # 네이버 금융 스크래핑
 # ============================================================
@@ -518,17 +572,13 @@ def get_korea_stocks():
                         row['Sector'] = naver_data['sector']
                 time.sleep(0.1)
             
-            # yfinance
-            yf_ticker = f"{ticker}.KS" if market == 'KOSPI' else f"{ticker}.KQ"
-            hist = pd.DataFrame()
-            info = {}
-            
-            try:
-                t = yf.Ticker(yf_ticker)
-                hist = t.history(period="2y")
-                info = t.info
-            except:
-                pass
+            # yfinance - 다중 티커 형식 시도
+            if market == 'KOSPI':
+                ticker_variants = [f"{ticker}.KS", f"{ticker}.KQ"]
+            else:
+                ticker_variants = [f"{ticker}.KQ", f"{ticker}.KS"]
+
+            t, hist, info = try_multiple_tickers(ticker_variants, max_retries=2)
             
             if not row.get('Price'):
                 row['Price'] = fmt(safe_get(info, 'regularMarketPrice'))
@@ -629,7 +679,29 @@ def get_korea_stocks():
                 
                 # SharpeRatio - PWA 호환
                 row['SharpeRatio'] = fmt(calc_sharpe_ratio(close))  # ← PWA 호환: Sharpe1Y → SharpeRatio
-            
+
+            # 최종 폴백: 여전히 결측인 필드들을 info에서 다시 시도
+            kr_field_mapping = {
+                'PER': (('trailingPE', 'forwardPE'), 1, 2),
+                'PBR': (('priceToBook',), 1, 2),
+                'ROE(%)': (('returnOnEquity',), 100, 2),
+                'ROA(%)': (('returnOnAssets',), 100, 2),
+                'DivYield(%)': (('dividendYield',), 100, 2),
+                'Beta': (('beta',), 1, 2),
+                'MarketCap(억)': (('marketCap',), 1e-8, 0),
+            }
+            row = fill_missing_from_info(row, info, kr_field_mapping)
+
+            # 52주 고저 폴백
+            if row.get('52wHigh') is None:
+                val = safe_get(info, 'fiftyTwoWeekHigh')
+                if val:
+                    row['52wHigh'] = fmt(val)
+            if row.get('52wLow') is None:
+                val = safe_get(info, 'fiftyTwoWeekLow')
+                if val:
+                    row['52wLow'] = fmt(val)
+
             row = calc_data_quality_score(row, REQUIRED_COLS_KR_STOCK, 'kr_stock')
             results.append(row)
             
@@ -671,13 +743,12 @@ def get_us_stocks():
     
     for i, ticker in enumerate(tickers):
         try:
-            t = yf.Ticker(ticker)
-            hist = t.history(period="2y")
-            info = t.info
-            
-            if hist.empty:
+            # 재시도 로직과 함께 데이터 가져오기
+            t, hist, info = fetch_yf_with_retry(ticker, max_retries=3, delay=0.5)
+
+            if hist.empty and not info:
                 continue
-            
+
             row = {'Ticker': ticker}
             
             row['Name'] = safe_get(info, 'shortName', 'longName')
@@ -792,18 +863,47 @@ def get_us_stocks():
                 
                 # SharpeRatio - PWA 호환
                 row['SharpeRatio'] = fmt(calc_sharpe_ratio(close))  # ← PWA 호환
-            
+
+            # 최종 폴백: 여전히 결측인 필드들을 info에서 다시 시도
+            us_field_mapping = {
+                'PER': (('trailingPE', 'forwardPE'), 1, 2),
+                'ForwardPE': (('forwardPE',), 1, 2),
+                'PBR': (('priceToBook',), 1, 2),
+                'ROE(%)': (('returnOnEquity',), 100, 2),
+                'ROA(%)': (('returnOnAssets',), 100, 2),
+                'DivYield(%)': (('dividendYield',), 100, 2),
+                'Beta': (('beta',), 1, 2),
+                'GrossMargin(%)': (('grossMargins',), 100, 2),
+                'OpMargin(%)': (('operatingMargins',), 100, 2),
+                'NetMargin(%)': (('profitMargins',), 100, 2),
+            }
+            row = fill_missing_from_info(row, info, us_field_mapping)
+
+            # 52주 고저 폴백
+            if row.get('52wHigh') is None:
+                val = safe_get(info, 'fiftyTwoWeekHigh')
+                if val:
+                    row['52wHigh'] = fmt(val)
+            if row.get('52wLow') is None:
+                val = safe_get(info, 'fiftyTwoWeekLow')
+                if val:
+                    row['52wLow'] = fmt(val)
+
+            # Price 폴백
+            if row.get('Price') is None:
+                row['Price'] = fmt(safe_get(info, 'regularMarketPrice', 'previousClose', 'open'))
+
             row = calc_data_quality_score(row, REQUIRED_COLS_US_STOCK, 'us_stock')
             results.append(row)
-            
+
         except Exception as e:
             results.append({'Ticker': ticker, 'Remark': str(e)[:30]})
-        
+
         if (i + 1) % 20 == 0:
             print(f"  진행: {i+1}/{len(tickers)}")
-        
+
         time.sleep(0.15)
-    
+
     print(f"  ✅ 완료: {len(results)}개")
     return pd.DataFrame(results)
 
@@ -813,14 +913,13 @@ def get_us_stocks():
 def get_etf_data(tickers, region=""):
     """ETF 데이터 수집 공통 함수"""
     results = []
-    
+
     for i, ticker in enumerate(tickers):
         try:
-            t = yf.Ticker(ticker)
-            hist = t.history(period="2y")
-            info = t.info
-            
-            if hist.empty:
+            # 재시도 로직과 함께 데이터 가져오기
+            t, hist, info = fetch_yf_with_retry(ticker, max_retries=3, delay=0.5)
+
+            if hist.empty and not info:
                 continue
             
             row = {'Ticker': ticker, 'Region': region}
@@ -871,15 +970,37 @@ def get_etf_data(tickers, region=""):
                 
                 row['MaxDrawdown(%)'] = fmt(calc_max_drawdown(close))
                 row['SharpeRatio'] = fmt(calc_sharpe_ratio(close))  # ← PWA 호환
-            
+
+            # 최종 폴백: 여전히 결측인 필드들을 info에서 다시 시도
+            etf_field_mapping = {
+                'ExpenseRatio(%)': (('expenseRatio',), 100, 3),
+                'DivYield(%)': (('yield', 'dividendYield'), 100, 2),
+                'TotalAssets(B)': (('totalAssets',), 1e-9, 2),
+            }
+            row = fill_missing_from_info(row, info, etf_field_mapping)
+
+            # 52주 고저 폴백
+            if row.get('52wHigh') is None:
+                val = safe_get(info, 'fiftyTwoWeekHigh')
+                if val:
+                    row['52wHigh'] = fmt(val)
+            if row.get('52wLow') is None:
+                val = safe_get(info, 'fiftyTwoWeekLow')
+                if val:
+                    row['52wLow'] = fmt(val)
+
+            # Price 폴백
+            if row.get('Price') is None:
+                row['Price'] = fmt(safe_get(info, 'regularMarketPrice', 'previousClose', 'navPrice'))
+
             row = calc_data_quality_score(row, REQUIRED_COLS_ETF, 'etf')
             results.append(row)
-            
+
         except Exception as e:
             results.append({'Ticker': ticker, 'Remark': str(e)[:30]})
-        
+
         time.sleep(0.15)
-    
+
     return pd.DataFrame(results)
 
 # ============================================================
@@ -951,16 +1072,9 @@ def get_korea_etfs():
                             row['Price'] = naver_etf['price']
                         break
             
-            yf_ticker = f"{code}.KS"
-            hist = pd.DataFrame()
-            info = {}
-            
-            try:
-                t = yf.Ticker(yf_ticker)
-                hist = t.history(period="2y")
-                info = t.info
-            except:
-                pass
+            # yfinance - 다중 티커 형식 시도
+            ticker_variants = [f"{code}.KS", f"{code}.KQ"]
+            t, hist, info = try_multiple_tickers(ticker_variants, max_retries=2)
             
             if not row.get('Name'):
                 row['Name'] = safe_get(info, 'shortName', 'longName') or code
@@ -991,11 +1105,30 @@ def get_korea_etfs():
                 row['MaxDrawdown(%)'] = fmt(calc_max_drawdown(close))
                 row['SharpeRatio'] = fmt(calc_sharpe_ratio(close))  # ← PWA 호환
             else:
-                continue
-            
+                # hist가 비어있어도 info가 있으면 기본 정보라도 포함
+                if not info:
+                    continue
+
+            # 최종 폴백: 여전히 결측인 필드들을 info에서 다시 시도
+            kr_etf_field_mapping = {
+                'ExpenseRatio(%)': (('expenseRatio',), 100, 3),
+                'DivYield(%)': (('yield', 'dividendYield'), 100, 2),
+            }
+            row = fill_missing_from_info(row, info, kr_etf_field_mapping)
+
+            # 52주 고저 폴백
+            if row.get('52wHigh') is None:
+                val = safe_get(info, 'fiftyTwoWeekHigh')
+                if val:
+                    row['52wHigh'] = fmt(val)
+            if row.get('52wLow') is None:
+                val = safe_get(info, 'fiftyTwoWeekLow')
+                if val:
+                    row['52wLow'] = fmt(val)
+
             row = calc_data_quality_score(row, REQUIRED_COLS_ETF, 'etf')
             results.append(row)
-            
+
         except:
             pass
         
