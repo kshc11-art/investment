@@ -12,9 +12,9 @@ on:
   workflow_dispatch:
     inputs:
       kr_stocks:
-        description: '한국 주식 수 (빈칸=전체)'
+        description: '한국 주식 수 (KOSPI 시총순위)'
         required: false
-        default: ''
+        default: '150'
       us_stocks:
         description: '미국 주식 수'
         required: false
@@ -25,7 +25,11 @@ jobs:
     runs-on: ubuntu-latest
     
     # 긴 실행 시간 허용 (최대 6시간, 보통 10-30분 소요)
-    timeout-minutes: 60
+    timeout-minutes: 90
+    
+    # ★ 핵심 수정: Python unbuffered 모드
+    env:
+      PYTHONUNBUFFERED: "1"
     
     steps:
       # 1. 코드 체크아웃
@@ -45,22 +49,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install yfinance pandas numpy requests beautifulsoup4 lxml openpyxl pykrx
       
-      # 4. 스크리너 실행
+      # 4. 스크리너 실행 (★ python -u 플래그 추가)
       - name: Run screener
         run: |
           # 파라미터 설정
-          KR_STOCKS="${{ github.event.inputs.kr_stocks }}"
+          KR_STOCKS="${{ github.event.inputs.kr_stocks || '150' }}"
           US_STOCKS="${{ github.event.inputs.us_stocks || '100' }}"
           
-          # 명령어 구성
-          CMD="python global_screener_github.py --output-dir ./data --us-stocks $US_STOCKS"
+          # 명령어 구성 (★ -u 플래그로 unbuffered 실행)
+          CMD="python -u global_screener_github.py --output-dir ./data --us-stocks $US_STOCKS"
           
-          # 한국 주식 수 제한 (입력값이 있으면)
+          # 한국 주식 수 제한
           if [ -n "$KR_STOCKS" ]; then
             CMD="$CMD --kr-stocks $KR_STOCKS"
           fi
           
+          echo "=========================================="
           echo "실행: $CMD"
+          echo "=========================================="
           $CMD
       
       # 5. 결과 확인
