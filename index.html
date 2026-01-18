@@ -428,6 +428,7 @@
             border-collapse: collapse;
             font-size: var(--font-sm);
             min-width: 700px;
+            table-layout: fixed;
         }
 
         .stock-table th {
@@ -449,6 +450,8 @@
             border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
             font-size: var(--font-xs);
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .stock-table tr:hover {
@@ -1427,83 +1430,95 @@
                 </div>
             </div>
 
-            <!-- Sub-allocation by category -->
+            <!-- Sub-allocation by category (비중만 동적 업데이트) -->
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">📋 세부 자산군별 TOP 추천</h3>
                 </div>
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
-                    <!-- 미국 주식 -->
+                    <!-- 1. 미국 주식 -->
                     <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; border-left: 4px solid #3b82f6;">
-                        <h4 style="color: #3b82f6; margin-bottom: 10px; font-size: 0.95rem;">🇺🇸 미국 (20%) - 배당 중심</h4>
+                        <h4 style="color: #3b82f6; margin-bottom: 10px; font-size: 0.95rem;">🇺🇸 미국 (<span id="alloc-us">20</span>%) - 배당 중심</h4>
                         <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
-                            <strong>SCHD</strong> 8% - 배당성장 ETF, 0.06% 비용<br>
-                            <strong>VYM</strong> 5% - 고배당 대형주<br>
-                            <strong>VTV</strong> 4% - 대형 가치주<br>
-                            <strong>SPY</strong> 3% - 시장 노출 최소 유지
+                            <strong>SCHD</strong> <span class="sub-alloc-us">8</span>% - 배당성장 ETF, 0.06% 비용<br>
+                            <strong>VYM</strong> <span class="sub-alloc-us">5</span>% - 고배당 대형주<br>
+                            <strong>VTV</strong> <span class="sub-alloc-us">4</span>% - 대형 가치주<br>
+                            <strong>SPY</strong> <span class="sub-alloc-us">3</span>% - 시장 노출 최소 유지
                         </div>
                     </div>
                     
-                    <!-- 금/원자재 -->
-                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; border-left: 4px solid #f59e0b;">
-                        <h4 style="color: #f59e0b; margin-bottom: 10px; font-size: 0.95rem;">🥇 금/원자재 (17%) - 인플레 헤지</h4>
+                    <!-- 2. 한국 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; border-left: 4px solid #8b5cf6;">
+                        <h4 style="color: #8b5cf6; margin-bottom: 10px; font-size: 0.95rem;">🇰🇷 한국 (<span id="alloc-kr">15</span>%) - 금융 + 분산</h4>
                         <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
-                            <strong>GLD</strong> 12% - 금 ETF (목표가 $5,000)<br>
-                            <strong>SLV</strong> 3% - 은 ETF (금/은 비율 분산)<br>
-                            <strong>PDBC</strong> 2% - 원자재 종합
-                        </div>
-                        <div style="font-size: 0.7rem; color: var(--accent-green); margin-top: 6px;">
-                            ✅ 지정학+인플레 헤지, 중앙은행 매입 지속
+                            <strong>KB금융</strong> <span class="sub-alloc-kr">5</span>% - PBR 0.5x, 배당 5%+<br>
+                            <strong>삼성전자</strong> <span class="sub-alloc-kr">4</span>% - AI/반도체 노출<br>
+                            <strong>현대차</strong> <span class="sub-alloc-kr">3</span>% - 수출주, 환율 수혜<br>
+                            <strong>한화에어로</strong> <span class="sub-alloc-kr">3</span>% - 방산, 지정학 헤지
                         </div>
                     </div>
                     
-                    <!-- 채권 -->
-                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; border-left: 4px solid #10b981;">
-                        <h4 style="color: #10b981; margin-bottom: 10px; font-size: 0.95rem;">📜 채권 (15%) - 듀레이션 분산</h4>
-                        <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
-                            <strong>TLT</strong> 8% - 장기채 (듀레이션 16.5년)<br>
-                            <strong>IEF</strong> 5% - 중기채 7-10년<br>
-                            <strong>BIL</strong> 2% - 단기 T-Bill (유동성)
-                        </div>
-                        <div style="font-size: 0.7rem; color: var(--accent-gold); margin-top: 6px;">
-                            ⚠️ TLT 단독 → TLT+IEF 분산 권고 (인플레 리스크)
-                        </div>
-                    </div>
-                    
-                    <!-- 유럽/일본 -->
+                    <!-- 3. 유럽/일본 -->
                     <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; border-left: 4px solid #06b6d4;">
-                        <h4 style="color: #06b6d4; margin-bottom: 10px; font-size: 0.95rem;">🇪🇺 유럽/일본 (10%) - 가치주</h4>
+                        <h4 style="color: #06b6d4; margin-bottom: 10px; font-size: 0.95rem;">🇪🇺 유럽/일본 (<span id="alloc-eu">10</span>%) - 가치주</h4>
                         <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
-                            <strong>VGK</strong> 5% - 유럽 대형주<br>
-                            <strong>DXJ</strong> 5% - 일본 환헤지 (엔약세 대응)
+                            <strong>VGK</strong> <span class="sub-alloc-eu">5</span>% - 유럽 대형주<br>
+                            <strong>DXJ</strong> <span class="sub-alloc-eu">5</span>% - 일본 환헤지 (엔약세 대응)
                         </div>
                         <div style="font-size: 0.7rem; color: var(--accent-blue); margin-top: 6px;">
                             💡 미국 대비 저평가, 밸류 로테이션 수혜
                         </div>
                     </div>
                     
-                    <!-- 신흥국 -->
+                    <!-- 4. 신흥국 -->
                     <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; border-left: 4px solid #ec4899;">
-                        <h4 style="color: #ec4899; margin-bottom: 10px; font-size: 0.95rem;">🌏 신흥국 (8%) - 중국 축소</h4>
+                        <h4 style="color: #ec4899; margin-bottom: 10px; font-size: 0.95rem;">🌏 신흥국 (<span id="alloc-em">8</span>%) - 중국 축소</h4>
                         <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
-                            <strong>INDA</strong> 4% - 인도 (성장 + 중국 대체)<br>
-                            <strong>EMXC</strong> 2% - 중국 제외 신흥국<br>
-                            <strong>VWO</strong> 2% - 분산 유지
+                            <strong>INDA</strong> <span class="sub-alloc-em">4</span>% - 인도 (성장 + 중국 대체)<br>
+                            <strong>EMXC</strong> <span class="sub-alloc-em">2</span>% - 중국 제외 신흥국<br>
+                            <strong>VWO</strong> <span class="sub-alloc-em">2</span>% - 분산 유지
                         </div>
                         <div style="font-size: 0.7rem; color: var(--accent-red); margin-top: 6px;">
                             🔴 VWO 중국 비중 30% → 실질 중국 노출 ~3%로 축소
                         </div>
                     </div>
                     
-                    <!-- 한국 -->
-                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; border-left: 4px solid #8b5cf6;">
-                        <h4 style="color: #8b5cf6; margin-bottom: 10px; font-size: 0.95rem;">🇰🇷 한국 (15%) - 금융 + 분산</h4>
+                    <!-- 5. 금/원자재 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; border-left: 4px solid #f59e0b;">
+                        <h4 style="color: #f59e0b; margin-bottom: 10px; font-size: 0.95rem;">🥇 금/원자재 (<span id="alloc-gold">17</span>%) - 인플레 헤지</h4>
                         <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
-                            <strong>KB금융</strong> 5% - PBR 0.5x, 배당 5%+<br>
-                            <strong>삼성전자</strong> 4% - AI/반도체 노출<br>
-                            <strong>현대차</strong> 3% - 수출주, 환율 수혜<br>
-                            <strong>한화에어로</strong> 3% - 방산, 지정학 헤지
+                            <strong>GLD</strong> <span class="sub-alloc-gold">12</span>% - 금 ETF (목표가 $5,000)<br>
+                            <strong>SLV</strong> <span class="sub-alloc-gold">3</span>% - 은 ETF (금/은 비율 분산)<br>
+                            <strong>PDBC</strong> <span class="sub-alloc-gold">2</span>% - 원자재 종합
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--accent-green); margin-top: 6px;">
+                            ✅ 지정학+인플레 헤지, 중앙은행 매입 지속
+                        </div>
+                    </div>
+                    
+                    <!-- 6. 채권 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; border-left: 4px solid #10b981;">
+                        <h4 style="color: #10b981; margin-bottom: 10px; font-size: 0.95rem;">📜 채권 (<span id="alloc-bond">15</span>%) - 듀레이션 분산</h4>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+                            <strong>TLT</strong> <span class="sub-alloc-bond">8</span>% - 장기채 (듀레이션 16.5년)<br>
+                            <strong>IEF</strong> <span class="sub-alloc-bond">5</span>% - 중기채 7-10년<br>
+                            <strong>BIL</strong> <span class="sub-alloc-bond">2</span>% - 단기 T-Bill (유동성)
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--accent-gold); margin-top: 6px;">
+                            ⚠️ TLT 단독 → TLT+IEF 분산 권고 (인플레 리스크)
+                        </div>
+                    </div>
+                    
+                    <!-- 7. 현금 -->
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; border-left: 4px solid #64748b;">
+                        <h4 style="color: #64748b; margin-bottom: 10px; font-size: 0.95rem;">💵 현금 (<span id="alloc-cash">15</span>%) - 유동성</h4>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+                            <strong>MMF/CMA</strong> - 단기 유동성 확보<br>
+                            <strong>달러 예금</strong> - 환율 헤지 겸용
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 6px;">
+                            📌 기회 포착용 대기자금
                         </div>
                     </div>
                 </div>
@@ -1612,20 +1627,20 @@
                     <table class="stock-table" id="screening-table">
                         <thead>
                             <tr>
-                                <th data-sort="rank" style="width:40px; cursor:pointer;">#</th>
-                                <th data-sort="name" style="cursor:pointer;">종목</th>
-                                <th data-sort="sector" style="cursor:pointer;">섹터</th>
-                                <th data-sort="total" style="cursor:pointer;" class="sorted-desc">총점</th>
-                                <th data-sort="value" style="cursor:pointer;">Value</th>
-                                <th data-sort="quality" style="cursor:pointer;">Quality</th>
-                                <th data-sort="growth" style="cursor:pointer;">Growth</th>
-                                <th data-sort="momentum" style="cursor:pointer;">Mom</th>
-                                <th data-sort="risk" style="cursor:pointer;">Risk</th>
-                                <th data-sort="per" style="cursor:pointer;">PER</th>
-                                <th data-sort="pbr" style="cursor:pointer;">PBR</th>
-                                <th data-sort="ret60" style="cursor:pointer;">60D</th>
-                                <th data-sort="rsi" style="cursor:pointer;">RSI</th>
-                                <th data-sort="vol" style="cursor:pointer;">Vol</th>
+                                <th data-sort="rank" style="width:32px; cursor:pointer;">#</th>
+                                <th data-sort="name" style="width:100px; cursor:pointer;">종목</th>
+                                <th data-sort="sector" style="width:75px; cursor:pointer;">섹터</th>
+                                <th data-sort="total" style="width:42px; cursor:pointer;" class="sorted-desc">총점</th>
+                                <th data-sort="value" style="width:42px; cursor:pointer;">Value</th>
+                                <th data-sort="quality" style="width:48px; cursor:pointer;">Quality</th>
+                                <th data-sort="growth" style="width:48px; cursor:pointer;">Growth</th>
+                                <th data-sort="momentum" style="width:38px; cursor:pointer;">Mom</th>
+                                <th data-sort="risk" style="width:38px; cursor:pointer;">Risk</th>
+                                <th data-sort="per" style="width:38px; cursor:pointer;">PER</th>
+                                <th data-sort="pbr" style="width:38px; cursor:pointer;">PBR</th>
+                                <th data-sort="ret60" style="width:45px; cursor:pointer;">60D</th>
+                                <th data-sort="rsi" style="width:35px; cursor:pointer;">RSI</th>
+                                <th data-sort="vol" style="width:35px; cursor:pointer;">Vol</th>
                             </tr>
                         </thead>
                         <tbody id="screening-tbody">
@@ -1949,7 +1964,7 @@
                 <div class="rationale-grid">
                     <div class="rationale-card">
                         <h4>🇰🇷 한국 금융주</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                        <p id="ai-rationale-krFinance" style="color: var(--text-secondary); font-size: 0.9rem;">
                             • PBR 0.5~0.8x (글로벌 평균 1.0~1.2x)<br>
                             • 2026년 주주환원율 50% 시대 돌입<br>
                             • 배당소득 분리과세 도입<br>
@@ -1957,11 +1972,11 @@
                         </p>
                         <div class="expected-return">
                             <div>
-                                <div class="return-value" style="color: var(--accent-green);">+12~18%</div>
+                                <div class="return-value" style="color: var(--accent-green);"><span id="ai-return-krFinance">+12~18%</span></div>
                                 <div class="return-label">기대수익률 (1년)</div>
                             </div>
                             <div>
-                                <div class="return-value" style="color: var(--accent-gold);">5~7%</div>
+                                <div class="return-value" style="color: var(--accent-gold);"><span id="ai-div-krFinance">5~7%</span></div>
                                 <div class="return-label">배당수익률</div>
                             </div>
                         </div>
@@ -1969,7 +1984,7 @@
 
                     <div class="rationale-card">
                         <h4>🥇 금 (Gold)</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                        <p id="ai-rationale-gold" style="color: var(--text-secondary); font-size: 0.9rem;">
                             • JP Morgan 목표가: $5,000/oz (2026 Q4)<br>
                             • 중앙은행 매입 585톤/분기 예상<br>
                             • 지정학 리스크 헤지<br>
@@ -1977,7 +1992,7 @@
                         </p>
                         <div class="expected-return">
                             <div>
-                                <div class="return-value" style="color: var(--accent-green);">+10~15%</div>
+                                <div class="return-value" style="color: var(--accent-green);"><span id="ai-return-gold">+10~15%</span></div>
                                 <div class="return-label">기대수익률 (1년)</div>
                             </div>
                             <div>
@@ -1989,7 +2004,7 @@
 
                     <div class="rationale-card">
                         <h4>🇺🇸 미국 배당 ETF</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                        <p id="ai-rationale-usDividend" style="color: var(--text-secondary); font-size: 0.9rem;">
                             • SCHD: 비용 0.06%, 배당 3.8%<br>
                             • 방어적 섹터 중심 (에너지, 헬스케어)<br>
                             • ⚠️ 환율 1,450원대 → 환손실 리스크<br>
@@ -1997,11 +2012,11 @@
                         </p>
                         <div class="expected-return">
                             <div>
-                                <div class="return-value" style="color: var(--accent-gold);">+5~10%</div>
+                                <div class="return-value" style="color: var(--accent-gold);"><span id="ai-return-usDividend">+5~10%</span></div>
                                 <div class="return-label">기대수익률 (1년)</div>
                             </div>
                             <div>
-                                <div class="return-value" style="color: var(--accent-red);">1~2%</div>
+                                <div class="return-value" style="color: var(--accent-red);"><span id="ai-div-usDividend">1~2%</span></div>
                                 <div class="return-label">실질 배당 (세후)</div>
                             </div>
                         </div>
@@ -2009,7 +2024,7 @@
 
                     <div class="rationale-card">
                         <h4>📜 채권 (TLT)</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                        <p id="ai-rationale-bond" style="color: var(--text-secondary); font-size: 0.9rem;">
                             • 듀레이션 16.5년 → 금리 민감<br>
                             • 금리 1%↓ 시 +16.5% 기대<br>
                             • 경기침체 헤지 역할<br>
@@ -2017,11 +2032,11 @@
                         </p>
                         <div class="expected-return">
                             <div>
-                                <div class="return-value" style="color: var(--accent-blue);">+5~15%</div>
+                                <div class="return-value" style="color: var(--accent-blue);"><span id="ai-return-bond-up">+5~15%</span></div>
                                 <div class="return-label">금리인하 시</div>
                             </div>
                             <div>
-                                <div class="return-value" style="color: var(--accent-red);">-10~-15%</div>
+                                <div class="return-value" style="color: var(--accent-red);"><span id="ai-return-bond-down">-10~-15%</span></div>
                                 <div class="return-label">금리인상 시</div>
                             </div>
                         </div>
@@ -2084,6 +2099,93 @@
                                 <li>• <strong>기회비용:</strong> 상승장에서 손해</li>
                                 <li>• <strong>수익:</strong> MMF 3~4%가 한계</li>
                             </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 📋 산업별 전망 & 대응 (AI 자동 업데이트) -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📋 산업별 전망 & 대응</h3>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+                    <!-- AI/반도체 -->
+                    <div id="ai-sector-aiSemi" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
+                        <h4 style="color: var(--accent-gold); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🤖 AI/반도체</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
+                            <strong>현황:</strong> <span class="ai-sector-status">HBM 수요 폭발, 엔비디아 독주, 밸류에이션 고평가</span><br>
+                            <strong>리스크:</strong> <span class="ai-sector-risk">AI 버블, 과잉투자, 중국 규제</span>
+                        </p>
+                        <div class="ai-sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                            <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">신규진입 신중</span>
+                            <span style="background: rgba(59,130,246,0.2); color: var(--accent-blue); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">조정 시 분할매수</span>
+                        </div>
+                    </div>
+
+                    <!-- 금융 -->
+                    <div id="ai-sector-finance" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
+                        <h4 style="color: var(--accent-green); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🏦 금융 (한국)</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
+                            <strong>현황:</strong> <span class="ai-sector-status">PBR 0.5~0.8x 저평가, 주주환원 50% 시대</span><br>
+                            <strong>호재:</strong> <span class="ai-sector-catalyst">배당소득 분리과세, 밸류업</span>
+                        </p>
+                        <div class="ai-sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                            <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">적극 매수</span>
+                            <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">배당 수혜</span>
+                        </div>
+                    </div>
+
+                    <!-- 자동차 -->
+                    <div id="ai-sector-auto" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
+                        <h4 style="color: var(--accent-blue); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🚗 자동차 (한국)</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
+                            <strong>현황:</strong> <span class="ai-sector-status">현대/기아 글로벌 점유율 확대, EV 전환 중</span><br>
+                            <strong>리스크:</strong> <span class="ai-sector-risk">트럼프 관세, 환율 변동성</span>
+                        </p>
+                        <div class="ai-sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                            <span style="background: rgba(59,130,246,0.2); color: var(--accent-blue); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">매수</span>
+                            <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">환율 모니터링</span>
+                        </div>
+                    </div>
+
+                    <!-- 에너지/원자재 -->
+                    <div id="ai-sector-energy" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
+                        <h4 style="color: #f59e0b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">⚡ 에너지/원자재</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
+                            <strong>현황:</strong> <span class="ai-sector-status">유가 변동성, AI 전력수요 급증</span><br>
+                            <strong>주목:</strong> <span class="ai-sector-focus">원전/SMR, 구리, 리튬</span>
+                        </p>
+                        <div class="ai-sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                            <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">원전 관련주 관심</span>
+                            <span style="background: rgba(100,116,139,0.3); color: var(--text-secondary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">정유 중립</span>
+                        </div>
+                    </div>
+
+                    <!-- 바이오/헬스케어 -->
+                    <div id="ai-sector-bio" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
+                        <h4 style="color: #ec4899; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">💊 바이오/헬스케어</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
+                            <strong>현황:</strong> <span class="ai-sector-status">GLP-1(비만치료제) 열풍, 고령화 수혜</span><br>
+                            <strong>리스크:</strong> <span class="ai-sector-risk">임상 실패, 규제 변화</span>
+                        </p>
+                        <div class="ai-sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                            <span style="background: rgba(236,72,153,0.2); color: #ec4899; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">XLV ETF 추천</span>
+                            <span style="background: rgba(100,116,139,0.3); color: var(--text-secondary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">개별주 신중</span>
+                        </div>
+                    </div>
+
+                    <!-- 리츠/부동산 -->
+                    <div id="ai-sector-reits" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
+                        <h4 style="color: #8b5cf6; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🏢 리츠/부동산</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
+                            <strong>현황:</strong> <span class="ai-sector-status">금리인하 기대감, 오피스 공실률 우려</span><br>
+                            <strong>주목:</strong> <span class="ai-sector-focus">데이터센터 리츠</span>
+                        </p>
+                        <div class="ai-sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                            <span style="background: rgba(139,92,246,0.2); color: #8b5cf6; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">금리인하 시 확대</span>
+                            <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">VNQ 관심</span>
                         </div>
                     </div>
                 </div>
@@ -3429,20 +3531,20 @@
 
             </div>
             
-            <!-- 📌 현재 기현상 분석 (참고용) -->
+            <!-- 📌 현재 기현상 분석 (참고용) - AI 자동 업데이트 -->
             <div class="card" style="border: 1px solid var(--border-color); background: var(--bg-card); margin-top: 16px;">
                 <div class="card-header">
-                    <h3 class="card-title">📌 현재 기현상 메모 (2025.01)</h3>
+                    <h3 class="card-title">📌 현재 기현상 메모 (<span id="ai-anomaly-date">2025.01</span>)</h3>
                     <span class="card-badge" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">참고용</span>
                 </div>
                 
                 <!-- 기현상 설명 -->
                 <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                    <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">❓ 관찰: 금리차 축소인데 원화 약세?</h5>
+                    <h5 style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 10px;">❓ 관찰: <span id="ai-anomaly-title">금리차 축소인데 원화 약세?</span></h5>
                     <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.7;">
-                        <strong>일반적 메커니즘:</strong> 한미 금리차 축소 → 원화 강세 경향<br>
-                        <strong>현재 실제:</strong> 금리차 축소 중 → 원화 약세 (1,460원+)<br><br>
-                        <strong>가능한 원인:</strong> 무역수지 악화, 정치 불안, 관세 우려 선반영, 정부 소극적 대응 등
+                        <strong>일반적 메커니즘:</strong> <span id="ai-anomaly-mechanism">한미 금리차 축소 → 원화 강세 경향</span><br>
+                        <strong>현재 실제:</strong> <span id="ai-anomaly-reality">금리차 축소 중 → 원화 약세 (1,460원+)</span><br><br>
+                        <strong>가능한 원인:</strong> <span id="ai-anomaly-causes">무역수지 악화, 정치 불안, 관세 우려 선반영, 정부 소극적 대응 등</span>
                     </div>
                 </div>
                 
@@ -3450,19 +3552,19 @@
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; font-size: 0.72rem;">
                     <div style="background: var(--bg-secondary); padding: 8px; border-radius: 8px; text-align: center;">
                         <div style="color: var(--text-muted);">🇰🇷 한국금리</div>
-                        <div style="font-weight: 700; color: var(--accent-gold);">3.0% 동결</div>
+                        <div id="ai-status-krRate" style="font-weight: 700; color: var(--accent-gold);">3.0% 동결</div>
                     </div>
                     <div style="background: var(--bg-secondary); padding: 8px; border-radius: 8px; text-align: center;">
                         <div style="color: var(--text-muted);">🇺🇸 미국금리</div>
-                        <div style="font-weight: 700; color: var(--accent-green);">인하 중</div>
+                        <div id="ai-status-usRate" style="font-weight: 700; color: var(--accent-green);">인하 중</div>
                     </div>
                     <div style="background: var(--bg-secondary); padding: 8px; border-radius: 8px; text-align: center;">
                         <div style="color: var(--text-muted);">💱 환율</div>
-                        <div style="font-weight: 700; color: var(--accent-red);">1,460+</div>
+                        <div id="ai-status-fx" style="font-weight: 700; color: var(--accent-red);">1,460+</div>
                     </div>
                     <div style="background: var(--bg-secondary); padding: 8px; border-radius: 8px; text-align: center;">
                         <div style="color: var(--text-muted);">🏛️ 정부</div>
-                        <div style="font-weight: 700; color: var(--accent-gold);">소극적</div>
+                        <div id="ai-status-gov" style="font-weight: 700; color: var(--accent-gold);">소극적</div>
                     </div>
                 </div>
             </div>
@@ -3883,92 +3985,6 @@
                                 <span>시나리오 확률 재평가</span>
                                 <span>환경 변화 반영</span>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">📋 산업별 전망 & 대응</h3>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
-                    <!-- AI/반도체 -->
-                    <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
-                        <h4 style="color: var(--accent-gold); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🤖 AI/반도체</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
-                            <strong>현황:</strong> HBM 수요 폭발, 엔비디아 독주, 밸류에이션 고평가<br>
-                            <strong>리스크:</strong> AI 버블, 과잉투자, 중국 규제
-                        </p>
-                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                            <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">신규진입 신중</span>
-                            <span style="background: rgba(59,130,246,0.2); color: var(--accent-blue); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">조정 시 분할매수</span>
-                        </div>
-                    </div>
-
-                    <!-- 금융 -->
-                    <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
-                        <h4 style="color: var(--accent-green); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🏦 금융 (한국)</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
-                            <strong>현황:</strong> PBR 0.5~0.8x 저평가, 주주환원 50% 시대<br>
-                            <strong>호재:</strong> 배당소득 분리과세, 밸류업
-                        </p>
-                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                            <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">적극 매수</span>
-                            <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">배당 수혜</span>
-                        </div>
-                    </div>
-
-                    <!-- 자동차 -->
-                    <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
-                        <h4 style="color: var(--accent-blue); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🚗 자동차 (한국)</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
-                            <strong>현황:</strong> 현대/기아 글로벌 점유율 확대, EV 전환 중<br>
-                            <strong>리스크:</strong> 트럼프 관세, 환율 변동성
-                        </p>
-                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                            <span style="background: rgba(59,130,246,0.2); color: var(--accent-blue); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">매수</span>
-                            <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">환율 모니터링</span>
-                        </div>
-                    </div>
-
-                    <!-- 에너지/원자재 -->
-                    <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
-                        <h4 style="color: #f59e0b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">⚡ 에너지/원자재</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
-                            <strong>현황:</strong> 유가 변동성, AI 전력수요 급증<br>
-                            <strong>주목:</strong> 원전/SMR, 구리, 리튬
-                        </p>
-                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                            <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">원전 관련주 관심</span>
-                            <span style="background: rgba(100,116,139,0.3); color: var(--text-secondary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">정유 중립</span>
-                        </div>
-                    </div>
-
-                    <!-- 바이오/헬스케어 -->
-                    <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
-                        <h4 style="color: #ec4899; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">💊 바이오/헬스케어</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
-                            <strong>현황:</strong> GLP-1(비만치료제) 열풍, 고령화 수혜<br>
-                            <strong>리스크:</strong> 임상 실패, 규제 변화
-                        </p>
-                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                            <span style="background: rgba(236,72,153,0.2); color: #ec4899; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">XLV ETF 추천</span>
-                            <span style="background: rgba(100,116,139,0.3); color: var(--text-secondary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">개별주 신중</span>
-                        </div>
-                    </div>
-
-                    <!-- 리츠/부동산 -->
-                    <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
-                        <h4 style="color: #8b5cf6; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🏢 리츠/부동산</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
-                            <strong>현황:</strong> 금리인하 기대감, 오피스 공실률 우려<br>
-                            <strong>주목:</strong> 데이터센터 리츠
-                        </p>
-                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                            <span style="background: rgba(139,92,246,0.2); color: #8b5cf6; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">금리인하 시 확대</span>
-                            <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">VNQ 관심</span>
                         </div>
                     </div>
                 </div>
@@ -7650,6 +7666,12 @@
                 lastUpdated: new Date().toISOString() 
             };
             saveToStorage();
+            
+            // 🆕 latestAllocation 저장 및 포트폴리오 비중 업데이트
+            window.latestAllocation = portfolioResult.allocation;
+            if (typeof updatePortfolioAllocations === 'function') {
+                updatePortfolioAllocations();
+            }
         }
         
         // ========== 🆕 시나리오 트리거 감지 ==========
@@ -8728,6 +8750,53 @@
                 indicatorPanel.innerHTML = `<h4 style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 10px;">📊 지표별 배분 영향</h4>` + indicatorHtml;
                 indicatorPanel.style.display = indicatorHtml ? 'block' : 'none';
             }
+            
+            // 🆕 세부 자산군별 TOP 추천 비중 업데이트
+            const allocation = result.portfolioResult?.allocation;
+            if (allocation) {
+                console.log('📊 세부 비중 업데이트:', allocation);
+                
+                // 메인 비중 업데이트
+                const updateEl = (id, value) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = Math.round(value);
+                };
+                
+                updateEl('alloc-us', allocation.US || 20);
+                updateEl('alloc-kr', allocation.KR || 15);
+                updateEl('alloc-eu', allocation.EU || 10);
+                updateEl('alloc-em', allocation.EM || 8);
+                updateEl('alloc-gold', allocation.Gold || 17);
+                updateEl('alloc-bond', allocation.Bond || 15);
+                updateEl('alloc-cash', allocation.Cash || 15);
+                
+                // 세부 비중 업데이트 (메인 비중 기준 비례 배분)
+                const updateSubAllocs = (className, mainAlloc, ratios) => {
+                    const els = document.querySelectorAll('.' + className);
+                    els.forEach((el, i) => {
+                        if (ratios[i] !== undefined) {
+                            const subAlloc = Math.round(mainAlloc * ratios[i]);
+                            el.textContent = subAlloc;
+                        }
+                    });
+                };
+                
+                // 미국: 40%, 25%, 20%, 15%
+                updateSubAllocs('sub-alloc-us', allocation.US || 20, [0.4, 0.25, 0.2, 0.15]);
+                // 금: 70%, 18%, 12%
+                updateSubAllocs('sub-alloc-gold', allocation.Gold || 17, [0.7, 0.18, 0.12]);
+                // 채권: 53%, 33%, 14%
+                updateSubAllocs('sub-alloc-bond', allocation.Bond || 15, [0.53, 0.33, 0.14]);
+                // 유럽/일본: 50%, 50%
+                updateSubAllocs('sub-alloc-eu', allocation.EU || 10, [0.5, 0.5]);
+                // 신흥국: 50%, 25%, 25%
+                updateSubAllocs('sub-alloc-em', allocation.EM || 8, [0.5, 0.25, 0.25]);
+                // 한국: 33%, 27%, 20%, 20%
+                updateSubAllocs('sub-alloc-kr', allocation.KR || 15, [0.33, 0.27, 0.2, 0.2]);
+                
+                console.log('✅ 세부 비중 업데이트 완료');
+            }
+            
             console.log('🔍 updatePortfolioTab 완료!');
             } catch (err) {
                 console.error('❌ updatePortfolioTab 오류:', err);
@@ -9163,6 +9232,279 @@
             e.preventDefault();
             deferredPrompt = e;
         });
+
+        // ============================================================
+        // 📊 포트폴리오 비중 동적 업데이트 모듈
+        // evaluateMarket() 결과에 따라 비중(%)만 변경
+        // ============================================================
+
+        function updatePortfolioAllocations() {
+            const allocation = window.latestAllocation;
+            if (!allocation) {
+                console.log('📊 allocation 데이터 없음 - 기본값 유지');
+                return;
+            }
+            
+            console.log('📊 포트폴리오 비중 업데이트:', allocation);
+            
+            // 메인 비중 업데이트
+            const updateEl = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = Math.round(value);
+            };
+            
+            updateEl('alloc-us', allocation.US || 20);
+            updateEl('alloc-kr', allocation.KR || 15);
+            updateEl('alloc-eu', allocation.EU || 10);
+            updateEl('alloc-em', allocation.EM || 8);
+            updateEl('alloc-gold', allocation.Gold || 17);
+            updateEl('alloc-bond', allocation.Bond || 15);
+            updateEl('alloc-cash', allocation.Cash || 15);
+            
+            // 세부 비중 업데이트 (메인 비중 기준 비례 배분)
+            const updateSubAllocs = (className, mainAlloc, ratios) => {
+                const els = document.querySelectorAll(`.${className}`);
+                els.forEach((el, i) => {
+                    if (ratios[i] !== undefined) {
+                        const subAlloc = Math.round(mainAlloc * ratios[i]);
+                        el.textContent = subAlloc;
+                    }
+                });
+            };
+            
+            // 미국: 40%, 25%, 20%, 15%
+            updateSubAllocs('sub-alloc-us', allocation.US || 20, [0.4, 0.25, 0.2, 0.15]);
+            // 금: 70%, 18%, 12%
+            updateSubAllocs('sub-alloc-gold', allocation.Gold || 17, [0.7, 0.18, 0.12]);
+            // 채권: 53%, 33%, 14%
+            updateSubAllocs('sub-alloc-bond', allocation.Bond || 15, [0.53, 0.33, 0.14]);
+            // 유럽/일본: 50%, 50%
+            updateSubAllocs('sub-alloc-eu', allocation.EU || 10, [0.5, 0.5]);
+            // 신흥국: 50%, 25%, 25%
+            updateSubAllocs('sub-alloc-em', allocation.EM || 8, [0.5, 0.25, 0.25]);
+            // 한국: 33%, 27%, 20%, 20%
+            updateSubAllocs('sub-alloc-kr', allocation.KR || 15, [0.33, 0.27, 0.2, 0.2]);
+            
+            console.log('✅ 포트폴리오 비중 업데이트 완료');
+        }
+
+        // runAutoPortfolioSystem은 updatePortfolioAllocations로 대체
+        function runAutoPortfolioSystem() {
+            updatePortfolioAllocations();
+        }
+
+        console.log('📦 포트폴리오 비중 업데이트 모듈 로드됨');
+
+        // ============================================================
+        // 🤖 AI 의견 자동 로더 v1.0
+        // GitHub에서 ai_opinions.json 가져와서 동적 업데이트
+        // ============================================================
+
+        const AI_OPINIONS_URL = 'https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/data/ai_opinions.json';
+
+        async function loadAIOpinions() {
+            try {
+                console.log('🤖 AI 의견 로드 시작...');
+                const res = await fetch(AI_OPINIONS_URL + '?t=' + Date.now());
+                
+                if (!res.ok) {
+                    console.warn('⚠️ AI 의견 fetch 실패:', res.status);
+                    return;
+                }
+                
+                const data = await res.json();
+                console.log('📥 AI 의견 데이터:', data);
+                
+                // 유효성 검사
+                if (!data || !data.lastUpdated) {
+                    console.warn('⚠️ AI 의견 데이터 형식 오류');
+                    return;
+                }
+                
+                // 각 섹션 업데이트
+                updateAnomaly(data.anomaly);
+                updateRationale(data.rationale);
+                updateSectors(data.sectors);
+                
+                // 업데이트 시간 표시 (있다면)
+                const updateBadge = document.getElementById('ai-update-time');
+                if (updateBadge) {
+                    const date = new Date(data.lastUpdated);
+                    updateBadge.textContent = `🤖 ${date.toLocaleDateString('ko-KR')} 업데이트`;
+                }
+                
+                console.log('✅ AI 의견 적용 완료');
+            } catch (err) {
+                console.warn('⚠️ AI 의견 로드 실패, 기본값 유지:', err.message);
+            }
+        }
+
+        // 기현상 메모 업데이트
+        function updateAnomaly(anomaly) {
+            if (!anomaly) return;
+            
+            safeUpdate('ai-anomaly-date', anomaly.date);
+            safeUpdate('ai-anomaly-title', anomaly.title);
+            safeUpdate('ai-anomaly-mechanism', anomaly.mechanism);
+            safeUpdate('ai-anomaly-reality', anomaly.reality);
+            safeUpdate('ai-anomaly-causes', anomaly.causes);
+            
+            // 상태 박스 업데이트
+            if (anomaly.status) {
+                updateStatusBox('ai-status-krRate', anomaly.status.krRate);
+                updateStatusBox('ai-status-usRate', anomaly.status.usRate);
+                updateStatusBox('ai-status-fx', anomaly.status.fx);
+                updateStatusBox('ai-status-gov', anomaly.status.gov);
+            }
+        }
+
+        // 상태 박스 업데이트 (값 + 색상)
+        function updateStatusBox(id, status) {
+            if (!status) return;
+            const el = document.getElementById(id);
+            if (!el) return;
+            
+            el.textContent = status.value || status.label;
+            
+            // 색상 매핑
+            const colorMap = {
+                'red': 'var(--accent-red)',
+                'green': 'var(--accent-green)',
+                'gold': 'var(--accent-gold)',
+                'blue': 'var(--accent-blue)',
+                'gray': 'var(--text-secondary)'
+            };
+            if (status.color && colorMap[status.color]) {
+                el.style.color = colorMap[status.color];
+            }
+        }
+
+        // 투자 근거 업데이트
+        function updateRationale(rationale) {
+            if (!rationale) return;
+            
+            // 한국 금융주
+            if (rationale.krFinance) {
+                updateRationaleCard('ai-rationale-krFinance', rationale.krFinance.points);
+                safeUpdate('ai-return-krFinance', rationale.krFinance.expectedReturn);
+                safeUpdate('ai-div-krFinance', rationale.krFinance.dividend);
+            }
+            
+            // 금
+            if (rationale.gold) {
+                updateRationaleCard('ai-rationale-gold', rationale.gold.points);
+                safeUpdate('ai-return-gold', rationale.gold.expectedReturn);
+            }
+            
+            // 미국 배당 ETF
+            if (rationale.usDividend) {
+                updateRationaleCard('ai-rationale-usDividend', rationale.usDividend.points);
+                safeUpdate('ai-return-usDividend', rationale.usDividend.expectedReturn);
+                safeUpdate('ai-div-usDividend', rationale.usDividend.dividend);
+            }
+            
+            // 채권
+            if (rationale.bond) {
+                updateRationaleCard('ai-rationale-bond', rationale.bond.points);
+                safeUpdate('ai-return-bond-up', rationale.bond.upside);
+                safeUpdate('ai-return-bond-down', rationale.bond.downside);
+            }
+        }
+
+        // 투자 근거 카드 포인트 업데이트
+        function updateRationaleCard(id, points) {
+            if (!points || !Array.isArray(points)) return;
+            const el = document.getElementById(id);
+            if (!el) return;
+            
+            // 포인트 배열을 HTML로 변환
+            const html = points.map(p => `• ${p}`).join('<br>');
+            if (html.length < 500) { // 너무 길면 무시
+                el.innerHTML = html;
+            }
+        }
+
+        // 산업별 전망 업데이트
+        function updateSectors(sectors) {
+            if (!sectors) return;
+            
+            const sectorMap = {
+                'aiSemi': 'ai-sector-aiSemi',
+                'finance': 'ai-sector-finance',
+                'auto': 'ai-sector-auto',
+                'energy': 'ai-sector-energy',
+                'bio': 'ai-sector-bio',
+                'reits': 'ai-sector-reits'
+            };
+            
+            Object.entries(sectorMap).forEach(([key, id]) => {
+                const sector = sectors[key];
+                if (!sector) return;
+                
+                const container = document.getElementById(id);
+                if (!container) return;
+                
+                // 현황/리스크/호재/주목 업데이트
+                const statusEl = container.querySelector('.ai-sector-status');
+                if (statusEl && sector.status) statusEl.textContent = sector.status;
+                
+                const riskEl = container.querySelector('.ai-sector-risk');
+                if (riskEl && sector.risk) riskEl.textContent = sector.risk;
+                
+                const catalystEl = container.querySelector('.ai-sector-catalyst');
+                if (catalystEl && sector.catalyst) catalystEl.textContent = sector.catalyst;
+                
+                const focusEl = container.querySelector('.ai-sector-focus');
+                if (focusEl && sector.focus) focusEl.textContent = sector.focus;
+                
+                // 태그 업데이트 (선택적)
+                if (sector.tags && Array.isArray(sector.tags)) {
+                    updateSectorTags(container, sector.tags);
+                }
+            });
+        }
+
+        // 산업별 태그 업데이트
+        function updateSectorTags(container, tags) {
+            const tagsEl = container.querySelector('.ai-sector-tags');
+            if (!tagsEl || tags.length === 0) return;
+            
+            const colorMap = {
+                'red': { bg: 'rgba(239,68,68,0.2)', text: 'var(--accent-red)' },
+                'green': { bg: 'rgba(16,185,129,0.2)', text: 'var(--accent-green)' },
+                'gold': { bg: 'rgba(245,158,11,0.2)', text: 'var(--accent-gold)' },
+                'blue': { bg: 'rgba(59,130,246,0.2)', text: 'var(--accent-blue)' },
+                'pink': { bg: 'rgba(236,72,153,0.2)', text: '#ec4899' },
+                'purple': { bg: 'rgba(139,92,246,0.2)', text: '#8b5cf6' },
+                'gray': { bg: 'rgba(100,116,139,0.3)', text: 'var(--text-secondary)' }
+            };
+            
+            const html = tags.map(tag => {
+                const color = colorMap[tag.color] || colorMap['gray'];
+                return `<span style="background: ${color.bg}; color: ${color.text}; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">${tag.text}</span>`;
+            }).join('');
+            
+            if (html.length < 1000) {
+                tagsEl.innerHTML = html;
+            }
+        }
+
+        // 안전한 텍스트 업데이트
+        function safeUpdate(id, value, maxLength = 200) {
+            if (!value || typeof value !== 'string') return;
+            if (value.length > maxLength) return;
+            
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+        }
+
+        // 페이지 로드 시 AI 의견 로드
+        document.addEventListener('DOMContentLoaded', function() {
+            // 3초 후 로드 (다른 초기화 완료 후)
+            setTimeout(loadAIOpinions, 3000);
+        });
+
+        console.log('🤖 AI 의견 로더 모듈 로드됨');
 
     </script>
 </body>
