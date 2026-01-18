@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-title" content="투자결정">
     <meta name="theme-color" content="#0a0a0f">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>투자 의사결정 시스템 v2.0</title>
+    <title>투자 의사결정 시스템 v2.1</title>
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230a0a0f' width='100' height='100' rx='20'/><text x='50' y='62' text-anchor='middle' font-size='45'>📊</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -122,6 +122,7 @@
         .main-tabs {
             display: flex;
             gap: 4px;
+            margin-top: var(--space-sm);
             margin-bottom: var(--space-md);
             padding: 5px;
             background: var(--bg-secondary);
@@ -1299,17 +1300,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <h1>투자 의사결정 시스템 v2.1</h1>
-            <p class="header-subtitle">포트폴리오 추적 | 리밸런싱 신호 | 시나리오 대응</p>
-            <div class="header-tags">
-                <span id="dataUpdateDate" class="tag tag-gold">📅 데이터 로드 대기중...</span>
-                <span class="tag" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">⚠️ CAPE 40 | 환율 1,460+</span>
-                <span class="tag tag-blue">🎯 8개 시나리오 정량화</span>
-            </div>
-        </header>
-
         <!-- Main Navigation Tabs -->
         <nav class="main-tabs">
             <button class="main-tab active" data-tab="portfolio">
@@ -1345,54 +1335,52 @@
         <!-- ==================== TAB 1: 추천 포트폴리오 ==================== -->
         <div class="tab-content active" id="portfolio">
             
-            <!-- 🆕 시장 상태 기반 동적 배분 패널 -->
+            <!-- 시장 상태 기반 동적 배분 패널 -->
             <div class="card" id="dynamicAllocationCard" style="border: 2px solid var(--accent-gold); background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.02));">
                 <div class="card-header">
-                    <h3 class="card-title">🎯 시장 상태 기반 동적 배분</h3>
+                    <h3 class="card-title">📊 추천 자산배분 (2억원 기준)</h3>
                     <span class="card-badge" id="marketStateBadge" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">⏳ 지표 입력 필요</span>
                 </div>
                 
                 <div id="noMarketDataMsg" style="padding: 20px; text-align: center; color: var(--text-muted);">
-                    <p style="font-size: 0.9rem; margin-bottom: 16px;">📊 시장 지표를 입력하면 자동으로 최적 배분을 계산합니다.</p>
+                    <p style="font-size: 0.9rem; margin-bottom: 8px;">시장 지표를 입력하면 <strong style="color: var(--accent-gold);">현재 시장 상태에 맞는 최적 배분</strong>을 자동 계산합니다.</p>
+                    <p style="font-size: 0.8rem; margin-bottom: 16px; color: var(--text-muted);">VIX, 환율, 금리, CAPE 등 핵심 지표 기반</p>
                     <button onclick="document.querySelector('[data-tab=market]').click();" style="padding: 10px 20px; background: var(--accent-gold); color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
                         시장 판단 탭으로 이동 →
                     </button>
                 </div>
                 
                 <div id="dynamicAllocationContent" style="display: none;">
-                    <!-- 현재 시장 상태 요약 -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 16px;">
-                        <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; text-align: center;">
-                            <div style="font-size: 1.5rem;" id="dynMarketEmoji">-</div>
-                            <div style="font-size: 0.8rem; font-weight: 600;" id="dynMarketState">-</div>
-                            <div style="font-size: 0.65rem; color: var(--text-muted);">종합 상태</div>
-                        </div>
-                        <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; text-align: center;">
-                            <div style="font-size: 1.2rem; font-weight: 700;" id="dynActiveScenario">-</div>
-                            <div style="font-size: 0.65rem; color: var(--text-muted);">활성 시나리오</div>
-                        </div>
-                        <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; text-align: center;">
-                            <div style="font-size: 1.2rem; font-weight: 700;" id="dynRiskLevel">-</div>
-                            <div style="font-size: 0.65rem; color: var(--text-muted);">리스크 수준</div>
-                        </div>
-                        <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; text-align: center;">
-                            <div style="font-size: 1.2rem; font-weight: 700;" id="dynActionBias">-</div>
-                            <div style="font-size: 0.65rem; color: var(--text-muted);">권장 행동</div>
-                        </div>
+                    <!-- 핵심 지표 요약 + 상태 통합 -->
+                    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 10px; padding: 10px; background: var(--bg-secondary); border-radius: 10px;">
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">📅 <span id="summaryDate">-</span></span>
+                        <span style="color: var(--border-color);">|</span>
+                        <span id="sumVIX" style="padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; background: var(--bg-card);">VIX -</span>
+                        <span id="sumCAPE" style="padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; background: var(--bg-card);">CAPE -</span>
+                        <span id="sumFX" style="padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; background: var(--bg-card);">₩-</span>
+                        <span id="sumRate" style="padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; background: var(--bg-card);">10Y -</span>
+                        <span id="sumFNG" style="padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; background: var(--bg-card);">F&G -</span>
                     </div>
                     
-                    <!-- 기본 vs 권장 배분 비교 -->
-                    <div style="margin-bottom: 16px;">
-                        <h4 style="font-size: 0.9rem; color: var(--text-primary); margin-bottom: 16px;">📊 배분 비교 (기본 → 시장 상태 반영)</h4>
+                    <!-- 시장 상태 한 줄 요약 -->
+                    <div id="marketStatusLine" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding: 10px 12px; background: var(--bg-secondary); border-radius: 8px; flex-wrap: wrap;">
+                        <span style="font-size: 0.85rem; font-weight: 700;" id="dynActiveScenario">-</span>
+                        <span style="color: var(--border-color);">→</span>
+                        <span style="font-size: 0.8rem; font-weight: 600; padding: 3px 10px; border-radius: 4px;" id="dynActionBias">-</span>
+                    </div>
+                    
+                    <!-- 권장 배분 테이블 -->
+                    <div style="margin-bottom: 12px;">
+                        <h4 style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 10px;">📊 권장 자산배분 <span style="font-weight: 400; font-size: 0.75rem; color: var(--text-muted);">(2억원 기준)</span></h4>
                         <div style="overflow-x: auto;">
-                            <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.78rem;">
                                 <thead>
                                     <tr style="background: var(--bg-secondary);">
-                                        <th style="padding: 14px; text-align: left; border-bottom: 1px solid var(--border-color);">자산</th>
-                                        <th style="padding: 14px; text-align: center; border-bottom: 1px solid var(--border-color);">기본</th>
-                                        <th style="padding: 14px; text-align: center; border-bottom: 1px solid var(--border-color);">권장</th>
-                                        <th style="padding: 14px; text-align: center; border-bottom: 1px solid var(--border-color);">변화</th>
-                                        <th style="padding: 14px; text-align: left; border-bottom: 1px solid var(--border-color);">사유</th>
+                                        <th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--border-color);">자산</th>
+                                        <th style="padding: 8px; text-align: center; border-bottom: 1px solid var(--border-color);">비중</th>
+                                        <th style="padding: 8px; text-align: right; border-bottom: 1px solid var(--border-color);">금액</th>
+                                        <th style="padding: 8px; text-align: center; border-bottom: 1px solid var(--border-color);">변화</th>
+                                        <th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--border-color);">사유</th>
                                     </tr>
                                 </thead>
                                 <tbody id="allocationCompareBody">
@@ -1403,109 +1391,33 @@
                     </div>
                     
                     <!-- 권장 배분 시각화 바 -->
-                    <div style="margin-bottom: 16px;">
-                        <h4 style="font-size: 0.9rem; color: var(--text-primary); margin-bottom: 10px;">📈 시장 상태 반영 권장 배분</h4>
-                        <div id="dynamicAllocationBar" class="allocation-bar">
+                    <!-- 권장 배분 시각화 바 -->
+                    <div style="margin-bottom: 12px;">
+                        <div id="dynamicAllocationBar" class="allocation-bar" style="height: 32px;">
                             <!-- 동적 생성 -->
                         </div>
                     </div>
                     
                     <!-- 핵심 행동 지침 -->
-                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px;">
-                        <h4 style="font-size: 0.85rem; color: var(--accent-gold); margin-bottom: 10px;">⚡ 핵심 행동 지침</h4>
-                        <ul id="actionGuidelines" style="list-style: none; padding: 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8;">
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 10px;">
+                        <h4 style="font-size: 0.8rem; color: var(--accent-gold); margin-bottom: 8px;">⚡ 핵심 행동</h4>
+                        <ul id="actionGuidelines" style="list-style: none; padding: 0; font-size: 0.78rem; color: var(--text-secondary); line-height: 1.7;">
                             <!-- 동적 생성 -->
                         </ul>
                     </div>
                     
-                    <!-- 🆕 지표별 영향 패널 -->
+                    <!-- 시장 상황 경고/설명 -->
+                    <div id="marketWarningBox" style="margin-top: 10px; padding: 10px; border-radius: 10px; background: rgba(239,68,68,0.1); border-left: 3px solid var(--accent-red); display: none;">
+                        <h4 style="font-size: 0.8rem; color: var(--accent-red); margin-bottom: 6px;">⚠️ 리스크 요인</h4>
+                        <ul id="marketWarnings" style="list-style: none; padding: 0; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.6;">
+                            <!-- 동적 생성 -->
+                        </ul>
+                    </div>
+                    
+                    <!-- 지표별 영향 패널 -->
                     <div id="indicatorImpactPanel" style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-top: 12px; display: none;">
-                        <h4 style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 10px;">📊 지표별 배분 영향</h4>
                         <!-- 동적 생성 -->
                     </div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">📊 기본 자산배분 (2억원)</h3>
-                    <span class="card-badge badge-warning">⚠️ CAPE 40+ 고평가 시장</span>
-                </div>
-                
-                <div class="allocation-chart">
-                    <div class="allocation-visual">
-                        <!-- Visual Bar Chart - 2026.1 권고 비중 -->
-                        <div class="allocation-bar">
-                            <div class="allocation-segment" style="width: 20%; background: #3b82f6;">미국 20%</div>
-                            <div class="allocation-segment" style="width: 15%; background: #8b5cf6;">한국 15%</div>
-                            <div class="allocation-segment" style="width: 10%; background: #06b6d4;">유럽 10%</div>
-                            <div class="allocation-segment" style="width: 8%; background: #ec4899;">신흥국 8%</div>
-                            <div class="allocation-segment" style="width: 17%; background: #f59e0b;">금/원자재 17%</div>
-                            <div class="allocation-segment" style="width: 15%; background: #10b981;">채권 15%</div>
-                            <div class="allocation-segment" style="width: 15%; background: #64748b;">현금 15%</div>
-                        </div>
-
-                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 20px;">
-                            💡 <strong>2026.1 조정:</strong> CAPE 40+ & 환율 1,460원+ 대응 → 
-                            미국 25%→20%, 현금 8%→15%, 신흥국 10%→8%
-                        </p>
-                    </div>
-
-                    <div class="allocation-list">
-                        <div class="allocation-item" style="border-color: #3b82f6;">
-                            <div class="color-dot" style="background: #3b82f6;"></div>
-                            <div class="name">🇺🇸 미국 주식/ETF</div>
-                            <div class="percent">20%</div>
-                            <div class="amount">40M</div>
-                        </div>
-                        <div class="allocation-item" style="border-color: #8b5cf6;">
-                            <div class="color-dot" style="background: #8b5cf6;"></div>
-                            <div class="name">🇰🇷 한국 주식</div>
-                            <div class="percent">15%</div>
-                            <div class="amount">30M</div>
-                        </div>
-                        <div class="allocation-item" style="border-color: #06b6d4;">
-                            <div class="color-dot" style="background: #06b6d4;"></div>
-                            <div class="name">🇪🇺 유럽/일본</div>
-                            <div class="percent">10%</div>
-                            <div class="amount">20M</div>
-                        </div>
-                        <div class="allocation-item" style="border-color: #ec4899;">
-                            <div class="color-dot" style="background: #ec4899;"></div>
-                            <div class="name">🌏 신흥국</div>
-                            <div class="percent">8%</div>
-                            <div class="amount">16M</div>
-                        </div>
-                        <div class="allocation-item" style="border-color: #f59e0b;">
-                            <div class="color-dot" style="background: #f59e0b;"></div>
-                            <div class="name">🥇 금/원자재</div>
-                            <div class="percent">17%</div>
-                            <div class="amount">34M</div>
-                        </div>
-                        <div class="allocation-item" style="border-color: #10b981;">
-                            <div class="color-dot" style="background: #10b981;"></div>
-                            <div class="name">📜 채권 (TLT+IEF)</div>
-                            <div class="percent">15%</div>
-                            <div class="amount">30M</div>
-                        </div>
-                        <div class="allocation-item" style="border-color: #64748b;">
-                            <div class="color-dot" style="background: #64748b;"></div>
-                            <div class="name">💵 현금/MMF</div>
-                            <div class="percent">15%</div>
-                            <div class="amount">30M</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="cash-notice">
-                    <h4>⚠️ 왜 현금 15% + 채권 15% 권고? (기존 8%+15% 대비 상향)</h4>
-                    <p style="color: var(--text-secondary); font-size: 0.9rem;">
-                        • S&P 500 CAPE <strong>39.6~40.5</strong> = 1871년 이후 닷컴버블(44.2) 다음 역사적 2위<br>
-                        • <strong>Shiller 연구:</strong> CAPE 26+ 이후 10년 실질수익률 평균 +0.9% (vs 평균 6.6%)<br>
-                        • <strong>관세 불확실성:</strong> 유효관세율 18%, 인플레 +0.5%p 영향 (Goldman)<br>
-                        • <strong>환율 리스크:</strong> 원/달러 1,460원+ (해외자산 62% 환노출)<br>
-                        • 급락 시 저가매수 기회자금 확보 + 정신적 안정감
-                    </p>
                 </div>
             </div>
 
@@ -6607,10 +6519,14 @@
             return 0.5 * (1.0 + sign * y);
         }
         
-        // NY Fed 모델 기반 침체 확률
+        // NY Fed 모델 기반 침체 확률 (근사)
+        // 원본: 10Y-3M 스프레드 사용, P = Φ(-0.5333 - 0.6330 * spread)
+        // 현재: 10Y-2Y(또는 10Y-5Y) 스프레드로 대체 사용 (근사치)
+        // 해석 주의: 정확한 NY Fed 확률이 아닌 참고용
         function calcRecessionProb(spread10Y2Y) {
             if (spread10Y2Y === null) return null;
-            const z = -0.6046 - 0.7644 * spread10Y2Y;
+            // 10Y-2Y는 10Y-3M보다 평균적으로 좁으므로 계수 조정
+            const z = -0.5 - 0.65 * spread10Y2Y;
             return normalCDF(z);
         }
         
@@ -6638,18 +6554,20 @@
                 }
             }
             
-            // 하이일드 스프레드 분석
-            if (ind.hySpread) {
+            // 하이일드 스프레드 분석 (LQD-HYG 수익률 차이, %)
+            // 양수 = 투자등급 아웃퍼폼 = 리스크오프 신호
+            // 음수 = 하이일드 아웃퍼폼 = 리스크온
+            if (ind.hySpread !== null && ind.hySpread !== undefined) {
                 dataPoints++;
                 const hy = ind.hySpread;
-                if (hy > 600) {
-                    result.signals.push({ indicator: '하이일드 스프레드', value: hy + 'bp', signal: '🔴 스트레스 - 신용 위험', severity: 'high' });
-                } else if (hy > 450) {
-                    result.signals.push({ indicator: '하이일드 스프레드', value: hy + 'bp', signal: '🟡 경계', severity: 'medium' });
-                } else if (hy < 300) {
-                    result.signals.push({ indicator: '하이일드 스프레드', value: hy + 'bp', signal: '🟡 과도한 낙관', severity: 'medium' });
+                if (hy > 3) {
+                    result.signals.push({ indicator: 'HY 스프레드 (LQD-HYG)', value: hy.toFixed(1) + '%', signal: '🔴 스트레스 - 신용 위험', severity: 'high' });
+                } else if (hy > 1.5) {
+                    result.signals.push({ indicator: 'HY 스프레드 (LQD-HYG)', value: hy.toFixed(1) + '%', signal: '🟡 경계', severity: 'medium' });
+                } else if (hy < -2) {
+                    result.signals.push({ indicator: 'HY 스프레드 (LQD-HYG)', value: hy.toFixed(1) + '%', signal: '🟡 과도한 리스크온', severity: 'medium' });
                 } else {
-                    result.signals.push({ indicator: '하이일드 스프레드', value: hy + 'bp', signal: '🟢 정상', severity: 'low' });
+                    result.signals.push({ indicator: 'HY 스프레드 (LQD-HYG)', value: hy.toFixed(1) + '%', signal: '🟢 정상', severity: 'low' });
                 }
             }
             
@@ -6688,31 +6606,34 @@
             const result = { state: 'UNKNOWN', signals: [], confidence: 0 };
             let dataPoints = 0;
             
-            // CAPE 분석
+            // CAPE 분석 - 역사적 기준 유지하되 현실 반영
+            // 역사적 평균 15-17, 2010년대 평균 25, 닷컴버블 44, 2021년 고점 38
             if (ind.cape) {
                 dataPoints++;
                 const cape = ind.cape;
                 const expectedReturn = (110 / cape + 0.5).toFixed(1);
                 
-                if (cape > 35) {
-                    result.signals.push({ indicator: 'CAPE', value: cape, signal: `🔴 버블 경계 (10년 기대수익률 ${expectedReturn}%)`, severity: 'high' });
-                } else if (cape > 28) {
-                    result.signals.push({ indicator: 'CAPE', value: cape, signal: `🟡 고평가 (10년 기대수익률 ${expectedReturn}%)`, severity: 'medium' });
-                } else if (cape > 20) {
-                    result.signals.push({ indicator: 'CAPE', value: cape, signal: `🟢 적정~고평가 (10년 기대수익률 ${expectedReturn}%)`, severity: 'low' });
+                if (cape > 42) {
+                    result.signals.push({ indicator: 'CAPE', value: cape, signal: `🔴 버블 영역 - 닷컴버블급 (10년 기대수익률 ${expectedReturn}%)`, severity: 'high' });
+                } else if (cape > 35) {
+                    result.signals.push({ indicator: 'CAPE', value: cape, signal: `🟡 고평가 - 역사적 고점권 (10년 기대수익률 ${expectedReturn}%)`, severity: 'medium' });
+                } else if (cape > 25) {
+                    result.signals.push({ indicator: 'CAPE', value: cape, signal: `🟢 2010년대 평균 수준 (10년 기대수익률 ${expectedReturn}%)`, severity: 'low' });
                 } else {
-                    result.signals.push({ indicator: 'CAPE', value: cape, signal: `🟢 저평가 (10년 기대수익률 ${expectedReturn}%)`, severity: 'low' });
+                    result.signals.push({ indicator: 'CAPE', value: cape, signal: `🟢 저평가 - 매수 기회 (10년 기대수익률 ${expectedReturn}%)`, severity: 'low' });
                 }
             }
             
-            // 코스피 PER
+            // 코스피 PER (한국 시장 역사적 범위: 8-15)
             if (ind.kospiPer) {
                 dataPoints++;
                 const per = ind.kospiPer;
-                if (per > 15) {
-                    result.signals.push({ indicator: '코스피 PER', value: per, signal: '🟡 고평가', severity: 'medium' });
-                } else if (per < 10) {
-                    result.signals.push({ indicator: '코스피 PER', value: per, signal: '🟢 저평가', severity: 'low' });
+                if (per > 14) {
+                    result.signals.push({ indicator: '코스피 PER', value: per, signal: '🔴 고평가 (역사적 고점)', severity: 'high' });
+                } else if (per > 12) {
+                    result.signals.push({ indicator: '코스피 PER', value: per, signal: '🟡 다소 높음', severity: 'medium' });
+                } else if (per < 9) {
+                    result.signals.push({ indicator: '코스피 PER', value: per, signal: '🟢 저평가 (매수 기회)', severity: 'low' });
                 } else {
                     result.signals.push({ indicator: '코스피 PER', value: per, signal: '🟢 적정', severity: 'low' });
                 }
@@ -6779,14 +6700,17 @@
             if (ind.kospi1m !== null && ind.kospi1m !== undefined) {
                 dataPoints++;
                 const m1 = ind.kospi1m;
-                const m3 = ind.kospi3m || m1 * 2;
+                // kospi3m이 명시적으로 존재하면 사용, 없으면 null
+                const m3 = (ind.kospi3m !== null && ind.kospi3m !== undefined) ? ind.kospi3m : null;
+                const m3Display = m3 !== null ? `3M: ${m3.toFixed(1)}%` : '';
+                const valueDisplay = m3 !== null ? `1M: ${m1.toFixed(1)}%, ${m3Display}` : `1M: ${m1.toFixed(1)}%`;
                 
-                if (m1 > 15 || m3 > 30) {
-                    result.signals.push({ indicator: '코스피 모멘텀', value: `1M: ${m1.toFixed(1)}%, 3M: ${m3.toFixed(1)}%`, signal: '🔴 과열 - 추격매수 금지', severity: 'high' });
-                } else if (m1 > 8 || m3 > 15) {
-                    result.signals.push({ indicator: '코스피 모멘텀', value: `1M: ${m1.toFixed(1)}%, 3M: ${m3.toFixed(1)}%`, signal: '🟡 강세', severity: 'medium' });
-                } else if (m1 < -15 || m3 < -25) {
-                    result.signals.push({ indicator: '코스피 모멘텀', value: `1M: ${m1.toFixed(1)}%, 3M: ${m3.toFixed(1)}%`, signal: '🔴 급락 - 반등 가능?', severity: 'high', contrarian: 'BUY' });
+                if (m1 > 15 || (m3 !== null && m3 > 30)) {
+                    result.signals.push({ indicator: '코스피 모멘텀', value: valueDisplay, signal: '🔴 과열 - 추격매수 금지', severity: 'high' });
+                } else if (m1 > 8 || (m3 !== null && m3 > 15)) {
+                    result.signals.push({ indicator: '코스피 모멘텀', value: valueDisplay, signal: '🟡 강세', severity: 'medium' });
+                } else if (m1 < -15 || (m3 !== null && m3 < -25)) {
+                    result.signals.push({ indicator: '코스피 모멘텀', value: valueDisplay, signal: '🔴 급락 - 반등 가능?', severity: 'high', contrarian: 'BUY' });
                 } else if (m1 < -5) {
                     result.signals.push({ indicator: '코스피 모멘텀', value: `1M: ${m1.toFixed(1)}%`, signal: '🟡 약세', severity: 'medium' });
                 } else {
@@ -6854,18 +6778,21 @@
                 }
             }
             
-            // 환율
+            // 환율 - 역사적 기준
+            // 2020년대 평균 1,200-1,350, 위기 시 1,400-1,450
             if (ind.usdkrw) {
                 dataPoints++;
                 const rate = ind.usdkrw;
                 if (rate > 1450) {
-                    result.signals.push({ indicator: 'USD/KRW', value: rate.toFixed(0) + '원', signal: '🔴 고환율 - 해외투자 부담', severity: 'high' });
-                } else if (rate > 1350) {
-                    result.signals.push({ indicator: 'USD/KRW', value: rate.toFixed(0) + '원', signal: '🟡 환율 주의', severity: 'medium' });
+                    result.signals.push({ indicator: 'USD/KRW', value: rate.toFixed(0) + '원', signal: '🔴 위기 수준 - 2022년 고점 근접', severity: 'high' });
+                } else if (rate > 1380) {
+                    result.signals.push({ indicator: 'USD/KRW', value: rate.toFixed(0) + '원', signal: '🟡 고환율 - 외인 이탈 우려', severity: 'medium' });
+                } else if (rate > 1300) {
+                    result.signals.push({ indicator: 'USD/KRW', value: rate.toFixed(0) + '원', signal: '🟢 2020년대 평균 상단', severity: 'low' });
                 } else if (rate < 1200) {
-                    result.signals.push({ indicator: 'USD/KRW', value: rate.toFixed(0) + '원', signal: '🟢 환율 우호적 - 해외투자 적기', severity: 'low' });
+                    result.signals.push({ indicator: 'USD/KRW', value: rate.toFixed(0) + '원', signal: '🟢 저환율 - 해외투자 유리', severity: 'low' });
                 } else {
-                    result.signals.push({ indicator: 'USD/KRW', value: rate.toFixed(0) + '원', signal: '🟢 보통', severity: 'low' });
+                    result.signals.push({ indicator: 'USD/KRW', value: rate.toFixed(0) + '원', signal: '🟢 적정 범위', severity: 'low' });
                 }
             }
             
@@ -6960,7 +6887,8 @@
                     indicatorImpacts: [],
                     compositeMultiplier: 1,
                     compositeReason: '',
-                    riskSignalCount: 0
+                    riskSignals: 0,
+                    opportunitySignals: 0
                 };
             }
             
@@ -7022,9 +6950,11 @@
             const triggered = [];
             
             // 📈 금리 인상/고금리 유지 시나리오
+            // 4.5% 이상에서 모기지, 기업 부채 부담 시작
+            // 5.0% 이상은 명확한 고금리
             const rateUpTriggers = [];
-            if (ind.yield10Y && ind.yield10Y > 4.8) rateUpTriggers.push('10Y 금리 4.8%+ 돌파');
-            if (ind.yield2Y && ind.yield10Y && (ind.yield10Y - ind.yield2Y) < 0.2) rateUpTriggers.push('수익률 곡선 평탄화');
+            if (ind.yield10Y && ind.yield10Y > 4.7) rateUpTriggers.push('10Y 금리 4.7%+ (부담 구간)');
+            if (ind.yield2Y && ind.yield10Y && (ind.yield10Y - ind.yield2Y) < 0.15) rateUpTriggers.push('수익률 곡선 평탄화');
             if (macro.regime === 'LATE_CYCLE') rateUpTriggers.push('경기 후반부 신호');
             
             if (rateUpTriggers.length >= 1) {
@@ -7035,15 +6965,17 @@
                     priority: 4,
                     severity: 'warning',
                     triggers: rateUpTriggers,
-                    portfolioImpact: { US: -5, Bond: -5, Cash: +5, Gold: +5 }
+                    // 수정: 금리 상승 시 무이자 자산(금) 불리, 채권 불리
+                    portfolioImpact: { US: -5, KR: -3, Bond: -8, Cash: +10, Gold: -5 }
                 });
             }
             
             // 📉 연착륙 (기본 케이스)
+            // 경기 확장 + VIX 안정 + 금리 적정 범위
             const softLandingTriggers = [];
             if (macro.regime === 'EXPANSION') softLandingTriggers.push('경기 확장 국면');
             if (ind.vix && ind.vix < 20) softLandingTriggers.push('VIX 안정적 (<20)');
-            if (ind.yield10Y && ind.yield10Y >= 3.5 && ind.yield10Y <= 4.5) softLandingTriggers.push('금리 적정 범위');
+            if (ind.yield10Y && ind.yield10Y >= 3.0 && ind.yield10Y <= 4.7) softLandingTriggers.push('금리 적정 범위 (3.0-4.7%)');
             
             if (softLandingTriggers.length >= 2 && triggered.length === 0) {
                 triggered.push({
@@ -7058,8 +6990,10 @@
             }
             
             // 💱 환율 급등 시나리오
+            // 역사적 기준: 2022년 10월 위기 시 1,440원
+            // 1,400원 이상부터 주의, 1,450원 이상은 위험
             const fxUpTriggers = [];
-            if (ind.usdkrw && ind.usdkrw > 1420) fxUpTriggers.push(`환율 ${ind.usdkrw.toFixed(0)}원 (고환율)`);
+            if (ind.usdkrw && ind.usdkrw > 1400) fxUpTriggers.push(`환율 ${ind.usdkrw.toFixed(0)}원 (고환율)`);
             if (ind.usdkrw && ind.usdkrw > 1450) fxUpTriggers.push('환율 1,450원 돌파 (위험)');
             if (korea.overall === 'UNFAVORABLE') fxUpTriggers.push('한국 시장 비우호적');
             
@@ -7071,17 +7005,22 @@
                     priority: 5,
                     severity: 'warning',
                     triggers: fxUpTriggers,
-                    portfolioImpact: { US: -3, KR: -5, EM: -5, Cash: +8, Gold: +5 }
+                    // 수정: 환율 급등 시 기존 달러 자산 가치 상승, 신규 해외투자는 자제
+                    // US: 기존 보유분 유리하므로 비중 유지(0), KR/EM: 외인 이탈로 불리
+                    portfolioImpact: { US: 0, KR: -8, EM: -5, Cash: +8, Gold: +5 }
                 });
             }
             
             // 🌍 지정학 위기 시나리오
+            // VIX 급등 OR (VIX 상승 + 금 급등) = 지정학 위기
+            // 금만 급등 (VIX 낮음) = 인플레 헤지 or 달러 약세
             const geopoliticalTriggers = [];
-            if (ind.vix && ind.vix > 30) geopoliticalTriggers.push(`VIX ${ind.vix.toFixed(1)} (공포 구간)`);
-            if (ind.gold1y && ind.gold1y > 40) geopoliticalTriggers.push(`금 1년 +${ind.gold1y.toFixed(0)}% (급등)`);
-            if (ind.vix && ind.vix > 25 && ind.gold1y && ind.gold1y > 25) geopoliticalTriggers.push('VIX+금 동반 급등');
+            if (ind.vix && ind.vix > 35) geopoliticalTriggers.push(`VIX ${ind.vix.toFixed(1)} (극단적 공포)`);
+            if (ind.vix && ind.vix > 25) geopoliticalTriggers.push(`VIX ${ind.vix.toFixed(1)} (공포 구간)`);
+            if (ind.gold1y && ind.gold1y > 20 && ind.vix && ind.vix > 20) geopoliticalTriggers.push('금+VIX 동반 상승 (위기 신호)');
             
-            if (geopoliticalTriggers.length >= 2) {
+            // VIX 35+ 단독으로도 트리거, 또는 복합 조건 2개 이상
+            if (ind.vix && ind.vix > 35 || geopoliticalTriggers.length >= 2) {
                 triggered.push({
                     id: 'geopolitical',
                     name: '🌍 지정학 위기',
@@ -7093,12 +7032,31 @@
                 });
             }
             
+            // 🥇 인플레 헤지 시나리오 (금 급등 but VIX 안정)
+            const inflationHedgeTriggers = [];
+            if (ind.gold1y && ind.gold1y > 35 && (!ind.vix || ind.vix < 25)) inflationHedgeTriggers.push(`금 1Y +${ind.gold1y.toFixed(0)}% (VIX 안정 → 인플레 헤지)`);
+            if (ind.wti1y && ind.wti1y > 20 && ind.gold1y && ind.gold1y > 25) inflationHedgeTriggers.push('원자재+금 동반 상승 (인플레 압력)');
+            
+            if (inflationHedgeTriggers.length >= 1) {
+                triggered.push({
+                    id: 'inflation-hedge',
+                    name: '🥇 인플레 헤지',
+                    icon: '🥇',
+                    priority: 6,
+                    severity: 'warning',
+                    triggers: inflationHedgeTriggers,
+                    portfolioImpact: { US: -3, KR: -3, Gold: +8, Bond: -5, Cash: -3 }
+                });
+            }
+            
             // 🤖 AI 버블 붕괴 시나리오
+            // CAPE 역사: 닷컴버블 정점 44, 2021년 고점 38
+            // 35 이상 주의, 38 이상 경계, 42+ 버블
             const aiBubbleTriggers = [];
-            if (valuation.state === 'BUBBLE') aiBubbleTriggers.push('밸류에이션 버블 수준');
-            if (ind.cape && ind.cape > 35) aiBubbleTriggers.push(`CAPE ${ind.cape.toFixed(1)} (역사적 고점)`);
+            if (valuation.state === 'BUBBLE' || valuation.state === 'EXPENSIVE') aiBubbleTriggers.push('밸류에이션 고평가/버블');
+            if (ind.cape && ind.cape > 38) aiBubbleTriggers.push(`CAPE ${ind.cape.toFixed(1)} (역사적 고점 근접)`);
             if (sentiment.state === 'EUPHORIA') aiBubbleTriggers.push('시장 심리 과열');
-            if (ind.kospi1m && ind.kospi1m > 15) aiBubbleTriggers.push(`코스피 1M +${ind.kospi1m.toFixed(1)}% (과열)`);
+            if (ind.kospi1m && ind.kospi1m > 12) aiBubbleTriggers.push(`코스피 1M +${ind.kospi1m.toFixed(1)}% (과열)`);
             
             if (aiBubbleTriggers.length >= 2) {
                 triggered.push({
@@ -7108,7 +7066,8 @@
                     priority: 3,
                     severity: 'danger',
                     triggers: aiBubbleTriggers,
-                    portfolioImpact: { US: -10, KR: +5, EM: 0, Gold: +5, Bond: +5, Cash: +10 }
+                    // 수정: 미국 기술주 버블 붕괴 시 한국 반도체/IT도 동반 하락
+                    portfolioImpact: { US: -10, KR: -8, EM: -5, Gold: +5, Bond: +8, Cash: +10 }
                 });
             }
             
@@ -7116,7 +7075,9 @@
             const recessionTriggers = [];
             if (macro.regime === 'RECESSION') recessionTriggers.push('경기 침체 신호');
             if (ind.yield2Y && ind.yield10Y && (ind.yield10Y - ind.yield2Y) < 0) recessionTriggers.push('수익률 곡선 역전');
-            if (ind.hySpread && ind.hySpread > 500) recessionTriggers.push(`하이일드 스프레드 ${ind.hySpread}bp (스트레스)`);
+            // HY 스프레드: JSON의 HY-IG는 LQD-HYG 수익률 차이(%)
+            // 양수 = 투자등급 아웃퍼폼 = 리스크오프 신호
+            if (ind.hySpread && ind.hySpread > 2) recessionTriggers.push(`하이일드 언더퍼폼 ${ind.hySpread.toFixed(1)}% (스트레스)`);
             if (ind.ism && ind.ism < 47) recessionTriggers.push(`ISM ${ind.ism} (수축 심화)`);
             
             if (recessionTriggers.length >= 2) {
@@ -7151,31 +7112,30 @@
             }
             
             // 🔥 스태그플레이션 시나리오 (복합)
+            // 경기 침체 + 인플레이션 = 최악의 조합
+            // 대응: 주식 축소, 금/원자재(인플레 헤지) 확대, 현금 축소(인플레로 가치 하락)
             const stagflationTriggers = [];
-            if (ind.wti1y && ind.wti1y > 30) stagflationTriggers.push(`원유 1Y +${ind.wti1y.toFixed(0)}% (인플레 압력)`);
+            if (ind.wti1y && ind.wti1y > 25) stagflationTriggers.push(`원유 1Y +${ind.wti1y.toFixed(0)}% (인플레 압력)`);
             if (ind.yield10Y && ind.yield10Y > 4.5 && macro.regime === 'LATE_CYCLE') stagflationTriggers.push('고금리 + 경기둔화');
-            if (recessionTriggers.length >= 1 && ind.wti1y && ind.wti1y > 20) stagflationTriggers.push('침체 신호 + 원자재 상승');
+            if (recessionTriggers.length >= 1 && ind.wti1y && ind.wti1y > 15) stagflationTriggers.push('침체 신호 + 원자재 상승');
             
             if (stagflationTriggers.length >= 2) {
                 triggered.push({
                     id: 'stagflation',
                     name: '🔥 스태그플레이션',
                     icon: '🔥',
-                    priority: 1, // 최우선 (최악)
+                    priority: 0, // 최우선 (최악 - 경기침체보다 심각)
                     severity: 'danger',
                     triggers: stagflationTriggers,
-                    portfolioImpact: { US: -15, KR: -15, EM: -10, Gold: +15, Bond: -5, Cash: +30 }
+                    // 스태그플레이션: 인플레 헤지(금, 원자재) 확대, 현금 축소
+                    // 채권도 인플레로 불리하므로 축소
+                    portfolioImpact: { US: -15, KR: -15, EM: -10, Gold: +25, Bond: -10, Cash: 0 }
                 });
             }
             
-            // 🏛️ 관세 전쟁 시나리오
-            // (지표로 직접 감지 어려움 - 뉴스 기반이지만, 환율+인플레 복합으로 추정)
-            const tariffTriggers = [];
-            if (ind.usdkrw && ind.usdkrw > 1400 && ind.wti1y && ind.wti1y > 10) tariffTriggers.push('환율+원자재 동반 상승');
-            
-            if (tariffTriggers.length >= 1 && triggered.length > 0) {
-                // 관세는 보조 시나리오로만
-            }
+            // 🏛️ 관세 전쟁 시나리오 (미구현)
+            // 지표로 직접 감지 어려움 - 뉴스/정책 기반
+            // 환율+원자재 동반 상승은 이미 인플레 헤지 시나리오에서 처리됨
             
             // 기본값: 트리거된 게 없으면 연착륙
             if (triggered.length === 0) {
@@ -7234,6 +7194,36 @@
                 conflictResolution = '단기채(IEF, SHY)로 전환, 장기채(TLT) 회피';
             }
             
+            // 충돌 감지: 호황 + AI버블 = 탐욕 과열 경계
+            const hasBoom = triggeredScenarios.some(s => s.id === 'boom');
+            const hasAiBubble = triggeredScenarios.some(s => s.id === 'ai-bubble');
+            
+            if (hasBoom && hasAiBubble) {
+                hasConflict = true;
+                conflictDescription = '호황 신호 + AI 버블 위험 동시 감지';
+                conflictResolution = '탐욕 경계: 신규 매수 자제, 기존 포지션 일부 차익실현 고려';
+            }
+            
+            // 충돌 감지: 연착륙 + 환율급등 = 방어적 연착륙
+            const hasRateDown = triggeredScenarios.some(s => s.id === 'rate-down');
+            const hasFxUp = triggeredScenarios.some(s => s.id === 'fx-up');
+            
+            if (hasRateDown && hasFxUp) {
+                hasConflict = true;
+                conflictDescription = '연착륙 기대 + 환율 급등 충돌';
+                conflictResolution = '방어적 연착륙: 미국 자산 유지, 한국 비중 축소, 환헤지 고려';
+            }
+            
+            // 충돌 감지: 지정학위기 + 인플레헤지 = 금 중복 가산 제한
+            const hasGeopolitical = triggeredScenarios.some(s => s.id === 'geopolitical');
+            const hasInflationHedge = triggeredScenarios.some(s => s.id === 'inflation-hedge');
+            
+            if (hasGeopolitical && hasInflationHedge) {
+                hasConflict = true;
+                conflictDescription = '지정학 위기 + 인플레 헤지 동시 (금 중복 신호)';
+                conflictResolution = '금 비중 상한 제한 (최대 25%), 과도한 금 편중 방지';
+            }
+            
             // 시장 상태, 리스크, 행동 결정
             let marketState, riskLevel, actionBias;
             const reasoning = [];
@@ -7279,14 +7269,15 @@
         
         // ========== 🆕 지표-자산 영향 매트릭스 v2.0 ==========
         window.INDICATOR_ASSET_MATRIX = {
-            // CAPE (S&P500 밸류에이션)
+            // CAPE (S&P500 밸류에이션) - 역사적 기준
+            // 평균 15-17, 2010년대 평균 25, 닷컴버블 44, 2021년 고점 38
             cape: {
-                thresholds: [30, 35, 40, 45],  // 단계별 임계값
-                direction: 'high',  // 높을수록 위험
+                thresholds: [30, 35, 40, 45],
+                direction: 'high',
                 impacts: {
-                    US:   [0, -2, -4, -7],
+                    US:   [0, -2, -5, -8],
                     EM:   [0, -1, -2, -3],
-                    Cash: [0, +2, +4, +7],
+                    Cash: [0, +2, +5, +8],
                     Gold: [0, +1, +2, +3]
                 },
                 label: 'CAPE'
@@ -7305,16 +7296,16 @@
                 },
                 label: 'VIX'
             },
-            // 환율 (USD/KRW)
+            // 환율 (USD/KRW) - 원화 기준 투자자 관점
+            // 역사적 기준: 2020년대 평균 1,200-1,350, 위기 시 1,400+
             usdkrw: {
                 thresholds: [1350, 1400, 1450, 1500],
                 direction: 'high',
                 impacts: {
-                    US:   [0, -1, -3, -5],  // 해외투자 불리
-                    EU:   [0, -1, -2, -3],
-                    EM:   [0, -1, -2, -4],
-                    KR:   [0, 0, -2, -3],   // 외인 이탈
-                    Cash: [0, +2, +5, +8]
+                    // US: 기존 달러 자산은 원화 환산 가치 상승하므로 영향 중립
+                    KR:   [0, -2, -4, -6],   // 외인 이탈, 수입 비용 증가
+                    EM:   [0, -1, -3, -5],   // 달러 강세로 EM 불리
+                    Cash: [0, +1, +3, +5]    // 현금(원화) 비중 확대
                 },
                 label: '환율'
             },
@@ -7330,15 +7321,17 @@
                 },
                 label: '장단기 스프레드'
             },
-            // 하이일드 스프레드 (크레딧 리스크)
+            // 하이일드 스프레드 (LQD-HYG 수익률 차이, %)
+            // 양수 = 투자등급 아웃퍼폼 = 리스크오프
+            // 음수 = 하이일드 아웃퍼폼 = 리스크온
             hySpread: {
-                thresholds: [3.5, 4.5, 6, 8],
+                thresholds: [1, 2, 4, 6],  // % 단위
                 direction: 'high',
                 impacts: {
-                    US:   [0, -1, -3, -5],
-                    EM:   [0, -2, -4, -6],
-                    Gold: [0, +1, +2, +4],
-                    Cash: [0, +2, +4, +6]
+                    US:   [0, -1, -2, -4],
+                    EM:   [0, -2, -3, -5],
+                    Gold: [0, +1, +2, +3],
+                    Cash: [0, +2, +3, +5]
                 },
                 label: 'HY 스프레드'
             },
@@ -7374,12 +7367,12 @@
                 },
                 label: '외국인 수급'
             },
-            // 코스피 PER
+            // 코스피 PER (한국 시장 역사적 범위: 8-15)
             kospiPer: {
-                thresholds: [12, 14, 16, 18],
+                thresholds: [10, 12, 14, 16],  // 10 이상부터 주의, 16 이상 고평가
                 direction: 'high',
                 impacts: {
-                    KR:   [0, -1, -2, -3],
+                    KR:   [0, -1, -2, -4],
                     Cash: [0, +1, +1, +2]
                 },
                 label: '코스피 PER'
@@ -7440,9 +7433,13 @@
         
         // ========== 🆕 동적 포트폴리오 배분 계산 v2.0 ==========
         function calculateDynamicAllocation(resolvedScenario, ind, korea) {
-            // 기본 배분 (현재 권고 기준)
+            // 기본 배분 (균형 배분 기준)
+            // 주식 58%: 글로벌 분산 + 한국 홈바이어스
+            // 채권 20%: 안정성 확보
+            // 대안 22%: 금(인플레헤지) + 현금(유동성)
             const baseAllocation = {
-                US: 20, KR: 15, EU: 10, EM: 8, Gold: 17, Bond: 15, Cash: 15
+                US: 25, KR: 15, EU: 10, EM: 8,  // 주식 58%
+                Gold: 12, Bond: 20, Cash: 10    // 안전자산 42%
             };
             
             // INDICATOR_ASSET_MATRIX 초기화 체크
@@ -7456,7 +7453,8 @@
                     indicatorImpacts: [],
                     compositeMultiplier: 1,
                     compositeReason: '',
-                    riskSignalCount: 0
+                    riskSignals: 0,
+                    opportunitySignals: 0
                 };
             }
             
@@ -7477,19 +7475,46 @@
                 });
             }
             
-            // Secondary 시나리오 영향 (50% 적용)
+            // Secondary 시나리오 영향 (방향성 고려)
+            // 같은 방향: 50% 적용, 상반된 방향: 불확실성으로 처리
+            const primarySeverity = resolvedScenario.primary?.severity || 'positive';
+            let uncertaintyBonus = 0;
+            
             resolvedScenario.secondary.forEach(scenario => {
                 if (scenario.portfolioImpact) {
-                    Object.keys(scenario.portfolioImpact).forEach(asset => {
-                        const adj = Math.round(scenario.portfolioImpact[asset] * 0.5);
-                        adjustment[asset] += adj;
-                        if (adj !== 0) {
-                            adjustmentReasons[asset] = adjustmentReasons[asset] || [];
-                            adjustmentReasons[asset].push(`${scenario.name}: ${adj > 0 ? '+' : ''}${adj}%`);
-                        }
-                    });
+                    // Primary와 방향이 같으면 50% 적용
+                    // 방향이 다르면 (위험 vs 긍정) 불확실성 증가로 처리
+                    const isSameDirection = 
+                        (primarySeverity === 'danger' && scenario.severity === 'danger') ||
+                        (primarySeverity === 'warning' && scenario.severity === 'warning') ||
+                        (primarySeverity === 'positive' && scenario.severity === 'positive');
+                    
+                    if (isSameDirection) {
+                        // 같은 방향: 50% 가중치로 합산
+                        Object.keys(scenario.portfolioImpact).forEach(asset => {
+                            const adj = Math.round(scenario.portfolioImpact[asset] * 0.5);
+                            adjustment[asset] += adj;
+                            if (adj !== 0) {
+                                adjustmentReasons[asset] = adjustmentReasons[asset] || [];
+                                adjustmentReasons[asset].push(`${scenario.name}: ${adj > 0 ? '+' : ''}${adj}%`);
+                            }
+                        });
+                    } else {
+                        // 상반된 방향: 불확실성 증가 → 현금 비중 상향
+                        uncertaintyBonus += 3;
+                        adjustmentReasons['Cash'] = adjustmentReasons['Cash'] || [];
+                        adjustmentReasons['Cash'].push(`${scenario.name} 충돌 → 불확실성 +3%`);
+                    }
                 }
             });
+            
+            // 불확실성 보너스 적용 (최대 10%)
+            if (uncertaintyBonus > 0) {
+                const cappedBonus = Math.min(uncertaintyBonus, 10);
+                adjustment['Cash'] += cappedBonus;
+                adjustment['US'] -= Math.round(cappedBonus * 0.4);  // 정수로 반올림
+                adjustment['KR'] -= Math.round(cappedBonus * 0.3);  // 정수로 반올림
+            }
             
             // ========== 지표-자산 매트릭스 적용 ==========
             // 스프레드 계산
@@ -7509,13 +7534,10 @@
                 ismLow: ind.ism
             };
             
-            let riskSignalCount = 0;  // 위험 신호 개수
-            
             Object.keys(indicatorValues).forEach(key => {
                 const impact = getIndicatorImpact(key, indicatorValues[key], window.INDICATOR_ASSET_MATRIX);
                 if (impact) {
                     indicatorImpacts.push(impact);
-                    if (impact.level >= 2) riskSignalCount++;  // 중간 이상 위험 신호
                     
                     Object.keys(impact.impacts).forEach(asset => {
                         const adj = impact.impacts[asset];
@@ -7526,36 +7548,75 @@
                 }
             });
             
-            // ========== 복합 조건 강화 ==========
+            // ========== 복합 조건 강화 (방향성 분리) ==========
+            // 위험 신호와 기회 신호를 분리해서 카운트
+            let riskSignals = 0;      // 부정적 신호 (주식 -)
+            let opportunitySignals = 0; // 긍정적 신호 (주식 +)
+            
+            indicatorImpacts.forEach(impact => {
+                const usImpact = impact.impacts['US'] || 0;
+                if (usImpact < 0) riskSignals++;
+                if (usImpact > 0) opportunitySignals++;
+            });
+            
             let compositeMultiplier = 1.0;
             let compositeReason = '';
             
-            if (riskSignalCount >= 5) {
+            // 케이스 1: 위험 신호 다수 → 방어 강화
+            if (riskSignals >= 5 && opportunitySignals <= 1) {
                 compositeMultiplier = 1.5;
-                compositeReason = `⚠️ 복합 위험 (${riskSignalCount}개 신호) → 조정 1.5배`;
-            } else if (riskSignalCount >= 3) {
+                compositeReason = `🔴 복합 위험 (${riskSignals}개 부정 신호) → 방어 1.5배`;
+            } else if (riskSignals >= 3 && opportunitySignals <= 1) {
                 compositeMultiplier = 1.25;
-                compositeReason = `🟡 다중 경고 (${riskSignalCount}개 신호) → 조정 1.25배`;
+                compositeReason = `🟡 다중 경고 (${riskSignals}개 부정 신호) → 방어 1.25배`;
+            }
+            // 케이스 2: 기회 신호 다수 → 공격 강화
+            else if (opportunitySignals >= 3 && riskSignals <= 1) {
+                compositeMultiplier = 1.2;
+                compositeReason = `🟢 복합 기회 (${opportunitySignals}개 긍정 신호) → 적극 1.2배`;
+            }
+            // 케이스 3: 혼재 신호 → 불확실성 (배수 적용 안함, 현금 추가)
+            else if (riskSignals >= 2 && opportunitySignals >= 2) {
+                compositeReason = `⚪ 혼재 신호 (위험 ${riskSignals} / 기회 ${opportunitySignals}) → 불확실성`;
+                adjustment['Cash'] += 5;  // 불확실성 대응 현금 추가
+                adjustmentReasons['Cash'] = adjustmentReasons['Cash'] || [];
+                adjustmentReasons['Cash'].push(`혼재 신호 → 불확실성 +5%`);
             }
             
-            // 복합 조건 적용 (현금, 금 증가 / 주식 감소에만)
+            // 복합 조건 적용 (배수가 1보다 클 때만)
             if (compositeMultiplier > 1) {
-                ['US', 'KR', 'EU', 'EM'].forEach(asset => {
-                    if (adjustment[asset] < 0) {
-                        adjustment[asset] = Math.round(adjustment[asset] * compositeMultiplier);
-                    }
-                });
-                ['Cash', 'Gold', 'Bond'].forEach(asset => {
-                    if (adjustment[asset] > 0) {
-                        adjustment[asset] = Math.round(adjustment[asset] * compositeMultiplier);
-                    }
-                });
+                if (riskSignals > opportunitySignals) {
+                    // 위험 우세: 주식 감소, 안전자산 증가 강화
+                    ['US', 'KR', 'EU', 'EM'].forEach(asset => {
+                        if (adjustment[asset] < 0) {
+                            adjustment[asset] = Math.round(adjustment[asset] * compositeMultiplier);
+                        }
+                    });
+                    ['Cash', 'Gold', 'Bond'].forEach(asset => {
+                        if (adjustment[asset] > 0) {
+                            adjustment[asset] = Math.round(adjustment[asset] * compositeMultiplier);
+                        }
+                    });
+                } else {
+                    // 기회 우세: 주식 증가 강화
+                    ['US', 'KR', 'EU', 'EM'].forEach(asset => {
+                        if (adjustment[asset] > 0) {
+                            adjustment[asset] = Math.round(adjustment[asset] * compositeMultiplier);
+                        }
+                    });
+                    ['Cash'].forEach(asset => {
+                        if (adjustment[asset] < 0) {
+                            adjustment[asset] = Math.round(adjustment[asset] * compositeMultiplier);
+                        }
+                    });
+                }
             }
             
-            // 최종 배분 계산
+            // 최종 배분 계산 (비례 정규화)
             const finalAllocation = {};
             let total = 0;
             
+            // Step 1: 기본 조정값 적용 + 범위 제한 (0~50%)
             Object.keys(baseAllocation).forEach(asset => {
                 let value = baseAllocation[asset] + adjustment[asset];
                 value = Math.max(0, Math.min(50, value)); // 0~50% 범위 제한
@@ -7563,10 +7624,43 @@
                 total += value;
             });
             
-            // 100%로 정규화
-            if (total !== 100) {
-                const diff = 100 - total;
-                finalAllocation.Cash = Math.max(5, finalAllocation.Cash + diff); // 최소 현금 5%
+            // Step 2: 비례 정규화 (합계 100%로 스케일링)
+            if (total !== 100 && total > 0) {
+                const scaleFactor = 100 / total;
+                let newTotal = 0;
+                
+                Object.keys(finalAllocation).forEach(asset => {
+                    finalAllocation[asset] = Math.round(finalAllocation[asset] * scaleFactor * 10) / 10;
+                    newTotal += finalAllocation[asset];
+                });
+                
+                // Step 3: 반올림 오차 보정 (Cash에 적용)
+                const roundingError = 100 - newTotal;
+                if (Math.abs(roundingError) > 0.01) {
+                    finalAllocation.Cash = Math.round((finalAllocation.Cash + roundingError) * 10) / 10;
+                }
+            }
+            
+            // Step 4: 최소 현금 비중 보장 (5%)
+            if (finalAllocation.Cash < 5) {
+                const deficit = 5 - finalAllocation.Cash;
+                finalAllocation.Cash = 5;
+                
+                // 가장 큰 비중 자산에서 차감
+                const maxAsset = Object.keys(finalAllocation)
+                    .filter(a => a !== 'Cash')
+                    .sort((a, b) => finalAllocation[b] - finalAllocation[a])[0];
+                
+                if (maxAsset) {
+                    finalAllocation[maxAsset] = Math.max(0, finalAllocation[maxAsset] - deficit);
+                }
+            }
+            
+            // Step 5: 최종 합계 검증 및 보정
+            let finalTotal = Object.values(finalAllocation).reduce((a, b) => a + b, 0);
+            if (Math.abs(finalTotal - 100) > 0.1) {
+                const correction = 100 - finalTotal;
+                finalAllocation.Cash = Math.round((finalAllocation.Cash + correction) * 10) / 10;
             }
             
             return {
@@ -7577,7 +7671,8 @@
                 indicatorImpacts,
                 compositeMultiplier,
                 compositeReason,
-                riskSignalCount
+                riskSignals,
+                opportunitySignals
             };
         }
         
@@ -7650,13 +7745,29 @@
             const change = currentValue - prevValue;
             const changePercent = prevValue !== 0 ? (change / prevValue * 100) : 0;
             
+            // 지표별 방향성: 상승이 좋은 지표 vs 상승이 나쁜 지표
+            // 상승이 좋은 지표 (초록): ISM, 스프레드 정상화, 외국인 순매수, F&G(공포에서 탈출)
+            // 상승이 나쁜 지표 (빨강): VIX, CAPE, 환율, F&G(탐욕 과열), HY스프레드
+            const positiveWhenUp = ['ism', 'ismlow', 'yieldspread', 'foreign20d', 'foreign', 'kospi1m', 'kospi3m', 'sp5001m'];
+            const isPositiveIndicator = positiveWhenUp.some(p => indicator.toLowerCase().includes(p.toLowerCase()));
+            
+            // 색상 결정: 지표 방향성에 따라
+            let color;
+            if (change > 0) {
+                color = isPositiveIndicator ? 'var(--accent-green)' : 'var(--accent-red)';
+            } else if (change < 0) {
+                color = isPositiveIndicator ? 'var(--accent-red)' : 'var(--accent-green)';
+            } else {
+                color = 'var(--text-muted)';
+            }
+            
             return {
                 prev: prevValue,
                 current: currentValue,
                 change,
                 changePercent,
                 direction: change > 0 ? '↑' : change < 0 ? '↓' : '→',
-                color: change > 0 ? 'var(--accent-red)' : change < 0 ? 'var(--accent-green)' : 'var(--text-muted)'
+                color: color
             };
         }
         
@@ -7699,23 +7810,70 @@
             badge.style.background = stateColors[result.finalState] || 'rgba(100,116,139,0.3)';
             badge.style.color = stateTextColors[result.finalState] || 'var(--text-secondary)';
             
-            // 상태 요약
-            const stateEmoji = {
-                'CRISIS': '🚨', 'STAGFLATION': '🔥', 'BUBBLE_RISK': '🫧', 'HIGH_RISK': '⚠️',
-                'RATE_RISK': '📈', 'FX_RISK': '💱', 'CAUTION': '🟡', 'BULL': '🐂', 'NEUTRAL': '➖'
-            };
-            document.getElementById('dynMarketEmoji').textContent = stateEmoji[result.finalState] || '❓';
-            document.getElementById('dynMarketState').textContent = result.finalState;
-            document.getElementById('dynMarketState').style.color = stateTextColors[result.finalState];
-            document.getElementById('dynActiveScenario').textContent = result.resolvedScenario.primary ? result.resolvedScenario.primary.name.replace(/^[^\s]+\s/, '') : '-';
-            document.getElementById('dynRiskLevel').textContent = result.riskLevel;
-            document.getElementById('dynRiskLevel').style.color = result.riskLevel === 'VERY_HIGH' ? 'var(--accent-red)' : result.riskLevel === 'HIGH' ? '#f97316' : result.riskLevel === 'LOW' ? 'var(--accent-green)' : 'var(--accent-gold)';
+            // 시나리오 이름 (이모지 이미 포함)
+            const scenarioName = result.resolvedScenario.primary ? result.resolvedScenario.primary.name : '➖ 정상 (시나리오 없음)';
+            document.getElementById('dynActiveScenario').textContent = scenarioName;
+            document.getElementById('dynActiveScenario').style.color = stateTextColors[result.finalState];
             
+            // 행동 권장 (배경색으로 위험도 표현)
             const actionTexts = {
-                'DEFENSIVE': '방어 전환', 'CAUTIOUS': '신중 유지', 'HOLD': '현상 유지',
-                'ACCUMULATE': '적극 매수', 'SELECTIVE': '선별 매수', 'HOLD_REDUCE': '유지/축소'
+                'DEFENSIVE': '🔴 방어 전환', 'CAUTIOUS': '🟡 신중 유지', 'HOLD': '⚪ 현상 유지',
+                'ACCUMULATE': '🟢 적극 매수', 'SELECTIVE': '🔵 선별 매수', 'HOLD_REDUCE': '🟠 유지/축소'
             };
-            document.getElementById('dynActionBias').textContent = actionTexts[result.actionBias] || result.actionBias;
+            const actionColors = {
+                'DEFENSIVE': 'rgba(239,68,68,0.2)', 'CAUTIOUS': 'rgba(245,158,11,0.2)', 'HOLD': 'rgba(100,116,139,0.2)',
+                'ACCUMULATE': 'rgba(16,185,129,0.2)', 'SELECTIVE': 'rgba(59,130,246,0.2)', 'HOLD_REDUCE': 'rgba(249,115,22,0.2)'
+            };
+            const actionEl = document.getElementById('dynActionBias');
+            actionEl.textContent = actionTexts[result.actionBias] || result.actionBias;
+            actionEl.style.background = actionColors[result.actionBias] || 'rgba(100,116,139,0.2)';
+            
+            // 🆕 핵심 지표 요약 업데이트
+            const ind = result.indicators || {};
+            const today = new Date().toLocaleDateString('ko-KR', { 
+                timeZone: 'Asia/Seoul', year: 'numeric', month: 'long', day: 'numeric' 
+            });
+            document.getElementById('summaryDate').textContent = today + ' 기준';
+            
+            // VIX
+            const sumVIX = document.getElementById('sumVIX');
+            if (ind.vix) {
+                sumVIX.textContent = `VIX ${ind.vix.toFixed(1)}`;
+                sumVIX.style.color = ind.vix > 30 ? 'var(--accent-red)' : ind.vix > 20 ? 'var(--accent-gold)' : 'var(--accent-green)';
+                sumVIX.style.background = ind.vix > 30 ? 'rgba(239,68,68,0.2)' : ind.vix > 20 ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)';
+            }
+            
+            // CAPE
+            const sumCAPE = document.getElementById('sumCAPE');
+            if (ind.cape) {
+                sumCAPE.textContent = `CAPE ${ind.cape.toFixed(1)}`;
+                sumCAPE.style.color = ind.cape > 38 ? 'var(--accent-red)' : ind.cape > 30 ? 'var(--accent-gold)' : 'var(--accent-green)';
+                sumCAPE.style.background = ind.cape > 38 ? 'rgba(239,68,68,0.2)' : ind.cape > 30 ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)';
+            }
+            
+            // 환율
+            const sumFX = document.getElementById('sumFX');
+            if (ind.usdkrw) {
+                sumFX.textContent = `₩${ind.usdkrw.toFixed(0)}`;
+                sumFX.style.color = ind.usdkrw > 1400 ? 'var(--accent-red)' : ind.usdkrw > 1350 ? 'var(--accent-gold)' : 'var(--accent-green)';
+                sumFX.style.background = ind.usdkrw > 1400 ? 'rgba(239,68,68,0.2)' : ind.usdkrw > 1350 ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)';
+            }
+            
+            // 10Y 금리
+            const sumRate = document.getElementById('sumRate');
+            if (ind.yield10Y) {
+                sumRate.textContent = `10Y ${ind.yield10Y.toFixed(2)}%`;
+                sumRate.style.color = ind.yield10Y > 4.7 ? 'var(--accent-red)' : ind.yield10Y > 4.0 ? 'var(--accent-gold)' : 'var(--accent-green)';
+                sumRate.style.background = ind.yield10Y > 4.7 ? 'rgba(239,68,68,0.2)' : ind.yield10Y > 4.0 ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)';
+            }
+            
+            // Fear & Greed
+            const sumFNG = document.getElementById('sumFNG');
+            if (ind.fng !== null && ind.fng !== undefined) {
+                sumFNG.textContent = `F&G ${ind.fng}`;
+                sumFNG.style.color = ind.fng > 75 ? 'var(--accent-red)' : ind.fng < 25 ? 'var(--accent-green)' : 'var(--accent-gold)';
+                sumFNG.style.background = ind.fng > 75 ? 'rgba(239,68,68,0.2)' : ind.fng < 25 ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)';
+            }
             
             // 배분 비교 테이블
             const assets = [
@@ -7729,22 +7887,35 @@
             ];
             
             const pr = result.portfolioResult;
+            
+            // 이전 배분 가져오기 (localStorage에서)
+            const prevAllocation = (appData.marketState && appData.marketState.allocation) || {};
+            
             let tableHtml = '';
+            const totalAmount = 200; // 2억원 = 200M
             assets.forEach(asset => {
-                const base = pr.base[asset.key] || 0;
                 const final = pr.allocation[asset.key] || 0;
-                const diff = final - base;
+                const prev = prevAllocation[asset.key];
+                const diff = (prev !== undefined && prev !== null) ? final - prev : null;
                 const reasons = pr.reasons[asset.key] || [];
+                const amount = Math.round(totalAmount * final / 100); // 금액 (M 단위)
+                
+                // 변화 표시: 이전 값이 있고 변화가 있을 때만
+                let changeHtml = '-';
+                if (diff !== null && diff !== 0) {
+                    const color = diff > 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+                    changeHtml = `<span style="color: ${color}; font-weight: 600;">${diff > 0 ? '↑' : '↓'}${Math.abs(diff)}%</span>`;
+                }
                 
                 tableHtml += `<tr>
-                    <td style="padding: 8px; border-bottom: 1px solid var(--border-color);">
-                        <span style="display: inline-block; width: 10px; height: 10px; background: ${asset.color}; border-radius: 50%; margin-right: 6px;"></span>
+                    <td style="padding: 6px 8px; border-bottom: 1px solid var(--border-color);">
+                        <span style="display: inline-block; width: 8px; height: 8px; background: ${asset.color}; border-radius: 50%; margin-right: 6px;"></span>
                         ${asset.name}
                     </td>
-                    <td style="padding: 8px; text-align: center; border-bottom: 1px solid var(--border-color);">${base}%</td>
-                    <td style="padding: 8px; text-align: center; border-bottom: 1px solid var(--border-color); font-weight: 700; color: ${diff > 0 ? 'var(--accent-green)' : diff < 0 ? 'var(--accent-red)' : 'var(--text-primary)'};">${final}%</td>
-                    <td style="padding: 8px; text-align: center; border-bottom: 1px solid var(--border-color); color: ${diff > 0 ? 'var(--accent-green)' : diff < 0 ? 'var(--accent-red)' : 'var(--text-muted)'};">${diff > 0 ? '+' : ''}${diff}%</td>
-                    <td style="padding: 8px; border-bottom: 1px solid var(--border-color); font-size: 0.75rem; color: var(--text-muted);">${reasons.join(', ') || '-'}</td>
+                    <td style="padding: 6px 8px; text-align: center; border-bottom: 1px solid var(--border-color); font-weight: 700;">${final}%</td>
+                    <td style="padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--border-color); font-family: 'JetBrains Mono', monospace; color: var(--accent-gold);">${amount}M</td>
+                    <td style="padding: 6px 8px; text-align: center; border-bottom: 1px solid var(--border-color);">${changeHtml}</td>
+                    <td style="padding: 6px 8px; border-bottom: 1px solid var(--border-color); font-size: 0.7rem; color: var(--text-muted);">${reasons.join(', ') || '-'}</td>
                 </tr>`;
             });
             document.getElementById('allocationCompareBody').innerHTML = tableHtml;
@@ -7784,6 +7955,33 @@
             
             document.getElementById('actionGuidelines').innerHTML = guidelines.map(g => `<li>• ${g}</li>`).join('');
             
+            // 🆕 시장 경고 박스 업데이트
+            const warnings = [];
+            if (ind.cape && ind.cape > 38) {
+                warnings.push(`CAPE ${ind.cape.toFixed(1)} = 역사적 고점권 (닷컴버블 44.2 대비 ${((ind.cape/44.2)*100).toFixed(0)}%)`);
+            }
+            if (ind.usdkrw && ind.usdkrw > 1400) {
+                warnings.push(`환율 ${ind.usdkrw.toFixed(0)}원 = 해외자산 환노출 위험 (2022년 위기 수준)`);
+            }
+            if (ind.vix && ind.vix > 25) {
+                warnings.push(`VIX ${ind.vix.toFixed(1)} = 시장 불안 심화`);
+            }
+            if (ind.yield10Y && ind.yield10Y > 4.5) {
+                warnings.push(`10Y 금리 ${ind.yield10Y.toFixed(2)}% = 고금리 부담 지속`);
+            }
+            if (ind.fng !== null && ind.fng !== undefined && ind.fng > 75) {
+                warnings.push(`Fear & Greed ${ind.fng} = 극단적 탐욕 (역발상 주의)`);
+            }
+            
+            const warningBox = document.getElementById('marketWarningBox');
+            const warningList = document.getElementById('marketWarnings');
+            if (warnings.length > 0) {
+                warningList.innerHTML = warnings.map(w => `<li>• ${w}</li>`).join('');
+                warningBox.style.display = 'block';
+            } else {
+                warningBox.style.display = 'none';
+            }
+            
             // ========== 🆕 복합 조건 및 지표 영향 표시 ==========
             let indicatorHtml = '';
             
@@ -7820,7 +8018,7 @@
             // 지표 변화 표시를 위한 컨테이너 (있으면)
             const indicatorPanel = document.getElementById('indicatorImpactPanel');
             if (indicatorPanel) {
-                indicatorPanel.innerHTML = indicatorHtml;
+                indicatorPanel.innerHTML = `<h4 style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 10px;">📊 지표별 배분 영향</h4>` + indicatorHtml;
                 indicatorPanel.style.display = indicatorHtml ? 'block' : 'none';
             }
             console.log('🔍 updatePortfolioTab 완료!');
