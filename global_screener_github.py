@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
 """
-글로벌 주식/ETF 스크리닝 - GitHub Actions 버전 v2.1
-- 원본: global_screener_github.py
+글로벌 주식/ETF 스크리닝 - GitHub Actions 버전 v2.3
+- v2.3 수정: 
+  * KOSPI 150개 고정 (KOSDAQ 제거)
+  * 코스피 PER: pykrx 실패 시 네이버 대안
+  * 외국인 20일 누적 추가
+  * 하이일드 스프레드: HYG/LQD 추가
+  * ISM 제조업 PMI 추가
+- v2.2 수정: KOSDAQ 제거
 - v2.1 수정: GitHub Actions 출력 버퍼링 문제 해결
-  * sys.stdout.flush() 추가
-  * 진행 상황 출력 빈도 증가
-- v2 수정: PWA 호환성 개선
-  * ForwardPER → ForwardPE
-  * Sharpe1Y → SharpeRatio
-  * DebtRatio → DebtRatio(%)
-  * Debt/Equity, InstOwn(%) 추가 (US_Stocks)
-  * Return250D(%) 별칭 추가
-  * ETF에 Return60D/120D/250D 별칭 추가
 
 GitHub Actions에서 자동 실행 → JSON 출력 → GitHub Pages에서 PWA가 fetch
 
@@ -74,7 +71,7 @@ TODAY = datetime.now().strftime("%Y%m%d")
 DATE_1Y_AGO = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
 
 # 종목 수 설정
-TOP_N_KR = None   # 한국 주식: 전체
+TOP_N_KR = 150   # 한국 주식: KOSPI 150개 고정
 TOP_N_US = 100    # 미국 주식: 100개
 TOP_N_ETF = None  # ETF: 전체
 
@@ -86,6 +83,11 @@ HEADERS = {
 
 # 네이버 차단 여부 (런타임에 판단)
 NAVER_AVAILABLE = None
+FNGUIDE_AVAILABLE = None  # ★ FnGuide도 차단 감지
+
+# 타임아웃 설정 (GitHub Actions용 단축)
+TIMEOUT_SHORT = 3
+TIMEOUT_LONG = 5
 
 # 데이터 품질 검증용 필수 컬럼
 REQUIRED_COLS_KR_STOCK = ['PER', 'PBR', 'ROE(%)', 'Return60D(%)', 'RSI14', 'Volatility20D']
@@ -113,12 +115,12 @@ def safe_get(d, *keys, default=None):
             return d[k]
     return default
 
-def fetch_yf_with_retry(ticker, max_retries=3, delay=1.0):
+def fetch_yf_with_retry(ticker, max_retries=2, delay=0.3):
     """yfinance 데이터를 재시도 로직과 함께 가져오기"""
     for attempt in range(max_retries):
         try:
             t = yf.Ticker(ticker)
-            hist = t.history(period="2y")
+            hist = t.history(period="1y")  # 2y → 1y로 단축
             info = t.info
 
             # 유효한 데이터인지 확인
@@ -126,10 +128,10 @@ def fetch_yf_with_retry(ticker, max_retries=3, delay=1.0):
                 return t, hist, info
 
             if attempt < max_retries - 1:
-                time.sleep(delay * (attempt + 1))
+                time.sleep(delay)
         except Exception as e:
             if attempt < max_retries - 1:
-                time.sleep(delay * (attempt + 1))
+                time.sleep(delay)
             else:
                 pass
 
@@ -170,7 +172,7 @@ def fill_missing_from_info(row, info, field_mapping):
 # ============================================================
 # 네이버 금융 스크래핑
 # ============================================================
-def fetch_naver(url, timeout=10):
+def fetch_naver(url, timeout=TIMEOUT_SHORT):
     """네이버 URL 요청"""
     global NAVER_AVAILABLE
     if NAVER_AVAILABLE is False:
@@ -364,8 +366,7 @@ def get_naver_stock_detail(code):
         except:
             pass
 
-    # 2. 투자지표 페이지에서 ROE, ROA 등 가져오기
-    time.sleep(0.1)
+    # 2. 투자지표 페이지에서 ROE, ROA 등 가져오기 (sleep 제거)
     url2 = f"https://finance.naver.com/item/coinfo.naver?code={code}&target=finsum_more"
     resp2 = fetch_naver(url2)
 
@@ -424,15 +425,25 @@ def get_naver_stock_detail(code):
 # ============================================================
 def get_fnguide_data(code):
     """FnGuide에서 재무 데이터 가져오기"""
+    global FNGUIDE_AVAILABLE
+    
+    # 이미 차단된 경우 스킵
+    if FNGUIDE_AVAILABLE is False:
+        return {}
+    
     data = {}
-
     url = f"https://comp.fnguide.com/SVO2/ASP/SVD_Main.asp?pGB=1&gicode=A{code}"
 
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=15)
+        resp = requests.get(url, headers=HEADERS, timeout=TIMEOUT_SHORT)
+        if resp.status_code == 403:
+            FNGUIDE_AVAILABLE = False
+            log("  ⚠️ FnGuide 접근 차단됨")
+            return data
         if resp.status_code != 200:
             return data
-
+        
+        FNGUIDE_AVAILABLE = True
         soup = BeautifulSoup(resp.text, 'lxml')
 
         # 시가총액, PER, PBR 등 기본 정보
@@ -669,7 +680,6 @@ def get_korea_stocks():
         try:
             log("  pykrx에서 종목 리스트 로드 중...")
             kospi_tickers = pykrx_stock.get_market_ticker_list(market="KOSPI")
-            kosdaq_tickers = pykrx_stock.get_market_ticker_list(market="KOSDAQ")
             
             for ticker in kospi_tickers:
                 try:
@@ -679,15 +689,7 @@ def get_korea_stocks():
                 if not is_etf_stock(name, ticker):
                     all_tickers.append((ticker, name, 'KOSPI'))
             
-            for ticker in kosdaq_tickers:
-                try:
-                    name = pykrx_stock.get_market_ticker_name(ticker)
-                except:
-                    name = ticker
-                if not is_etf_stock(name, ticker):
-                    all_tickers.append((ticker, name, 'KOSDAQ'))
-            
-            log(f"  pykrx: {len(all_tickers)}개 종목 로드")
+            log(f"  pykrx: {len(all_tickers)}개 종목 로드 (KOSPI만)")
         except Exception as e:
             log(f"  ⚠️ pykrx 실패: {e}")
             all_tickers = []
@@ -695,14 +697,10 @@ def get_korea_stocks():
     if not all_tickers:
         log("  네이버에서 종목 리스트 로드 시도...")
         kospi_stocks = get_naver_stock_list('KOSPI', max_pages=10 if TOP_N_KR is None else 3)
-        kosdaq_stocks = get_naver_stock_list('KOSDAQ', max_pages=10 if TOP_N_KR is None else 3)
         
         for stock in kospi_stocks:
             if not is_etf_stock(stock['name'], stock['code']):
                 all_tickers.append((stock['code'], stock['name'], 'KOSPI'))
-        for stock in kosdaq_stocks:
-            if not is_etf_stock(stock['name'], stock['code']):
-                all_tickers.append((stock['code'], stock['name'], 'KOSDAQ'))
     
     if not all_tickers:
         log("  ❌ 종목 리스트를 가져올 수 없음")
@@ -714,6 +712,7 @@ def get_korea_stocks():
     log(f"  대상: {len(all_tickers)}개")
     
     results = []
+    start_time = time.time()  # ★ 시간 측정 시작
     
     for i, (ticker, name, market) in enumerate(all_tickers):
         try:
@@ -776,7 +775,7 @@ def get_korea_stocks():
                     if naver_data.get('low_52w'):
                         row['52wLow'] = naver_data['low_52w']
 
-                time.sleep(0.05)
+                # sleep 제거 (네이버 내부에서 이미 처리)
 
             # ========================================
             # 2. FnGuide (결측값 폴백)
@@ -814,7 +813,7 @@ def get_korea_stocks():
                         row['EPS'] = fmt(fnguide_data['eps'], 0)
                     if row.get('BPS') is None and fnguide_data.get('bps'):
                         row['BPS'] = fmt(fnguide_data['bps'], 0)
-                time.sleep(0.1)
+                # sleep 단축
 
             # ========================================
             # 3. pykrx (결측값 폴백 - 가격/거래량/시총)
@@ -841,10 +840,8 @@ def get_korea_stocks():
             info = {}
 
             # yfinance는 기술적 지표(RSI, 변동성 등)와 여전히 결측인 필드에만 사용
-            if market == 'KOSPI':
-                ticker_variants = [f"{ticker}.KS", f"{ticker}.KQ"]
-            else:
-                ticker_variants = [f"{ticker}.KQ", f"{ticker}.KS"]
+            # KOSPI만 사용하므로 .KS 우선
+            ticker_variants = [f"{ticker}.KS"]
 
             t, hist, info = try_multiple_tickers(ticker_variants, max_retries=1)  # 재시도 최소화
 
@@ -979,11 +976,14 @@ def get_korea_stocks():
         except Exception as e:
             results.append({'Code': ticker, 'Name': name, 'Market': market, 'Remark': str(e)[:30]})
         
-        # ★ 진행 상황 출력 빈도 증가 (50개마다)
-        if (i + 1) % 50 == 0 or i == 0:
-            log(f"  진행: {i+1}/{len(all_tickers)} ({(i+1)/len(all_tickers)*100:.1f}%)")
+        # ★ 진행 상황 출력 (10개마다 + 예상 시간)
+        if (i + 1) % 10 == 0 or i == 0:
+            elapsed = time.time() - start_time
+            per_stock = elapsed / (i + 1) if i > 0 else 0
+            remaining = per_stock * (len(all_tickers) - i - 1)
+            log(f"  진행: {i+1}/{len(all_tickers)} ({(i+1)/len(all_tickers)*100:.0f}%) - 남은시간: {remaining/60:.1f}분")
         
-        time.sleep(0.05)
+        time.sleep(0.02)  # 0.05 → 0.02
     
     log(f"  ✅ 완료: {len(results)}개")
     return pd.DataFrame(results)
@@ -1506,60 +1506,120 @@ def get_sp500_forward_pe():
         pass
     return None
 
+def get_ism_pmi():
+    """ISM 제조업 PMI from tradingeconomics"""
+    try:
+        url = "https://tradingeconomics.com/united-states/business-confidence"
+        resp = requests.get(url, headers=HEADERS, timeout=TIMEOUT_LONG)
+        if resp.status_code == 200:
+            soup = BeautifulSoup(resp.text, 'lxml')
+            # ISM Manufacturing PMI 값 찾기
+            for elem in soup.select('#aspnetForm td, #aspnetForm span'):
+                text = elem.get_text().strip()
+                # 숫자값 추출 (40-60 범위)
+                try:
+                    val = float(text)
+                    if 40 <= val <= 65:  # PMI 범위
+                        return fmt(val, 1)
+                except:
+                    pass
+    except:
+        pass
+    
+    # 대안: investing.com
+    try:
+        url = "https://www.investing.com/economic-calendar/ism-manufacturing-pmi-173"
+        resp = requests.get(url, headers=HEADERS, timeout=TIMEOUT_LONG)
+        if resp.status_code == 200:
+            match = re.search(r'Actual.*?(\d+\.?\d*)', resp.text)
+            if match:
+                val = float(match.group(1))
+                if 40 <= val <= 65:
+                    return fmt(val, 1)
+    except:
+        pass
+    
+    return None
+
 def get_korea_market_indicators():
-    """한국 시장 지표 (pykrx 활용)"""
+    """한국 시장 지표 (pykrx + 네이버 대안)"""
     indicators = {}
 
-    if not PYKRX_AVAILABLE:
-        return indicators
-
-    try:
-        today_str = datetime.now().strftime("%Y%m%d")
-
-        # 코스피 PER, PBR
+    # ========================================
+    # 1. pykrx 시도
+    # ========================================
+    if PYKRX_AVAILABLE:
         try:
-            from_date = (datetime.now() - timedelta(days=7)).strftime("%Y%m%d")
+            today_str = datetime.now().strftime("%Y%m%d")
 
-            # 코스피 펀더멘털
-            kospi_fund = pykrx_stock.get_index_fundamental(from_date, today_str, "1001")  # 코스피
-            if not kospi_fund.empty:
-                latest = kospi_fund.iloc[-1]
-                if 'PER' in kospi_fund.columns:
-                    indicators['kospi_per'] = fmt(latest['PER'], 2)
-                if 'PBR' in kospi_fund.columns:
-                    indicators['kospi_pbr'] = fmt(latest['PBR'], 2)
-                if 'DIV' in kospi_fund.columns:
-                    indicators['kospi_div'] = fmt(latest['DIV'], 2)
-        except:
-            pass
+            # 코스피 PER, PBR
+            try:
+                from_date = (datetime.now() - timedelta(days=7)).strftime("%Y%m%d")
+                kospi_fund = pykrx_stock.get_index_fundamental(from_date, today_str, "1001")
+                if not kospi_fund.empty:
+                    latest = kospi_fund.iloc[-1]
+                    if 'PER' in kospi_fund.columns:
+                        indicators['kospi_per'] = fmt(latest['PER'], 2)
+                    if 'PBR' in kospi_fund.columns:
+                        indicators['kospi_pbr'] = fmt(latest['PBR'], 2)
+                    if 'DIV' in kospi_fund.columns:
+                        indicators['kospi_div'] = fmt(latest['DIV'], 2)
+            except Exception as e:
+                log(f"  ⚠️ pykrx 펀더멘털 실패: {e}")
 
-        # 외국인 순매수 (최근 5일 합계)
+            # 외국인 순매수 (5일 + 20일)
+            try:
+                from_date = (datetime.now() - timedelta(days=30)).strftime("%Y%m%d")
+                investor = pykrx_stock.get_market_trading_value_by_date(from_date, today_str, "KOSPI")
+                if not investor.empty and '외국인' in investor.columns:
+                    # 5일 순매수
+                    recent_5 = investor['외국인'].tail(5).sum()
+                    indicators['foreign_net_buy'] = fmt(recent_5 / 1e8, 0)
+                    # 20일 누적
+                    recent_20 = investor['외국인'].tail(20).sum()
+                    indicators['foreign_net_buy_20d'] = fmt(recent_20 / 1e8, 0)
+                    
+                if not investor.empty:
+                    if '개인' in investor.columns:
+                        indicators['individual_net_buy'] = fmt(investor['개인'].tail(5).sum() / 1e8, 0)
+                    if '기관합계' in investor.columns:
+                        indicators['institution_net_buy'] = fmt(investor['기관합계'].tail(5).sum() / 1e8, 0)
+            except Exception as e:
+                log(f"  ⚠️ pykrx 투자자 실패: {e}")
+
+        except Exception as e:
+            log(f"  ⚠️ pykrx 전체 실패: {e}")
+
+    # ========================================
+    # 2. 네이버 대안 (pykrx 실패 시)
+    # ========================================
+    if not indicators.get('kospi_per') and NAVER_AVAILABLE is not False:
         try:
-            from_date = (datetime.now() - timedelta(days=10)).strftime("%Y%m%d")
-
-            # 코스피 투자자별 매매동향
-            investor = pykrx_stock.get_market_trading_value_by_date(from_date, today_str, "KOSPI")
-            if not investor.empty and '외국인' in investor.columns:
-                # 최근 5거래일 순매수 합계 (억원)
-                recent = investor['외국인'].tail(5).sum()
-                indicators['foreign_net_buy'] = fmt(recent / 1e8, 0)  # 억원
-        except:
-            pass
-
-        # 개인/기관 순매수
-        try:
-            from_date = (datetime.now() - timedelta(days=10)).strftime("%Y%m%d")
-            investor = pykrx_stock.get_market_trading_value_by_date(from_date, today_str, "KOSPI")
-            if not investor.empty:
-                if '개인' in investor.columns:
-                    indicators['individual_net_buy'] = fmt(investor['개인'].tail(5).sum() / 1e8, 0)
-                if '기관합계' in investor.columns:
-                    indicators['institution_net_buy'] = fmt(investor['기관합계'].tail(5).sum() / 1e8, 0)
-        except:
-            pass
-
-    except Exception as e:
-        log(f"  ⚠️ 한국 시장 지표 수집 실패: {e}")
+            # 네이버 시장 지표 페이지에서 코스피 PER
+            url = "https://finance.naver.com/sise/sise_index.naver?code=KOSPI"
+            resp = requests.get(url, headers=HEADERS, timeout=TIMEOUT_SHORT)
+            if resp.status_code == 200:
+                soup = BeautifulSoup(resp.text, 'lxml')
+                # PER 찾기
+                for td in soup.select('td'):
+                    text = td.get_text().strip()
+                    if 'PER' in text or 'per' in text.lower():
+                        # 다음 td나 같은 행에서 값 추출
+                        parent = td.find_parent('tr')
+                        if parent:
+                            tds = parent.select('td')
+                            for t in tds:
+                                val_text = t.get_text().strip().replace(',', '')
+                                try:
+                                    val = float(val_text)
+                                    if 5 < val < 50:  # PER 범위
+                                        indicators['kospi_per'] = fmt(val, 2)
+                                        break
+                                except:
+                                    pass
+                log("  ✅ 네이버에서 코스피 지표 로드")
+        except Exception as e:
+            log(f"  ⚠️ 네이버 코스피 지표 실패: {e}")
 
     return indicators
 
@@ -1755,6 +1815,17 @@ def get_market_indicators():
             'Price': forward_pe,
         })
 
+    # ★ ISM 제조업 PMI 추가
+    ism_pmi = get_ism_pmi()
+    if ism_pmi:
+        results.append({
+            'Category': '경기',
+            'Ticker': 'ISM-PMI',
+            'Name': 'ISM 제조업 PMI',
+            'Price': ism_pmi,
+            'Signal': '확장' if float(ism_pmi) > 50 else '수축',
+        })
+
     # ========================================
     # 4. 한국 시장 지표 (pykrx)
     # ========================================
@@ -1796,6 +1867,17 @@ def get_market_indicators():
             'Signal': '매수' if float(val) > 0 else '매도',
         })
 
+    # ★ 외국인 20일 누적 추가
+    if kr_indicators.get('foreign_net_buy_20d') is not None:
+        val = kr_indicators['foreign_net_buy_20d']
+        results.append({
+            'Category': '수급',
+            'Ticker': 'KR-외국인-20D',
+            'Name': '외국인 순매수 (20일 누적, 억원)',
+            'Price': val,
+            'Signal': '매수' if float(val) > 0 else '매도',
+        })
+
     if kr_indicators.get('individual_net_buy') is not None:
         val = kr_indicators['individual_net_buy']
         results.append({
@@ -1825,6 +1907,8 @@ def get_market_indicators():
         'IEF': ('미국채 7-10년 ETF', '채권'),
         'TIP': ('물가연동채 ETF', '채권'),
         'EMB': ('신흥국 채권 ETF', '신용'),
+        'HYG': ('하이일드 채권 ETF', '신용'),      # ★ 하이일드 스프레드용
+        'LQD': ('투자등급 회사채 ETF', '신용'),    # ★ 하이일드 스프레드용
         'GLD': ('금 ETF', '원자재'),
         'USO': ('원유 ETF', '원자재'),
         'VXX': ('VIX 선물 ETF', '변동성'),
@@ -1970,9 +2054,9 @@ def main():
     TOP_N_US = args.us_stocks
     
     log("=" * 60)
-    log("글로벌 주식/ETF 스크리닝 - GitHub Actions v2.1 (버퍼링 수정)")
+    log("글로벌 주식/ETF 스크리닝 - GitHub Actions v2.3")
     log(f"실행: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    log(f"한국 주식: {'전체' if TOP_N_KR is None else TOP_N_KR}개")
+    log(f"한국 주식: {'전체' if TOP_N_KR is None else TOP_N_KR}개 (KOSPI)")
     log(f"미국 주식: {TOP_N_US}개")
     log("=" * 60)
     
