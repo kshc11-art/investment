@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 """
-글로벌 주식/ETF 스크리닝 - GitHub Actions 버전 v2.3
-- v2.3 수정: 
-  * KOSPI 150개 고정 (KOSDAQ 제거)
-  * 코스피 PER: pykrx 실패 시 네이버 대안
-  * 외국인 20일 누적 추가
-  * 하이일드 스프레드: HYG/LQD 추가
-  * ISM 제조업 PMI 추가
-- v2.2 수정: KOSDAQ 제거
-- v2.1 수정: GitHub Actions 출력 버퍼링 문제 해결
+글로벌 주식/ETF 스크리닝 - GitHub Actions 버전 v2.5
+- v2.5 수정:
+  * 한국 ETF: KRX 정보데이터시스템 직접 크롤링 (가장 정확)
+  * KRX → pykrx → 네이버 → 폴백 순서로 시도
+- v2.4 수정: pykrx.get_etf_ticker_list() 사용
+- v2.3 수정: KOSPI 150개, 외국인 20일, ISM PMI 등
 
 GitHub Actions에서 자동 실행 → JSON 출력 → GitHub Pages에서 PWA가 fetch
 
@@ -71,9 +68,10 @@ TODAY = datetime.now().strftime("%Y%m%d")
 DATE_1Y_AGO = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
 
 # 종목 수 설정
-TOP_N_KR = 150   # 한국 주식: KOSPI 150개 고정
+TOP_N_KR = 150    # 한국 주식: KOSPI 150개 고정
 TOP_N_US = 100    # 미국 주식: 100개
-TOP_N_ETF = None  # ETF: 전체
+TOP_N_KR_ETF = 200  # 한국 ETF: 200개
+TOP_N_US_ETF = 100  # 미국 ETF: 100개
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -564,10 +562,67 @@ def get_naver_etf_list(max_pages=5):
                 except:
                     continue
         
-        time.sleep(0.2)
+        time.sleep(0.1)
     
     log(f"  네이버 ETF: {len(etfs)}개 로드")
     return etfs
+
+def get_krx_etf_data():
+    """KRX에서 ETF 전종목 데이터 직접 수집 (가장 정확)"""
+    etf_data = {}
+    
+    try:
+        log("  KRX에서 ETF 전종목 로드 중...")
+        
+        # 1. ETF 전종목 시세
+        gen_otp_url = 'http://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd'
+        gen_otp_data = {
+            'locale': 'ko_KR',
+            'mktId': 'ETF',
+            'trdDd': datetime.now().strftime('%Y%m%d'),
+            'share': '1',
+            'money': '1',
+            'csvxls_isNo': 'false',
+            'name': 'fileDown',
+            'url': 'dbms/MDC/STAT/standard/MDCSTAT04301'
+        }
+        
+        otp_resp = requests.post(gen_otp_url, data=gen_otp_data, headers=HEADERS, timeout=10)
+        otp = otp_resp.text
+        
+        down_url = 'http://data.krx.co.kr/comm/fileDn/download_csv/download.cmd'
+        down_resp = requests.post(
+            down_url, 
+            data={'code': otp}, 
+            headers={**HEADERS, 'Referer': gen_otp_url},
+            timeout=30
+        )
+        
+        from io import StringIO
+        csv_text = down_resp.content.decode('euc-kr', errors='ignore')
+        df = pd.read_csv(StringIO(csv_text))
+        
+        if not df.empty and len(df) > 50:
+            log(f"  KRX: {len(df)}개 ETF 로드")
+            
+            for _, row in df.iterrows():
+                code = str(row.get('종목코드', '')).strip()
+                if not code or len(code) != 6:
+                    continue
+                    
+                etf_data[code] = {
+                    'name': str(row.get('종목명', '')).strip(),
+                    'price': row.get('종가', row.get('현재가', None)),
+                    'nav': row.get('NAV', row.get('순자산가치', None)),
+                    'volume': row.get('거래량', None),
+                }
+            
+            return etf_data
+                
+    except Exception as e:
+        log(f"  ⚠️ KRX 크롤링 실패: {e}")
+    
+    return {}
 
 # ============================================================
 # 기술적 지표 계산
@@ -1282,78 +1337,93 @@ def get_korea_etfs():
     """한국 ETF 데이터"""
     log("\n[3/5] 한국 ETF 수집 중...")
     
-    kr_etf_list = [
-        '069500', '114800', '122630', '229200', '252670',
-        '305720', '069660', '091160', '091180', '102780',
-        '133690', '153130', '157450', '161510', '182490',
-        '192090', '195930', '200250', '210780', '219480',
-        '226490', '226980', '227540', '228790', '229720',
-        '233160', '233740', '236350', '238720', '241180',
-        '243890', '244620', '245710', '251340', '252400',
-        '261140', '266360', '267500', '271060', '276990',
-        '278420', '278530', '279530', '280920', '283580',
-        '287300', '287310', '287330', '292190', '295820',
-        '298340', '300640', '305540', '308620', '309230',
-        '310970', '314700', '315480', '319870', '329200',
-        '329750', '332500', '332620', '333940', '334700',
-        '337140', '337160', '360200', '360750', '363580',
-        '364960', '364980', '365000', '365040', '367380',
-        '371450', '371460', '373530', '379800', '379810',
-        '381170', '381180', '385550', '385560', '385590',
-        '391160', '391170', '391180', '395160', '395170',
-        '400760', '400770', '401470', '404780', '404790',
-        '409810', '409820', '411060', '411080', '411420',
-        '448290', '448300', '448320', '449450', '449770',
-        '453330', '453340', '453850', '455850', '455890',
-        '461150', '461460', '462330', '465330', '466920',
-    ]
+    # ========================================
+    # 1. KRX에서 ETF 전종목 데이터 (가장 정확)
+    # ========================================
+    krx_data = get_krx_etf_data()
     
-    naver_etfs = []
-    if NAVER_AVAILABLE is not False:
-        naver_etfs = get_naver_etf_list(max_pages=3)
-        for etf in naver_etfs:
-            if etf['code'] not in kr_etf_list:
-                kr_etf_list.append(etf['code'])
+    if krx_data:
+        kr_etf_list = list(krx_data.keys())
+        log(f"  KRX: {len(kr_etf_list)}개 ETF")
+    else:
+        # ========================================
+        # 2. pykrx 대안
+        # ========================================
+        kr_etf_list = []
+        if PYKRX_AVAILABLE:
+            try:
+                log("  pykrx에서 ETF 리스트 로드 중...")
+                kr_etf_list = pykrx_stock.get_etf_ticker_list()
+                log(f"  pykrx: {len(kr_etf_list)}개 ETF")
+            except Exception as e:
+                log(f"  ⚠️ pykrx ETF 실패: {e}")
+        
+        # ========================================
+        # 3. 네이버 대안
+        # ========================================
+        if not kr_etf_list and NAVER_AVAILABLE is not False:
+            naver_etfs = get_naver_etf_list(max_pages=10)
+            kr_etf_list = [etf['code'] for etf in naver_etfs]
+    
+    # ========================================
+    # 4. 하드코딩 폴백 (모두 실패 시)
+    # ========================================
+    if not kr_etf_list and not krx_data:
+        log("  ⚠️ ETF 리스트 로드 실패, 주요 ETF만 사용")
+        kr_etf_list = [
+            '069500', '114800', '122630', '229200', '252670',
+            '305720', '091160', '133690', '143850', '192090',
+            '261240', '360750', '371450', '379800', '381170',
+            '395160', '461460',
+        ]
+    
+    # ★ ETF 개수 제한 적용
+    if TOP_N_KR_ETF and len(kr_etf_list) > TOP_N_KR_ETF:
+        kr_etf_list = kr_etf_list[:TOP_N_KR_ETF]
+    
+    log(f"  대상: {len(kr_etf_list)}개")
     
     results = []
+    start_time = time.time()
     
     for i, code in enumerate(kr_etf_list):
         try:
             row = {'Code': code, 'Region': 'KR'}
 
             # ========================================
-            # 1. 네이버 (주요 소스)
+            # 1. KRX 데이터 먼저 적용 (있으면)
             # ========================================
-            if NAVER_AVAILABLE is not False:
-                for naver_etf in naver_etfs:
-                    if naver_etf['code'] == code:
-                        row['Name'] = naver_etf.get('name')
-                        if naver_etf.get('price'):
-                            row['Price'] = naver_etf['price']
-                        break
+            krx_info = krx_data.get(code, {}) if krx_data else {}
+            if krx_info:
+                row['Name'] = krx_info.get('name', '')
+                if krx_info.get('price'):
+                    row['Price'] = fmt(krx_info['price'], 0)
+                if krx_info.get('nav'):
+                    row['NAV'] = fmt(krx_info['nav'], 0)
+                if krx_info.get('volume'):
+                    row['Volume'] = int(krx_info['volume'])
 
             # ========================================
-            # 2. pykrx (결측값 폴백)
+            # 2. pykrx 보충 (KRX 없으면)
             # ========================================
-            if PYKRX_AVAILABLE:
+            if PYKRX_AVAILABLE and not row.get('Name'):
                 try:
-                    if not row.get('Name'):
-                        row['Name'] = pykrx_stock.get_market_ticker_name(code)
+                    row['Name'] = pykrx_stock.get_etf_ticker_name(code)
                     today_str = datetime.now().strftime("%Y%m%d")
-                    ohlcv = pykrx_stock.get_market_ohlcv_by_date(
+                    ohlcv = pykrx_stock.get_etf_ohlcv_by_date(
                         (datetime.now() - timedelta(days=7)).strftime("%Y%m%d"),
                         today_str, code
                     )
                     if not ohlcv.empty:
-                        if row.get('Price') is None:
+                        if not row.get('Price'):
                             row['Price'] = fmt(ohlcv['종가'].iloc[-1], 0)
-                        if row.get('Volume') is None:
+                        if not row.get('Volume'):
                             row['Volume'] = int(ohlcv['거래량'].iloc[-1]) if ohlcv['거래량'].iloc[-1] else None
                 except:
                     pass
 
             # ========================================
-            # 3. yfinance (최후의 수단 - 기술적 지표)
+            # 3. yfinance (기술적 지표)
             # ========================================
             ticker_variants = [f"{code}.KS", f"{code}.KQ"]
             t, hist, info = try_multiple_tickers(ticker_variants, max_retries=1)
@@ -1411,13 +1481,17 @@ def get_korea_etfs():
             row = calc_data_quality_score(row, REQUIRED_COLS_ETF, 'etf')
             results.append(row)
 
-        except:
+        except Exception as e:
             pass
         
-        if (i + 1) % 30 == 0:
-            log(f"  진행: {i+1}/{len(kr_etf_list)}")
+        # 진행 상황 (20개마다)
+        if (i + 1) % 20 == 0 or i == 0:
+            elapsed = time.time() - start_time
+            per_etf = elapsed / (i + 1) if i > 0 else 0
+            remaining = per_etf * (len(kr_etf_list) - i - 1)
+            log(f"  진행: {i+1}/{len(kr_etf_list)} - 남은시간: {remaining/60:.1f}분")
         
-        time.sleep(0.1)
+        time.sleep(0.05)
     
     log(f"  ✅ 완료: {len(results)}개")
     return pd.DataFrame(results)
@@ -1443,6 +1517,11 @@ def get_us_etfs():
         'VEA', 'VWO', 'EFA', 'EEM', 'IEFA', 'IEMG', 'VXUS', 'ACWI'
     ]
     
+    # ★ ETF 개수 제한 적용
+    if TOP_N_US_ETF and len(tickers) > TOP_N_US_ETF:
+        tickers = tickers[:TOP_N_US_ETF]
+    
+    log(f"  대상: {len(tickers)}개")
     df = get_etf_data(tickers, "US")
     log(f"  ✅ 완료: {len(df)}개")
     return df
@@ -2045,19 +2124,23 @@ def main():
     parser = argparse.ArgumentParser(description='글로벌 주식/ETF 스크리너 (GitHub Actions)')
     parser.add_argument('--json-only', action='store_true', help='JSON만 출력')
     parser.add_argument('--output-dir', type=str, default='.', help='출력 디렉토리')
-    parser.add_argument('--kr-stocks', type=int, default=None, help='한국 주식 수 제한')
-    parser.add_argument('--us-stocks', type=int, default=100, help='미국 주식 수 제한')
+    parser.add_argument('--kr-stocks', type=int, default=150, help='한국 주식 수 (기본 150)')
+    parser.add_argument('--us-stocks', type=int, default=100, help='미국 주식 수 (기본 100)')
+    parser.add_argument('--kr-etfs', type=int, default=200, help='한국 ETF 수 (기본 200)')
+    parser.add_argument('--us-etfs', type=int, default=100, help='미국 ETF 수 (기본 100)')
     args = parser.parse_args()
     
-    global TOP_N_KR, TOP_N_US
+    global TOP_N_KR, TOP_N_US, TOP_N_KR_ETF, TOP_N_US_ETF
     TOP_N_KR = args.kr_stocks
     TOP_N_US = args.us_stocks
+    TOP_N_KR_ETF = args.kr_etfs
+    TOP_N_US_ETF = args.us_etfs
     
     log("=" * 60)
-    log("글로벌 주식/ETF 스크리닝 - GitHub Actions v2.3")
+    log("글로벌 주식/ETF 스크리닝 - GitHub Actions v2.5")
     log(f"실행: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    log(f"한국 주식: {'전체' if TOP_N_KR is None else TOP_N_KR}개 (KOSPI)")
-    log(f"미국 주식: {TOP_N_US}개")
+    log(f"한국 주식: {TOP_N_KR}개 (KOSPI) | 미국 주식: {TOP_N_US}개")
+    log(f"한국 ETF: {TOP_N_KR_ETF}개 | 미국 ETF: {TOP_N_US_ETF}개")
     log("=" * 60)
     
     start = time.time()
