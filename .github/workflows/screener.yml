@@ -19,6 +19,14 @@ on:
         description: '미국 주식 수'
         required: false
         default: '100'
+      kr_etfs:
+        description: '한국 ETF 수'
+        required: false
+        default: '200'
+      us_etfs:
+        description: '미국 ETF 수'
+        required: false
+        default: '100'
 
 jobs:
   run-screener:
@@ -55,14 +63,13 @@ jobs:
           # 파라미터 설정
           KR_STOCKS="${{ github.event.inputs.kr_stocks || '150' }}"
           US_STOCKS="${{ github.event.inputs.us_stocks || '100' }}"
+          KR_ETFS="${{ github.event.inputs.kr_etfs || '200' }}"
+          US_ETFS="${{ github.event.inputs.us_etfs || '100' }}"
           
           # 명령어 구성 (★ -u 플래그로 unbuffered 실행)
-          CMD="python -u global_screener_github.py --output-dir ./data --us-stocks $US_STOCKS"
-          
-          # 한국 주식 수 제한
-          if [ -n "$KR_STOCKS" ]; then
-            CMD="$CMD --kr-stocks $KR_STOCKS"
-          fi
+          CMD="python -u global_screener_github.py --output-dir ./data"
+          CMD="$CMD --kr-stocks $KR_STOCKS --us-stocks $US_STOCKS"
+          CMD="$CMD --kr-etfs $KR_ETFS --us-etfs $US_ETFS"
           
           echo "=========================================="
           echo "실행: $CMD"
