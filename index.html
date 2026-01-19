@@ -4127,147 +4127,42 @@
                 </div>
             </div>
             
-            <!-- 📊 상세 지표 현황 (엑셀/JSON 원시 데이터) -->
+            <!-- 📊 상세 지표 현황 (엑셀/JSON 원시 데이터) - 접기 가능 -->
             <div class="card" id="rawIndicatorCard" style="display:none;">
-                <div class="card-header" style="padding: 10px 12px;">
-                    <h3 class="card-title" style="font-size: 0.85rem;">📈 Market_Indicators 상세</h3>
-                    <span class="card-badge" id="rawIndicatorCount" style="font-size: 0.65rem;">0개 로드</span>
-                </div>
-                <div id="rawIndicatorContent" style="padding: 0 12px 12px 12px;">
-                    <div id="rawIndicatorGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px;"></div>
-                </div>
+                <details>
+                    <summary style="cursor: pointer; padding: 10px 12px; margin: -16px; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <h3 class="card-title" style="font-size: 0.85rem; margin: 0;">📈 Market_Indicators 상세</h3>
+                            <span class="card-badge" id="rawIndicatorCount" style="font-size: 0.65rem;">0개 로드</span>
+                        </div>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">▼ 펼치기/접기</span>
+                    </summary>
+                    <div id="rawIndicatorContent" style="padding: 12px;">
+                        <div id="rawIndicatorGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px;"></div>
+                    </div>
+                </details>
             </div>
             
-            <!-- 시장 지표 입력 -->
+            <!-- Config 업로드 카드 -->
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">📊 시장 지표 입력</h3>
-                    <span class="card-badge badge-info">Tier 1: 필수</span>
-                </div>
-                
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">
-                    학술적 근거가 있는 핵심 지표들입니다. 최소 Tier 1 지표를 입력하면 판단이 가능합니다.
-                </p>
-                
-                <!-- 🆕 자동 연동 안내 -->
-                <div style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(59,130,246,0.1)); border: 1px solid rgba(16,185,129,0.5); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
-                    <h4 style="color: var(--accent-green); font-size: 0.9rem; margin-bottom: 10px;">✅ Market_Indicators 자동 연동</h4>
-                    <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 10px;">
-                        종목 스크리닝에서 <strong>엑셀/JSON 업로드</strong> 시 <code style="background: var(--bg-card); padding: 2px 6px; border-radius: 4px;">Market_Indicators</code> 시트가 자동으로 연동됩니다.
-                    </p>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.6;">
-                        <strong>자동 매핑:</strong> ^VIX → VIX, ^KS11 → 코스피 수익률, USDKRW=X → 환율, ^TNX → 10Y금리, GC=F → 금, CL=F → 원유, CAPE, F&G, KOSPI-PER, KR-외국인 등
-                    </div>
-                </div>
-                
-                <!-- Tier 1: 필수 지표 -->
-                <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
-                    <h4 style="color: var(--accent-gold); font-size: 0.9rem; margin-bottom: 14px;">⭐ Tier 1: 필수 지표</h4>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
-                        <div class="indicator-input">
-                            <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">VIX</label>
-                            <input type="number" id="ind_vix" step="0.01" placeholder="15.86" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.8rem;">
-                            <span class="indicator-hint" style="font-size: 0.65rem; color: var(--text-muted);">공포지수 (12-35)</span>
-                        </div>
-                        
-                        <div class="indicator-input">
-                            <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">코스피 1M 수익률 (%)</label>
-                            <input type="number" id="ind_kospi1m" step="0.01" placeholder="18.34" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.8rem;">
-                            <span class="indicator-hint" style="font-size: 0.65rem; color: var(--text-muted);">1개월 수익률</span>
-                        </div>
-                        
-                        <div class="indicator-input">
-                            <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">코스피 3M 수익률 (%)</label>
-                            <input type="number" id="ind_kospi3m" step="0.01" placeholder="35.91" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.8rem;">
-                            <span class="indicator-hint" style="font-size: 0.65rem; color: var(--text-muted);">3개월 수익률</span>
-                        </div>
-                        
-                        <div class="indicator-input">
-                            <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">USD/KRW</label>
-                            <input type="number" id="ind_usdkrw" step="0.01" placeholder="1468.84" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.8rem;">
-                            <span class="indicator-hint" style="font-size: 0.65rem; color: var(--text-muted);">원/달러 환율</span>
-                        </div>
-                        
-                        <div class="indicator-input">
-                            <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">10Y 국채금리 (%)</label>
-                            <input type="number" id="ind_10y" step="0.01" placeholder="4.23" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.8rem;">
-                            <span class="indicator-hint" style="font-size: 0.65rem; color: var(--text-muted);">미국 10년물</span>
-                        </div>
-                        
-                        <div class="indicator-input">
-                            <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">금 1Y 수익률 (%)</label>
-                            <input type="number" id="ind_gold1y" step="0.01" placeholder="67.2" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.8rem;">
-                            <span class="indicator-hint" style="font-size: 0.65rem; color: var(--text-muted);">1년 수익률</span>
-                        </div>
-                        
-                        <div class="indicator-input">
-                            <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">WTI 1Y 수익률 (%)</label>
-                            <input type="number" id="ind_wti1y" step="0.01" placeholder="-23.68" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.8rem;">
-                            <span class="indicator-hint" style="font-size: 0.65rem; color: var(--text-muted);">원유 1년 수익률</span>
-                        </div>
-                        
-                        <div class="indicator-input">
-                            <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">S&P500 1M 수익률 (%)</label>
-                            <input type="number" id="ind_sp5001m" step="0.01" placeholder="2.06" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.8rem;">
-                            <span class="indicator-hint" style="font-size: 0.65rem; color: var(--text-muted);">미국 1개월</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Tier 2: 권장 지표 -->
-                <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
-                    <h4 style="color: var(--accent-blue); font-size: 0.9rem; margin-bottom: 14px;">📊 Tier 2: 권장 지표 (판단력 향상)</h4>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
-                        <div class="indicator-input">
-                            <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">2Y 국채금리 (%)</label>
-                            <input type="number" id="ind_2y" step="0.01" placeholder="" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.8rem;">
-                            <span class="indicator-hint" style="font-size: 0.65rem; color: var(--text-muted);">10Y-2Y 스프레드 계산</span>
-                        </div>
-                        
-                        <div class="indicator-input">
-                            <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">S&P500 CAPE</label>
-                            <input type="number" id="ind_cape" step="0.1" placeholder="38.5" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.8rem;">
-                            <span class="indicator-hint" style="font-size: 0.65rem; color: var(--text-muted);">Shiller PE (multpl.com)</span>
-                        </div>
-                        
-                        <div class="indicator-input">
-                            <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">하이일드 스프레드 (bp)</label>
-                            <input type="number" id="ind_hyspread" step="1" placeholder="" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.8rem;">
-                            <span class="indicator-hint" style="font-size: 0.65rem; color: var(--text-muted);">FRED BAMLH0A0HYM2</span>
-                        </div>
-                        
-                        <div class="indicator-input">
-                            <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Fear & Greed (0-100)</label>
-                            <input type="number" id="ind_fng" min="0" max="100" step="1" placeholder="" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.8rem;">
-                            <span class="indicator-hint" style="font-size: 0.65rem; color: var(--text-muted);">CNN Fear & Greed</span>
-                        </div>
-                        
-                        <div class="indicator-input">
-                            <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">외국인 순매수 (억원)</label>
-                            <input type="number" id="ind_foreign" step="1" placeholder="" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.8rem;">
-                            <span class="indicator-hint" style="font-size: 0.65rem; color: var(--text-muted);">KRX 당일 순매수</span>
-                        </div>
-                        
-                        <div class="indicator-input">
-                            <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">외국인 20일 누적 (억원)</label>
-                            <input type="number" id="ind_foreign20d" step="1" placeholder="" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.8rem;">
-                            <span class="indicator-hint" style="font-size: 0.65rem; color: var(--text-muted);">20일 누적 순매수</span>
-                        </div>
-                        
-                        <div class="indicator-input">
-                            <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">코스피 PER</label>
-                            <input type="number" id="ind_kospiPer" step="0.1" placeholder="" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.8rem;">
-                            <span class="indicator-hint" style="font-size: 0.65rem; color: var(--text-muted);">KRX 기준</span>
-                        </div>
-                        
-                        <div class="indicator-input">
-                            <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">ISM 제조업 PMI</label>
-                            <input type="number" id="ind_ism" step="0.1" placeholder="" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.8rem;">
-                            <span class="indicator-hint" style="font-size: 0.65rem; color: var(--text-muted);">50 기준 (확장/수축)</span>
-                        </div>
-                    </div>
+                <!-- 숨겨진 지표 필드 (JS 호환성) -->
+                <div style="display: none;">
+                    <input type="number" id="ind_vix">
+                    <input type="number" id="ind_kospi1m">
+                    <input type="number" id="ind_kospi3m">
+                    <input type="number" id="ind_usdkrw">
+                    <input type="number" id="ind_10y">
+                    <input type="number" id="ind_gold1y">
+                    <input type="number" id="ind_wti1y">
+                    <input type="number" id="ind_sp5001m">
+                    <input type="number" id="ind_2y">
+                    <input type="number" id="ind_cape">
+                    <input type="number" id="ind_hyspread">
+                    <input type="number" id="ind_fng">
+                    <input type="number" id="ind_foreign">
+                    <input type="number" id="ind_foreign20d">
+                    <input type="number" id="ind_kospiPer">
+                    <input type="number" id="ind_ism">
                 </div>
                 
                 <!-- Config 업로드 버튼 영역 -->
@@ -4456,30 +4351,37 @@
                 
             </div>
             
-            <!-- 개별 신호 상세 -->
+            <!-- 개별 신호 상세 (접기 가능) -->
             <div class="card" id="signalDetailsCard" style="display: none;">
-                <div class="card-header">
-                    <h3 class="card-title">📋 개별 신호 상세</h3>
-                </div>
-                <div id="signalDetails" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;"></div>
+                <details open>
+                    <summary style="cursor: pointer; padding: 16px; margin: -16px; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 class="card-title" style="margin: 0;">📋 개별 신호 상세</h3>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">▼ 접기/펼치기</span>
+                    </summary>
+                    <div id="signalDetails" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 16px;"></div>
+                </details>
             </div>
             
-            <!-- 학술적 근거 설명 -->
+            <!-- 학술적 근거 설명 (접기 가능) -->
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">📚 판단 로직 & 학술 근거</h3>
-                    <span class="card-badge badge-info">투명성</span>
-                </div>
-                
-                <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8;">
-                    <details style="margin-bottom: 16px;">
-                        <summary style="cursor: pointer; color: var(--accent-gold); font-weight: 600; padding: 8px 0;">📈 수익률 곡선 (10Y-2Y 스프레드)</summary>
-                        <div style="padding: 12px; background: var(--bg-secondary); border-radius: 8px; margin-top: 8px;">
-                            <p><strong>학술 근거:</strong> Estrella & Hardouvelis (1991), NY Fed Recession Model</p>
-                            <p><strong>공식:</strong> P(recession) = Φ(-0.6046 - 0.7644 × spread)</p>
-                            <p><strong>해석:</strong> 역전(음수) 시 6~18개월 내 침체 확률 상승. 1970년 이후 모든 침체 선행.</p>
+                <details>
+                    <summary style="cursor: pointer; padding: 16px; margin: -16px; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <h3 class="card-title" style="margin: 0;">📚 판단 로직 & 학술 근거</h3>
+                            <span class="card-badge badge-info">투명성</span>
                         </div>
-                    </details>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">▼ 펼치기</span>
+                    </summary>
+                    
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8; margin-top: 16px;">
+                        <details style="margin-bottom: 16px;">
+                            <summary style="cursor: pointer; color: var(--accent-gold); font-weight: 600; padding: 8px 0;">📈 수익률 곡선 (10Y-2Y 스프레드)</summary>
+                            <div style="padding: 12px; background: var(--bg-secondary); border-radius: 8px; margin-top: 8px;">
+                                <p><strong>학술 근거:</strong> Estrella & Hardouvelis (1991), NY Fed Recession Model</p>
+                                <p><strong>공식:</strong> P(recession) = Φ(-0.6046 - 0.7644 × spread)</p>
+                                <p><strong>해석:</strong> 역전(음수) 시 6~18개월 내 침체 확률 상승. 1970년 이후 모든 침체 선행.</p>
+                            </div>
+                        </details>
                     
                     <details style="margin-bottom: 16px;">
                         <summary style="cursor: pointer; color: var(--accent-purple); font-weight: 600; padding: 8px 0;">💰 CAPE (Shiller PE)</summary>
@@ -4517,7 +4419,8 @@
                             <p>• 과거 데이터 기반이므로 "이번엔 다르다" 시나리오에 취약합니다.</p>
                         </div>
                     </details>
-                </div>
+                    </div>
+                </details>
             </div>
         </div>
 
@@ -6075,7 +5978,7 @@
                 
                 // 타임존이 없으면 KST(+09:00)로 간주
                 if (!genDateStr.includes('+') && !genDateStr.includes('Z')) {
-                    genDateStr = genDateStr + '+00:00';
+                    genDateStr = genDateStr + '+09:00';
                 }
                 
                 const genDate = new Date(genDateStr);
