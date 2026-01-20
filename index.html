@@ -1660,19 +1660,29 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">⏰ 6개월 분할매수 타임라인</h3>
-                    <span class="card-badge badge-success">리스크 분산 전략</span>
+                    <span class="card-badge badge-success">AI 전략</span>
+                </div>
+                
+                <!-- AI 업데이트 상태 -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">
+                        📅 시작: <span id="timelineStartMonth">1월</span> ~ 종료: <span id="timelineEndMonth">6월</span>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">
+                        💰 총 투자금: <span id="timelineTotalAmount">200M</span>
+                    </div>
                 </div>
 
-                <div class="timeline-container">
+                <div id="investmentTimeline" class="timeline-container">
                     <div class="timeline-line"></div>
                     
-                    <div class="timeline-item">
+                    <div class="timeline-item" data-month="1">
                         <div class="timeline-dot"></div>
                         <div class="timeline-header">
                             <span class="timeline-month">🗓️ 1월</span>
                             <span class="timeline-amount" style="color: var(--accent-gold);">40M</span>
                         </div>
-                        <p style="color: var(--text-secondary); margin-bottom: 8px;">
+                        <p class="timeline-strategy" style="color: var(--text-secondary); margin-bottom: 8px;">
                             <strong>전략:</strong> 안전자산 우선, 시장 관망
                         </p>
                         <div class="timeline-breakdown">
@@ -1682,13 +1692,13 @@
                         </div>
                     </div>
 
-                    <div class="timeline-item">
+                    <div class="timeline-item" data-month="2">
                         <div class="timeline-dot" style="background: var(--accent-blue);"></div>
                         <div class="timeline-header">
                             <span class="timeline-month">🗓️ 2월</span>
                             <span class="timeline-amount" style="color: var(--accent-blue);">35M</span>
                         </div>
-                        <p style="color: var(--text-secondary); margin-bottom: 8px;">
+                        <p class="timeline-strategy" style="color: var(--text-secondary); margin-bottom: 8px;">
                             <strong>전략:</strong> 저평가 선진국(유럽/일본) 진입
                         </p>
                         <div class="timeline-breakdown">
@@ -1698,13 +1708,13 @@
                         </div>
                     </div>
 
-                    <div class="timeline-item">
+                    <div class="timeline-item" data-month="3">
                         <div class="timeline-dot" style="background: var(--accent-green);"></div>
                         <div class="timeline-header">
                             <span class="timeline-month">🗓️ 3월</span>
                             <span class="timeline-amount" style="color: var(--accent-green);">35M</span>
                         </div>
-                        <p style="color: var(--text-secondary); margin-bottom: 8px;">
+                        <p class="timeline-strategy" style="color: var(--text-secondary); margin-bottom: 8px;">
                             <strong>전략:</strong> 신흥국 분산, 미국 소폭 진입
                         </p>
                         <div class="timeline-breakdown">
@@ -1714,13 +1724,13 @@
                         </div>
                     </div>
 
-                    <div class="timeline-item">
+                    <div class="timeline-item" data-month="4">
                         <div class="timeline-dot" style="background: #8b5cf6;"></div>
                         <div class="timeline-header">
                             <span class="timeline-month">🗓️ 4월</span>
                             <span class="timeline-amount" style="color: #8b5cf6;">35M</span>
                         </div>
-                        <p style="color: var(--text-secondary); margin-bottom: 8px;">
+                        <p class="timeline-strategy" style="color: var(--text-secondary); margin-bottom: 8px;">
                             <strong>전략:</strong> 시장 방향 확인 후 미국 확대
                         </p>
                         <div class="timeline-breakdown">
@@ -1730,13 +1740,13 @@
                         </div>
                     </div>
 
-                    <div class="timeline-item">
+                    <div class="timeline-item" data-month="5">
                         <div class="timeline-dot" style="background: #ec4899;"></div>
                         <div class="timeline-header">
                             <span class="timeline-month">🗓️ 5월</span>
                             <span class="timeline-amount" style="color: #ec4899;">30M</span>
                         </div>
-                        <p style="color: var(--text-secondary); margin-bottom: 8px;">
+                        <p class="timeline-strategy" style="color: var(--text-secondary); margin-bottom: 8px;">
                             <strong>전략:</strong> 포트폴리오 완성
                         </p>
                         <div class="timeline-breakdown">
@@ -1746,13 +1756,13 @@
                         </div>
                     </div>
 
-                    <div class="timeline-item">
+                    <div class="timeline-item" data-month="6">
                         <div class="timeline-dot" style="background: var(--text-muted);"></div>
                         <div class="timeline-header">
                             <span class="timeline-month">🗓️ 6월</span>
                             <span class="timeline-amount" style="color: var(--text-secondary);">25M</span>
                         </div>
-                        <p style="color: var(--text-secondary); margin-bottom: 8px;">
+                        <p class="timeline-strategy" style="color: var(--text-secondary); margin-bottom: 8px;">
                             <strong>전략:</strong> 리밸런싱 + 기회 추가매수
                         </p>
                         <div class="timeline-breakdown">
@@ -1761,6 +1771,12 @@
                             <span class="breakdown-chip">💵 현금 유지</span>
                         </div>
                     </div>
+                </div>
+                
+                <!-- AI 전략 요약 -->
+                <div id="timelineAISummary" style="margin-top: 16px; padding: 12px; background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1)); border: 1px solid rgba(139,92,246,0.3); border-radius: 10px; display: none;">
+                    <h4 style="color: var(--accent-purple); font-size: 0.85rem; margin-bottom: 8px;">🤖 AI 전략 요약</h4>
+                    <p id="timelineRationale" style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;"></p>
                 </div>
             </div>
 
@@ -2116,90 +2132,403 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- 📜 채권/현금 투자 가이드 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📜 채권/현금 투자 가이드</h3>
+                    <span class="card-badge badge-info">시장 연동</span>
+                </div>
+                
+                <!-- 현재 시장 상황 요약 -->
+                <div id="bondMarketSummary" style="background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(59,130,246,0.05)); border: 1px solid rgba(99,102,241,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+                    <h4 style="color: var(--accent-purple); font-size: 0.9rem; margin-bottom: 12px;">📊 현재 채권 시장 환경</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                        <div style="text-align: center; padding: 10px; background: var(--bg-card); border-radius: 8px;">
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">미국 10년물</div>
+                            <div id="bond-us10y" style="font-size: 1.1rem; font-weight: 700; color: var(--accent-blue);">4.23%</div>
+                        </div>
+                        <div style="text-align: center; padding: 10px; background: var(--bg-card); border-radius: 8px;">
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">미국 2년물</div>
+                            <div id="bond-us2y" style="font-size: 1.1rem; font-weight: 700; color: var(--accent-blue);">4.36%</div>
+                        </div>
+                        <div style="text-align: center; padding: 10px; background: var(--bg-card); border-radius: 8px;">
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">10Y-2Y 스프레드</div>
+                            <div id="bond-spread" style="font-size: 1.1rem; font-weight: 700; color: var(--accent-red);">-0.13%</div>
+                        </div>
+                        <div style="text-align: center; padding: 10px; background: var(--bg-card); border-radius: 8px;">
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">Fed 금리</div>
+                            <div id="bond-fed" style="font-size: 1.1rem; font-weight: 700; color: var(--accent-gold);">4.50%</div>
+                        </div>
+                    </div>
+                    <div id="bondMarketJudgment" style="font-size: 0.85rem; color: var(--text-secondary); padding: 10px; background: var(--bg-card); border-radius: 8px;">
+                        💡 <strong>판단:</strong> 역수익률 곡선 지속 → 단기채 우위. Fed 인하 기대 시 장기채 진입 검토.
+                    </div>
+                </div>
+                
+                <!-- 채권 선택 플로우차트 -->
+                <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+                    <h4 style="color: var(--text-primary); font-size: 0.9rem; margin-bottom: 16px;">🔀 채권 선택 의사결정</h4>
+                    
+                    <div style="display: grid; gap: 12px;">
+                        <!-- Step 1: 금리 방향 -->
+                        <div style="display: flex; align-items: stretch; gap: 12px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 200px; padding: 12px; background: var(--bg-card); border-radius: 8px; border-left: 4px solid var(--accent-purple);">
+                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px;">Step 1: 금리 방향 예측</div>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <span id="bondDecision-rateDown" style="padding: 6px 12px; background: rgba(16,185,129,0.2); border-radius: 6px; font-size: 0.8rem; cursor: pointer;" onclick="highlightBondPath('down')">📉 인하 예상</span>
+                                    <span id="bondDecision-rateUp" style="padding: 6px 12px; background: rgba(239,68,68,0.2); border-radius: 6px; font-size: 0.8rem; cursor: pointer;" onclick="highlightBondPath('up')">📈 인상/유지</span>
+                                    <span id="bondDecision-rateUncertain" style="padding: 6px 12px; background: rgba(245,158,11,0.2); border-radius: 6px; font-size: 0.8rem; cursor: pointer;" onclick="highlightBondPath('uncertain')">❓ 불확실</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 2: 환율 고려 -->
+                        <div style="display: flex; align-items: stretch; gap: 12px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 200px; padding: 12px; background: var(--bg-card); border-radius: 8px; border-left: 4px solid var(--accent-blue);">
+                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px;">Step 2: 환율 고려 (현재 <span id="bondFxRate">1,473</span>원)</div>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <span id="bondDecision-fxHigh" style="padding: 6px 12px; background: rgba(239,68,68,0.15); border-radius: 6px; font-size: 0.8rem;">🔴 1,400원+ → 국내채권</span>
+                                    <span id="bondDecision-fxNormal" style="padding: 6px 12px; background: rgba(16,185,129,0.15); border-radius: 6px; font-size: 0.8rem;">🟢 1,300원대 → 해외채권 OK</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 채권 상품별 가이드 -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px;">
+                    
+                    <!-- 현금/MMF -->
+                    <div id="bondGuide-cash" class="bond-guide-card" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border: 2px solid transparent;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h5 style="color: var(--text-primary); font-size: 0.9rem;">💵 현금/MMF</h5>
+                            <span id="bondRec-cash" style="padding: 4px 10px; background: rgba(245,158,11,0.2); color: var(--accent-gold); border-radius: 12px; font-size: 0.75rem; font-weight: 600;">중립</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px;">
+                            <strong>듀레이션:</strong> 0~3개월<br>
+                            <strong>현재 수익률:</strong> 3.5~4.0%<br>
+                            <strong>상품:</strong> CMA, MMF, RP
+                        </div>
+                        <div style="padding: 8px; background: var(--bg-card); border-radius: 6px; font-size: 0.75rem;">
+                            ✅ 금리 인상기 / 불확실할 때<br>
+                            ✅ 투자 대기자금<br>
+                            ❌ 금리 인하 확정 시 기회비용
+                        </div>
+                    </div>
+                    
+                    <!-- 단기채 (1-3년) -->
+                    <div id="bondGuide-short" class="bond-guide-card" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border: 2px solid transparent;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h5 style="color: var(--text-primary); font-size: 0.9rem;">📊 단기채 (1-3년)</h5>
+                            <span id="bondRec-short" style="padding: 4px 10px; background: rgba(16,185,129,0.2); color: var(--accent-green); border-radius: 12px; font-size: 0.75rem; font-weight: 600;">추천</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px;">
+                            <strong>듀레이션:</strong> 1.5~3년<br>
+                            <strong>금리 1% 변동:</strong> ±2~3%<br>
+                            <strong>상품:</strong> SHY, KOSEF 단기채, 통안채
+                        </div>
+                        <div style="padding: 8px; background: var(--bg-card); border-radius: 6px; font-size: 0.75rem;">
+                            ✅ 역수익률 곡선 시 유리<br>
+                            ✅ 금리 방향 불확실할 때<br>
+                            ✅ 낮은 변동성 선호
+                        </div>
+                    </div>
+                    
+                    <!-- 중기채 (3-7년) -->
+                    <div id="bondGuide-mid" class="bond-guide-card" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border: 2px solid transparent;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h5 style="color: var(--text-primary); font-size: 0.9rem;">📈 중기채 (3-7년)</h5>
+                            <span id="bondRec-mid" style="padding: 4px 10px; background: rgba(59,130,246,0.2); color: var(--accent-blue); border-radius: 12px; font-size: 0.75rem; font-weight: 600;">관망</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px;">
+                            <strong>듀레이션:</strong> 5~7년<br>
+                            <strong>금리 1% 변동:</strong> ±5~7%<br>
+                            <strong>상품:</strong> IEF, KOSEF 국고채, BND
+                        </div>
+                        <div style="padding: 8px; background: var(--bg-card); border-radius: 6px; font-size: 0.75rem;">
+                            ✅ 밸런스형 포트폴리오<br>
+                            ✅ 금리 인하 초기 진입<br>
+                            ⚠️ 금리 상승 시 중간 손실
+                        </div>
+                    </div>
+                    
+                    <!-- 장기채 (10년+) -->
+                    <div id="bondGuide-long" class="bond-guide-card" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border: 2px solid transparent;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h5 style="color: var(--text-primary); font-size: 0.9rem;">🚀 장기채 (10년+)</h5>
+                            <span id="bondRec-long" style="padding: 4px 10px; background: rgba(239,68,68,0.2); color: var(--accent-red); border-radius: 12px; font-size: 0.75rem; font-weight: 600;">주의</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px;">
+                            <strong>듀레이션:</strong> 15~20년<br>
+                            <strong>금리 1% 변동:</strong> ±15~20%<br>
+                            <strong>상품:</strong> TLT, EDV, ZROZ
+                        </div>
+                        <div style="padding: 8px; background: var(--bg-card); border-radius: 6px; font-size: 0.75rem;">
+                            ✅ 금리 인하 확신 시 고수익<br>
+                            ✅ 경기침체 헤지<br>
+                            ❌ 인플레 재발 시 큰 손실
+                        </div>
+                    </div>
+                    
+                    <!-- 한국 국고채 -->
+                    <div id="bondGuide-kr" class="bond-guide-card" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border: 2px solid transparent;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h5 style="color: var(--text-primary); font-size: 0.9rem;">🇰🇷 한국 국고채</h5>
+                            <span id="bondRec-kr" style="padding: 4px 10px; background: rgba(16,185,129,0.2); color: var(--accent-green); border-radius: 12px; font-size: 0.75rem; font-weight: 600;">추천</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px;">
+                            <strong>현재 금리:</strong> 3년 2.8%, 10년 2.9%<br>
+                            <strong>세금:</strong> 이자소득세 15.4%<br>
+                            <strong>상품:</strong> KOSEF 국고채, TIGER 국채
+                        </div>
+                        <div style="padding: 8px; background: var(--bg-card); border-radius: 6px; font-size: 0.75rem;">
+                            ✅ 환율 위험 없음<br>
+                            ✅ 고환율 시기 최선<br>
+                            ⚠️ 미국 대비 낮은 금리
+                        </div>
+                    </div>
+                    
+                    <!-- TIPS (물가연동채) -->
+                    <div id="bondGuide-tips" class="bond-guide-card" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border: 2px solid transparent;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h5 style="color: var(--text-primary); font-size: 0.9rem;">🛡️ TIPS (물가연동)</h5>
+                            <span id="bondRec-tips" style="padding: 4px 10px; background: rgba(245,158,11,0.2); color: var(--accent-gold); border-radius: 12px; font-size: 0.75rem; font-weight: 600;">관망</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px;">
+                            <strong>실질금리:</strong> 현재 ~2%<br>
+                            <strong>인플레 보호:</strong> CPI 연동<br>
+                            <strong>상품:</strong> TIP, SCHP, VTIP
+                        </div>
+                        <div style="padding: 8px; background: var(--bg-card); border-radius: 6px; font-size: 0.75rem;">
+                            ✅ 인플레이션 재발 우려 시<br>
+                            ✅ 실질 구매력 보존<br>
+                            ❌ 디플레/저인플레 시 불리
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI 채권 추천 -->
+                <div id="aiBondRecommendation" style="background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1)); border: 1px solid rgba(139,92,246,0.3); border-radius: 12px; padding: 16px;">
+                    <h4 style="color: var(--accent-purple); font-size: 0.9rem; margin-bottom: 12px;">🤖 AI 채권 배분 권고</h4>
+                    <div id="aiBondAllocation" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 12px;">
+                        <div style="text-align: center; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-green);">40%</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">현금/MMF</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-blue);">30%</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">단기채</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-gold);">20%</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">중기채</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-red);">10%</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">장기채</div>
+                        </div>
+                    </div>
+                    <div id="aiBondRationale" style="font-size: 0.8rem; color: var(--text-secondary); padding: 10px; background: var(--bg-card); border-radius: 8px;">
+                        💡 <strong>근거:</strong> 역수익률 곡선 지속 + 환율 1,470원대 고위험 → 국내 단기채/현금 중심. Fed 인하 시그널 확인 후 장기채 비중 확대 검토.
+                    </div>
+                </div>
+            </div>
 
             <!-- 📋 산업별 전망 & 대응 (AI 자동 업데이트) -->
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">📋 산업별 전망 & 대응</h3>
+                    <span class="card-badge badge-info">AI 업데이트</span>
                 </div>
                 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+                <!-- AI 업데이트 상태 -->
+                <div id="sectorUpdateStatus" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    <span>📅 마지막 업데이트: </span>
+                    <span id="sectorLastUpdate">기본값</span>
+                </div>
+                
+                <!-- 산업별 카드 그리드 -->
+                <div id="sectorOutlookGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+                    
                     <!-- AI/반도체 -->
-                    <div id="ai-sector-aiSemi" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
-                        <h4 style="color: var(--accent-gold); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🤖 AI/반도체</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
-                            <strong>현황:</strong> <span class="ai-sector-status">HBM 수요 폭발, 엔비디아 독주, 밸류에이션 고평가</span><br>
-                            <strong>리스크:</strong> <span class="ai-sector-risk">AI 버블, 과잉투자, 중국 규제</span>
-                        </p>
-                        <div class="ai-sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">
-                            <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">신규진입 신중</span>
-                            <span style="background: rgba(59,130,246,0.2); color: var(--accent-blue); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">조정 시 분할매수</span>
+                    <div class="sector-card" data-sector="aiSemi" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid var(--accent-gold);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="color: var(--accent-gold); display: flex; align-items: center; gap: 8px; margin: 0;">🤖 AI/반도체</h4>
+                            <span class="sector-view" style="padding: 4px 10px; background: rgba(245,158,11,0.2); color: var(--accent-gold); border-radius: 12px; font-size: 0.7rem; font-weight: 600;">신중</span>
                         </div>
+                        <p class="sector-status" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 8px;">
+                            <strong>현황:</strong> HBM 수요 폭발, 엔비디아 독주, 밸류에이션 고평가
+                        </p>
+                        <p class="sector-risk" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 12px;">
+                            <strong>리스크:</strong> AI 버블, 과잉투자, 중국 규제
+                        </p>
+                        <div class="sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
                     </div>
 
                     <!-- 금융 -->
-                    <div id="ai-sector-finance" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
-                        <h4 style="color: var(--accent-green); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🏦 금융 (한국)</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
-                            <strong>현황:</strong> <span class="ai-sector-status">PBR 0.5~0.8x 저평가, 주주환원 50% 시대</span><br>
-                            <strong>호재:</strong> <span class="ai-sector-catalyst">배당소득 분리과세, 밸류업</span>
-                        </p>
-                        <div class="ai-sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">
-                            <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">적극 매수</span>
-                            <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">배당 수혜</span>
+                    <div class="sector-card" data-sector="finance" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid var(--accent-green);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="color: var(--accent-green); display: flex; align-items: center; gap: 8px; margin: 0;">🏦 금융 (한국)</h4>
+                            <span class="sector-view" style="padding: 4px 10px; background: rgba(16,185,129,0.2); color: var(--accent-green); border-radius: 12px; font-size: 0.7rem; font-weight: 600;">비중확대</span>
                         </div>
+                        <p class="sector-status" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 8px;">
+                            <strong>현황:</strong> PBR 0.5~0.8x 저평가, 주주환원 50% 시대
+                        </p>
+                        <p class="sector-risk" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 12px;">
+                            <strong>호재:</strong> 배당소득 분리과세, 밸류업
+                        </p>
+                        <div class="sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
                     </div>
 
                     <!-- 자동차 -->
-                    <div id="ai-sector-auto" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
-                        <h4 style="color: var(--accent-blue); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🚗 자동차 (한국)</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
-                            <strong>현황:</strong> <span class="ai-sector-status">현대/기아 글로벌 점유율 확대, EV 전환 중</span><br>
-                            <strong>리스크:</strong> <span class="ai-sector-risk">트럼프 관세, 환율 변동성</span>
-                        </p>
-                        <div class="ai-sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">
-                            <span style="background: rgba(59,130,246,0.2); color: var(--accent-blue); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">매수</span>
-                            <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">환율 모니터링</span>
+                    <div class="sector-card" data-sector="auto" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid var(--accent-blue);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="color: var(--accent-blue); display: flex; align-items: center; gap: 8px; margin: 0;">🚗 자동차</h4>
+                            <span class="sector-view" style="padding: 4px 10px; background: rgba(59,130,246,0.2); color: var(--accent-blue); border-radius: 12px; font-size: 0.7rem; font-weight: 600;">매수</span>
                         </div>
+                        <p class="sector-status" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 8px;">
+                            <strong>현황:</strong> 현대/기아 글로벌 점유율 확대, EV 전환 중
+                        </p>
+                        <p class="sector-risk" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 12px;">
+                            <strong>리스크:</strong> 트럼프 관세, 환율 변동성
+                        </p>
+                        <div class="sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+                    </div>
+
+                    <!-- 2차전지 -->
+                    <div class="sector-card" data-sector="battery" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid #06b6d4;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="color: #06b6d4; display: flex; align-items: center; gap: 8px; margin: 0;">🔋 2차전지</h4>
+                            <span class="sector-view" style="padding: 4px 10px; background: rgba(6,182,212,0.2); color: #06b6d4; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">관망</span>
+                        </div>
+                        <p class="sector-status" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 8px;">
+                            <strong>현황:</strong> EV 수요 둔화, 재고 조정 중, 중국 경쟁 심화
+                        </p>
+                        <p class="sector-risk" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 12px;">
+                            <strong>리스크:</strong> 가격 하락, 기술 변화(전고체)
+                        </p>
+                        <div class="sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
                     </div>
 
                     <!-- 에너지/원자재 -->
-                    <div id="ai-sector-energy" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
-                        <h4 style="color: #f59e0b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">⚡ 에너지/원자재</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
-                            <strong>현황:</strong> <span class="ai-sector-status">유가 변동성, AI 전력수요 급증</span><br>
-                            <strong>주목:</strong> <span class="ai-sector-focus">원전/SMR, 구리, 리튬</span>
-                        </p>
-                        <div class="ai-sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">
-                            <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">원전 관련주 관심</span>
-                            <span style="background: rgba(100,116,139,0.3); color: var(--text-secondary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">정유 중립</span>
+                    <div class="sector-card" data-sector="energy" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid #f59e0b;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="color: #f59e0b; display: flex; align-items: center; gap: 8px; margin: 0;">⚡ 에너지/원자재</h4>
+                            <span class="sector-view" style="padding: 4px 10px; background: rgba(245,158,11,0.2); color: #f59e0b; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">선별매수</span>
                         </div>
+                        <p class="sector-status" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 8px;">
+                            <strong>현황:</strong> AI 전력수요 급증, 원전 르네상스
+                        </p>
+                        <p class="sector-risk" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 12px;">
+                            <strong>주목:</strong> SMR, 구리, 우라늄
+                        </p>
+                        <div class="sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
                     </div>
 
                     <!-- 바이오/헬스케어 -->
-                    <div id="ai-sector-bio" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
-                        <h4 style="color: #ec4899; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">💊 바이오/헬스케어</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
-                            <strong>현황:</strong> <span class="ai-sector-status">GLP-1(비만치료제) 열풍, 고령화 수혜</span><br>
-                            <strong>리스크:</strong> <span class="ai-sector-risk">임상 실패, 규제 변화</span>
-                        </p>
-                        <div class="ai-sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">
-                            <span style="background: rgba(236,72,153,0.2); color: #ec4899; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">XLV ETF 추천</span>
-                            <span style="background: rgba(100,116,139,0.3); color: var(--text-secondary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">개별주 신중</span>
+                    <div class="sector-card" data-sector="healthcare" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid #ec4899;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="color: #ec4899; display: flex; align-items: center; gap: 8px; margin: 0;">💊 바이오/헬스케어</h4>
+                            <span class="sector-view" style="padding: 4px 10px; background: rgba(236,72,153,0.2); color: #ec4899; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">중립</span>
                         </div>
+                        <p class="sector-status" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 8px;">
+                            <strong>현황:</strong> GLP-1 열풍, 고령화 수혜
+                        </p>
+                        <p class="sector-risk" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 12px;">
+                            <strong>리스크:</strong> 임상 실패, 규제 변화, 약가 인하
+                        </p>
+                        <div class="sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
                     </div>
 
                     <!-- 리츠/부동산 -->
-                    <div id="ai-sector-reits" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
-                        <h4 style="color: #8b5cf6; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🏢 리츠/부동산</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
-                            <strong>현황:</strong> <span class="ai-sector-status">금리인하 기대감, 오피스 공실률 우려</span><br>
-                            <strong>주목:</strong> <span class="ai-sector-focus">데이터센터 리츠</span>
-                        </p>
-                        <div class="ai-sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">
-                            <span style="background: rgba(139,92,246,0.2); color: #8b5cf6; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">금리인하 시 확대</span>
-                            <span style="background: rgba(245,158,11,0.2); color: var(--accent-gold); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">VNQ 관심</span>
+                    <div class="sector-card" data-sector="reits" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid #8b5cf6;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="color: #8b5cf6; display: flex; align-items: center; gap: 8px; margin: 0;">🏢 리츠/부동산</h4>
+                            <span class="sector-view" style="padding: 4px 10px; background: rgba(139,92,246,0.2); color: #8b5cf6; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">관망</span>
                         </div>
+                        <p class="sector-status" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 8px;">
+                            <strong>현황:</strong> 금리인하 기대감, 오피스 공실률 우려
+                        </p>
+                        <p class="sector-risk" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 12px;">
+                            <strong>주목:</strong> 데이터센터 리츠, 물류센터
+                        </p>
+                        <div class="sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+                    </div>
+
+                    <!-- 소비재 -->
+                    <div class="sector-card" data-sector="consumer" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid #f472b6;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="color: #f472b6; display: flex; align-items: center; gap: 8px; margin: 0;">🛒 소비재</h4>
+                            <span class="sector-view" style="padding: 4px 10px; background: rgba(244,114,182,0.2); color: #f472b6; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">중립</span>
+                        </div>
+                        <p class="sector-status" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 8px;">
+                            <strong>현황:</strong> 소비 심리 위축, 명품 둔화
+                        </p>
+                        <p class="sector-risk" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 12px;">
+                            <strong>리스크:</strong> 경기침체, 소비자 부채
+                        </p>
+                        <div class="sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+                    </div>
+
+                    <!-- 유틸리티 -->
+                    <div class="sector-card" data-sector="utilities" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid #22c55e;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="color: #22c55e; display: flex; align-items: center; gap: 8px; margin: 0;">💡 유틸리티</h4>
+                            <span class="sector-view" style="padding: 4px 10px; background: rgba(34,197,94,0.2); color: #22c55e; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">매수</span>
+                        </div>
+                        <p class="sector-status" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 8px;">
+                            <strong>현황:</strong> AI 전력 수요, 배당 안정성
+                        </p>
+                        <p class="sector-risk" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 12px;">
+                            <strong>주목:</strong> 한전, NextEra, Duke Energy
+                        </p>
+                        <div class="sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+                    </div>
+
+                    <!-- 방산 -->
+                    <div class="sector-card" data-sector="defense" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid #64748b;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="color: #64748b; display: flex; align-items: center; gap: 8px; margin: 0;">🛡️ 방산</h4>
+                            <span class="sector-view" style="padding: 4px 10px; background: rgba(100,116,139,0.2); color: #64748b; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">비중확대</span>
+                        </div>
+                        <p class="sector-status" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 8px;">
+                            <strong>현황:</strong> 지정학 긴장, K-방산 수출 호조
+                        </p>
+                        <p class="sector-risk" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 12px;">
+                            <strong>주목:</strong> 한화에어로, 현대로템, LIG넥스원
+                        </p>
+                        <div class="sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+                    </div>
+
+                    <!-- 조선/해운 -->
+                    <div class="sector-card" data-sector="shipbuilding" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid #0ea5e9;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="color: #0ea5e9; display: flex; align-items: center; gap: 8px; margin: 0;">🚢 조선/해운</h4>
+                            <span class="sector-view" style="padding: 4px 10px; background: rgba(14,165,233,0.2); color: #0ea5e9; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">매수</span>
+                        </div>
+                        <p class="sector-status" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 8px;">
+                            <strong>현황:</strong> LNG선 슈퍼사이클, 수주 잔고 역대 최대
+                        </p>
+                        <p class="sector-risk" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 12px;">
+                            <strong>주목:</strong> HD한국조선, 삼성중공업
+                        </p>
+                        <div class="sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+                    </div>
+
+                    <!-- 통신 -->
+                    <div class="sector-card" data-sector="telecom" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid #a855f7;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="color: #a855f7; display: flex; align-items: center; gap: 8px; margin: 0;">📡 통신</h4>
+                            <span class="sector-view" style="padding: 4px 10px; background: rgba(168,85,247,0.2); color: #a855f7; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">중립</span>
+                        </div>
+                        <p class="sector-status" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 8px;">
+                            <strong>현황:</strong> 배당 안정, 성장 제한적
+                        </p>
+                        <p class="sector-risk" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 12px;">
+                            <strong>주목:</strong> AI 인프라 투자, 데이터센터 협력
+                        </p>
+                        <div class="sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
                     </div>
                 </div>
             </div>
@@ -4165,50 +4494,55 @@
                     <input type="number" id="ind_ism">
                 </div>
                 
-                <!-- Config 업로드 버튼 영역 -->
-                <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
-                    <label for="configUpload" style="flex: 1; min-width: 180px; cursor: pointer; padding: 14px 24px; background: linear-gradient(135deg, var(--accent-purple), #7c3aed); color: #fff; font-weight: 700; border: none; border-radius: 10px; font-size: 1rem; text-align: center;">
+                <!-- Config 업로드 버튼 영역 (컴팩트) -->
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                    <label for="configUpload" style="cursor: pointer; padding: 8px 16px; background: linear-gradient(135deg, var(--accent-purple), #7c3aed); color: #fff; font-weight: 600; border: none; border-radius: 8px; font-size: 0.8rem; text-align: center;">
                         📤 Config 파일 업로드
                     </label>
                     <input type="file" id="configUpload" accept=".json,application/json" style="display: none;" onchange="handleConfigUpload(event)">
                     
-                    <button onclick="copyPromptToClipboard(this)" style="flex: 0 0 auto; padding: 14px 20px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 10px; cursor: pointer; font-size: 0.9rem;">
+                    <button onclick="copyPromptToClipboard(this)" style="padding: 8px 12px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 0.75rem;">
                         📋 프롬프트 복사
                     </button>
-                    <button onclick="togglePromptView()" style="flex: 0 0 auto; padding: 14px 20px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 10px; cursor: pointer; font-size: 0.9rem;">
+                    <button onclick="togglePromptView()" style="padding: 8px 12px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 0.75rem;">
                         👁️ 보기
                     </button>
-                    <button onclick="resetConfigData()" style="flex: 0 0 auto; padding: 14px 20px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 10px; cursor: pointer; font-size: 0.9rem;">
+                    <button onclick="resetConfigData()" style="padding: 8px 12px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 0.75rem;">
                         🗑️ 초기화
                     </button>
                 </div>
                 
                 <!-- Config 상태 표시 -->
-                <div id="configStatus" style="margin-top: 10px; padding: 10px 14px; background: var(--bg-secondary); border-radius: 8px; font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <div id="configStatus" style="margin-top: 8px; padding: 6px 10px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                     <span>💡</span>
                     <span>JSON 파일을 업로드하거나 아래에 직접 붙여넣으세요</span>
                 </div>
                 
                 <!-- 프롬프트 보기 영역 (기본 숨김) -->
-                <div id="promptViewBox" style="display: none; margin-top: 12px; padding: 16px; background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1)); border: 1px solid var(--accent-purple); border-radius: 10px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <strong style="color: var(--accent-purple);">📋 AI에게 보낼 프롬프트</strong>
-                        <button onclick="togglePromptView()" style="background: none; border: none; cursor: pointer; font-size: 1rem;">✕</button>
+                <div id="promptViewBox" style="display: none; margin-top: 8px; padding: 12px; background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1)); border: 1px solid var(--accent-purple); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <strong style="color: var(--accent-purple); font-size: 0.8rem;">📋 AI에게 보낼 프롬프트</strong>
+                        <button onclick="togglePromptView()" style="background: none; border: none; cursor: pointer; font-size: 0.9rem;">✕</button>
                     </div>
-                    <textarea id="promptTextArea" readonly style="width: 100%; height: 300px; padding: 12px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 8px; font-family: monospace; font-size: 0.7rem; box-sizing: border-box;"></textarea>
-                    <button onclick="copyFromTextArea()" style="margin-top: 10px; width: 100%; padding: 12px; background: var(--accent-purple); color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">📋 전체 복사</button>
+                    <textarea id="promptTextArea" readonly style="width: 100%; height: 200px; padding: 8px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; font-family: monospace; font-size: 0.65rem; box-sizing: border-box;"></textarea>
+                    <button onclick="copyFromTextArea()" style="margin-top: 8px; width: 100%; padding: 8px; background: var(--accent-purple); color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.8rem;">📋 전체 복사</button>
                 </div>
                 
-                <!-- JSON 직접 붙여넣기 영역 -->
-                <div style="margin-top: 12px; padding: 16px; background: var(--bg-secondary); border-radius: 10px; border: 1px solid var(--border-color);">
-                    <strong style="display: block; margin-bottom: 10px;">📝 JSON 직접 붙여넣기</strong>
-                    <textarea id="jsonInputArea" placeholder='AI가 생성한 JSON을 여기에 붙여넣고 "적용" 버튼을 누르세요' style="width: 100%; height: 150px; padding: 12px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 8px; font-family: monospace; font-size: 0.8rem; box-sizing: border-box;"></textarea>
-                    <div style="display: flex; gap: 8px; margin-top: 10px;">
-                        <button onclick="applyJsonInput()" style="flex: 1; padding: 12px; background: #10b981; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">✅ JSON 적용</button>
-                        <button onclick="document.getElementById('jsonInputArea').value=''; document.getElementById('jsonResultMsg').style.display='none';" style="padding: 12px 20px; background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer;">지우기</button>
+                <!-- JSON 직접 붙여넣기 영역 (컴팩트) -->
+                <details style="margin-top: 8px;">
+                    <summary style="padding: 8px 12px; background: var(--bg-secondary); border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        <span>📝 JSON 직접 붙여넣기</span>
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">▼ 펼치기</span>
+                    </summary>
+                    <div style="margin-top: 8px; padding: 12px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color);">
+                        <textarea id="jsonInputArea" placeholder='AI가 생성한 JSON을 여기에 붙여넣고 "적용" 버튼을 누르세요' style="width: 100%; height: 100px; padding: 8px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; font-family: monospace; font-size: 0.7rem; box-sizing: border-box;"></textarea>
+                        <div style="display: flex; gap: 6px; margin-top: 8px;">
+                            <button onclick="applyJsonInput()" style="flex: 1; padding: 8px; background: #10b981; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.8rem;">✅ JSON 적용</button>
+                            <button onclick="document.getElementById('jsonInputArea').value=''; document.getElementById('jsonResultMsg').style.display='none';" style="padding: 8px 14px; background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 0.75rem;">지우기</button>
+                        </div>
+                        <div id="jsonResultMsg" style="display: none; margin-top: 8px; padding: 8px; border-radius: 6px; font-size: 0.75rem;"></div>
                     </div>
-                    <div id="jsonResultMsg" style="display: none; margin-top: 10px; padding: 10px; border-radius: 6px; font-size: 0.85rem;"></div>
-                </div>
+                </details>
                 
                 <!-- ========== v5.0 Config 결과 표시 영역 ========== -->
                 <div id="configResultsArea" style="display: none;">
@@ -5651,8 +5985,9 @@
                     }
                     console.log(`스크리닝 점수 계산 완료 (버전 ${version})`);
                     
-                    // 필터 버튼 업데이트
-                    document.querySelector('[data-filter="sheet"][data-value="ALL"]').textContent = `전체 (${newData.length})`;
+                    // 필터 버튼 업데이트 (null 체크)
+                    var sheetAllBtn = document.querySelector('[data-filter="sheet"][data-value="ALL"]');
+                    if (sheetAllBtn) sheetAllBtn.textContent = `전체 (${newData.length})`;
                     const _tb = document.getElementById('totalBadge'); if(_tb) _tb.textContent = `✅ ${newData.length}개 종목 (v${version})`;
                     
                     renderTable();
@@ -9665,6 +10000,486 @@
 
         console.log('🤖 AI 의견 로더 모듈 로드됨');
 
+        // ========== 채권 투자 가이드 시스템 ==========
+        
+        // 채권 시장 데이터 업데이트
+        function updateBondMarketData() {
+            var us10y = parseFloat(document.getElementById('ind_10y')?.value) || 4.23;
+            var us2y = parseFloat(document.getElementById('ind_2y')?.value) || 4.36;
+            var fx = parseFloat(document.getElementById('ind_usdkrw')?.value) || 1473;
+            var spread = us10y - us2y;
+            
+            // 화면 업데이트
+            var el10y = document.getElementById('bond-us10y');
+            var el2y = document.getElementById('bond-us2y');
+            var elSpread = document.getElementById('bond-spread');
+            var elFx = document.getElementById('bondFxRate');
+            
+            if (el10y) el10y.textContent = us10y.toFixed(2) + '%';
+            if (el2y) el2y.textContent = us2y.toFixed(2) + '%';
+            if (elSpread) {
+                elSpread.textContent = (spread >= 0 ? '+' : '') + spread.toFixed(2) + '%';
+                elSpread.style.color = spread < 0 ? 'var(--accent-red)' : 'var(--accent-green)';
+            }
+            if (elFx) elFx.textContent = fx.toLocaleString();
+            
+            // 채권 추천 로직 실행
+            updateBondRecommendations(us10y, us2y, spread, fx);
+        }
+        
+        // 채권 추천 업데이트
+        function updateBondRecommendations(us10y, us2y, spread, fx) {
+            var recs = {
+                cash: { rec: '중립', color: 'gold', pct: 30 },
+                short: { rec: '추천', color: 'green', pct: 30 },
+                mid: { rec: '관망', color: 'blue', pct: 20 },
+                long: { rec: '주의', color: 'red', pct: 10 },
+                kr: { rec: '추천', color: 'green', pct: 10 },
+                tips: { rec: '관망', color: 'gold', pct: 0 }
+            };
+            
+            var rationale = '';
+            
+            // 1. 수익률 곡선 분석
+            if (spread < 0) {
+                // 역전 → 단기채 유리
+                recs.short.rec = '강력추천';
+                recs.short.pct = 40;
+                recs.long.rec = '주의';
+                recs.long.pct = 5;
+                rationale += '역수익률 곡선(' + spread.toFixed(2) + '%) → 단기채 우위. ';
+            } else if (spread > 0.5) {
+                // 정상 → 장기채 검토
+                recs.long.rec = '관망';
+                recs.long.pct = 20;
+                recs.mid.pct = 25;
+                rationale += '정상 수익률 곡선 → 장기채 진입 검토 가능. ';
+            }
+            
+            // 2. 금리 수준 분석
+            if (us10y > 4.5) {
+                recs.long.rec = '분할매수';
+                recs.long.color = 'gold';
+                rationale += '10Y ' + us10y.toFixed(2) + '% 고금리 → 장기채 분할매수 매력. ';
+            } else if (us10y < 3.5) {
+                recs.long.rec = '비중축소';
+                recs.long.color = 'red';
+                rationale += '10Y ' + us10y.toFixed(2) + '% 저금리 → 금리 상승 리스크 경계. ';
+            }
+            
+            // 3. 환율 분석
+            if (fx >= 1400) {
+                recs.kr.rec = '강력추천';
+                recs.kr.color = 'green';
+                recs.kr.pct = 25;
+                recs.short.pct -= 10;
+                rationale += '환율 ' + fx.toLocaleString() + '원 고위험 → 국내채권 선호. ';
+                
+                // 환율 표시 하이라이트
+                var fxHigh = document.getElementById('bondDecision-fxHigh');
+                var fxNormal = document.getElementById('bondDecision-fxNormal');
+                if (fxHigh) fxHigh.style.border = '2px solid var(--accent-red)';
+                if (fxNormal) fxNormal.style.border = 'none';
+            } else {
+                recs.kr.rec = '중립';
+                recs.kr.color = 'gold';
+                recs.kr.pct = 10;
+                
+                var fxHigh = document.getElementById('bondDecision-fxHigh');
+                var fxNormal = document.getElementById('bondDecision-fxNormal');
+                if (fxHigh) fxHigh.style.border = 'none';
+                if (fxNormal) fxNormal.style.border = '2px solid var(--accent-green)';
+            }
+            
+            // 4. 현금 비중 조정 (불확실성 반영)
+            var uncertainty = Math.abs(spread) < 0.3 && us10y > 4 && us10y < 5;
+            if (uncertainty) {
+                recs.cash.pct = 40;
+                recs.cash.rec = '추천';
+                recs.cash.color = 'green';
+                rationale += '금리 방향 불확실 → 현금 비중 확대 권고. ';
+            }
+            
+            // 화면 업데이트 - 추천 배지
+            var colorMap = {
+                green: { bg: 'rgba(16,185,129,0.2)', text: 'var(--accent-green)' },
+                gold: { bg: 'rgba(245,158,11,0.2)', text: 'var(--accent-gold)' },
+                blue: { bg: 'rgba(59,130,246,0.2)', text: 'var(--accent-blue)' },
+                red: { bg: 'rgba(239,68,68,0.2)', text: 'var(--accent-red)' }
+            };
+            
+            for (var key in recs) {
+                var badge = document.getElementById('bondRec-' + key);
+                var card = document.getElementById('bondGuide-' + key);
+                if (badge) {
+                    badge.textContent = recs[key].rec;
+                    badge.style.background = colorMap[recs[key].color].bg;
+                    badge.style.color = colorMap[recs[key].color].text;
+                }
+                if (card) {
+                    card.style.borderColor = recs[key].rec.includes('추천') ? colorMap[recs[key].color].text : 'transparent';
+                }
+            }
+            
+            // 배분 비중 업데이트
+            var allocationHtml = '';
+            var allocations = [
+                { pct: recs.cash.pct, label: '현금/MMF', color: 'green' },
+                { pct: recs.short.pct + recs.kr.pct, label: '단기채', color: 'blue' },
+                { pct: recs.mid.pct, label: '중기채', color: 'gold' },
+                { pct: recs.long.pct, label: '장기채', color: 'red' }
+            ];
+            
+            allocations.forEach(function(a) {
+                allocationHtml += '<div style="text-align: center; padding: 12px; background: var(--bg-card); border-radius: 8px;">' +
+                    '<div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-' + a.color + ');">' + a.pct + '%</div>' +
+                    '<div style="font-size: 0.75rem; color: var(--text-muted);">' + a.label + '</div>' +
+                    '</div>';
+            });
+            
+            var allocEl = document.getElementById('aiBondAllocation');
+            if (allocEl) allocEl.innerHTML = allocationHtml;
+            
+            // 판단 근거 업데이트
+            var rationaleEl = document.getElementById('aiBondRationale');
+            if (rationaleEl && rationale) {
+                rationaleEl.innerHTML = '💡 <strong>근거:</strong> ' + rationale;
+            }
+            
+            // 시장 판단 업데이트
+            var judgmentEl = document.getElementById('bondMarketJudgment');
+            if (judgmentEl) {
+                var judgment = spread < 0 ? '역수익률 곡선 지속 → 단기채 우위' : '정상 수익률 곡선 → 듀레이션 확대 검토';
+                judgment += fx >= 1400 ? '. 고환율 구간 → 국내채권 선호.' : '. 환율 안정 → 해외채권 투자 가능.';
+                judgmentEl.innerHTML = '💡 <strong>판단:</strong> ' + judgment;
+            }
+        }
+        
+        // 채권 경로 하이라이트 (의사결정 플로우)
+        function highlightBondPath(direction) {
+            var downBtn = document.getElementById('bondDecision-rateDown');
+            var upBtn = document.getElementById('bondDecision-rateUp');
+            var uncertainBtn = document.getElementById('bondDecision-rateUncertain');
+            
+            // 초기화
+            if (downBtn) downBtn.style.border = 'none';
+            if (upBtn) upBtn.style.border = 'none';
+            if (uncertainBtn) uncertainBtn.style.border = 'none';
+            
+            if (direction === 'down') {
+                if (downBtn) downBtn.style.border = '2px solid var(--accent-green)';
+                // 장기채 추천으로 변경
+                var longBadge = document.getElementById('bondRec-long');
+                if (longBadge) {
+                    longBadge.textContent = '추천';
+                    longBadge.style.background = 'rgba(16,185,129,0.2)';
+                    longBadge.style.color = 'var(--accent-green)';
+                }
+            } else if (direction === 'up') {
+                if (upBtn) upBtn.style.border = '2px solid var(--accent-red)';
+                // 현금/단기채 추천
+                var cashBadge = document.getElementById('bondRec-cash');
+                if (cashBadge) {
+                    cashBadge.textContent = '강력추천';
+                    cashBadge.style.background = 'rgba(16,185,129,0.2)';
+                    cashBadge.style.color = 'var(--accent-green)';
+                }
+            } else {
+                if (uncertainBtn) uncertainBtn.style.border = '2px solid var(--accent-gold)';
+            }
+        }
+        
+        // 시장 지표 변경 시 채권 가이드 업데이트
+        document.addEventListener('DOMContentLoaded', function() {
+            // 초기 로드
+            setTimeout(updateBondMarketData, 1000);
+            
+            // 지표 입력 시 업데이트
+            ['ind_10y', 'ind_2y', 'ind_usdkrw'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', updateBondMarketData);
+                    el.addEventListener('change', updateBondMarketData);
+                }
+            });
+        });
+        
+        console.log('📜 채권 투자 가이드 모듈 로드됨');
+
+        // ========== 산업별 전망 렌더링 시스템 ==========
+        
+        // 산업 메타 정보
+        var sectorMeta = {
+            aiSemi: { icon: '🤖', name: 'AI/반도체', color: '#f59e0b' },
+            finance: { icon: '🏦', name: '금융', color: '#10b981' },
+            auto: { icon: '🚗', name: '자동차', color: '#3b82f6' },
+            battery: { icon: '🔋', name: '2차전지', color: '#06b6d4' },
+            energy: { icon: '⚡', name: '에너지/원자재', color: '#f59e0b' },
+            healthcare: { icon: '💊', name: '바이오/헬스케어', color: '#ec4899' },
+            reits: { icon: '🏢', name: '리츠/부동산', color: '#8b5cf6' },
+            consumer: { icon: '🛒', name: '소비재', color: '#f472b6' },
+            utilities: { icon: '💡', name: '유틸리티', color: '#22c55e' },
+            defense: { icon: '🛡️', name: '방산', color: '#64748b' },
+            shipbuilding: { icon: '🚢', name: '조선/해운', color: '#0ea5e9' },
+            telecom: { icon: '📡', name: '통신', color: '#a855f7' }
+        };
+        
+        // 뷰 색상 매핑
+        var viewColors = {
+            '강력매수': { bg: 'rgba(16,185,129,0.3)', text: '#10b981' },
+            '비중확대': { bg: 'rgba(16,185,129,0.2)', text: '#10b981' },
+            '매수': { bg: 'rgba(59,130,246,0.2)', text: '#3b82f6' },
+            '선별매수': { bg: 'rgba(59,130,246,0.15)', text: '#3b82f6' },
+            '중립': { bg: 'rgba(100,116,139,0.2)', text: '#64748b' },
+            '관망': { bg: 'rgba(245,158,11,0.2)', text: '#f59e0b' },
+            '신중': { bg: 'rgba(245,158,11,0.25)', text: '#f59e0b' },
+            '비중축소': { bg: 'rgba(239,68,68,0.2)', text: '#ef4444' },
+            '매도': { bg: 'rgba(239,68,68,0.3)', text: '#ef4444' }
+        };
+        
+        // 산업별 전망 렌더링
+        function renderSectorOutlook(config) {
+            if (!config || !config.sectorOutlook) {
+                console.log('ℹ️ sectorOutlook 데이터 없음');
+                return;
+            }
+            
+            var so = config.sectorOutlook;
+            
+            // 마지막 업데이트 표시
+            var updateEl = document.getElementById('sectorLastUpdate');
+            if (updateEl) {
+                updateEl.textContent = config.dataAsOf || config._meta?.lastUpdated || new Date().toLocaleDateString('ko-KR');
+            }
+            
+            // 각 산업 카드 업데이트
+            for (var sectorKey in so) {
+                var sector = so[sectorKey];
+                var card = document.querySelector('.sector-card[data-sector="' + sectorKey + '"]');
+                
+                if (!card) {
+                    // 새 산업이면 카드 생성
+                    card = createSectorCard(sectorKey, sector);
+                    if (card) {
+                        var grid = document.getElementById('sectorOutlookGrid');
+                        if (grid) grid.appendChild(card);
+                    }
+                    continue;
+                }
+                
+                // 기존 카드 업데이트
+                updateSectorCard(card, sectorKey, sector);
+            }
+            
+            console.log('✅ 산업별 전망 업데이트 완료:', Object.keys(so).length + '개 산업');
+        }
+        
+        // 섹터 카드 생성
+        function createSectorCard(sectorKey, sector) {
+            var meta = sectorMeta[sectorKey] || { icon: '📊', name: sectorKey, color: '#64748b' };
+            var viewStyle = viewColors[sector.view] || viewColors['중립'];
+            
+            var card = document.createElement('div');
+            card.className = 'sector-card';
+            card.setAttribute('data-sector', sectorKey);
+            card.style.cssText = 'background: var(--bg-secondary); border-radius: 12px; padding: 16px; border-left: 4px solid ' + meta.color + ';';
+            
+            var tagsHtml = '';
+            if (sector.tags && sector.tags.length > 0) {
+                sector.tags.forEach(function(tag) {
+                    var tagColor = tag.color || 'gray';
+                    var colorMap = {
+                        green: { bg: 'rgba(16,185,129,0.2)', text: '#10b981' },
+                        blue: { bg: 'rgba(59,130,246,0.2)', text: '#3b82f6' },
+                        gold: { bg: 'rgba(245,158,11,0.2)', text: '#f59e0b' },
+                        red: { bg: 'rgba(239,68,68,0.2)', text: '#ef4444' },
+                        gray: { bg: 'rgba(100,116,139,0.2)', text: '#64748b' }
+                    };
+                    var c = colorMap[tagColor] || colorMap.gray;
+                    tagsHtml += '<span style="background: ' + c.bg + '; color: ' + c.text + '; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem;">' + tag.text + '</span>';
+                });
+            }
+            
+            card.innerHTML = 
+                '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">' +
+                    '<h4 style="color: ' + meta.color + '; display: flex; align-items: center; gap: 8px; margin: 0;">' + meta.icon + ' ' + (sector.name || meta.name) + '</h4>' +
+                    '<span class="sector-view" style="padding: 4px 10px; background: ' + viewStyle.bg + '; color: ' + viewStyle.text + '; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">' + (sector.view || '중립') + '</span>' +
+                '</div>' +
+                '<p class="sector-status" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 8px;">' +
+                    '<strong>현황:</strong> ' + (sector.status || '-') +
+                '</p>' +
+                '<p class="sector-risk" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 12px;">' +
+                    '<strong>' + (sector.riskLabel || '리스크') + ':</strong> ' + (sector.risk || '-') +
+                '</p>' +
+                '<div class="sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">' + tagsHtml + '</div>';
+            
+            return card;
+        }
+        
+        // 섹터 카드 업데이트
+        function updateSectorCard(card, sectorKey, sector) {
+            var meta = sectorMeta[sectorKey] || { icon: '📊', name: sectorKey, color: '#64748b' };
+            var viewStyle = viewColors[sector.view] || viewColors['중립'];
+            
+            // 뷰 업데이트
+            var viewEl = card.querySelector('.sector-view');
+            if (viewEl) {
+                viewEl.textContent = sector.view || '중립';
+                viewEl.style.background = viewStyle.bg;
+                viewEl.style.color = viewStyle.text;
+            }
+            
+            // 현황 업데이트
+            var statusEl = card.querySelector('.sector-status');
+            if (statusEl && sector.status) {
+                statusEl.innerHTML = '<strong>현황:</strong> ' + sector.status;
+            }
+            
+            // 리스크 업데이트
+            var riskEl = card.querySelector('.sector-risk');
+            if (riskEl && sector.risk) {
+                var label = sector.riskLabel || '리스크';
+                riskEl.innerHTML = '<strong>' + label + ':</strong> ' + sector.risk;
+            }
+            
+            // 태그 업데이트
+            var tagsEl = card.querySelector('.sector-tags');
+            if (tagsEl && sector.tags) {
+                var tagsHtml = '';
+                sector.tags.forEach(function(tag) {
+                    var tagColor = tag.color || 'gray';
+                    var colorMap = {
+                        green: { bg: 'rgba(16,185,129,0.2)', text: '#10b981' },
+                        blue: { bg: 'rgba(59,130,246,0.2)', text: '#3b82f6' },
+                        gold: { bg: 'rgba(245,158,11,0.2)', text: '#f59e0b' },
+                        red: { bg: 'rgba(239,68,68,0.2)', text: '#ef4444' },
+                        gray: { bg: 'rgba(100,116,139,0.2)', text: '#64748b' }
+                    };
+                    var c = colorMap[tagColor] || colorMap.gray;
+                    tagsHtml += '<span style="background: ' + c.bg + '; color: ' + c.text + '; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem;">' + tag.text + '</span>';
+                });
+                tagsEl.innerHTML = tagsHtml;
+            }
+            
+            // 테두리 색상 (비중확대/매수 시 강조)
+            if (sector.view === '비중확대' || sector.view === '강력매수') {
+                card.style.borderLeftWidth = '6px';
+            } else {
+                card.style.borderLeftWidth = '4px';
+            }
+        }
+        
+        console.log('📋 산업별 전망 모듈 로드됨');
+
+        // ========== 분할매수 타임라인 렌더링 시스템 ==========
+        
+        // 월 이름
+        var monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+        
+        // 타임라인 색상
+        var timelineColors = ['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899', '#64748b'];
+        
+        // 타임라인 렌더링
+        function renderInvestmentTimeline(config) {
+            if (!config || !config.investmentTimeline) {
+                console.log('ℹ️ investmentTimeline 데이터 없음');
+                return;
+            }
+            
+            var tl = config.investmentTimeline;
+            var container = document.getElementById('investmentTimeline');
+            if (!container) return;
+            
+            // 시작/종료 월 업데이트
+            var startEl = document.getElementById('timelineStartMonth');
+            var endEl = document.getElementById('timelineEndMonth');
+            var totalEl = document.getElementById('timelineTotalAmount');
+            
+            if (startEl && tl.startMonth) startEl.textContent = tl.startMonth;
+            if (endEl && tl.endMonth) endEl.textContent = tl.endMonth;
+            if (totalEl && tl.totalAmount) totalEl.textContent = tl.totalAmount;
+            
+            // 월별 데이터가 있으면 렌더링
+            if (tl.months && tl.months.length > 0) {
+                var html = '<div class="timeline-line"></div>';
+                
+                tl.months.forEach(function(month, idx) {
+                    var color = month.color || timelineColors[idx % timelineColors.length];
+                    var chipsHtml = '';
+                    
+                    if (month.breakdown && month.breakdown.length > 0) {
+                        month.breakdown.forEach(function(item) {
+                            chipsHtml += '<span class="breakdown-chip">' + item + '</span>';
+                        });
+                    }
+                    
+                    html += '<div class="timeline-item" data-month="' + (idx + 1) + '">' +
+                        '<div class="timeline-dot" style="background: ' + color + ';"></div>' +
+                        '<div class="timeline-header">' +
+                            '<span class="timeline-month">🗓️ ' + month.month + '</span>' +
+                            '<span class="timeline-amount" style="color: ' + color + ';">' + month.amount + '</span>' +
+                        '</div>' +
+                        '<p class="timeline-strategy" style="color: var(--text-secondary); margin-bottom: 8px;">' +
+                            '<strong>전략:</strong> ' + month.strategy +
+                        '</p>' +
+                        '<div class="timeline-breakdown">' + chipsHtml + '</div>' +
+                    '</div>';
+                });
+                
+                container.innerHTML = html;
+            }
+            
+            // AI 전략 요약
+            var summaryEl = document.getElementById('timelineAISummary');
+            var rationaleEl = document.getElementById('timelineRationale');
+            if (summaryEl && rationaleEl && tl.rationale) {
+                rationaleEl.textContent = tl.rationale;
+                summaryEl.style.display = 'block';
+            }
+            
+            // 현재 월 하이라이트
+            highlightCurrentTimelineMonth();
+            
+            console.log('✅ 투자 타임라인 업데이트 완료:', tl.months ? tl.months.length + '개월' : '기본값');
+        }
+        
+        // 현재 월 하이라이트
+        function highlightCurrentTimelineMonth() {
+            var now = new Date();
+            var currentMonth = now.getMonth() + 1; // 1-12
+            
+            var items = document.querySelectorAll('#investmentTimeline .timeline-item');
+            items.forEach(function(item) {
+                var monthText = item.querySelector('.timeline-month');
+                if (!monthText) return;
+                
+                var text = monthText.textContent;
+                var monthMatch = text.match(/(\d+)월/);
+                if (monthMatch) {
+                    var itemMonth = parseInt(monthMatch[1]);
+                    if (itemMonth === currentMonth) {
+                        item.style.background = 'rgba(245,158,11,0.1)';
+                        item.style.borderRadius = '10px';
+                        item.style.padding = '12px';
+                        item.style.marginLeft = '-12px';
+                        item.style.marginRight = '-12px';
+                        
+                        // 현재 월 배지 추가
+                        var header = item.querySelector('.timeline-header');
+                        if (header && !header.querySelector('.current-month-badge')) {
+                            var badge = document.createElement('span');
+                            badge.className = 'current-month-badge';
+                            badge.style.cssText = 'font-size: 0.65rem; background: var(--accent-gold); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;';
+                            badge.textContent = '현재';
+                            header.appendChild(badge);
+                        }
+                    }
+                }
+            });
+        }
+        
+        console.log('⏰ 분할매수 타임라인 모듈 로드됨');
+
 
         // ========== Config 업로드 시스템 (전역 함수) ==========
         
@@ -9751,18 +10566,18 @@
             
             // scenarioAssessment (12개 - AI가 확률/이유 수정)
             p += '  "scenarioAssessment": {\n';
-            p += '    "krRateCut": { "probability": "[조사]", "status": "[선택]", "statusLabel": "[라벨]", "reason": "[분석]" },\n';
-            p += '    "krRateHold": { "probability": "[조사]", "status": "[선택]", "statusLabel": "[라벨]", "reason": "[분석]" },\n';
-            p += '    "fedPivot": { "probability": "[조사]", "status": "[선택]", "statusLabel": "[라벨]", "reason": "[분석]" },\n';
-            p += '    "stagflation": { "probability": "[조사]", "status": "[선택]", "statusLabel": "[라벨]", "reason": "[분석]" },\n';
-            p += '    "fxCrisis": { "probability": "[조사]", "status": "[선택]", "statusLabel": "[라벨]", "reason": "[분석]" },\n';
-            p += '    "fxNormal": { "probability": "[조사]", "status": "[선택]", "statusLabel": "[라벨]", "reason": "[분석]" },\n';
-            p += '    "recession": { "probability": "[조사]", "status": "[선택]", "statusLabel": "[라벨]", "reason": "[분석]" },\n';
-            p += '    "boom": { "probability": "[조사]", "status": "[선택]", "statusLabel": "[라벨]", "reason": "[분석]" },\n';
-            p += '    "stagflationWorst": { "probability": "[조사]", "status": "[선택]", "statusLabel": "[라벨]", "reason": "[분석]" },\n';
-            p += '    "geopolitical": { "probability": "[조사]", "status": "[선택]", "statusLabel": "[라벨]", "reason": "[분석]" },\n';
-            p += '    "tariffWar": { "probability": "[조사]", "status": "[선택]", "statusLabel": "[라벨]", "reason": "[분석]" },\n';
-            p += '    "aiBubble": { "probability": "[조사]", "status": "[선택]", "statusLabel": "[라벨]", "reason": "[분석]" }\n';
+            p += '    "krRateCut": { "probability": 35, "status": "POSSIBLE", "statusLabel": "가능", "reason": "[한국 금리인하 분석]" },\n';
+            p += '    "krRateHold": { "probability": 50, "status": "LIKELY", "statusLabel": "유력", "reason": "[금리동결 분석]" },\n';
+            p += '    "fedPivot": { "probability": 40, "status": "POSSIBLE", "statusLabel": "가능", "reason": "[Fed 피벗 분석]" },\n';
+            p += '    "stagflation": { "probability": 20, "status": "UNLIKELY", "statusLabel": "낮음", "reason": "[스태그플레이션 분석]" },\n';
+            p += '    "fxCrisis": { "probability": 25, "status": "POSSIBLE", "statusLabel": "가능", "reason": "[환율위기 분석]" },\n';
+            p += '    "fxNormal": { "probability": 30, "status": "POSSIBLE", "statusLabel": "가능", "reason": "[환율안정 분석]" },\n';
+            p += '    "recession": { "probability": 25, "status": "POSSIBLE", "statusLabel": "가능", "reason": "[경기침체 분석]" },\n';
+            p += '    "boom": { "probability": 20, "status": "UNLIKELY", "statusLabel": "낮음", "reason": "[호황 분석]" },\n';
+            p += '    "stagflationWorst": { "probability": 10, "status": "UNLIKELY", "statusLabel": "낮음", "reason": "[극단 스태그 분석]" },\n';
+            p += '    "geopolitical": { "probability": 30, "status": "POSSIBLE", "statusLabel": "가능", "reason": "[지정학 분석]" },\n';
+            p += '    "tariffWar": { "probability": 45, "status": "POSSIBLE", "statusLabel": "가능", "reason": "[관세전쟁 분석]" },\n';
+            p += '    "aiBubble": { "probability": 35, "status": "POSSIBLE", "statusLabel": "가능", "reason": "[AI버블 분석]" }\n';
             p += '  },\n\n';
             
             // targetPrices
@@ -9773,11 +10588,11 @@
             
             // assetRecommendations
             p += '  "assetRecommendations": {\n';
-            p += '    "koreanFinancials": { "view": "[OVERWEIGHT/NEUTRAL/UNDERWEIGHT]", "viewLabel": "[라벨]", "expectedReturn": "[수익률]", "rationale": "[이유]" },\n';
-            p += '    "gold": { "view": "[선택]", "viewLabel": "[라벨]", "expectedReturn": "[수익률]", "rationale": "[이유]" },\n';
-            p += '    "usDividendETF": { "view": "[선택]", "viewLabel": "[라벨]", "expectedReturn": "[수익률]", "rationale": "[이유]" },\n';
-            p += '    "bonds": { "view": "[선택]", "viewLabel": "[라벨]", "rationale": "[이유]" },\n';
-            p += '    "usEquity": { "view": "[선택]", "viewLabel": "[라벨]", "expectedReturn": "[수익률]", "rationale": "[이유]" }\n';
+            p += '    "koreanFinancials": { "view": "OVERWEIGHT", "viewLabel": "비중확대", "expectedReturn": "+12~18%", "rationale": "[이유]" },\n';
+            p += '    "gold": { "view": "NEUTRAL", "viewLabel": "중립", "expectedReturn": "+10~15%", "rationale": "[이유]" },\n';
+            p += '    "usDividendETF": { "view": "UNDERWEIGHT", "viewLabel": "비중축소", "expectedReturn": "+5~10%", "rationale": "[이유]" },\n';
+            p += '    "bonds": { "view": "NEUTRAL", "viewLabel": "중립", "rationale": "[이유]" },\n';
+            p += '    "usEquity": { "view": "UNDERWEIGHT", "viewLabel": "비중축소", "expectedReturn": "+5~8%", "rationale": "[이유]" }\n';
             p += '  },\n\n';
             
             // recommendations
@@ -9790,7 +10605,7 @@
             // ========== 작은 AI 필드들 (선택적) ==========
             p += '  "alerts": [\n';
             p += '    {\n';
-            p += '      "severity": "warning | danger | info",\n';
+            p += '      "severity": "warning",\n';
             p += '      "title": "[알림 제목]",\n';
             p += '      "message": "[알림 내용]",\n';
             p += '      "affectedSectors": ["금융", "기술"],\n';
@@ -9813,6 +10628,67 @@
             p += '    "reason": "[지역 배분 조정 사유]"\n';
             p += '  },\n\n';
             
+            // 현재 월 기준 6개월 계산
+            var now = new Date();
+            var currentMonth = now.getMonth(); // 0-11
+            var monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+            var m1 = monthNames[currentMonth];
+            var m2 = monthNames[(currentMonth + 1) % 12];
+            var m3 = monthNames[(currentMonth + 2) % 12];
+            var m4 = monthNames[(currentMonth + 3) % 12];
+            var m5 = monthNames[(currentMonth + 4) % 12];
+            var m6 = monthNames[(currentMonth + 5) % 12];
+            
+            p += '  "investmentTimeline": {\n';
+            p += '    "startMonth": "' + m1 + '",\n';
+            p += '    "endMonth": "' + m6 + '",\n';
+            p += '    "totalAmount": "200M",\n';
+            p += '    "rationale": "[6개월 분할매수 전략의 핵심 논리 1-2문장]",\n';
+            p += '    "months": [\n';
+            p += '      {\n';
+            p += '        "month": "' + m1 + '",\n';
+            p += '        "amount": "40M",\n';
+            p += '        "strategy": "안전자산 우선, 시장 관망",\n';
+            p += '        "breakdown": ["📜 채권 15M", "🥇 금 15M", "💵 현금 10M"],\n';
+            p += '        "color": "#f59e0b"\n';
+            p += '      },\n';
+            p += '      { "month": "' + m2 + '", "amount": "35M", "strategy": "[전략]", "breakdown": ["🇰🇷 한국금융 20M", "🇪🇺 유럽 15M"], "color": "#3b82f6" },\n';
+            p += '      { "month": "' + m3 + '", "amount": "35M", "strategy": "[전략]", "breakdown": ["🌏 신흥국 15M", "🇺🇸 미국배당 15M", "📜 채권 5M"], "color": "#10b981" },\n';
+            p += '      { "month": "' + m4 + '", "amount": "35M", "strategy": "[전략]", "breakdown": ["🇺🇸 미국성장 20M", "🇰🇷 한국IT 15M"], "color": "#8b5cf6" },\n';
+            p += '      { "month": "' + m5 + '", "amount": "30M", "strategy": "[전략]", "breakdown": ["🇺🇸 미국 15M", "🇰🇷 한국 10M", "📜 채권 5M"], "color": "#ec4899" },\n';
+            p += '      { "month": "' + m6 + '", "amount": "25M", "strategy": "리밸런싱 + 기회 매수", "breakdown": ["🔄 리밸런싱", "💵 현금 유지"], "color": "#64748b" }\n';
+            p += '    ]\n';
+            p += '  },\n\n';
+            
+            p += '  "sectorOutlook": {\n';
+            p += '    "aiSemi": {\n';
+            p += '      "name": "AI/반도체",\n';
+            p += '      "view": "신중",\n';
+            p += '      "status": "[현황 1-2문장]",\n';
+            p += '      "risk": "[리스크/주목점]",\n';
+            p += '      "riskLabel": "리스크",\n';
+            p += '      "tags": [{"text": "조정 시 분할매수", "color": "blue"}, {"text": "고평가 주의", "color": "gold"}]\n';
+            p += '    },\n';
+            p += '    "finance": {\n';
+            p += '      "name": "금융",\n';
+            p += '      "view": "비중확대",\n';
+            p += '      "status": "[현황]",\n';
+            p += '      "risk": "[호재/리스크]",\n';
+            p += '      "riskLabel": "호재",\n';
+            p += '      "tags": [{"text": "적극 매수", "color": "green"}]\n';
+            p += '    },\n';
+            p += '    "auto": { "name": "자동차", "view": "매수", "status": "[현황]", "risk": "[리스크]", "riskLabel": "리스크", "tags": [] },\n';
+            p += '    "battery": { "name": "2차전지", "view": "관망", "status": "[현황]", "risk": "[리스크]", "riskLabel": "리스크", "tags": [] },\n';
+            p += '    "energy": { "name": "에너지/원자재", "view": "선별매수", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [] },\n';
+            p += '    "healthcare": { "name": "바이오/헬스케어", "view": "중립", "status": "[현황]", "risk": "[리스크]", "riskLabel": "리스크", "tags": [] },\n';
+            p += '    "reits": { "name": "리츠/부동산", "view": "관망", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [] },\n';
+            p += '    "consumer": { "name": "소비재", "view": "중립", "status": "[현황]", "risk": "[리스크]", "riskLabel": "리스크", "tags": [] },\n';
+            p += '    "utilities": { "name": "유틸리티", "view": "매수", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [] },\n';
+            p += '    "defense": { "name": "방산", "view": "비중확대", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [] },\n';
+            p += '    "shipbuilding": { "name": "조선/해운", "view": "매수", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [] },\n';
+            p += '    "telecom": { "name": "통신", "view": "중립", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [] }\n';
+            p += '  },\n\n';
+            
             p += '  "_meta": {\n';
             p += '    "lastUpdated": "' + isoDate + '",\n';
             p += '    "updatedBy": "AI",\n';
@@ -9822,22 +10698,65 @@
             
             // 참고 가이드
             p += '## 📊 상태 코드 참고\n';
-            p += '| status | 확률 | 의미 |\n';
-            p += '|--------|-----|------|\n';
-            p += '| ACTIVE | 70%+ | 현재 진행 중 |\n';
-            p += '| LIKELY | 50-69% | 가능성 높음 |\n';
-            p += '| POSSIBLE | 20-49% | 가능성 있음 |\n';
-            p += '| UNLIKELY | <20% | 가능성 낮음 |\n\n';
-            p += '| 종합판단 | 투자속도 |\n';
-            p += '|---------|----------|\n';
-            p += '| DANGER | STOP |\n';
-            p += '| CAUTION | SLOW |\n';
-            p += '| NORMAL | NORMAL |\n';
-            p += '| FAVORABLE | FAST |\n\n';
+            p += '### scenarioAssessment status/statusLabel\n';
+            p += '| status | probability | statusLabel | 의미 |\n';
+            p += '|--------|-------------|-------------|------|\n';
+            p += '| ACTIVE | 70%+ | 진행중 | 현재 발생 중 |\n';
+            p += '| LIKELY | 50-69% | 유력 | 가능성 높음 |\n';
+            p += '| POSSIBLE | 20-49% | 가능 | 가능성 있음 |\n';
+            p += '| UNLIKELY | <20% | 낮음 | 가능성 낮음 |\n\n';
+            p += '### 시나리오 키 설명\n';
+            p += '| 키 | 시나리오 | 설명 |\n';
+            p += '|----|---------|------|\n';
+            p += '| krRateCut | 한국 금리인하 | 한은 기준금리 인하 |\n';
+            p += '| krRateHold | 한국 금리동결 | 한은 동결 지속 |\n';
+            p += '| fedPivot | Fed 피벗 | Fed 정책 전환/연착륙 |\n';
+            p += '| stagflation | 스태그플레이션 | 인플레+저성장 |\n';
+            p += '| fxCrisis | 환율위기 | 원화 급락 (1,500+) |\n';
+            p += '| fxNormal | 환율안정 | 환율 정상화 (1,300대) |\n';
+            p += '| recession | 경기침체 | 미국/글로벌 침체 |\n';
+            p += '| boom | 호황 | 예상 외 강한 성장 |\n';
+            p += '| stagflationWorst | 극단적 스태그 | 1970년대형 위기 |\n';
+            p += '| geopolitical | 지정학 리스크 | 전쟁/분쟁 격화 |\n';
+            p += '| tariffWar | 관세전쟁 | 트럼프 관세 확대 |\n';
+            p += '| aiBubble | AI 버블 | AI 과열 조정 |\n\n';
+            p += '### overallJudgment\n';
+            p += '| status | investmentPace | 의미 |\n';
+            p += '|--------|----------------|------|\n';
+            p += '| DANGER | STOP | 투자 중단 |\n';
+            p += '| CAUTION | SLOW | 신중하게 |\n';
+            p += '| NORMAL | NORMAL | 정상 진행 |\n';
+            p += '| FAVORABLE | FAST | 적극 매수 |\n\n';
+            p += '### assetRecommendations view\n';
+            p += '| view | viewLabel | 의미 |\n';
+            p += '|------|-----------|------|\n';
+            p += '| OVERWEIGHT | 비중확대 | 적극 매수 |\n';
+            p += '| NEUTRAL | 중립 | 현 비중 유지 |\n';
+            p += '| UNDERWEIGHT | 비중축소 | 매수 자제 |\n\n';
+            p += '### alerts severity\n';
+            p += 'warning(주의), danger(위험), info(정보)\n\n';
             p += '## 📋 선택적 필드 설명\n';
             p += '- **alerts**: 중요 알림 (위험 경고, 이벤트 등)\n';
             p += '- **marketContext**: 시장 상황 요약 및 주요 이벤트\n';
             p += '- **regionAdjustments**: 지역별 배분 조정 (-10 ~ +10%)\n';
+            p += '- **investmentTimeline**: 6개월 분할매수 전략\n';
+            p += '- **sectorOutlook**: 산업별 전망 (12개 산업)\n';
+            p += '\n## ⏰ investmentTimeline 작성 가이드\n';
+            p += '- **totalAmount**: 총 투자금액 (M=백만원, 예: "200M"=2억원)\n';
+            p += '- **months[].amount**: 해당 월 투자금 (예: "40M"=4천만원)\n';
+            p += '- **months[].strategy**: 전략 요약 (예: "안전자산 우선, 시장 관망")\n';
+            p += '- **months[].breakdown**: 세부 배분 아이콘+금액\n';
+            p += '  - 📜 채권, 🥇 금, 💵 현금/MMF\n';
+            p += '  - 🇺🇸 미국, 🇰🇷 한국, 🇪🇺 유럽, 🇯🇵 일본, 🌏 신흥국\n';
+            p += '  - 🔄 리밸런싱, 📊 조정\n';
+            p += '\n## 🏭 sectorOutlook view 옵션\n';
+            p += '강력매수 > 비중확대 > 매수 > 선별매수 > 중립 > 관망 > 신중 > 비중축소 > 매도\n';
+            p += '\n### tags color 옵션\n';
+            p += '- **green**: 긍정 (적극 매수, 배당 수혜)\n';
+            p += '- **blue**: 정보 (조정 시 분할매수, ETF 추천)\n';
+            p += '- **gold**: 주의 (환율 모니터링, 고평가)\n';
+            p += '- **red**: 경고 (비중축소, 리스크 높음)\n';
+            p += '- **gray**: 중립\n';
             
             return p;
         }
@@ -9997,6 +10916,21 @@
             if (config.currentStatus) {
                 updateMarketIndicatorsFromConfig(config);
                 updateDashboardFromConfig(config);
+            }
+            
+            // 채권 가이드 업데이트
+            if (typeof updateBondMarketData === 'function') {
+                updateBondMarketData();
+            }
+            
+            // 산업별 전망 업데이트
+            if (typeof renderSectorOutlook === 'function') {
+                renderSectorOutlook(config);
+            }
+            
+            // 투자 타임라인 업데이트
+            if (typeof renderInvestmentTimeline === 'function') {
+                renderInvestmentTimeline(config);
             }
             
             console.log('✅ v5.0 + 작은AI 통합 Config 적용 완료:', config);
