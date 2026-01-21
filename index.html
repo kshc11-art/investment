@@ -1447,8 +1447,6 @@
             border-radius: 6px;
             font-size: 0.7rem;
             white-space: nowrap;
-            max-width: 300px;
-            white-space: normal;
             z-index: 100;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             border: 1px solid var(--border-color);
@@ -5160,7 +5158,7 @@
             });
             
             // 상위 100개만 표시 (성능)
-            const display = sorted.slice(0, 100);
+            const display = sorted.slice(0, 150);
             
             const tbody = document.getElementById('screening-tbody');
             if (display.length === 0) {
