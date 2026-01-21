@@ -1,11 +1,27 @@
 #!/usr/bin/env python3
 """
-글로벌 주식/ETF 스크리닝 - GitHub Actions 버전 v2.5
-- v2.5 수정:
+글로벌 주식/ETF 스크리닝 - GitHub Actions 버전 v3.0.2
+=============================================================================
+v3.0.2 신규:
+  1. FinanceDataReader 추가 (한국 주식/ETF 최우선 소스)
+  2. 데이터 소스 우선순위: FDR > pykrx > 네이버 > yfinance
+=============================================================================
+v3.0.1 버그 수정:
+  1. Return1Y 인덱스 버그 수정 (min(len-1, 252) → min(len, 252))
+  2. 무위험수익률 통일 (2% → 4%)
+  3. KR_ETF TotalAssets 단위 수정 (1e12 → 1e9)
+=============================================================================
+v3.0 수정사항 (데이터 누락 해결):
+  1. SharpeRatio: 계산 조건 완화 (252일 → 200일)
+  2. Return1Y/Return250D: 계산 조건 완화 (252일 → 245일)
+  3. US_Stocks: MA60, MA120, vs_MA60(%), vs_MA120(%) 추가
+  4. US_ETF: ExpenseRatio 하드코딩 (yfinance 미제공 대응)
+  5. KR_ETF: ExpenseRatio, DivYield, Category 하드코딩
+  6. 모든 시트: SharpeRatio 계산 로직 수정
+=============================================================================
+v2.5 수정:
   * 한국 ETF: KRX 정보데이터시스템 직접 크롤링 (가장 정확)
   * KRX → pykrx → 네이버 → 폴백 순서로 시도
-- v2.4 수정: pykrx.get_etf_ticker_list() 사용
-- v2.3 수정: KOSPI 150개, 외국인 20일, ISM PMI 등
 
 GitHub Actions에서 자동 실행 → JSON 출력 → GitHub Pages에서 PWA가 fetch
 
@@ -13,8 +29,8 @@ GitHub Actions에서 자동 실행 → JSON 출력 → GitHub Pages에서 PWA가
 pip install yfinance openpyxl pandas requests beautifulsoup4 lxml numpy pykrx
 
 실행:
-python global_screener_github.py              # Excel + JSON 출력
-python global_screener_github.py --json-only  # JSON만 출력
+python global_screener_v3.py              # Excel + JSON 출력
+python global_screener_v3.py --json-only  # JSON만 출력
 """
 
 import warnings
@@ -48,9 +64,18 @@ try:
     from bs4 import BeautifulSoup
 except ImportError as e:
     log("=" * 60)
-    log("pip install yfinance openpyxl pandas requests beautifulsoup4 lxml numpy pykrx")
+    log("pip install yfinance openpyxl pandas requests beautifulsoup4 lxml numpy pykrx finance-datareader")
     log("=" * 60)
     sys.exit(1)
+
+# ★ v3.0.2 추가: FinanceDataReader (한국 주식/ETF 최우선)
+try:
+    import FinanceDataReader as fdr
+    FDR_AVAILABLE = True
+    log("✅ FinanceDataReader 로드 완료")
+except:
+    FDR_AVAILABLE = False
+    log("⚠️ FinanceDataReader 미설치 - pip install finance-datareader")
 
 # pykrx 선택적
 try:
@@ -60,6 +85,278 @@ try:
 except:
     PYKRX_AVAILABLE = False
     log("⚠️ pykrx 미설치 - 한국 주식 일부 데이터 제한")
+
+# ============================================================
+# ★★★ v3.0 추가: 하드코딩 데이터 ★★★
+# ============================================================
+
+# US ETF 비용비율 (2024년 기준, %) - yfinance가 제공하지 않음
+US_ETF_EXPENSE = {
+    'SPY': 0.0945, 'IVV': 0.03, 'VOO': 0.03, 'VTI': 0.03, 'QQQ': 0.20,
+    'DIA': 0.16, 'IWM': 0.19, 'IWF': 0.19, 'IWD': 0.19, 'VUG': 0.04,
+    'VTV': 0.04, 'IJH': 0.05, 'IJR': 0.06, 'VB': 0.05, 'VO': 0.04,
+    'RSP': 0.20, 'SPLG': 0.02, 'SCHX': 0.03, 'SCHB': 0.03, 'MGK': 0.07,
+    'XLK': 0.09, 'XLF': 0.09, 'XLV': 0.09, 'XLE': 0.09, 'XLI': 0.09,
+    'XLY': 0.09, 'XLP': 0.09, 'XLU': 0.09, 'XLB': 0.09, 'XLRE': 0.09,
+    'VGT': 0.10, 'VFH': 0.10, 'VHT': 0.10, 'VDE': 0.10, 'VIS': 0.10,
+    'VCR': 0.10, 'VDC': 0.10, 'VPU': 0.10, 'VAW': 0.10, 'VNQ': 0.12,
+    'ARKK': 0.75, 'ARKW': 0.75, 'ARKF': 0.75, 'ARKG': 0.75,
+    'SOXX': 0.35, 'SMH': 0.35, 'XBI': 0.35, 'IBB': 0.45,
+    'HACK': 0.60, 'BOTZ': 0.68, 'LIT': 0.75, 'TAN': 0.50,
+    'ICLN': 0.40, 'PBW': 0.65, 'QCLN': 0.58, 'REMX': 0.75, 'COPX': 0.65,
+    'URA': 0.69, 'VYM': 0.06, 'SCHD': 0.06, 'DVY': 0.38, 'HDV': 0.08,
+    'SPHD': 0.30, 'SPYD': 0.07, 'VIG': 0.06, 'DGRO': 0.08, 'NOBL': 0.35,
+    'BND': 0.03, 'AGG': 0.03, 'TLT': 0.15, 'IEF': 0.15, 'SHY': 0.15,
+    'LQD': 0.14, 'HYG': 0.49, 'JNK': 0.40, 'TIP': 0.19,
+    'GLD': 0.40, 'IAU': 0.25, 'SLV': 0.50, 'USO': 0.79, 'UNG': 1.35,
+    'DBC': 0.85, 'PDBC': 0.59,
+    'TQQQ': 0.86, 'SQQQ': 0.86, 'UPRO': 0.91, 'SPXU': 0.91,
+    'SOXL': 0.76, 'SOXS': 0.76,
+    'VEA': 0.05, 'VWO': 0.08, 'EFA': 0.32, 'EEM': 0.68,
+    'IEFA': 0.07, 'IEMG': 0.09, 'VXUS': 0.07, 'ACWI': 0.32
+}
+
+# KR ETF 비용비율 (총보수, %) - yfinance가 제공하지 않음
+KR_ETF_EXPENSE = {
+    '069500': 0.05,   # KODEX 200
+    '114800': 0.07,   # KODEX 인버스
+    '122630': 0.07,   # KODEX 레버리지
+    '229200': 0.25,   # KODEX 코스닥150
+    '252670': 0.64,   # KODEX 200선물인버스2X
+    '305720': 0.45,   # KODEX 2차전지산업
+    '091160': 0.45,   # KODEX 반도체
+    '133690': 0.07,   # TIGER 나스닥100
+    '143850': 0.07,   # TIGER S&P500
+    '192090': 0.55,   # TIGER 차이나CSI300
+    '371460': 0.07,   # TIGER 미국나스닥100커버드콜
+    '360200': 0.25,   # KINDEX 미국다우존스
+    '148020': 0.45,   # KODEX MSCI KOREA
+    '153130': 0.24,   # KODEX 단기채권
+    '161510': 0.04,   # ARIRANG 고배당주
+    '157450': 0.04,   # TIGER 고배당
+    '261240': 0.35,   # KODEX USD Futures
+    '360750': 0.07,   # TIGER S&P500
+    '371450': 0.49,   # TIGER 글로벌클라우드컴퓨팅
+    '379800': 0.07,   # KODEX S&P500
+    '381170': 0.49,   # TIGER 미국테크TOP10 INDXX
+    '395160': 0.45,   # KODEX AI반도체핵심장비
+    '461460': 0.10,   # PLUS 10년국채액티브
+    '102110': 0.05,   # TIGER 200
+    '105190': 0.07,   # KINDEX 200
+    '226490': 0.07,   # KODEX 코스피
+    '102780': 0.07,   # KODEX 삼성그룹
+    '091170': 0.45,   # KODEX 은행
+    '091180': 0.45,   # KODEX 자동차
+    '117680': 0.45,   # KODEX 건설
+    '117700': 0.45,   # KODEX 철강
+    '139260': 0.45,   # TIGER 미디어컨텐츠
+    '139280': 0.45,   # TIGER 경기방어
+    '140700': 0.07,   # KODEX 국채선물
+    '148070': 0.50,   # KOSEF 단기자금
+    '152500': 0.07,   # KINDEX 레버리지
+    '156080': 0.50,   # KODEX MSCI World
+    '167860': 0.45,   # KOSEF 미국달러선물
+    '182490': 0.07,   # TIGER 나스닥바이오
+    '195930': 0.45,   # TIGER 유로스탁스50
+    '195980': 0.50,   # ARIRANG 신흥국MSCI
+    '200250': 0.07,   # KOSEF 미국S&P500선물
+    '210780': 0.07,   # TIGER 코스피고배당
+    '211210': 0.07,   # KODEX 종합채권
+    '214980': 0.07,   # KODEX 단기채권PLUS
+    '217770': 0.50,   # TIGER 원유선물
+    '219390': 0.07,   # KINDEX 미국S&P500
+    '219480': 0.50,   # KODEX 미국S&P500선물
+    '226380': 0.50,   # KINDEX 유로스탁스50
+    '227830': 0.07,   # ARIRANG 코스피50
+    '228790': 0.07,   # TIGER 화장품
+    '228800': 0.07,   # TIGER 여행레저
+    '228810': 0.07,   # TIGER 미디어컨텐츠
+    '228820': 0.07,   # TIGER 은행
+    '233740': 0.50,   # TIGER 원유선물Enhanced
+    '233160': 0.50,   # TIGER 코스닥150레버리지
+    '238720': 0.07,   # KINDEX 코스닥150
+    '243880': 0.07,   # TIGER 200에너지화학
+    '243890': 0.07,   # TIGER 200건설
+    '244580': 0.50,   # KODEX 골드선물
+    '244620': 0.50,   # KODEX 은선물
+    '245340': 0.50,   # TIGER 리츠부동산인프라
+    '245710': 0.07,   # TIGER 코스닥150
+    '251340': 0.50,   # KODEX 선진국MSCI World
+    '252400': 0.50,   # KODEX 200동일가중
+    '252710': 0.07,   # TIGER 200선물레버리지
+    '253150': 0.50,   # ARIRANG 고배당저변동
+    '253160': 0.50,   # ARIRANG 스마트베타Quality
+    '253240': 0.50,   # KODEX 코스닥150선물인버스
+    '261110': 0.07,   # TIGER 코스피대형주
+    '261120': 0.07,   # TIGER 코스피중형주
+    '266370': 0.50,   # KODEX 인도Nifty50
+    '267440': 0.07,   # TIGER 코스닥150IT
+    '267490': 0.50,   # KINDEX 인버스
+    '267500': 0.50,   # KINDEX 레버리지
+    '268280': 0.50,   # KINDEX 200선물레버리지
+    '269420': 0.07,   # KODEX S&P글로벌인프라
+    '270800': 0.50,   # TIGER 미국채10년선물
+    '272220': 0.50,   # TIGER 코스닥150선물인버스
+    '272560': 0.50,   # TIGER S&P500선물인버스
+    '272580': 0.07,   # TIGER 미국S&P500
+    '273130': 0.07,   # KODEX 종합채권(AA-)
+    '273140': 0.07,   # KODEX 현금배당성장
+    '273210': 0.50,   # ARIRANG 미국S&P500
+    '273220': 0.50,   # ARIRANG 미국나스닥100
+    '275980': 0.07,   # TIGER 200커버드콜5%OTM
+    '276650': 0.07,   # TIGER 은행고배당
+    '276990': 0.45,   # KINDEX 일본TOPIX100
+    '277630': 0.45,   # TIGER 코스피대형가치
+    '277640': 0.45,   # TIGER 코스피대형성장
+    '278240': 0.45,   # ARIRANG 스마트베타Momentum
+    '278420': 0.07,   # KODEX 코스피대형주
+    '278530': 0.45,   # TIGER 200에너지화학레버리지
+    '278540': 0.45,   # TIGER 200IT레버리지
+    '284430': 0.07,   # KODEX 코스닥150선물레버리지
+    '284980': 0.10,   # HANARO 200
+    '287300': 0.10,   # HANARO KOSDAQ150
+    '287310': 0.07,   # KINDEX 코스피
+    '287320': 0.50,   # KINDEX 미국달러선물레버리지
+    '287330': 0.50,   # KINDEX 미국달러선물인버스
+    '290080': 0.50,   # KODEX 미국채Ultra30년선물
+    '292150': 0.50,   # TIGER 미국채30년선물
+    '292160': 0.50,   # TIGER 미국채10년선물레버리지
+    '292170': 0.50,   # TIGER 미국채10년선물인버스
+    '292180': 0.50,   # TIGER 미국채10년선물인버스2X
+    '292190': 0.50,   # TIGER 미국채30년선물인버스
+    '294400': 0.50,   # KODEX 미국채Ultra10년선물
+    '298340': 0.45,   # TIGER 2차전지테마
+    '298770': 0.45,   # KODEX 미국채10년선물
+    '299660': 0.07,   # TIGER 200산업재
+    '300640': 0.50,   # KODEX 코스닥150선물레버리지
+    '300950': 0.50,   # TIGER 나스닥바이오텍
+    '302190': 0.50,   # TIGER 미국달러선물레버리지
+    '304770': 0.45,   # TIGER 게임
+    '304780': 0.45,   # TIGER 바이오
+    '304940': 0.45,   # KODEX 바이오
+    '305080': 0.45,   # TIGER 미디어콘텐츠
+    '307510': 0.50,   # ARIRANG ESG종합채권
+    '315960': 0.50,   # ARIRANG KS채권혼합
+    '319870': 0.50,   # TIGER 200커버드콜ATM
+    '322120': 0.50,   # TIGER 통신TOP10
+    '322130': 0.45,   # TIGER 의료기기
+    '322400': 0.50,   # KODEX 테슬라인컴인버스
+    '322410': 0.50,   # KODEX 테슬라인컴레버리지
+    '322500': 0.50,   # KODEX 테슬라인컴
+    '329750': 0.50,   # TIGER 미국테크TOP10INDXX
+    '333940': 0.50,   # ARIRANG S&P500
+    '337140': 0.50,   # KODEX 3대농산물선물
+    '337160': 0.45,   # KODEX 게임산업
+    '352540': 0.45,   # TIGER 헬스케어
+    '352560': 0.50,   # TIGER K리츠
+    '354350': 0.50,   # KODEX 인버스2X
+    '360140': 0.50,   # TIGER AI코리아그로스
+    '363570': 0.50,   # KODEX 자동차
+    '363580': 0.50,   # KODEX 은행
+    '364970': 0.50,   # TIGER KRX바이오K뉴딜
+    '364980': 0.50,   # TIGER KRX2차전지K뉴딜
+    '365000': 0.50,   # TIGER KRX인터넷K뉴딜
+    '365040': 0.50,   # KODEX K뉴딜디지털플러스
+    '367380': 0.50,   # TIGER 미국AI테크TOP10
+    '368190': 0.50,   # TIGER AI&로봇
+    '368590': 0.50,   # KODEX 글로벌리튬
+    '371150': 0.50,   # TIGER KRX BBIG K뉴딜
+    '371160': 0.50,   # TIGER 차이나전기차레버리지
+    '372790': 0.50,   # TIGER 반도체TOP10
+    '373490': 0.50,   # TIGER 우주방산
+    '375270': 0.50,   # TIGER 코스닥150리밸런싱
+    '375720': 0.50,   # TIGER 2차전지테크
+    '381180': 0.50,   # TIGER 미국필라델피아반도체
+    '385720': 0.50,   # TIGER Fn반도체TOP10
+    '385550': 0.50,   # KODEX K-방산
+    '385560': 0.50,   # KODEX 글로벌K뉴딜
+    '385590': 0.50,   # TIGER K로봇
+    '385600': 0.50,   # TIGER K AI반도체핵심장비
+    '387270': 0.50,   # TIGER 차이나항셍테크레버리지
+    '387280': 0.50,   # TIGER 차이나항셍테크인버스
+    '391600': 0.50,   # TIGER AI반도체핵심소재
+    '391680': 0.50,   # TIGER AI코리아펀더멘탈
+    '394660': 0.50,   # TIGER 글로벌자율주행
+    '394670': 0.50,   # TIGER 글로벌BBIG핀테크
+    '396070': 0.50,   # KODEX K방산
+    '400760': 0.50,   # TIGER 글로벌2차전지TOP10
+    '401470': 0.50,   # TIGER 글로벌AI로봇&자율주행
+    '402340': 0.50,   # HANARO 글로벌AI에너지
+    '404780': 0.50,   # HANARO 글로벌탄소중립
+    '411060': 0.50,   # KODEX K게임
+    '445280': 0.50,   # TIGER AI BIGTECH 10
+    '453810': 0.50,   # TIGER 미국테크TOP10커버드콜
+    '458730': 0.50,   # TIGER 미국30년국채스트립액티브
+    '459000': 0.50,   # TIGER 미국채30년스트립액티브
+    '459100': 0.50,   # KODEX 미국30년국채스트립액티브
+    '459200': 0.50,   # TIGER 미국10년국채스트립액티브
+    '459580': 0.50,   # TIGER 글로벌온디바이스AI
+    '462320': 0.50,   # TIGER 미국배당다우존스
+    '464510': 0.50,   # TIGER 미국캐시카우100커버드콜
+}
+
+# KR ETF 카테고리
+KR_ETF_CATEGORY = {
+    '069500': '국내 대형주',
+    '114800': '인버스',
+    '122630': '레버리지',
+    '229200': '코스닥',
+    '252670': '인버스 레버리지',
+    '305720': '섹터(2차전지)',
+    '091160': '섹터(반도체)',
+    '133690': '미국 대형주',
+    '143850': '미국 대형주',
+    '192090': '중국',
+    '371460': '커버드콜',
+    '360200': '미국 대형주',
+    '148020': '국내 전체',
+    '153130': '채권(단기)',
+    '161510': '배당',
+    '157450': '배당',
+    '261240': '통화(달러)',
+    '360750': '미국 대형주',
+    '371450': '테마(클라우드)',
+    '379800': '미국 대형주',
+    '381170': '미국 테크',
+    '395160': '섹터(AI반도체)',
+    '461460': '채권(10년)',
+    '102110': '국내 대형주',
+    '105190': '국내 대형주',
+    '226490': '국내 전체',
+    '102780': '섹터(삼성그룹)',
+    '091170': '섹터(은행)',
+    '091180': '섹터(자동차)',
+    '117680': '섹터(건설)',
+    '117700': '섹터(철강)',
+    '139260': '섹터(미디어)',
+    '139280': '섹터(경기방어)',
+}
+
+# KR ETF 배당수익률 (2024년 기준 추정)
+KR_ETF_DIVYIELD = {
+    '069500': 1.8,   # KODEX 200
+    '114800': 0.0,   # KODEX 인버스
+    '122630': 0.0,   # KODEX 레버리지
+    '229200': 0.3,   # KODEX 코스닥150
+    '252670': 0.0,   # 인버스2X
+    '305720': 0.0,   # 2차전지
+    '091160': 0.5,   # 반도체
+    '133690': 0.4,   # 나스닥100
+    '143850': 1.2,   # S&P500
+    '192090': 0.8,   # 차이나
+    '161510': 4.5,   # 고배당주
+    '157450': 3.8,   # TIGER 고배당
+    '261240': 0.0,   # 달러선물
+    '360750': 1.2,   # S&P500
+    '371450': 0.0,   # 클라우드
+    '379800': 1.2,   # S&P500
+    '381170': 0.2,   # 테크TOP10
+    '395160': 0.0,   # AI반도체
+    '461460': 3.0,   # 국채
+    '371460': 8.0,   # 커버드콜
+    '102110': 1.8,   # TIGER 200
+    '105190': 1.8,   # KINDEX 200
+}
 
 # ============================================================
 # 설정
@@ -668,16 +965,57 @@ def calc_max_drawdown(prices):
     except:
         return None
 
-def calc_sharpe_ratio(prices, period=252, risk_free=0.02):
+# ★★★ v3.0 수정: SharpeRatio 계산 조건 완화 ★★★
+def calc_sharpe_ratio(prices, min_period=200, risk_free=0.04):
+    """
+    SharpeRatio 계산 - v3.0 수정
+    
+    변경사항:
+    - 기존: period=252 (252일 미만이면 None)
+    - 수정: min_period=200 (200일 이상이면 계산)
+    - v3.0.1: risk_free 0.02 → 0.04 (4%)로 통일
+    
+    이유: yfinance period="1y"가 실제로 약 250-251일 반환
+    """
     try:
         returns = prices.pct_change().dropna()
-        if len(returns) < period:
+        if len(returns) < min_period:  # ★ 252 → 200으로 완화
             return None
         mean_return = returns.mean() * 252
         std_return = returns.std() * np.sqrt(252)
         if std_return == 0:
             return None
         return (mean_return - risk_free) / std_return
+    except:
+        return None
+
+# ★★★ v3.0 추가: 기존 데이터 기반 SharpeRatio 계산 ★★★
+def calc_sharpe_from_existing(return_pct, volatility_pct, period_days=120, risk_free_rate=4.0):
+    """
+    이미 수집된 수익률/변동성으로 SharpeRatio 계산
+    
+    Parameters:
+    - return_pct: Return120D(%) 또는 Return6M(%)
+    - volatility_pct: Volatility20D (일간 변동성 연환산 %)
+    - risk_free_rate: 무위험 수익률 (연 4% 가정)
+    """
+    try:
+        if return_pct is None or volatility_pct is None:
+            return None
+        if pd.isna(return_pct) or pd.isna(volatility_pct):
+            return None
+        if volatility_pct == 0:
+            return None
+        
+        # 연환산 수익률
+        annual_return = float(return_pct) * (252 / period_days)
+        
+        # 변동성은 이미 연환산된 값 (Volatility20D)
+        annual_vol = float(volatility_pct)
+        
+        # Sharpe Ratio
+        sharpe = (annual_return - risk_free_rate) / annual_vol
+        return fmt(sharpe, 3)
     except:
         return None
 
@@ -723,15 +1061,180 @@ def calc_data_quality_score(row, required_cols, data_type='stock'):
     return row
 
 # ============================================================
+# ★★★ v3.0 추가: 기술적 지표 공통 계산 함수 ★★★
+# ============================================================
+def add_technical_indicators(row, close, include_ma60_120=False):
+    """
+    기술적 지표를 row에 추가하는 공통 함수
+    
+    Parameters:
+    - row: 데이터 딕셔너리
+    - close: pandas Series (종가)
+    - include_ma60_120: MA60/MA120 포함 여부 (US_Stocks용)
+    """
+    if close is None or len(close) < 20:
+        return row
+    
+    price = close.iloc[-1]
+    
+    # 수익률 계산 - ★ v3.0: 조건 완화 (252 → 245)
+    if len(close) >= 2:
+        row['Return1D(%)'] = fmt((close.iloc[-1] / close.iloc[-2] - 1) * 100)
+    if len(close) >= 6:
+        row['Return1W(%)'] = fmt((close.iloc[-1] / close.iloc[-6] - 1) * 100)
+    if len(close) >= 22:
+        row['Return1M(%)'] = fmt((close.iloc[-1] / close.iloc[-22] - 1) * 100)
+    if len(close) >= 66:
+        row['Return3M(%)'] = fmt((close.iloc[-1] / close.iloc[-66] - 1) * 100)
+        row['Return60D(%)'] = row['Return3M(%)']  # PWA 호환
+    if len(close) >= 132:
+        row['Return6M(%)'] = fmt((close.iloc[-1] / close.iloc[-132] - 1) * 100)
+        row['Return120D(%)'] = row['Return6M(%)']  # PWA 호환
+    
+    # ★ v3.0 수정: Return1Y 조건 완화 (252 → 245)
+    # ★ v3.0.1 버그 수정: year_ago_idx 계산 (len-1 → len)
+    if len(close) >= 245:
+        year_ago_idx = min(len(close), 252)  # ★ 수정: -1 제거
+        row['Return1Y(%)'] = fmt((close.iloc[-1] / close.iloc[-year_ago_idx] - 1) * 100)
+        row['Return250D(%)'] = row['Return1Y(%)']  # PWA 호환
+    
+    # 이동평균
+    row['MA20'] = fmt(close.rolling(20).mean().iloc[-1])
+    row['MA50'] = fmt(close.rolling(50).mean().iloc[-1])
+    row['MA200'] = fmt(close.rolling(200).mean().iloc[-1]) if len(close) >= 200 else None
+    
+    # ★ v3.0 추가: MA60, MA120 (US_Stocks용)
+    if include_ma60_120:
+        if len(close) >= 60:
+            row['MA60'] = fmt(close.rolling(60).mean().iloc[-1])
+        if len(close) >= 120:
+            row['MA120'] = fmt(close.rolling(120).mean().iloc[-1])
+    
+    # vs_MA 계산
+    if row.get('MA20'): row['vs_MA20(%)'] = fmt((price / row['MA20'] - 1) * 100)
+    if row.get('MA50'): row['vs_MA50(%)'] = fmt((price / row['MA50'] - 1) * 100)
+    if row.get('MA200'): row['vs_MA200(%)'] = fmt((price / row['MA200'] - 1) * 100)
+    
+    # ★ v3.0 추가: vs_MA60, vs_MA120
+    if include_ma60_120:
+        if row.get('MA60'): row['vs_MA60(%)'] = fmt((price / row['MA60'] - 1) * 100)
+        if row.get('MA120'): row['vs_MA120(%)'] = fmt((price / row['MA120'] - 1) * 100)
+    
+    # RSI, BB
+    row['RSI14'] = fmt(calc_rsi(close, 14))
+    row['BB_Position'] = fmt(calc_bollinger_position(close, 20))
+    
+    # 52주 고저
+    if len(close) >= 245:  # ★ v3.0: 252 → 245
+        year_data = close.tail(min(len(close), 252))
+        row['52wHigh'] = fmt(year_data.max())
+        row['52wLow'] = fmt(year_data.min())
+        row['From52wHigh(%)'] = fmt((price / year_data.max() - 1) * 100)
+        row['From52wLow(%)'] = fmt((price / year_data.min() - 1) * 100)
+    
+    # 변동성
+    row['Volatility20D'] = fmt(calc_volatility(close, 20))
+    row['Volatility60D'] = fmt(calc_volatility(close, 60))
+    
+    # MaxDrawdown
+    row['MaxDrawdown(%)'] = fmt(calc_max_drawdown(close))
+    
+    # ★ v3.0 수정: SharpeRatio (조건 완화)
+    row['SharpeRatio'] = fmt(calc_sharpe_ratio(close))
+    
+    # ★ v3.0 추가: SharpeRatio 폴백 (가격 데이터 부족 시 기존 데이터로 계산)
+    if row.get('SharpeRatio') is None:
+        row['SharpeRatio'] = calc_sharpe_from_existing(
+            row.get('Return120D(%)'), 
+            row.get('Volatility20D')
+        )
+    
+    return row
+
+# ============================================================
+# ★ v3.0.2 추가: FinanceDataReader 데이터 수집 함수
+# ============================================================
+def fetch_fdr_stock_data(ticker, start_date=None):
+    """FinanceDataReader에서 주식 데이터 가져오기"""
+    if not FDR_AVAILABLE:
+        return None, pd.DataFrame()
+    
+    try:
+        if start_date is None:
+            start_date = (datetime.now() - timedelta(days=400)).strftime('%Y-%m-%d')
+        
+        df = fdr.DataReader(ticker, start_date)
+        if df is not None and not df.empty:
+            return df, True
+    except:
+        pass
+    return None, False
+
+def fetch_fdr_stock_list(market='KOSPI'):
+    """FinanceDataReader에서 종목 리스트 가져오기"""
+    if not FDR_AVAILABLE:
+        return []
+    
+    try:
+        stocks = fdr.StockListing(market)
+        if stocks is not None and not stocks.empty:
+            result = []
+            for _, row in stocks.iterrows():
+                code = str(row.get('Code', row.get('Symbol', ''))).zfill(6)
+                name = row.get('Name', row.get('종목명', ''))
+                if code and name:
+                    result.append((code, name, market))
+            return result
+    except:
+        pass
+    return []
+
+def fetch_fdr_etf_list():
+    """FinanceDataReader에서 ETF 리스트 가져오기"""
+    if not FDR_AVAILABLE:
+        return []
+    
+    try:
+        etfs = fdr.StockListing('ETF/KR')
+        if etfs is not None and not etfs.empty:
+            result = []
+            for _, row in etfs.iterrows():
+                code = str(row.get('Code', row.get('Symbol', ''))).zfill(6)
+                name = row.get('Name', row.get('종목명', ''))
+                if code and name:
+                    result.append(code)
+            return result
+    except:
+        pass
+    return []
+
+# ============================================================
 # 한국 주식 수집
 # ============================================================
 def get_korea_stocks():
-    """한국 주식 데이터 수집"""
+    """한국 주식 데이터 수집 - v3.0.2: FDR 우선"""
     log("\n[1/5] 한국 주식 수집 중...")
     
     all_tickers = []
     
-    if PYKRX_AVAILABLE:
+    # ★ v3.0.2: FinanceDataReader 최우선
+    if FDR_AVAILABLE:
+        try:
+            log("  FinanceDataReader에서 종목 리스트 로드 중...")
+            fdr_stocks = fetch_fdr_stock_list('KOSPI')
+            
+            for ticker, name, market in fdr_stocks:
+                if not is_etf_stock(name, ticker):
+                    all_tickers.append((ticker, name, market))
+            
+            if all_tickers:
+                log(f"  FinanceDataReader: {len(all_tickers)}개 종목 로드 (KOSPI)")
+        except Exception as e:
+            log(f"  ⚠️ FinanceDataReader 실패: {e}")
+            all_tickers = []
+    
+    # 2순위: pykrx
+    if not all_tickers and PYKRX_AVAILABLE:
         try:
             log("  pykrx에서 종목 리스트 로드 중...")
             kospi_tickers = pykrx_stock.get_market_ticker_list(market="KOSPI")
@@ -749,6 +1252,7 @@ def get_korea_stocks():
             log(f"  ⚠️ pykrx 실패: {e}")
             all_tickers = []
     
+    # 3순위: 네이버
     if not all_tickers:
         log("  네이버에서 종목 리스트 로드 시도...")
         kospi_stocks = get_naver_stock_list('KOSPI', max_pages=10 if TOP_N_KR is None else 3)
@@ -767,7 +1271,7 @@ def get_korea_stocks():
     log(f"  대상: {len(all_tickers)}개")
     
     results = []
-    start_time = time.time()  # ★ 시간 측정 시작
+    start_time = time.time()
     
     for i, (ticker, name, market) in enumerate(all_tickers):
         try:
@@ -780,15 +1284,12 @@ def get_korea_stocks():
             if NAVER_AVAILABLE is not False:
                 naver_data = get_naver_stock_detail(ticker)
                 if naver_data:
-                    # 기본 정보
                     if naver_data.get('price'):
                         row['Price'] = naver_data['price']
                     if naver_data.get('market_cap'):
                         row['MarketCap(억)'] = naver_data['market_cap']
                     if naver_data.get('sector'):
                         row['Sector'] = naver_data['sector']
-
-                    # 밸류에이션
                     if naver_data.get('per'):
                         row['PER'] = fmt(naver_data['per'])
                     if naver_data.get('pbr'):
@@ -797,8 +1298,6 @@ def get_korea_stocks():
                         row['EPS'] = fmt(naver_data['eps'], 0)
                     if naver_data.get('bps'):
                         row['BPS'] = fmt(naver_data['bps'], 0)
-
-                    # 수익성
                     if naver_data.get('roe'):
                         row['ROE(%)'] = fmt(naver_data['roe'])
                     if naver_data.get('roa'):
@@ -807,20 +1306,14 @@ def get_korea_stocks():
                         row['OpMargin(%)'] = fmt(naver_data['op_margin'])
                     if naver_data.get('net_margin'):
                         row['NetMargin(%)'] = fmt(naver_data['net_margin'])
-
-                    # 성장성
                     if naver_data.get('revenue_growth'):
                         row['RevenueGrowth(%)'] = fmt(naver_data['revenue_growth'])
                     if naver_data.get('op_growth'):
                         row['EarningsGrowth(%)'] = fmt(naver_data['op_growth'])
-
-                    # 안정성
                     if naver_data.get('debt_ratio'):
                         row['DebtRatio(%)'] = fmt(naver_data['debt_ratio'])
                     if naver_data.get('current_ratio'):
                         row['CurrentRatio'] = fmt(naver_data['current_ratio'])
-
-                    # 기타
                     if naver_data.get('foreign_ratio'):
                         row['ForeignRatio(%)'] = fmt(naver_data['foreign_ratio'])
                     if naver_data.get('div_yield'):
@@ -830,12 +1323,9 @@ def get_korea_stocks():
                     if naver_data.get('low_52w'):
                         row['52wLow'] = naver_data['low_52w']
 
-                # sleep 제거 (네이버 내부에서 이미 처리)
-
             # ========================================
             # 2. FnGuide (결측값 폴백)
             # ========================================
-            # 주요 지표가 결측인 경우에만 FnGuide 호출
             need_fnguide = (
                 row.get('ROE(%)') is None or
                 row.get('ROA(%)') is None or
@@ -868,10 +1358,9 @@ def get_korea_stocks():
                         row['EPS'] = fmt(fnguide_data['eps'], 0)
                     if row.get('BPS') is None and fnguide_data.get('bps'):
                         row['BPS'] = fmt(fnguide_data['bps'], 0)
-                # sleep 단축
 
             # ========================================
-            # 3. pykrx (결측값 폴백 - 가격/거래량/시총)
+            # 3. pykrx (결측값 폴백)
             # ========================================
             if PYKRX_AVAILABLE:
                 try:
@@ -889,18 +1378,38 @@ def get_korea_stocks():
                     pass
 
             # ========================================
-            # 4. yfinance (최후의 수단 - 기술적 지표)
+            # 4. ★ v3.0.2: FinanceDataReader 우선 (기술적 지표)
             # ========================================
             hist = pd.DataFrame()
+            fdr_data = None
+            
+            if FDR_AVAILABLE:
+                try:
+                    fdr_data = fdr.DataReader(ticker, DATE_1Y_AGO)
+                    if fdr_data is not None and not fdr_data.empty and len(fdr_data) > 20:
+                        hist = fdr_data
+                        if 'Close' not in hist.columns and '종가' in hist.columns:
+                            hist = hist.rename(columns={'종가': 'Close', '시가': 'Open', '고가': 'High', '저가': 'Low', '거래량': 'Volume'})
+                        log(f"    {ticker}: FDR 데이터 {len(hist)}일") if i == 0 else None
+                except:
+                    pass
+
+            # ========================================
+            # 5. yfinance (폴백)
+            # ========================================
             info = {}
+            
+            if hist.empty:
+                ticker_variants = [f"{ticker}.KS"]
+                t, hist, info = try_multiple_tickers(ticker_variants, max_retries=1)
+            else:
+                # FDR 성공 시에도 yfinance info는 가져옴 (재무 데이터용)
+                try:
+                    t = yf.Ticker(f"{ticker}.KS")
+                    info = t.info or {}
+                except:
+                    info = {}
 
-            # yfinance는 기술적 지표(RSI, 변동성 등)와 여전히 결측인 필드에만 사용
-            # KOSPI만 사용하므로 .KS 우선
-            ticker_variants = [f"{ticker}.KS"]
-
-            t, hist, info = try_multiple_tickers(ticker_variants, max_retries=1)  # 재시도 최소화
-
-            # 여전히 결측인 기본 정보만 폴백
             if not row.get('Price'):
                 row['Price'] = fmt(safe_get(info, 'regularMarketPrice'))
             if not row.get('Sector'):
@@ -910,15 +1419,13 @@ def get_korea_stocks():
                 if cap:
                     row['MarketCap(억)'] = fmt(cap / 1e8, 0)
             
-            # 밸류에이션
             if row.get('PER') is None:
                 row['PER'] = fmt(safe_get(info, 'trailingPE'))
-            if row.get('ForwardPE') is None:  # ← PWA 호환: ForwardPE
+            if row.get('ForwardPE') is None:
                 row['ForwardPE'] = fmt(safe_get(info, 'forwardPE'))
             if row.get('PBR') is None:
                 row['PBR'] = fmt(safe_get(info, 'priceToBook'))
             
-            # 수익성
             if row.get('ROE(%)') is None and safe_get(info, 'returnOnEquity'):
                 row['ROE(%)'] = fmt(safe_get(info, 'returnOnEquity') * 100)
             if row.get('ROA(%)') is None and safe_get(info, 'returnOnAssets'):
@@ -928,82 +1435,25 @@ def get_korea_stocks():
             if row.get('GrossMargin(%)') is None and safe_get(info, 'grossMargins'):
                 row['GrossMargin(%)'] = fmt(safe_get(info, 'grossMargins') * 100)
             
-            # 성장성 (결측인 경우만)
             if row.get('RevenueGrowth(%)') is None and safe_get(info, 'revenueGrowth'):
                 row['RevenueGrowth(%)'] = fmt(safe_get(info, 'revenueGrowth') * 100)
             if row.get('EarningsGrowth(%)') is None and safe_get(info, 'earningsGrowth'):
                 row['EarningsGrowth(%)'] = fmt(safe_get(info, 'earningsGrowth') * 100)
 
-            # 안정성 (결측인 경우만) - PWA 호환: DebtRatio(%)
             if row.get('CurrentRatio') is None:
                 row['CurrentRatio'] = fmt(safe_get(info, 'currentRatio'))
             if row.get('DebtRatio(%)') is None:
                 row['DebtRatio(%)'] = fmt(safe_get(info, 'debtToEquity'))
             
-            # 배당
             if row.get('DivYield(%)') is None and safe_get(info, 'dividendYield'):
                 row['DivYield(%)'] = fmt(safe_get(info, 'dividendYield') * 100)
             
-            # 기술적 지표
+            # ★ v3.0: 기술적 지표 공통 함수 사용 (KR_Stocks는 MA60/120 포함)
             if not hist.empty and len(hist) > 20:
                 close = hist['Close']
-                
-                # 수익률
-                if len(close) >= 2:
-                    row['Return1D(%)'] = fmt((close.iloc[-1] / close.iloc[-2] - 1) * 100)
-                if len(close) >= 6:
-                    row['Return1W(%)'] = fmt((close.iloc[-1] / close.iloc[-6] - 1) * 100)
-                if len(close) >= 22:
-                    row['Return1M(%)'] = fmt((close.iloc[-1] / close.iloc[-22] - 1) * 100)
-                if len(close) >= 66:
-                    row['Return3M(%)'] = fmt((close.iloc[-1] / close.iloc[-66] - 1) * 100)
-                    row['Return60D(%)'] = row['Return3M(%)']  # PWA 호환
-                if len(close) >= 132:
-                    row['Return6M(%)'] = fmt((close.iloc[-1] / close.iloc[-132] - 1) * 100)
-                    row['Return120D(%)'] = row['Return6M(%)']  # PWA 호환
-                if len(close) >= 252:
-                    row['Return1Y(%)'] = fmt((close.iloc[-1] / close.iloc[-252] - 1) * 100)
-                    row['Return250D(%)'] = row['Return1Y(%)']  # ← PWA 호환: 추가
-                
-                # 이동평균
-                row['MA20'] = fmt(close.rolling(20).mean().iloc[-1])
-                row['MA60'] = fmt(close.rolling(60).mean().iloc[-1])
-                row['MA120'] = fmt(close.rolling(120).mean().iloc[-1])
-                
-                price = close.iloc[-1]
-                if row['MA20']: row['vs_MA20(%)'] = fmt((price / row['MA20'] - 1) * 100)
-                if row['MA60']: row['vs_MA60(%)'] = fmt((price / row['MA60'] - 1) * 100)
-                if row['MA120']: row['vs_MA120(%)'] = fmt((price / row['MA120'] - 1) * 100)
-                
-                # RSI
-                row['RSI14'] = fmt(calc_rsi(close, 14))
-                row['BB_Position'] = fmt(calc_bollinger_position(close, 20))
-                
-                # 52주
-                if len(close) >= 252:
-                    year_data = close.tail(252)
-                    if not row.get('52wHigh'):
-                        row['52wHigh'] = fmt(year_data.max())
-                    if not row.get('52wLow'):
-                        row['52wLow'] = fmt(year_data.min())
-                    
-                    current_price = row.get('Price') or close.iloc[-1]
-                    if current_price and row.get('52wHigh'):
-                        row['From52wHigh(%)'] = fmt((float(current_price) / float(row['52wHigh']) - 1) * 100)
-                    if current_price and row.get('52wLow'):
-                        row['From52wLow(%)'] = fmt((float(current_price) / float(row['52wLow']) - 1) * 100)
-                
-                # 변동성
-                row['Volatility20D'] = fmt(calc_volatility(close, 20))
-                row['Volatility60D'] = fmt(calc_volatility(close, 60))
-                
-                # MaxDrawdown
-                row['MaxDrawdown(%)'] = fmt(calc_max_drawdown(close))
-                
-                # SharpeRatio - PWA 호환
-                row['SharpeRatio'] = fmt(calc_sharpe_ratio(close))  # ← PWA 호환: Sharpe1Y → SharpeRatio
+                row = add_technical_indicators(row, close, include_ma60_120=True)
 
-            # 최종 폴백: 여전히 결측인 필드들을 info에서 다시 시도
+            # 최종 폴백
             kr_field_mapping = {
                 'PER': (('trailingPE', 'forwardPE'), 1, 2),
                 'PBR': (('priceToBook',), 1, 2),
@@ -1015,7 +1465,6 @@ def get_korea_stocks():
             }
             row = fill_missing_from_info(row, info, kr_field_mapping)
 
-            # 52주 고저 폴백
             if row.get('52wHigh') is None:
                 val = safe_get(info, 'fiftyTwoWeekHigh')
                 if val:
@@ -1031,14 +1480,13 @@ def get_korea_stocks():
         except Exception as e:
             results.append({'Code': ticker, 'Name': name, 'Market': market, 'Remark': str(e)[:30]})
         
-        # ★ 진행 상황 출력 (10개마다 + 예상 시간)
         if (i + 1) % 10 == 0 or i == 0:
             elapsed = time.time() - start_time
             per_stock = elapsed / (i + 1) if i > 0 else 0
             remaining = per_stock * (len(all_tickers) - i - 1)
             log(f"  진행: {i+1}/{len(all_tickers)} ({(i+1)/len(all_tickers)*100:.0f}%) - 남은시간: {remaining/60:.1f}분")
         
-        time.sleep(0.02)  # 0.05 → 0.02
+        time.sleep(0.02)
     
     log(f"  ✅ 완료: {len(results)}개")
     return pd.DataFrame(results)
@@ -1070,7 +1518,6 @@ def get_us_stocks():
     
     for i, ticker in enumerate(tickers):
         try:
-            # 재시도 로직과 함께 데이터 가져오기
             t, hist, info = fetch_yf_with_retry(ticker, max_retries=3, delay=0.5)
 
             if hist.empty and not info:
@@ -1087,9 +1534,9 @@ def get_us_stocks():
             if cap:
                 row['MarketCap(B)'] = fmt(cap / 1e9, 1)
             
-            # 밸류에이션 - PWA 호환
+            # 밸류에이션
             row['PER'] = fmt(safe_get(info, 'trailingPE'))
-            row['ForwardPE'] = fmt(safe_get(info, 'forwardPE'))  # ← PWA 호환: ForwardPE
+            row['ForwardPE'] = fmt(safe_get(info, 'forwardPE'))
             row['PBR'] = fmt(safe_get(info, 'priceToBook'))
             row['PSR'] = fmt(safe_get(info, 'priceToSalesTrailing12Months'))
             row['PEG'] = fmt(safe_get(info, 'pegRatio'))
@@ -1112,11 +1559,11 @@ def get_us_stocks():
             row['RevenueGrowth(%)'] = fmt(safe_get(info, 'revenueGrowth', default=0) * 100) if safe_get(info, 'revenueGrowth') else None
             row['EarningsGrowth(%)'] = fmt(safe_get(info, 'earningsGrowth', default=0) * 100) if safe_get(info, 'earningsGrowth') else None
             
-            # 안정성 - PWA 호환
+            # 안정성
             row['CurrentRatio'] = fmt(safe_get(info, 'currentRatio'))
             row['QuickRatio'] = fmt(safe_get(info, 'quickRatio'))
-            row['DebtRatio(%)'] = fmt(safe_get(info, 'debtToEquity'))  # ← PWA 호환
-            row['Debt/Equity'] = fmt(safe_get(info, 'debtToEquity'))   # ← PWA 호환: 추가
+            row['DebtRatio(%)'] = fmt(safe_get(info, 'debtToEquity'))
+            row['Debt/Equity'] = fmt(safe_get(info, 'debtToEquity'))
             
             # 배당
             row['DivYield(%)'] = fmt(safe_get(info, 'dividendYield', default=0) * 100) if safe_get(info, 'dividendYield') else None
@@ -1125,73 +1572,30 @@ def get_us_stocks():
             # 베타
             row['Beta'] = fmt(safe_get(info, 'beta'))
             
-            # 기관 보유 비율 - PWA 호환: 추가
+            # 기관 보유 비율
             inst = safe_get(info, 'heldPercentInstitutions')
             if inst:
-                row['InstOwn(%)'] = fmt(inst * 100)  # ← PWA 호환: 추가
+                row['InstOwn(%)'] = fmt(inst * 100)
             
-            # 기술적 지표
+            # ★ v3.0 추가: EPS, BPS, Volume
+            row['EPS'] = fmt(safe_get(info, 'trailingEps'))
+            row['BPS'] = fmt(safe_get(info, 'bookValue'))
+            row['Volume'] = safe_get(info, 'regularMarketVolume') or safe_get(info, 'averageVolume')
+            
+            # ★ v3.0: 기술적 지표 공통 함수 사용 (MA60/120 포함!)
             if not hist.empty and len(hist) > 20:
                 close = hist['Close']
+                row = add_technical_indicators(row, close, include_ma60_120=True)  # ★ MA60/120 추가
                 
-                # 수익률 - PWA 호환
-                if len(close) >= 2:
-                    row['Return1D(%)'] = fmt((close.iloc[-1] / close.iloc[-2] - 1) * 100)
-                if len(close) >= 6:
-                    row['Return1W(%)'] = fmt((close.iloc[-1] / close.iloc[-6] - 1) * 100)
-                if len(close) >= 22:
-                    row['Return1M(%)'] = fmt((close.iloc[-1] / close.iloc[-22] - 1) * 100)
-                if len(close) >= 66:
-                    row['Return3M(%)'] = fmt((close.iloc[-1] / close.iloc[-66] - 1) * 100)
-                    row['Return60D(%)'] = row['Return3M(%)']  # PWA 호환
-                if len(close) >= 132:
-                    row['Return6M(%)'] = fmt((close.iloc[-1] / close.iloc[-132] - 1) * 100)
-                    row['Return120D(%)'] = row['Return6M(%)']  # PWA 호환
-                if len(close) >= 252:
-                    row['Return1Y(%)'] = fmt((close.iloc[-1] / close.iloc[-252] - 1) * 100)
-                    row['Return250D(%)'] = row['Return1Y(%)']  # ← PWA 호환: 추가
-                
-                # YTD
+                # YTD 수익률
                 try:
                     ytd_start = close[close.index >= f"{datetime.now().year}-01-01"]
                     if len(ytd_start) > 1:
                         row['ReturnYTD(%)'] = fmt((close.iloc[-1] / ytd_start.iloc[0] - 1) * 100)
                 except:
                     pass
-                
-                # 이동평균
-                row['MA20'] = fmt(close.rolling(20).mean().iloc[-1])
-                row['MA50'] = fmt(close.rolling(50).mean().iloc[-1])
-                row['MA200'] = fmt(close.rolling(200).mean().iloc[-1])
-                
-                price = close.iloc[-1]
-                if row['MA20']: row['vs_MA20(%)'] = fmt((price / row['MA20'] - 1) * 100)
-                if row['MA50']: row['vs_MA50(%)'] = fmt((price / row['MA50'] - 1) * 100)
-                if row['MA200']: row['vs_MA200(%)'] = fmt((price / row['MA200'] - 1) * 100)
-                
-                # RSI
-                row['RSI14'] = fmt(calc_rsi(close, 14))
-                row['BB_Position'] = fmt(calc_bollinger_position(close, 20))
-                
-                # 52주 고저
-                if len(close) >= 252:
-                    year_data = close.tail(252)
-                    row['52wHigh'] = fmt(year_data.max())
-                    row['52wLow'] = fmt(year_data.min())
-                    row['From52wHigh(%)'] = fmt((price / year_data.max() - 1) * 100)
-                    row['From52wLow(%)'] = fmt((price / year_data.min() - 1) * 100)
-                
-                # 변동성
-                row['Volatility20D'] = fmt(calc_volatility(close, 20))
-                row['Volatility60D'] = fmt(calc_volatility(close, 60))
-                
-                # MaxDrawdown
-                row['MaxDrawdown(%)'] = fmt(calc_max_drawdown(close))
-                
-                # SharpeRatio - PWA 호환
-                row['SharpeRatio'] = fmt(calc_sharpe_ratio(close))  # ← PWA 호환
 
-            # 최종 폴백: 여전히 결측인 필드들을 info에서 다시 시도
+            # 최종 폴백
             us_field_mapping = {
                 'PER': (('trailingPE', 'forwardPE'), 1, 2),
                 'ForwardPE': (('forwardPE',), 1, 2),
@@ -1206,7 +1610,6 @@ def get_us_stocks():
             }
             row = fill_missing_from_info(row, info, us_field_mapping)
 
-            # 52주 고저 폴백
             if row.get('52wHigh') is None:
                 val = safe_get(info, 'fiftyTwoWeekHigh')
                 if val:
@@ -1216,7 +1619,6 @@ def get_us_stocks():
                 if val:
                     row['52wLow'] = fmt(val)
 
-            # Price 폴백
             if row.get('Price') is None:
                 row['Price'] = fmt(safe_get(info, 'regularMarketPrice', 'previousClose', 'open'))
 
@@ -1238,12 +1640,11 @@ def get_us_stocks():
 # ETF 공통 함수
 # ============================================================
 def get_etf_data(tickers, region=""):
-    """ETF 데이터 수집 공통 함수"""
+    """ETF 데이터 수집 공통 함수 - v3.0 수정"""
     results = []
 
     for i, ticker in enumerate(tickers):
         try:
-            # 재시도 로직과 함께 데이터 가져오기
             t, hist, info = fetch_yf_with_retry(ticker, max_retries=3, delay=0.5)
 
             if hist.empty and not info:
@@ -1255,58 +1656,30 @@ def get_etf_data(tickers, region=""):
             row['Category'] = safe_get(info, 'category')
             row['Price'] = fmt(safe_get(info, 'regularMarketPrice'))
             
-            row['ExpenseRatio(%)'] = fmt(safe_get(info, 'expenseRatio', default=0) * 100) if safe_get(info, 'expenseRatio') else None
-            row['TotalAssets(B)'] = fmt(safe_get(info, 'totalAssets', default=0) / 1e9, 2) if safe_get(info, 'totalAssets') else None
+            # ★ v3.0 수정: ExpenseRatio 하드코딩 우선
+            yf_expense = safe_get(info, 'expenseRatio')
+            if yf_expense:
+                row['ExpenseRatio(%)'] = fmt(yf_expense * 100, 3)
+            elif ticker in US_ETF_EXPENSE:  # ★ 하드코딩 폴백
+                row['ExpenseRatio(%)'] = US_ETF_EXPENSE[ticker]
+            else:
+                row['ExpenseRatio(%)'] = None
             
+            row['TotalAssets(B)'] = fmt(safe_get(info, 'totalAssets', default=0) / 1e9, 2) if safe_get(info, 'totalAssets') else None
             row['DivYield(%)'] = fmt(safe_get(info, 'yield', default=0) * 100) if safe_get(info, 'yield') else None
             
+            # ★ v3.0: 기술적 지표 공통 함수 사용
             if not hist.empty and len(hist) > 20:
                 close = hist['Close']
-                
-                # 수익률 - PWA 호환 별칭 추가
-                if len(close) >= 2:
-                    row['Return1D(%)'] = fmt((close.iloc[-1] / close.iloc[-2] - 1) * 100)
-                if len(close) >= 6:
-                    row['Return1W(%)'] = fmt((close.iloc[-1] / close.iloc[-6] - 1) * 100)
-                if len(close) >= 22:
-                    row['Return1M(%)'] = fmt((close.iloc[-1] / close.iloc[-22] - 1) * 100)
-                if len(close) >= 66:
-                    row['Return3M(%)'] = fmt((close.iloc[-1] / close.iloc[-66] - 1) * 100)
-                    row['Return60D(%)'] = row['Return3M(%)']  # ← PWA 호환: 추가
-                if len(close) >= 132:
-                    row['Return6M(%)'] = fmt((close.iloc[-1] / close.iloc[-132] - 1) * 100)
-                    row['Return120D(%)'] = row['Return6M(%)']  # ← PWA 호환: 추가
-                if len(close) >= 252:
-                    row['Return1Y(%)'] = fmt((close.iloc[-1] / close.iloc[-252] - 1) * 100)
-                    row['Return250D(%)'] = row['Return1Y(%)']  # ← PWA 호환: 추가
-                
-                row['MA20'] = fmt(close.rolling(20).mean().iloc[-1])
-                row['MA50'] = fmt(close.rolling(50).mean().iloc[-1])
-                
-                row['RSI14'] = fmt(calc_rsi(close, 14))
-                
-                row['Volatility20D'] = fmt(calc_volatility(close, 20))
-                row['Volatility60D'] = fmt(calc_volatility(close, 60))
-                
-                if len(close) >= 252:
-                    year_data = close.tail(252)
-                    row['52wHigh'] = fmt(year_data.max())
-                    row['52wLow'] = fmt(year_data.min())
-                    row['From52wHigh(%)'] = fmt((close.iloc[-1] / year_data.max() - 1) * 100)
-                    row['From52wLow(%)'] = fmt((close.iloc[-1] / year_data.min() - 1) * 100)
-                
-                row['MaxDrawdown(%)'] = fmt(calc_max_drawdown(close))
-                row['SharpeRatio'] = fmt(calc_sharpe_ratio(close))  # ← PWA 호환
+                row = add_technical_indicators(row, close, include_ma60_120=False)
 
-            # 최종 폴백: 여전히 결측인 필드들을 info에서 다시 시도
+            # 최종 폴백
             etf_field_mapping = {
-                'ExpenseRatio(%)': (('expenseRatio',), 100, 3),
                 'DivYield(%)': (('yield', 'dividendYield'), 100, 2),
                 'TotalAssets(B)': (('totalAssets',), 1e-9, 2),
             }
             row = fill_missing_from_info(row, info, etf_field_mapping)
 
-            # 52주 고저 폴백
             if row.get('52wHigh') is None:
                 val = safe_get(info, 'fiftyTwoWeekHigh')
                 if val:
@@ -1316,7 +1689,6 @@ def get_etf_data(tickers, region=""):
                 if val:
                     row['52wLow'] = fmt(val)
 
-            # Price 폴백
             if row.get('Price') is None:
                 row['Price'] = fmt(safe_get(info, 'regularMarketPrice', 'previousClose', 'navPrice'))
 
@@ -1334,50 +1706,47 @@ def get_etf_data(tickers, region=""):
 # 한국 ETF
 # ============================================================
 def get_korea_etfs():
-    """한국 ETF 데이터"""
+    """한국 ETF 데이터 - v3.0.2: FDR 우선"""
     log("\n[3/5] 한국 ETF 수집 중...")
     
-    # ========================================
-    # 1. KRX에서 ETF 전종목 데이터 (가장 정확)
-    # ========================================
-    krx_data = get_krx_etf_data()
+    # ★ v3.0.2: FinanceDataReader 최우선
+    kr_etf_list = []
+    if FDR_AVAILABLE:
+        try:
+            log("  FinanceDataReader에서 ETF 리스트 로드 중...")
+            kr_etf_list = fetch_fdr_etf_list()
+            if kr_etf_list:
+                log(f"  FinanceDataReader: {len(kr_etf_list)}개 ETF")
+        except Exception as e:
+            log(f"  ⚠️ FinanceDataReader ETF 실패: {e}")
     
-    if krx_data:
-        kr_etf_list = list(krx_data.keys())
-        log(f"  KRX: {len(kr_etf_list)}개 ETF")
-    else:
-        # ========================================
-        # 2. pykrx 대안
-        # ========================================
-        kr_etf_list = []
-        if PYKRX_AVAILABLE:
-            try:
-                log("  pykrx에서 ETF 리스트 로드 중...")
-                kr_etf_list = pykrx_stock.get_etf_ticker_list()
-                log(f"  pykrx: {len(kr_etf_list)}개 ETF")
-            except Exception as e:
-                log(f"  ⚠️ pykrx ETF 실패: {e}")
-        
-        # ========================================
-        # 3. 네이버 대안
-        # ========================================
-        if not kr_etf_list and NAVER_AVAILABLE is not False:
-            naver_etfs = get_naver_etf_list(max_pages=10)
-            kr_etf_list = [etf['code'] for etf in naver_etfs]
+    # 2순위: KRX
+    krx_data = {}
+    if not kr_etf_list:
+        krx_data = get_krx_etf_data()
+        if krx_data:
+            kr_etf_list = list(krx_data.keys())
+            log(f"  KRX: {len(kr_etf_list)}개 ETF")
     
-    # ========================================
-    # 4. 하드코딩 폴백 (모두 실패 시)
-    # ========================================
+    # 3순위: pykrx
+    if not kr_etf_list and PYKRX_AVAILABLE:
+        try:
+            log("  pykrx에서 ETF 리스트 로드 중...")
+            kr_etf_list = pykrx_stock.get_etf_ticker_list()
+            log(f"  pykrx: {len(kr_etf_list)}개 ETF")
+        except Exception as e:
+            log(f"  ⚠️ pykrx ETF 실패: {e}")
+    
+    # 4순위: 네이버
+    if not kr_etf_list and NAVER_AVAILABLE is not False:
+        naver_etfs = get_naver_etf_list(max_pages=10)
+        kr_etf_list = [etf['code'] for etf in naver_etfs]
+    
+    # 하드코딩 폴백
     if not kr_etf_list and not krx_data:
         log("  ⚠️ ETF 리스트 로드 실패, 주요 ETF만 사용")
-        kr_etf_list = [
-            '069500', '114800', '122630', '229200', '252670',
-            '305720', '091160', '133690', '143850', '192090',
-            '261240', '360750', '371450', '379800', '381170',
-            '395160', '461460',
-        ]
+        kr_etf_list = list(KR_ETF_EXPENSE.keys())
     
-    # ★ ETF 개수 제한 적용
     if TOP_N_KR_ETF and len(kr_etf_list) > TOP_N_KR_ETF:
         kr_etf_list = kr_etf_list[:TOP_N_KR_ETF]
     
@@ -1388,11 +1757,10 @@ def get_korea_etfs():
     
     for i, code in enumerate(kr_etf_list):
         try:
+            code = str(code).zfill(6)  # 6자리로 패딩
             row = {'Code': code, 'Region': 'KR'}
 
-            # ========================================
-            # 1. KRX 데이터 먼저 적용 (있으면)
-            # ========================================
+            # 1. KRX 데이터 먼저 적용
             krx_info = krx_data.get(code, {}) if krx_data else {}
             if krx_info:
                 row['Name'] = krx_info.get('name', '')
@@ -1403,9 +1771,7 @@ def get_korea_etfs():
                 if krx_info.get('volume'):
                     row['Volume'] = int(krx_info['volume'])
 
-            # ========================================
-            # 2. pykrx 보충 (KRX 없으면)
-            # ========================================
+            # 2. pykrx 보충
             if PYKRX_AVAILABLE and not row.get('Name'):
                 try:
                     row['Name'] = pykrx_stock.get_etf_ticker_name(code)
@@ -1422,53 +1788,81 @@ def get_korea_etfs():
                 except:
                     pass
 
-            # ========================================
-            # 3. yfinance (기술적 지표)
-            # ========================================
-            ticker_variants = [f"{code}.KS", f"{code}.KQ"]
-            t, hist, info = try_multiple_tickers(ticker_variants, max_retries=1)
+            # ★ v3.0.2: FinanceDataReader 우선 (기술적 지표)
+            hist = pd.DataFrame()
+            if FDR_AVAILABLE:
+                try:
+                    fdr_data = fdr.DataReader(code, DATE_1Y_AGO)
+                    if fdr_data is not None and not fdr_data.empty and len(fdr_data) > 20:
+                        hist = fdr_data
+                        if 'Close' not in hist.columns and '종가' in hist.columns:
+                            hist = hist.rename(columns={'종가': 'Close', '시가': 'Open', '고가': 'High', '저가': 'Low', '거래량': 'Volume'})
+                except:
+                    pass
+
+            # 3. yfinance (폴백)
+            info = {}
+            if hist.empty:
+                ticker_variants = [f"{code}.KS", f"{code}.KQ"]
+                t, hist, info = try_multiple_tickers(ticker_variants, max_retries=1)
+            else:
+                try:
+                    t = yf.Ticker(f"{code}.KS")
+                    info = t.info or {}
+                except:
+                    info = {}
 
             if not row.get('Name'):
                 row['Name'] = safe_get(info, 'shortName', 'longName') or code
             if not row.get('Price'):
                 row['Price'] = fmt(safe_get(info, 'regularMarketPrice'))
 
-            row['Category'] = safe_get(info, 'category')
-            row['ExpenseRatio(%)'] = fmt(safe_get(info, 'expenseRatio', default=0) * 100) if safe_get(info, 'expenseRatio') else None
+            # ★ v3.0 수정: Category 하드코딩 우선
+            yf_category = safe_get(info, 'category')
+            if yf_category:
+                row['Category'] = yf_category
+            elif code in KR_ETF_CATEGORY:  # ★ 하드코딩 폴백
+                row['Category'] = KR_ETF_CATEGORY[code]
+            else:
+                row['Category'] = None
             
+            # ★ v3.0 수정: ExpenseRatio 하드코딩 우선
+            yf_expense = safe_get(info, 'expenseRatio')
+            if yf_expense:
+                row['ExpenseRatio(%)'] = fmt(yf_expense * 100, 3)
+            elif code in KR_ETF_EXPENSE:  # ★ 하드코딩 폴백
+                row['ExpenseRatio(%)'] = KR_ETF_EXPENSE[code]
+            else:
+                row['ExpenseRatio(%)'] = None
+            
+            # ★ v3.0 추가: DivYield 하드코딩
+            yf_yield = safe_get(info, 'yield') or safe_get(info, 'dividendYield')
+            if yf_yield:
+                row['DivYield(%)'] = fmt(yf_yield * 100, 2)
+            elif code in KR_ETF_DIVYIELD:  # ★ 하드코딩 폴백
+                row['DivYield(%)'] = KR_ETF_DIVYIELD[code]
+            else:
+                row['DivYield(%)'] = None
+            
+            # ★ v3.0 추가: TotalAssets (v3.0.1: 단위 수정 1e12 → 1e9)
+            total_assets = safe_get(info, 'totalAssets')
+            if total_assets:
+                row['TotalAssets(B)'] = fmt(total_assets / 1e9, 2)  # Billion 단위
+            
+            # ★ v3.0: 기술적 지표 공통 함수 사용
             if not hist.empty and len(hist) > 20:
                 close = hist['Close']
-                
-                # 수익률 - PWA 호환
-                if len(close) >= 22:
-                    row['Return1M(%)'] = fmt((close.iloc[-1] / close.iloc[-22] - 1) * 100)
-                if len(close) >= 66:
-                    row['Return3M(%)'] = fmt((close.iloc[-1] / close.iloc[-66] - 1) * 100)
-                    row['Return60D(%)'] = row['Return3M(%)']  # ← PWA 호환
-                if len(close) >= 132:
-                    row['Return6M(%)'] = fmt((close.iloc[-1] / close.iloc[-132] - 1) * 100)
-                    row['Return120D(%)'] = row['Return6M(%)']  # ← PWA 호환
-                if len(close) >= 252:
-                    row['Return1Y(%)'] = fmt((close.iloc[-1] / close.iloc[-252] - 1) * 100)
-                    row['Return250D(%)'] = row['Return1Y(%)']  # ← PWA 호환
-                
-                row['RSI14'] = fmt(calc_rsi(close, 14))
-                row['Volatility20D'] = fmt(calc_volatility(close, 20))
-                row['MaxDrawdown(%)'] = fmt(calc_max_drawdown(close))
-                row['SharpeRatio'] = fmt(calc_sharpe_ratio(close))  # ← PWA 호환
+                row = add_technical_indicators(row, close, include_ma60_120=False)
             else:
-                # hist가 비어있어도 info가 있으면 기본 정보라도 포함
                 if not info:
                     continue
 
-            # 최종 폴백: 여전히 결측인 필드들을 info에서 다시 시도
+            # 최종 폴백
             kr_etf_field_mapping = {
-                'ExpenseRatio(%)': (('expenseRatio',), 100, 3),
                 'DivYield(%)': (('yield', 'dividendYield'), 100, 2),
             }
             row = fill_missing_from_info(row, info, kr_etf_field_mapping)
 
-            # 52주 고저 폴백
             if row.get('52wHigh') is None:
                 val = safe_get(info, 'fiftyTwoWeekHigh')
                 if val:
@@ -1484,7 +1878,6 @@ def get_korea_etfs():
         except Exception as e:
             pass
         
-        # 진행 상황 (20개마다)
         if (i + 1) % 20 == 0 or i == 0:
             elapsed = time.time() - start_time
             per_etf = elapsed / (i + 1) if i > 0 else 0
@@ -1517,7 +1910,6 @@ def get_us_etfs():
         'VEA', 'VWO', 'EFA', 'EEM', 'IEFA', 'IEMG', 'VXUS', 'ACWI'
     ]
     
-    # ★ ETF 개수 제한 적용
     if TOP_N_US_ETF and len(tickers) > TOP_N_US_ETF:
         tickers = tickers[:TOP_N_US_ETF]
     
@@ -1557,7 +1949,6 @@ def get_cape_ratio():
         resp = requests.get(url, headers=HEADERS, timeout=10)
         if resp.status_code == 200:
             soup = BeautifulSoup(resp.text, 'lxml')
-            # Current value
             current = soup.select_one('#current')
             if current:
                 val_text = current.get_text().strip().replace(',', '')
@@ -1571,10 +1962,6 @@ def get_cape_ratio():
 def get_sp500_forward_pe():
     """S&P 500 Forward PE from SPY ETF"""
     try:
-        spy = yf.Ticker('SPY')
-        info = spy.info
-        # SPY doesn't have forward PE directly, estimate from holdings
-        # Use IVV or VOO as alternatives
         for ticker in ['SPY', 'IVV', 'VOO']:
             t = yf.Ticker(ticker)
             info = t.info
@@ -1592,20 +1979,17 @@ def get_ism_pmi():
         resp = requests.get(url, headers=HEADERS, timeout=TIMEOUT_LONG)
         if resp.status_code == 200:
             soup = BeautifulSoup(resp.text, 'lxml')
-            # ISM Manufacturing PMI 값 찾기
             for elem in soup.select('#aspnetForm td, #aspnetForm span'):
                 text = elem.get_text().strip()
-                # 숫자값 추출 (40-60 범위)
                 try:
                     val = float(text)
-                    if 40 <= val <= 65:  # PMI 범위
+                    if 40 <= val <= 65:
                         return fmt(val, 1)
                 except:
                     pass
     except:
         pass
     
-    # 대안: investing.com
     try:
         url = "https://www.investing.com/economic-calendar/ism-manufacturing-pmi-173"
         resp = requests.get(url, headers=HEADERS, timeout=TIMEOUT_LONG)
@@ -1624,14 +2008,10 @@ def get_korea_market_indicators():
     """한국 시장 지표 (pykrx + 네이버 대안)"""
     indicators = {}
 
-    # ========================================
-    # 1. pykrx 시도
-    # ========================================
     if PYKRX_AVAILABLE:
         try:
             today_str = datetime.now().strftime("%Y%m%d")
 
-            # 코스피 PER, PBR
             try:
                 from_date = (datetime.now() - timedelta(days=7)).strftime("%Y%m%d")
                 kospi_fund = pykrx_stock.get_index_fundamental(from_date, today_str, "1001")
@@ -1646,15 +2026,12 @@ def get_korea_market_indicators():
             except Exception as e:
                 log(f"  ⚠️ pykrx 펀더멘털 실패: {e}")
 
-            # 외국인 순매수 (5일 + 20일)
             try:
                 from_date = (datetime.now() - timedelta(days=30)).strftime("%Y%m%d")
                 investor = pykrx_stock.get_market_trading_value_by_date(from_date, today_str, "KOSPI")
                 if not investor.empty and '외국인' in investor.columns:
-                    # 5일 순매수
                     recent_5 = investor['외국인'].tail(5).sum()
                     indicators['foreign_net_buy'] = fmt(recent_5 / 1e8, 0)
-                    # 20일 누적
                     recent_20 = investor['외국인'].tail(20).sum()
                     indicators['foreign_net_buy_20d'] = fmt(recent_20 / 1e8, 0)
                     
@@ -1669,21 +2046,15 @@ def get_korea_market_indicators():
         except Exception as e:
             log(f"  ⚠️ pykrx 전체 실패: {e}")
 
-    # ========================================
-    # 2. 네이버 대안 (pykrx 실패 시)
-    # ========================================
     if not indicators.get('kospi_per') and NAVER_AVAILABLE is not False:
         try:
-            # 네이버 시장 지표 페이지에서 코스피 PER
             url = "https://finance.naver.com/sise/sise_index.naver?code=KOSPI"
             resp = requests.get(url, headers=HEADERS, timeout=TIMEOUT_SHORT)
             if resp.status_code == 200:
                 soup = BeautifulSoup(resp.text, 'lxml')
-                # PER 찾기
                 for td in soup.select('td'):
                     text = td.get_text().strip()
                     if 'PER' in text or 'per' in text.lower():
-                        # 다음 td나 같은 행에서 값 추출
                         parent = td.find_parent('tr')
                         if parent:
                             tds = parent.select('td')
@@ -1691,7 +2062,7 @@ def get_korea_market_indicators():
                                 val_text = t.get_text().strip().replace(',', '')
                                 try:
                                     val = float(val_text)
-                                    if 5 < val < 50:  # PER 범위
+                                    if 5 < val < 50:
                                         indicators['kospi_per'] = fmt(val, 2)
                                         break
                                 except:
@@ -1706,11 +2077,7 @@ def get_market_indicators():
     """글로벌 시장 지표 - 확장 버전"""
     log("\n[5/5] 시장 지표 수집 중...")
 
-    # ========================================
-    # 1. Yahoo Finance 기본 지표
-    # ========================================
     indicators = {
-        # 지수
         '^GSPC': ('S&P 500', '지수'),
         '^DJI': ('다우존스', '지수'),
         '^IXIC': ('나스닥 종합', '지수'),
@@ -1722,14 +2089,12 @@ def get_market_indicators():
         '^STOXX50E': ('유로스톡스50', '지수'),
         '^FTSE': ('FTSE 100', '지수'),
 
-        # 환율
         'USDKRW=X': ('USD/KRW', '환율'),
         'EURUSD=X': ('EUR/USD', '환율'),
         'USDJPY=X': ('USD/JPY', '환율'),
         'DX-Y.NYB': ('달러 인덱스', '환율'),
         'USDCNY=X': ('USD/CNY', '환율'),
 
-        # 원자재
         'GC=F': ('금 선물', '원자재'),
         'SI=F': ('은 선물', '원자재'),
         'CL=F': ('WTI 원유', '원자재'),
@@ -1737,23 +2102,19 @@ def get_market_indicators():
         'NG=F': ('천연가스', '원자재'),
         'HG=F': ('구리 선물', '원자재'),
 
-        # 채권 - Tier 1 추가
         '^IRX': ('미국채 3개월', '채권'),
         '^FVX': ('미국채 5년', '채권'),
         '^TNX': ('미국채 10년', '채권'),
         '^TYX': ('미국채 30년', '채권'),
 
-        # 암호화폐
         'BTC-USD': ('비트코인', '암호화폐'),
         'ETH-USD': ('이더리움', '암호화폐'),
 
-        # 신용/스프레드 관련 ETF
         'HYG': ('하이일드 채권 ETF', '신용'),
         'LQD': ('투자등급 채권 ETF', '신용'),
         'TLT': ('장기국채 ETF', '채권'),
         'SHY': ('단기국채 ETF', '채권'),
 
-        # 옵션 심리 - Tier 2
         '^CPCE': ('Put/Call Ratio', '심리'),
     }
 
@@ -1771,7 +2132,6 @@ def get_market_indicators():
             close = hist['Close']
             current_price = close.iloc[-1]
 
-            # 소수점 자릿수 결정
             decimals = 4 if category == '환율' else (3 if category == '채권' else 2)
 
             row = {
@@ -1789,9 +2149,9 @@ def get_market_indicators():
                 row['Return1M(%)'] = fmt((close.iloc[-1] / close.iloc[-22] - 1) * 100)
             if len(close) >= 66:
                 row['Return3M(%)'] = fmt((close.iloc[-1] / close.iloc[-66] - 1) * 100)
-            if len(close) >= 252:
-                row['Return1Y(%)'] = fmt((close.iloc[-1] / close.iloc[-252] - 1) * 100)
-                year_data = close.tail(252)
+            if len(close) >= 245:  # ★ v3.0: 252 → 245
+                row['Return1Y(%)'] = fmt((close.iloc[-1] / close.iloc[-min(len(close), 252)] - 1) * 100)  # ★ v3.0.1 버그 수정
+                year_data = close.tail(min(len(close), 252))
                 row['52wHigh'] = fmt(year_data.max(), decimals)
                 row['52wLow'] = fmt(year_data.min(), decimals)
                 row['From52wHigh(%)'] = fmt((current_price / year_data.max() - 1) * 100)
@@ -1803,12 +2163,8 @@ def get_market_indicators():
 
         time.sleep(0.05)
 
-    # ========================================
-    # 2. 계산 지표 (스프레드 등)
-    # ========================================
     log("  계산 지표 수집 중...")
 
-    # 10Y-3M 스프레드 (침체 신호)
     try:
         tnx = next((r for r in results if r['Ticker'] == '^TNX'), None)
         irx = next((r for r in results if r['Ticker'] == '^IRX'), None)
@@ -1824,7 +2180,6 @@ def get_market_indicators():
     except:
         pass
 
-    # 10Y-2Y 스프레드 (5년물로 대체)
     try:
         tnx = next((r for r in results if r['Ticker'] == '^TNX'), None)
         fvx = next((r for r in results if r['Ticker'] == '^FVX'), None)
@@ -1839,12 +2194,10 @@ def get_market_indicators():
     except:
         pass
 
-    # 하이일드 스프레드 (HYG-LQD 차이로 추정)
     try:
         hyg = next((r for r in results if r['Ticker'] == 'HYG'), None)
         lqd = next((r for r in results if r['Ticker'] == 'LQD'), None)
         if hyg and lqd and hyg.get('Return1M(%)') and lqd.get('Return1M(%)'):
-            # 하이일드가 투자등급 대비 얼마나 언더퍼폼하는지
             hy_spread_proxy = float(lqd['Return1M(%)']) - float(hyg['Return1M(%)'])
             results.append({
                 'Category': '스프레드',
@@ -1856,12 +2209,8 @@ def get_market_indicators():
     except:
         pass
 
-    # ========================================
-    # 3. 심리 지표 (웹 스크래핑)
-    # ========================================
     log("  심리 지표 수집 중...")
 
-    # Fear & Greed Index
     fg_data = get_fear_greed_index()
     if fg_data:
         results.append({
@@ -1873,7 +2222,6 @@ def get_market_indicators():
             'Previous': fg_data.get('previous_close'),
         })
 
-    # S&P 500 CAPE
     cape = get_cape_ratio()
     if cape:
         results.append({
@@ -1884,7 +2232,6 @@ def get_market_indicators():
             'Signal': '고평가' if float(cape) > 30 else ('저평가' if float(cape) < 15 else '보통'),
         })
 
-    # S&P 500 Forward PE
     forward_pe = get_sp500_forward_pe()
     if forward_pe:
         results.append({
@@ -1894,7 +2241,6 @@ def get_market_indicators():
             'Price': forward_pe,
         })
 
-    # ★ ISM 제조업 PMI 추가
     ism_pmi = get_ism_pmi()
     if ism_pmi:
         results.append({
@@ -1905,9 +2251,6 @@ def get_market_indicators():
             'Signal': '확장' if float(ism_pmi) > 50 else '수축',
         })
 
-    # ========================================
-    # 4. 한국 시장 지표 (pykrx)
-    # ========================================
     log("  한국 시장 지표 수집 중...")
 
     kr_indicators = get_korea_market_indicators()
@@ -1946,7 +2289,6 @@ def get_market_indicators():
             'Signal': '매수' if float(val) > 0 else '매도',
         })
 
-    # ★ 외국인 20일 누적 추가
     if kr_indicators.get('foreign_net_buy_20d') is not None:
         val = kr_indicators['foreign_net_buy_20d']
         results.append({
@@ -1977,17 +2319,12 @@ def get_market_indicators():
             'Signal': '매수' if float(val) > 0 else '매도',
         })
 
-    # ========================================
-    # 5. 추가 ETF 기반 지표
-    # ========================================
     log("  추가 ETF 지표 수집 중...")
 
     additional_etfs = {
         'IEF': ('미국채 7-10년 ETF', '채권'),
         'TIP': ('물가연동채 ETF', '채권'),
         'EMB': ('신흥국 채권 ETF', '신용'),
-        'HYG': ('하이일드 채권 ETF', '신용'),      # ★ 하이일드 스프레드용
-        'LQD': ('투자등급 회사채 ETF', '신용'),    # ★ 하이일드 스프레드용
         'GLD': ('금 ETF', '원자재'),
         'USO': ('원유 ETF', '원자재'),
         'VXX': ('VIX 선물 ETF', '변동성'),
@@ -2021,15 +2358,12 @@ def get_market_indicators():
 
         time.sleep(0.05)
 
-    # 실질금리 추정 (10Y - TIP 수익률)
     try:
         tnx = next((r for r in results if r['Ticker'] == '^TNX'), None)
         tip = next((r for r in results if r['Ticker'] == 'TIP'), None)
         if tnx and tip:
-            # TIP의 1년 수익률을 기대 인플레이션 proxy로 사용
             tip_return = tip.get('Return1M(%)')
             if tip_return:
-                # 단순 추정: 10Y 금리 - (TIP 수익률 * 12 / 100)
                 real_rate = float(tnx['Price']) - (float(tip_return) * 12 / 100)
                 results.append({
                     'Category': '금리',
@@ -2096,7 +2430,7 @@ def save_to_json(data_dict, filename):
         'metadata': {
             'generated': datetime.now().isoformat(),
             'date': TODAY,
-            'version': 'v2-github-pwa-compatible'  # ← 버전 업데이트
+            'version': 'v3.0.2-github-pwa-compatible'  # ★ 버전 업데이트
         },
         'data': {}
     }
@@ -2121,7 +2455,7 @@ def save_to_json(data_dict, filename):
 # 메인
 # ============================================================
 def main():
-    parser = argparse.ArgumentParser(description='글로벌 주식/ETF 스크리너 (GitHub Actions)')
+    parser = argparse.ArgumentParser(description='글로벌 주식/ETF 스크리너 (GitHub Actions) v3.0.2')
     parser.add_argument('--json-only', action='store_true', help='JSON만 출력')
     parser.add_argument('--output-dir', type=str, default='.', help='출력 디렉토리')
     parser.add_argument('--kr-stocks', type=int, default=150, help='한국 주식 수 (기본 150)')
@@ -2137,7 +2471,8 @@ def main():
     TOP_N_US_ETF = args.us_etfs
     
     log("=" * 60)
-    log("글로벌 주식/ETF 스크리닝 - GitHub Actions v2.5")
+    log("글로벌 주식/ETF 스크리닝 - GitHub Actions v3.0.2")
+    log("★ v3.0.2: FinanceDataReader 추가, 데이터 소스 우선순위 개선")
     log(f"실행: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     log(f"한국 주식: {TOP_N_KR}개 (KOSPI) | 미국 주식: {TOP_N_US}개")
     log(f"한국 ETF: {TOP_N_KR_ETF}개 | 미국 ETF: {TOP_N_US_ETF}개")
