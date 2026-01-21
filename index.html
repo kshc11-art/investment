@@ -1308,6 +1308,151 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+        
+        /* details summary 기본 화살표 제거 */
+        summary::-webkit-details-marker { display: none; }
+        summary::marker { display: none; }
+        details summary { list-style: none; }
+        
+        /* ===== 종목 상세 모달 스타일 ===== */
+        .stock-detail-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 10000;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .stock-detail-modal.active { display: flex; justify-content: center; align-items: flex-start; }
+        .stock-detail-content {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            margin: 20px 0;
+        }
+        .stock-detail-header {
+            position: sticky;
+            top: 0;
+            background: var(--bg-primary);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+        .stock-detail-header h2 { margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+        .stock-detail-header .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 5px;
+        }
+        .stock-detail-header .close-btn:hover { color: var(--text-primary); }
+        .stock-detail-body { padding: 20px; }
+        .detail-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .detail-section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+        .detail-item-label {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: help;
+        }
+        .detail-item-label .info-icon {
+            font-size: 0.7rem;
+            opacity: 0.6;
+        }
+        .detail-item-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .detail-item-value.positive { color: #10b981; }
+        .detail-item-value.negative { color: #ef4444; }
+        .detail-item-value.neutral { color: var(--text-muted); }
+        .detail-flags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .detail-flag {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .detail-flag.warning { background: rgba(239,68,68,0.15); color: #ef4444; }
+        .detail-flag.positive { background: rgba(16,185,129,0.15); color: #10b981; }
+        .detail-flag.neutral { background: rgba(107,114,128,0.15); color: #9ca3af; }
+        .detail-flag.info { background: rgba(59,130,246,0.15); color: #3b82f6; }
+        .stock-name-clickable {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .stock-name-clickable:hover {
+            color: var(--accent-gold);
+            text-decoration: underline;
+        }
+        .detail-tooltip {
+            position: relative;
+        }
+        .detail-tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            max-width: 300px;
+            white-space: normal;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+        }
     </style>
 </head>
 <body>
@@ -1587,14 +1732,30 @@
                     <!-- 스크리닝 필터 -->
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 5px;">
                         <span style="font-size: 0.6rem; color: var(--text-muted); line-height: 1;">필터</span>
-                        <div style="display: flex; gap: 2px; background: var(--bg-card); padding: 2px; border-radius: 5px; height: 26px; align-items: center; overflow: hidden;">
-                            <button type="button" class="filter-toggle-btn" id="filterOverboughtBtn" data-target="filterOverbought" style="padding: 0 8px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.6rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">🔥 과매수 제외</button>
-                            <button type="button" class="filter-toggle-btn" id="filterNearHighBtn" data-target="filterNearHigh" style="padding: 0 8px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.6rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">⚠️ 고점 제외</button>
-                            <button type="button" class="filter-toggle-btn" id="filterContrarianOnlyBtn" data-target="filterContrarianOnly" style="padding: 0 8px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.6rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">💎 역발상만</button>
+                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                            <!-- 1줄: 기존 필터 (경고/제외) -->
+                            <div style="display: flex; gap: 2px; background: var(--bg-card); padding: 2px; border-radius: 5px; height: 26px; align-items: center; overflow: hidden;">
+                                <button type="button" class="filter-toggle-btn" id="filterOverboughtBtn" data-target="filterOverbought" title="복합 과열 지표: RSI>70, BB상단>90, MA20괴리>20%, 모멘텀상위15% 중 2개 이상 충족 시 과매수 (Singh 2025)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">🔥제외</button>
+                                <button type="button" class="filter-toggle-btn" id="filterNearHighBtn" data-target="filterNearHigh" title="52주 고점 95% 이상 근접. BREAKOUT(신고가돌파), RESISTANCE(저항선), RISING(상승중) 구분 (George & Hwang 2004)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">⚠️제외</button>
+                                <button type="button" class="filter-toggle-btn" id="filterVolatilityBtn" data-target="filterVolatility" title="변동성 경고: 고변동성(상위20%) + 모멘텀 종목 = 크래시 위험. 시장 하락 후 반등 시 모멘텀 크래시 발생 (Daniel & Moskowitz 2016)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">⚡제외</button>
+                            </div>
+                            <!-- 2줄: 신규 필터 (포함/Only) -->
+                            <div style="display: flex; gap: 2px; background: var(--bg-card); padding: 2px; border-radius: 5px; height: 26px; align-items: center; overflow: hidden;">
+                                <button type="button" class="filter-toggle-btn" id="filterContrarianOnlyBtn" data-target="filterContrarianOnly" title="역발상 = 가치저평가(PBR<1) + 수익성(ROE상위) + 소외상태(60일<15%) + 비과열. 과매수/고점 종목 자동 제외 (De Bondt 1985)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">💎역발상</button>
+                                <button type="button" class="filter-toggle-btn" id="filterMomentumOnlyBtn" data-target="filterMomentumOnly" title="모멘텀 = 60일수익률 상위30% + 120일수익률 상위40%. 과거 승자가 미래 승자 (Jegadeesh & Titman 1993, 2023)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">🚀모멘텀</button>
+                                <button type="button" class="filter-toggle-btn" id="filterQualityOnlyBtn" data-target="filterQualityOnly" title="Quality = ROE상위30% + ROA>10% + 매출총이익률>30% + 순이익률>10% 중 3개 이상. 수익성이 가치만큼 수익률 예측 (Novy-Marx 2013)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">🏆Quality</button>
+                                <button type="button" class="filter-toggle-btn" id="filterIlliquidOnlyBtn" data-target="filterIlliquidOnly" title="비유동성 프리미엄 = 시총 1조 미만 + 거래량 10만주 미만. 비유동 종목이 초과수익 (Amihud 2002, Pastor & Stambaugh 2003)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">🌊비유동</button>
+                                <button type="button" class="filter-toggle-btn" id="filterValueGraduateBtn" data-target="filterValueGraduate" title="가치 졸업 = 역발상 조건 충족했으나 시장이 인식하여 과열 상태. 역발상→가치주 전환 (신규 개념)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">💰졸업</button>
+                            </div>
                         </div>
                         <input type="checkbox" id="filterOverbought" style="display: none;">
                         <input type="checkbox" id="filterNearHigh" style="display: none;">
                         <input type="checkbox" id="filterContrarianOnly" style="display: none;">
+                        <input type="checkbox" id="filterVolatility" style="display: none;">
+                        <input type="checkbox" id="filterMomentumOnly" style="display: none;">
+                        <input type="checkbox" id="filterQualityOnly" style="display: none;">
+                        <input type="checkbox" id="filterIlliquidOnly" style="display: none;">
+                        <input type="checkbox" id="filterValueGraduate" style="display: none;">
                     </div>
                     
                     <!-- 점수 필터 -->
@@ -2333,6 +2494,74 @@
                         💡 <strong>근거:</strong> 역수익률 곡선 지속 + 환율 1,470원대 고위험 → 국내 단기채/현금 중심. Fed 인하 시그널 확인 후 장기채 비중 확대 검토.
                     </div>
                 </div>
+            </div>
+
+            <!-- 🌐 글로벌 정책 영향 분석 (AI 자동 업데이트) -->
+            <div class="card">
+                <details open>
+                    <summary style="cursor: pointer; padding: 16px; margin: -16px; display: flex; align-items: center;">
+                        <h3 class="card-title" style="margin: 0;">🌐 글로벌 정책 영향 분석</h3>
+                        <span class="card-badge badge-info" style="margin-left: 8px;">AI 업데이트</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: auto;">▼</span>
+                    </summary>
+                    
+                    <div style="margin-top: 16px;">
+                        <div id="globalImpactStatus" style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 12px;">
+                            📅 마지막 업데이트: <span id="globalImpactLastUpdate">기본값</span>
+                        </div>
+                        
+                        <!-- 정책별 카드 컨테이너 -->
+                        <div id="globalImpactGrid" style="display: flex; flex-direction: column; gap: 12px;">
+                            <!-- AI Config 적용 시 동적 렌더링 -->
+                            <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.8rem;">
+                                💡 AI Config 적용 시 정책별 영향 분석이 표시됩니다
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </div>
+            
+            <!-- 📰 주요 자산 뉴스 (AI 자동 업데이트) -->
+            <div class="card">
+                <details>
+                    <summary style="cursor: pointer; padding: 16px; margin: -16px; display: flex; align-items: center;">
+                        <h3 class="card-title" style="margin: 0;">📰 주요 자산 뉴스</h3>
+                        <span class="card-badge badge-warning" style="margin-left: 8px;">AI 업데이트</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: auto;">▼</span>
+                    </summary>
+                    
+                    <div style="margin-top: 16px;">
+                        <div id="corpNewsGrid" style="display: flex; flex-direction: column; gap: 10px;">
+                            <!-- AI Config 적용 시 동적 렌더링 -->
+                            <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.8rem;">
+                                💡 AI Config 적용 시 주요 자산 뉴스가 표시됩니다
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- 🌍 AI 지역/자산 배분 조정 (AI 자동 업데이트) -->
+            <div class="card">
+                <details>
+                    <summary style="cursor: pointer; padding: 16px; margin: -16px; display: flex; align-items: center;">
+                        <h3 class="card-title" style="margin: 0;">🌍 AI 지역/자산 배분 조정</h3>
+                        <span class="card-badge badge-info" style="margin-left: 8px;">AI 업데이트</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: auto;">▼</span>
+                    </summary>
+                    
+                    <div style="margin-top: 16px;">
+                        <div id="regionAdjGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px;">
+                            <!-- AI Config 적용 시 동적 렌더링 -->
+                            <div style="grid-column: 1 / -1; text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.8rem;">
+                                💡 AI Config 적용 시 지역별 배분 조정이 표시됩니다
+                            </div>
+                        </div>
+                        <div id="regionAdjReason" style="margin-top: 12px; padding: 10px; background: var(--bg-secondary); border-radius: 8px; font-size: 0.75rem; color: var(--text-secondary); display: none;">
+                            <strong>💡 조정 사유:</strong> <span id="regionAdjReasonText"></span>
+                        </div>
+                    </div>
+                </details>
             </div>
 
             <!-- 📋 산업별 전망 & 대응 (AI 자동 업데이트) -->
@@ -4459,12 +4688,10 @@
             <!-- 📊 상세 지표 현황 (엑셀/JSON 원시 데이터) - 접기 가능 -->
             <div class="card" id="rawIndicatorCard" style="display:none;">
                 <details>
-                    <summary style="cursor: pointer; padding: 10px 12px; margin: -16px; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <h3 class="card-title" style="font-size: 0.85rem; margin: 0;">📈 Market_Indicators 상세</h3>
-                            <span class="card-badge" id="rawIndicatorCount" style="font-size: 0.65rem;">0개 로드</span>
-                        </div>
-                        <span style="font-size: 0.75rem; color: var(--text-muted);">▼ 펼치기/접기</span>
+                    <summary style="cursor: pointer; padding: 10px 12px; margin: -16px; display: flex; align-items: center;">
+                        <h3 class="card-title" style="font-size: 0.85rem; margin: 0;">📈 Market_Indicators 상세</h3>
+                        <span class="card-badge" id="rawIndicatorCount" style="font-size: 0.65rem; margin-left: 8px;">0개 로드</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: auto;">▼</span>
                     </summary>
                     <div id="rawIndicatorContent" style="padding: 12px;">
                         <div id="rawIndicatorGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px;"></div>
@@ -4494,53 +4721,47 @@
                     <input type="number" id="ind_ism">
                 </div>
                 
-                <!-- Config 업로드 버튼 영역 (컴팩트) -->
-                <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-                    <label for="configUpload" style="cursor: pointer; padding: 8px 16px; background: linear-gradient(135deg, var(--accent-purple), #7c3aed); color: #fff; font-weight: 600; border: none; border-radius: 8px; font-size: 0.8rem; text-align: center;">
-                        📤 Config 파일 업로드
+                <!-- Config 업로드 버튼 영역 (더 컴팩트) -->
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                    <label for="configUpload" style="cursor: pointer; padding: 6px 12px; background: linear-gradient(135deg, var(--accent-purple), #7c3aed); color: #fff; font-weight: 600; border: none; border-radius: 6px; font-size: 0.75rem; text-align: center;">
+                        📤 Config 업로드
                     </label>
                     <input type="file" id="configUpload" accept=".json,application/json" style="display: none;" onchange="handleConfigUpload(event)">
                     
-                    <button onclick="copyPromptToClipboard(this)" style="padding: 8px 12px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 0.75rem;">
-                        📋 프롬프트 복사
+                    <button onclick="copyPromptToClipboard(this)" style="padding: 6px 10px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 0.7rem;">
+                        📋 프롬프트
                     </button>
-                    <button onclick="togglePromptView()" style="padding: 8px 12px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 0.75rem;">
-                        👁️ 보기
+                    <button onclick="togglePromptView()" style="padding: 6px 10px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 0.7rem;">
+                        👁️
                     </button>
-                    <button onclick="resetConfigData()" style="padding: 8px 12px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 0.75rem;">
-                        🗑️ 초기화
+                    <button onclick="resetConfigData()" style="padding: 6px 10px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 0.7rem;">
+                        🗑️
                     </button>
-                </div>
-                
-                <!-- Config 상태 표시 -->
-                <div id="configStatus" style="margin-top: 8px; padding: 6px 10px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    <span>💡</span>
-                    <span>JSON 파일을 업로드하거나 아래에 직접 붙여넣으세요</span>
                 </div>
                 
                 <!-- 프롬프트 보기 영역 (기본 숨김) -->
-                <div id="promptViewBox" style="display: none; margin-top: 8px; padding: 12px; background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1)); border: 1px solid var(--accent-purple); border-radius: 8px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <strong style="color: var(--accent-purple); font-size: 0.8rem;">📋 AI에게 보낼 프롬프트</strong>
-                        <button onclick="togglePromptView()" style="background: none; border: none; cursor: pointer; font-size: 0.9rem;">✕</button>
+                <div id="promptViewBox" style="display: none; margin-top: 6px; padding: 10px; background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1)); border: 1px solid var(--accent-purple); border-radius: 6px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <strong style="color: var(--accent-purple); font-size: 0.75rem;">📋 AI 프롬프트</strong>
+                        <button onclick="togglePromptView()" style="background: none; border: none; cursor: pointer; font-size: 0.8rem;">✕</button>
                     </div>
-                    <textarea id="promptTextArea" readonly style="width: 100%; height: 200px; padding: 8px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; font-family: monospace; font-size: 0.65rem; box-sizing: border-box;"></textarea>
-                    <button onclick="copyFromTextArea()" style="margin-top: 8px; width: 100%; padding: 8px; background: var(--accent-purple); color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.8rem;">📋 전체 복사</button>
+                    <textarea id="promptTextArea" readonly style="width: 100%; height: 150px; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: 0.6rem; box-sizing: border-box;"></textarea>
+                    <button onclick="copyFromTextArea()" style="margin-top: 6px; width: 100%; padding: 6px; background: var(--accent-purple); color: #fff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.75rem;">📋 복사</button>
                 </div>
                 
-                <!-- JSON 직접 붙여넣기 영역 (컴팩트) -->
-                <details style="margin-top: 8px;">
-                    <summary style="padding: 8px 12px; background: var(--bg-secondary); border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-                        <span>📝 JSON 직접 붙여넣기</span>
-                        <span style="font-size: 0.7rem; color: var(--text-muted);">▼ 펼치기</span>
+                <!-- JSON 직접 붙여넣기 영역 (더 컴팩트) -->
+                <details style="margin-top: 6px;">
+                    <summary style="padding: 6px 10px; background: var(--bg-secondary); border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center;">
+                        <span>📝 JSON 붙여넣기</span>
+                        <span style="font-size: 0.7rem; color: var(--text-muted); margin-left: auto;">▼</span>
                     </summary>
-                    <div style="margin-top: 8px; padding: 12px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color);">
-                        <textarea id="jsonInputArea" placeholder='AI가 생성한 JSON을 여기에 붙여넣고 "적용" 버튼을 누르세요' style="width: 100%; height: 100px; padding: 8px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; font-family: monospace; font-size: 0.7rem; box-sizing: border-box;"></textarea>
-                        <div style="display: flex; gap: 6px; margin-top: 8px;">
-                            <button onclick="applyJsonInput()" style="flex: 1; padding: 8px; background: #10b981; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.8rem;">✅ JSON 적용</button>
-                            <button onclick="document.getElementById('jsonInputArea').value=''; document.getElementById('jsonResultMsg').style.display='none';" style="padding: 8px 14px; background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 0.75rem;">지우기</button>
+                    <div style="margin-top: 6px; padding: 10px; background: var(--bg-secondary); border-radius: 6px; border: 1px solid var(--border-color);">
+                        <textarea id="jsonInputArea" placeholder='AI JSON 붙여넣기' style="width: 100%; height: 80px; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: 0.65rem; box-sizing: border-box;"></textarea>
+                        <div style="display: flex; gap: 6px; margin-top: 6px;">
+                            <button onclick="applyJsonInput()" style="flex: 1; padding: 6px; background: #10b981; color: #fff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.75rem;">✅ 적용</button>
+                            <button onclick="document.getElementById('jsonInputArea').value=''; document.getElementById('jsonResultMsg').style.display='none';" style="padding: 6px 10px; background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; font-size: 0.7rem;">지우기</button>
                         </div>
-                        <div id="jsonResultMsg" style="display: none; margin-top: 8px; padding: 8px; border-radius: 6px; font-size: 0.75rem;"></div>
+                        <div id="jsonResultMsg" style="display: none; margin-top: 6px; padding: 6px; border-radius: 4px; font-size: 0.7rem;"></div>
                     </div>
                 </details>
                 
@@ -4688,9 +4909,9 @@
             <!-- 개별 신호 상세 (접기 가능) -->
             <div class="card" id="signalDetailsCard" style="display: none;">
                 <details open>
-                    <summary style="cursor: pointer; padding: 16px; margin: -16px; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                    <summary style="cursor: pointer; padding: 16px; margin: -16px; display: flex; align-items: center;">
                         <h3 class="card-title" style="margin: 0;">📋 개별 신호 상세</h3>
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">▼ 접기/펼치기</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: auto;">▼</span>
                     </summary>
                     <div id="signalDetails" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 16px;"></div>
                 </details>
@@ -4699,12 +4920,9 @@
             <!-- 학술적 근거 설명 (접기 가능) -->
             <div class="card">
                 <details>
-                    <summary style="cursor: pointer; padding: 16px; margin: -16px; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <h3 class="card-title" style="margin: 0;">📚 판단 로직 & 학술 근거</h3>
-                            <span class="card-badge badge-info">투명성</span>
-                        </div>
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">▼ 펼치기</span>
+                    <summary style="cursor: pointer; padding: 16px; margin: -16px; display: flex; align-items: center;">
+                        <h3 class="card-title" style="margin: 0;">📚 판단 로직 & 학술 근거</h3>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: auto;">▼</span>
                     </summary>
                     
                     <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8; margin-top: 16px;">
@@ -4876,18 +5094,43 @@
             const version = getSelectedVersion();
             
             // 공통 스크리닝 필터 적용 (모든 버전)
+            // 기존 필터 (경고/제외)
             const filterOverbought = document.getElementById('filterOverbought')?.checked;
             const filterNearHigh = document.getElementById('filterNearHigh')?.checked;
+            const filterVolatility = document.getElementById('filterVolatility')?.checked;
+            // 신규 필터 (Only/포함)
             const filterContrarianOnly = document.getElementById('filterContrarianOnly')?.checked;
+            const filterMomentumOnly = document.getElementById('filterMomentumOnly')?.checked;
+            const filterQualityOnly = document.getElementById('filterQualityOnly')?.checked;
+            const filterIlliquidOnly = document.getElementById('filterIlliquidOnly')?.checked;
+            const filterValueGraduate = document.getElementById('filterValueGraduate')?.checked;
             
+            // 경고/제외 필터 적용
             if (filterOverbought) {
                 filtered = filtered.filter(d => !d._overbought);
             }
             if (filterNearHigh) {
                 filtered = filtered.filter(d => !d._nearHigh);
             }
+            if (filterVolatility) {
+                filtered = filtered.filter(d => !d._volatilityWarning);
+            }
+            
+            // Only 필터 적용 (포함 필터)
             if (filterContrarianOnly) {
                 filtered = filtered.filter(d => d._contrarian);
+            }
+            if (filterMomentumOnly) {
+                filtered = filtered.filter(d => d._momentum);
+            }
+            if (filterQualityOnly) {
+                filtered = filtered.filter(d => d._quality);
+            }
+            if (filterIlliquidOnly) {
+                filtered = filtered.filter(d => d._illiquid);
+            }
+            if (filterValueGraduate) {
+                filtered = filtered.filter(d => d._valueGraduate);
             }
             
             let sorted = [...filtered];
@@ -4947,11 +5190,18 @@
                 const name = d.Name || '-';
                 const sector = d.Sector || d.ETF_Type || d.Category || '-';
                 
-                // 플래그 아이콘 (모든 버전에서 표시)
+                // 플래그 아이콘 (모든 버전에서 표시) - 2020년대 학술 연구 기반
                 let statusIcons = '';
+                // 경고 아이콘 (제외 필터 대상)
                 if (d._overbought) statusIcons += '🔥';
                 if (d._nearHigh) statusIcons += '⚠️';
+                if (d._volatilityWarning) statusIcons += '⚡';
+                // 긍정 아이콘 (Only 필터 대상)
+                if (d._momentum) statusIcons += '🚀';
+                if (d._quality) statusIcons += '🏆';
                 if (d._contrarian) statusIcons += '💎';
+                if (d._valueGraduate) statusIcons += '💰';
+                if (d._illiquid) statusIcons += '🌊';
                 
                 // 점수들
                 const totalScore = d.TotalScore ? Math.round(d.TotalScore) : '-';
@@ -4973,10 +5223,21 @@
                 // 종목명에 플래그 아이콘 추가
                 const displayName = statusIcons ? `${name.substring(0,16)} ${statusIcons}` : name.substring(0,18);
                 
+                // 🆕 종목 데이터를 JSON으로 인코딩 (모달용)
+                const stockDataId = `stock_${i}`;
+                window._stockDetailData = window._stockDetailData || {};
+                window._stockDetailData[stockDataId] = d;
+                
+                // 🔗 섹터 전망 연동 (9번 이슈 수정)
+                const sectorView = getSectorOutlookView(sector);
+                const sectorViewColor = sectorView ? (SECTOR_VIEW_COLORS[sectorView] || '#6b7280') : null;
+                const sectorViewBadge = sectorView ? 
+                    `<span style="font-size:0.6rem;padding:1px 4px;border-radius:4px;background:${sectorViewColor}22;color:${sectorViewColor};margin-left:4px;" title="AI 섹터전망">${sectorView.substring(0,3)}</span>` : '';
+                
                 return `<tr>
                     <td><span class="rank-badge ${rankClass}">${rank}</span></td>
-                    <td><div class="stock-cell"><div><div class="stock-name">${displayName}</div><div class="stock-ticker">${ticker}</div></div></div></td>
-                    <td><span class="breakdown-chip" title="${String(sector)}">${String(sector).substring(0,15)}</span></td>
+                    <td><div class="stock-cell"><div><div class="stock-name" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted;" onclick="showStockDetail('${stockDataId}')" title="클릭하여 상세 정보 보기">${displayName}</div><div class="stock-ticker">${ticker}</div></div></div></td>
+                    <td><span class="breakdown-chip" title="${String(sector)}">${String(sector).substring(0,12)}</span>${sectorViewBadge}</td>
                     <td><span class="score-badge ${sc(totalScore)}">${totalScore}</span></td>
                     <td><span class="score-badge ${sc(valueScore)}">${valueScore}</span></td>
                     <td><span class="score-badge ${sc(qualityScore)}">${qualityScore}</span></td>
@@ -5077,6 +5338,10 @@
         
         // ========== 공통 필터 플래그 계산 (모든 버전에서 동일) ==========
         // data.json 원시 데이터 기반으로 _overbought, _nearHigh, _contrarian 설정
+        // 🔬 2020년대 학술 연구 기반 개선 (이슈 21번)
+        // - 과매수: Singh & Priyanka (2025) - 복합 지표 활용
+        // - 고점: Momentum on Historical High (2024) - 돌파 vs 저항 구분
+        // - 역발상: Financial Innovation (2017), 한국 연구 (2018) - 소외 + 과열배제
         function calcFilterFlags(data) {
             const sheets = ['KR_Stocks', 'US_Stocks', 'KR_ETF', 'US_ETF', 'EU_ETF', 'JP_ETF', 'CN_ETF', 'IN_ETF', 'BR_ETF', 'Global_ETF'];
             
@@ -5086,43 +5351,252 @@
                 
                 // 백분위 계산용 배열
                 const ret60Arr = subset.map(d => d['Return60D(%)']).filter(x => x != null && !isNaN(x));
+                const ret120Arr = subset.map(d => d['Return120D(%)']).filter(x => x != null && !isNaN(x));
                 const roeArr = subset.map(d => d['ROE(%)']).filter(x => x != null && !isNaN(x));
+                const volArr = subset.map(d => d['Volatility20D']).filter(x => x != null && !isNaN(x));
                 
                 subset.forEach(d => {
                     // 플래그 초기화
                     d._overbought = false;
+                    d._overboughtLevel = 0;  // 0~3 과열 강도
                     d._nearHigh = false;
+                    d._nearHighType = 'NORMAL';  // BREAKOUT, RESISTANCE, NORMAL
                     d._contrarian = false;
                     
-                    // Return60D 백분위
+                    // 백분위 계산
                     const m60 = d['Return60D(%)'] != null ? percentileRank(ret60Arr, d['Return60D(%)']) : 50;
-                    
-                    // ROE 백분위
+                    const m120 = d['Return120D(%)'] != null ? percentileRank(ret120Arr, d['Return120D(%)']) : 50;
                     const roeS = d['ROE(%)'] != null ? percentileRank(roeArr, d['ROE(%)']) : 50;
                     
                     // 52주 고점
                     const high52 = d['52wHigh'] || d['52WeekHigh'];
                     const price = d.Price || d.Close;
+                    const nearHighRatio = (high52 > 0 && price > 0) ? (price / high52) : 0;
                     
-                    // ===== 과매수 플래그 =====
-                    if (d.RSI14 > 70 || m60 > 80) {
+                    // ===== 🔥 과매수 플래그 (2020년대 개선) =====
+                    // Singh & Priyanka (2025): RSI는 다른 지표와 결합 시 효과 ↑
+                    // 복합 과열 지표: 2개 이상 충족 시 과매수
+                    const rsiOverheat = d.RSI14 > 70;
+                    const bbOverheat = d.BB_Position > 90;  // 볼린저 상단 근접
+                    const maOverheat = d['vs_MA20(%)'] > 20;  // 20일선 20% 이상 괴리
+                    const momentumOverheat = m60 > 85;  // 60일 수익률 상위 15%
+                    
+                    const overheatCount = [rsiOverheat, bbOverheat, maOverheat, momentumOverheat].filter(Boolean).length;
+                    d._overboughtLevel = overheatCount;
+                    
+                    // 2개 이상 충족 시 과매수 (기존보다 보수적)
+                    if (overheatCount >= 2) {
                         d._overbought = true;
                     }
                     
-                    // ===== 고점 근접 플래그 =====
-                    if (high52 > 0 && price > 0 && (price / high52) > 0.95) {
+                    // ===== ⚠️ 고점 근접 플래그 (2020년대 개선) =====
+                    // George & Hwang (2004), Momentum on Historical High (2024)
+                    // 고점 근접 + 중기 모멘텀으로 "돌파 추세" vs "저항선 도달" 구분
+                    if (nearHighRatio > 0.95) {
                         d._nearHigh = true;
+                        
+                        const ret6m = d['Return6M(%)'] || d['Return120D(%)'] || 0;
+                        
+                        // 신고가 돌파 추세: 98% 이상 + 6개월 30% 이상 상승
+                        if (nearHighRatio > 0.98 && ret6m > 30) {
+                            d._nearHighType = 'BREAKOUT';  // 강세 추세 지속 신호
+                        }
+                        // 저항선 도달: 고점 근접하나 중기 모멘텀 약함
+                        else if (ret6m < 15) {
+                            d._nearHighType = 'RESISTANCE';  // 횡보 후 저항선 도달
+                        }
+                        // 일반적인 고점 근접
+                        else {
+                            d._nearHighType = 'RISING';  // 상승 중
+                        }
                     }
                     
-                    // ===== 역발상 플래그 =====
-                    if (d.PBR > 0 && d.PBR < 1 && roeS > 50) {
+                    // ===== 💎 역발상 플래그 (2020년대 개선) =====
+                    // De Bondt & Thaler (1985): 역발상 = 시장이 아직 모르는 저평가
+                    // Financial Innovation (2017): 소외 상태가 핵심
+                    // 한국 연구 (2018): 외국인 보유 비중으로 시장 인식 측정
+                    
+                    // 조건 1: 가치적 저평가 + 수익성 양호
+                    const isValueQuality = d.PBR > 0 && d.PBR < 1 && roeS > 50;
+                    
+                    // 조건 2: 최근 부진 + 수익성 양호 (기존 유지)
+                    const isRecentLoser = d['Return60D(%)'] < 0 && roeS > 60;
+                    
+                    // 🆕 조건 3: 소외 상태 확인 (핵심 추가)
+                    // - 최근 60일 급등 아님 (15% 미만)
+                    // - 60일선 대비 과열 아님 (20% 미만)
+                    // - 중기 120일도 급등 아님 (상위 30% 미만)
+                    // - 🆕 외국인 보유비중 낮음 (한국 연구 2018: 외국인↓ → 앵커링 지속 → 소외)
+                    const ret60 = d['Return60D(%)'] || 0;
+                    const vsMA60 = d['vs_MA60(%)'] || 0;
+                    const foreignRatio = d['ForeignRatio(%)'] || 50;  // 기본값 50%
+                    
+                    // 소외 조건: 가격 기반 + 관심도 기반
+                    const isPriceNeglected = ret60 < 15 && vsMA60 < 20 && m120 < 70;
+                    const isAttentionNeglected = foreignRatio < 30;  // 외국인 30% 미만 = 관심 낮음
+                    
+                    // 둘 중 하나 충족 시 소외 (OR 조건으로 완화)
+                    // 단, 가격 기반 소외는 필수
+                    const isNeglected = isPriceNeglected || (isAttentionNeglected && ret60 < 20);
+                    
+                    // 🆕 조건 4: 과열 배제 (핵심 추가)
+                    // 과매수 또는 고점 근접이면 역발상 아님 (이미 시장 인식)
+                    const notOverheated = !d._overbought && !d._nearHigh;
+                    
+                    // 최종: (가치+품질 OR 최근패자) AND 소외 AND 비과열
+                    if ((isValueQuality || isRecentLoser) && isNeglected && notOverheated) {
                         d._contrarian = true;
                     }
-                    if (d['Return60D(%)'] < 0 && roeS > 60) {
-                        d._contrarian = true;
+                    
+                    // ===== 🚀 모멘텀 플래그 (NEW) =====
+                    // Jegadeesh & Titman (1993, 2023): 3-12개월 과거 승자가 미래 승자
+                    // Wiest (2023): "30년간 모멘텀 효과 지속 확인, 다양한 자산군에서 robust"
+                    // Moskowitz et al. (2012): Time-series momentum도 유효
+                    d._momentum = false;
+                    d._momentumStrength = 'NONE';  // STRONG, MODERATE, NONE
+                    
+                    // 60일 + 120일 모멘텀 복합 평가 (Jegadeesh-Titman 3-12개월 구간)
+                    // 52주 고점 근접 여부도 반영 (George & Hwang 2004)
+                    if (m60 > 70 && m120 > 60) {
+                        d._momentum = true;
+                        // 강한 모멘텀: 상위 15% + 고점 근접
+                        if (m60 > 85 && m120 > 75 && nearHighRatio > 0.90) {
+                            d._momentumStrength = 'STRONG';  // 강한 모멘텀
+                        } else {
+                            d._momentumStrength = 'MODERATE';  // 중간 모멘텀
+                        }
+                    }
+                    
+                    // ===== ⚡ 변동성 경고 플래그 (크래시 리스크) =====
+                    // Daniel & Moskowitz (2016, JFE): "Momentum crashes occur in panic states"
+                    // Barroso & Santa-Clara (2015): 변동성 관리로 샤프비율 2배 개선
+                    // Byun & Jeon (2023, FAJ): 52주 고점과 모멘텀 크래시 관계 분석
+                    // 🆕 Frazzini & Pedersen (2014): "Betting Against Beta" - 고베타 종목 저성과
+                    d._volatilityWarning = false;
+                    d._crashRisk = 'LOW';  // HIGH, MEDIUM, LOW
+                    
+                    const vol20 = d['Volatility20D'] || 0;
+                    const beta = d['Beta'] || 1;  // 기본값 1 (시장과 동일)
+                    const volPercentile = volArr.length > 0 ? percentileRank(volArr, vol20) : 50;
+                    
+                    // 🆕 고베타 여부 (시장 민감도)
+                    const isHighBeta = beta > 1.3;  // 시장보다 30% 이상 민감
+                    
+                    // 크래시 리스크 계산 (Daniel & Moskowitz 2016 기반)
+                    // 패닉 상태 = 시장 하락 후 반등 + 고변동성
+                    // 모멘텀 종목 중 과거 패자(loser)의 옵션성이 크래시 원인
+                    if (volPercentile > 80 || isHighBeta) {
+                        // 고변동성 + 강한 모멘텀 = 높은 크래시 위험
+                        if (d._momentum && d._momentumStrength === 'STRONG') {
+                            d._volatilityWarning = true;
+                            d._crashRisk = 'HIGH';
+                        }
+                        // 고변동성 + 모멘텀 = 중간 위험
+                        else if (d._momentum) {
+                            d._volatilityWarning = true;
+                            d._crashRisk = 'MEDIUM';
+                        }
+                        // 🆕 고베타 + 고점 근접 = 중간 위험 (시장 반전 시 급락 가능)
+                        else if (isHighBeta && d._nearHigh) {
+                            d._crashRisk = 'MEDIUM';
+                        }
+                        // 고변동성만 = 주의
+                        else if (volPercentile > 85) {
+                            d._crashRisk = 'MEDIUM';
+                        }
+                    }
+                    
+                    // ===== 🏆 품질/수익성 플래그 =====
+                    // Novy-Marx (2013): "Gross Profitability가 가치만큼 수익률 예측"
+                    // Fama-French (2015): RMW (Robust Minus Weak) 수익성 팩터
+                    // MSCI Quality Factor: ROE + 부채비율 + 이익변동성
+                    // AQR "Quality Minus Junk" (2013): 20개 품질 변수 종합
+                    d._quality = false;
+                    d._qualityLevel = 'NONE';  // HIGH, MODERATE, NONE
+                    
+                    const roe = d['ROE(%)'] || 0;
+                    const roa = d['ROA(%)'] || 0;
+                    const grossMargin = d['GrossMargin(%)'] || 0;
+                    const netMargin = d['NetMargin(%)'] || 0;
+                    
+                    // 품질 점수 (Fama-French 5팩터 + Novy-Marx 기반)
+                    // 1. 수익성 (ROE 상위) - 핵심
+                    // 2. 마진 (Gross/Net Margin)
+                    // 3. 안정성 (저변동성)
+                    const profitScore = (
+                        (roeS > 70 ? 2 : roeS > 50 ? 1 : 0) +    // ROE 상위 (가중치 2)
+                        (roa > 10 ? 1 : 0) +                     // ROA 10% 이상
+                        (grossMargin > 30 ? 1 : 0) +             // 매출총이익률 30% 이상
+                        (netMargin > 10 ? 1 : 0) +               // 순이익률 10% 이상
+                        (volPercentile < 40 ? 1 : 0)             // 저변동성 (안정성)
+                    );
+                    
+                    if (profitScore >= 4) {
+                        d._quality = true;
+                        d._qualityLevel = 'HIGH';
+                    } else if (profitScore >= 3 && roeS > 60) {
+                        d._quality = true;
+                        d._qualityLevel = 'MODERATE';
+                    }
+                    
+                    // ===== 🌊 비유동성 프리미엄 플래그 =====
+                    // Amihud (2002, 2020): "Illiquidity premium is no less robust than risk premium"
+                    // Pastor & Stambaugh (2003): 유동성 리스크 베타
+                    // Financial Innovation (2017): 역발상 수익의 원천이 비유동성
+                    // 🆕 Amihud ILLIQ = |return| / dollar volume (가격 충격 측정)
+                    d._illiquid = false;
+                    d._liquidityLevel = 'NORMAL';  // ILLIQUID, LOW, NORMAL, HIGH
+                    
+                    const volume = d['Volume'] || 0;
+                    const marketCap = d['MarketCap(억)'] || d['MarketCap'] || 0;
+                    const avgVolume = d['AvgVolume'] || volume;  // 평균 거래량
+                    
+                    // 🆕 Turnover Ratio (회전율) = 거래량 / 발행주식수 프록시
+                    // 시총 대비 거래대금 비율로 유동성 측정
+                    const turnoverProxy = marketCap > 0 ? (volume * price) / (marketCap * 100000000) : 0;
+                    
+                    // 🆕 Amihud ILLIQ 프록시: 절대수익률 / 거래대금
+                    // 높을수록 가격 충격이 큼 = 비유동
+                    const absReturn = Math.abs(d['Return1D(%)'] || d['Return5D(%)'] || 1);
+                    const dollarVolume = volume * price;
+                    const illiqRatio = dollarVolume > 0 ? (absReturn / dollarVolume) * 1000000 : 0;
+                    
+                    // 복합 비유동성 판정
+                    // 조건 1: 중소형 + 저거래량 (기존)
+                    // 조건 2: 낮은 회전율 (추가)
+                    // 조건 3: 높은 ILLIQ 비율 (추가)
+                    if (marketCap > 0 && marketCap < 10000) {  // 시총 1조 미만 (중소형)
+                        if (volume < 100000 || turnoverProxy < 0.001) {  // 거래량 10만주 미만 OR 회전율 0.1% 미만
+                            d._illiquid = true;
+                            d._liquidityLevel = 'ILLIQUID';
+                        } else if (volume < 500000 || turnoverProxy < 0.005) {
+                            d._liquidityLevel = 'LOW';
+                        }
+                    } else if (marketCap >= 10000) {  // 대형주
+                        if (volume > 1000000 && turnoverProxy > 0.01) {
+                            d._liquidityLevel = 'HIGH';
+                        }
+                    }
+                    
+                    // 🆕 비유동성이지만 Quality 높은 종목 = 숨겨진 보석
+                    // Financial Innovation (2017): 역발상 수익의 원천
+                    d._hiddenGem = d._illiquid && d._quality;
+                    
+                    // ===== 💰 가치 졸업 플래그 (NEW) =====
+                    // 역발상 종목이 시장에 인식되어 "가치주"로 졸업한 상태
+                    // 가치 조건은 충족하지만 소외 조건은 미충족 (이미 인식됨)
+                    // 실무적 의미: 역발상 → 가치주 → 성장주 사이클의 중간 단계
+                    d._valueGraduate = false;
+                    
+                    // 가치 조건 충족 + 소외 아님 (또는 과열) = 가치 졸업
+                    // 시장이 이미 해당 종목의 저평가를 인식하고 매수 중
+                    if ((isValueQuality || isRecentLoser) && (!isNeglected || d._overbought || d._nearHigh)) {
+                        d._valueGraduate = true;
                     }
                 });
             });
+            
+            console.log('🔬 필터 플래그 계산 완료 (2020년대 연구 기반)');
         }
         
         // 버전 A: 현재 로직 (임의 가중치)
@@ -5877,8 +6351,8 @@
             });
         });
         
-        // 스크리닝 필터 이벤트 (모든 버전 공통)
-        ['filterOverbought', 'filterNearHigh', 'filterContrarianOnly'].forEach(id => {
+        // 스크리닝 필터 이벤트 (모든 버전 공통) - 2020년대 연구 기반 7개 필터
+        ['filterOverbought', 'filterNearHigh', 'filterVolatility', 'filterContrarianOnly', 'filterMomentumOnly', 'filterQualityOnly', 'filterIlliquidOnly', 'filterValueGraduate'].forEach(id => {
             const el = document.getElementById(id);
             if (el) {
                 el.addEventListener('change', renderTable);
@@ -6825,6 +7299,96 @@
             }
             return 0;
         }
+        
+        // 🔗 Industry → sectorOutlook 키 매핑
+        var SECTOR_MAPPING = {
+            // 한글 Industry → sectorOutlook 키
+            '반도체': 'aiSemi',
+            '전자부품': 'aiSemi',
+            'IT': 'aiSemi',
+            'IT H/W': 'aiSemi',
+            '소프트웨어': 'aiSemi',
+            '금융': 'finance',
+            '은행': 'finance',
+            '증권': 'finance',
+            '보험': 'finance',
+            '자동차': 'auto',
+            '자동차부품': 'auto',
+            '2차전지': 'battery',
+            '배터리': 'battery',
+            '에너지': 'energy',
+            '정유': 'energy',
+            '바이오': 'healthcare',
+            '헬스케어': 'healthcare',
+            '제약': 'healthcare',
+            '의료': 'healthcare',
+            '리츠': 'reits',
+            '부동산': 'reits',
+            '소비재': 'consumer',
+            '유통': 'consumer',
+            '음식료': 'consumer',
+            '화장품': 'consumer',
+            '전기': 'utilities',
+            '가스': 'utilities',
+            '유틸리티': 'utilities',
+            '방산': 'defense',
+            '항공': 'defense',
+            '조선': 'shipbuilding',
+            '해운': 'shipbuilding',
+            '통신': 'telecom',
+            'IT서비스': 'telecom',
+            // 영문 Industry (ETF 등)
+            'Technology': 'aiSemi',
+            'Semiconductor': 'aiSemi',
+            'Financial': 'finance',
+            'Financials': 'finance',
+            'Consumer Discretionary': 'auto',
+            'Industrials': 'defense',
+            'Health Care': 'healthcare',
+            'Healthcare': 'healthcare',
+            'Energy': 'energy',
+            'Real Estate': 'reits',
+            'Consumer Staples': 'consumer',
+            'Utilities': 'utilities',
+            'Communication': 'telecom',
+            'Materials': 'battery'
+        };
+        
+        // Industry로 sectorOutlook 키 가져오기
+        function getSectorOutlookKey(industry) {
+            if (!industry) return null;
+            // 정확히 일치
+            if (SECTOR_MAPPING[industry]) return SECTOR_MAPPING[industry];
+            // 부분 일치 검색
+            for (var key in SECTOR_MAPPING) {
+                if (industry.includes(key) || key.includes(industry)) {
+                    return SECTOR_MAPPING[key];
+                }
+            }
+            return null;
+        }
+        
+        // 섹터 전망 가져오기 (view 값)
+        function getSectorOutlookView(industry) {
+            if (!marketConfig || !marketConfig.sectorOutlook) return null;
+            var sectorKey = getSectorOutlookKey(industry);
+            if (!sectorKey) return null;
+            var outlook = marketConfig.sectorOutlook[sectorKey];
+            return outlook ? outlook.view : null;
+        }
+        
+        // 섹터 view → 색상 매핑
+        var SECTOR_VIEW_COLORS = {
+            '강력매수': '#10b981',
+            '비중확대': '#22c55e',
+            '매수': '#3b82f6',
+            '선별매수': '#06b6d4',
+            '중립': '#6b7280',
+            '관망': '#f59e0b',
+            '신중': '#f97316',
+            '비중축소': '#ef4444',
+            '매도': '#dc2626'
+        };
 
         async function loadDataFromJson(showAlert = false) {
             const btn = document.getElementById('refreshDataBtn');
@@ -6984,12 +7548,38 @@
                 }
             });
             
-            // 플래그 통계 로깅
+            // 플래그 통계 로깅 (2020년대 연구 기반 개선)
             const overbought = screeningData.filter(d => d._overbought).length;
             const nearHigh = screeningData.filter(d => d._nearHigh).length;
             const contrarian = screeningData.filter(d => d._contrarian).length;
             const adjusted = screeningData.filter(d => d._configAdjusted).length;
-            console.log(`플래그 초기화 완료: 과매수 ${overbought}개, 고점근접 ${nearHigh}개, 역발상 ${contrarian}개, config조정 ${adjusted}개`);
+            
+            // 기존 세부 통계
+            const breakout = screeningData.filter(d => d._nearHighType === 'BREAKOUT').length;
+            const resistance = screeningData.filter(d => d._nearHighType === 'RESISTANCE').length;
+            const highOverheat = screeningData.filter(d => d._overboughtLevel >= 3).length;
+            
+            // 🆕 새로운 필터 통계
+            const momentum = screeningData.filter(d => d._momentum).length;
+            const momentumStrong = screeningData.filter(d => d._momentumStrength === 'STRONG').length;
+            const volatilityWarning = screeningData.filter(d => d._volatilityWarning).length;
+            const crashRiskHigh = screeningData.filter(d => d._crashRisk === 'HIGH').length;
+            const quality = screeningData.filter(d => d._quality).length;
+            const qualityHigh = screeningData.filter(d => d._qualityLevel === 'HIGH').length;
+            const illiquid = screeningData.filter(d => d._illiquid).length;
+            const hiddenGem = screeningData.filter(d => d._hiddenGem).length;  // 비유동 + Quality
+            const valueGraduate = screeningData.filter(d => d._valueGraduate).length;
+            
+            console.log(`🔬 필터 플래그 통계 (2020년대 연구 기반):`);
+            console.log(`   🔥 과매수: ${overbought}개 (강한 과열 ${highOverheat}개)`);
+            console.log(`   ⚠️ 고점근접: ${nearHigh}개 (돌파추세 ${breakout}개, 저항선 ${resistance}개)`);
+            console.log(`   ⚡ 변동성경고: ${volatilityWarning}개 (크래시위험 HIGH ${crashRiskHigh}개)`);
+            console.log(`   💎 역발상: ${contrarian}개 (가치+소외+비과열 충족)`);
+            console.log(`   💰 가치졸업: ${valueGraduate}개 (역발상→가치주 전환)`);
+            console.log(`   🚀 모멘텀: ${momentum}개 (강한 모멘텀 ${momentumStrong}개)`);
+            console.log(`   🏆 Quality: ${quality}개 (고품질 ${qualityHigh}개)`);
+            console.log(`   🌊 비유동: ${illiquid}개 (💎숨겨진보석 ${hiddenGem}개)`);
+            console.log(`   ⚙️ config조정: ${adjusted}개`);
         }
         
         initializeFlags();
@@ -7721,6 +8311,215 @@
             bull: { US: 25, KR: 18, EU: 12, EM: 10, Gold: 12, Bond: 10, Cash: 13 },
             opportunity: { US: 28, KR: 20, EU: 12, EM: 10, Gold: 10, Bond: 10, Cash: 10 }
         };
+        
+        // ========== 🔗 시나리오 ↔ 자산 추천 매핑 (이슈 11번) ==========
+        // 시나리오별 권장/회피 자산 및 구체적 티커
+        const SCENARIO_ASSET_MAPPING = {
+            // 💱 환율 급등/정부 방관 시나리오
+            'fx-up': {
+                name: '💱 환율 급등',
+                recommended: [
+                    { ticker: 'UUP', name: '달러 인덱스 ETF', type: 'etf', region: 'US', reason: '달러 강세 직접 수혜' },
+                    { ticker: 'GLD', name: 'SPDR 금 ETF', type: 'etf', region: 'US', reason: '안전자산 + 원화 헤지' },
+                    { ticker: 'TIGER 미국S&P500', name: '국내상장 미국ETF', type: 'etf', region: 'KR', reason: '환노출로 환차익' },
+                    { ticker: '005930', name: '삼성전자', type: 'stock', region: 'KR', reason: '수출 기업, 환율 수혜' },
+                    { ticker: '012330', name: '현대모비스', type: 'stock', region: 'KR', reason: '수출 비중 높음' }
+                ],
+                avoid: [
+                    { ticker: 'EWY', name: '한국 ETF', type: 'etf', region: 'US', reason: '외인 이탈 + 환손실' },
+                    { ticker: 'VWO', name: '신흥국 ETF', type: 'etf', region: 'US', reason: '달러 강세에 취약' },
+                    { ticker: '해외ETF 신규매수', name: '신규 해외투자', type: 'action', region: 'ALL', reason: '환율 불리, 대기 권장' }
+                ],
+                assetClass: { gold: 'OVERWEIGHT', bonds: 'NEUTRAL', usEquity: 'NEUTRAL', koreanFinancials: 'NEUTRAL' }
+            },
+            
+            // 🏛️ 정부 환율 방관 (fxCrisis)
+            'fxCrisis': {
+                name: '🏛️ 정부 환율 방관',
+                recommended: [
+                    { ticker: 'USD 현금', name: '달러 예금/RP', type: 'cash', region: 'ALL', reason: '환차익 기대' },
+                    { ticker: '금현물/KRX금', name: '원화 기준 금', type: 'commodity', region: 'KR', reason: '이중 헤지 (금+환율)' },
+                    { ticker: 'KB금융', name: '국내 금융주', type: 'stock', region: 'KR', reason: '금리 수혜 + 내수' },
+                    { ticker: '신한지주', name: '국내 금융주', type: 'stock', region: 'KR', reason: '금리 수혜 + 내수' }
+                ],
+                avoid: [
+                    { ticker: '해외직접투자', name: '신규 해외 송금', type: 'action', region: 'ALL', reason: '환율 불리, 전면 보류' },
+                    { ticker: '코스피 성장주', name: '국내 성장주', type: 'stock', region: 'KR', reason: '외인 이탈 영향' }
+                ],
+                assetClass: { gold: 'OVERWEIGHT', bonds: 'NEUTRAL', usEquity: 'UNDERWEIGHT', koreanFinancials: 'OVERWEIGHT' }
+            },
+            
+            // 📈 금리 인상/고금리 유지
+            'rate-up': {
+                name: '📈 금리 인상/고금리',
+                recommended: [
+                    { ticker: 'SHY', name: '단기채 ETF', type: 'etf', region: 'US', reason: '듀레이션 리스크 최소' },
+                    { ticker: 'BIL', name: '초단기 국채', type: 'etf', region: 'US', reason: '금리 상승 수혜' },
+                    { ticker: 'SCHD', name: '미국 배당 ETF', type: 'etf', region: 'US', reason: '가치주 방어적' },
+                    { ticker: 'KB금융', name: '국내 금융주', type: 'stock', region: 'KR', reason: 'NIM 개선' }
+                ],
+                avoid: [
+                    { ticker: 'TLT', name: '장기채 ETF', type: 'etf', region: 'US', reason: '듀레이션 손실' },
+                    { ticker: 'QQQ', name: '나스닥100', type: 'etf', region: 'US', reason: '성장주 할인율 상승' },
+                    { ticker: 'ARKK', name: '혁신 성장주', type: 'etf', region: 'US', reason: '무배당 성장주 취약' }
+                ],
+                assetClass: { gold: 'UNDERWEIGHT', bonds: 'UNDERWEIGHT', usEquity: 'NEUTRAL', koreanFinancials: 'OVERWEIGHT' }
+            },
+            
+            // 💔 경기 침체
+            'recession': {
+                name: '💔 경기 침체',
+                recommended: [
+                    { ticker: 'TLT', name: '장기채 ETF', type: 'etf', region: 'US', reason: '금리 인하 수혜' },
+                    { ticker: 'GLD', name: '금 ETF', type: 'etf', region: 'US', reason: '안전자산' },
+                    { ticker: 'XLU', name: '유틸리티 ETF', type: 'etf', region: 'US', reason: '경기방어 섹터' },
+                    { ticker: 'XLP', name: '필수소비재 ETF', type: 'etf', region: 'US', reason: '경기방어 섹터' },
+                    { ticker: '현금/MMF', name: '현금성 자산', type: 'cash', region: 'ALL', reason: '하락장 대비' }
+                ],
+                avoid: [
+                    { ticker: 'XLY', name: '경기소비재 ETF', type: 'etf', region: 'US', reason: '경기민감' },
+                    { ticker: 'XLF', name: '금융 ETF', type: 'etf', region: 'US', reason: '부실 위험' },
+                    { ticker: 'HYG', name: '하이일드 채권', type: 'etf', region: 'US', reason: '부도 위험' },
+                    { ticker: 'EEM', name: '신흥국 ETF', type: 'etf', region: 'US', reason: '자금 이탈' }
+                ],
+                assetClass: { gold: 'OVERWEIGHT', bonds: 'OVERWEIGHT', usEquity: 'UNDERWEIGHT', koreanFinancials: 'UNDERWEIGHT' }
+            },
+            
+            // 🌍 지정학 위기
+            'geopolitical': {
+                name: '🌍 지정학 위기',
+                recommended: [
+                    { ticker: 'GLD', name: '금 ETF', type: 'etf', region: 'US', reason: '안전자산 1순위' },
+                    { ticker: 'TLT', name: '장기채 ETF', type: 'etf', region: 'US', reason: '안전자산 이동' },
+                    { ticker: 'LMT', name: '록히드마틴', type: 'stock', region: 'US', reason: '방산주 수혜' },
+                    { ticker: 'RTX', name: '레이시온', type: 'stock', region: 'US', reason: '방산주 수혜' },
+                    { ticker: 'XLE', name: '에너지 ETF', type: 'etf', region: 'US', reason: '원유 급등 수혜' }
+                ],
+                avoid: [
+                    { ticker: 'EEM', name: '신흥국 ETF', type: 'etf', region: 'US', reason: '자금 이탈' },
+                    { ticker: 'EWY', name: '한국 ETF', type: 'etf', region: 'US', reason: '지정학 리스크 노출' },
+                    { ticker: 'XLY', name: '경기소비재', type: 'etf', region: 'US', reason: '소비 심리 위축' }
+                ],
+                assetClass: { gold: 'OVERWEIGHT', bonds: 'OVERWEIGHT', usEquity: 'UNDERWEIGHT', koreanFinancials: 'UNDERWEIGHT' }
+            },
+            
+            // 🤖 AI 버블 위험
+            'ai-bubble': {
+                name: '🤖 AI 버블 위험',
+                recommended: [
+                    { ticker: 'SCHD', name: '미국 배당 ETF', type: 'etf', region: 'US', reason: '가치주 로테이션' },
+                    { ticker: 'VTV', name: '가치주 ETF', type: 'etf', region: 'US', reason: '성장→가치 전환' },
+                    { ticker: 'GLD', name: '금 ETF', type: 'etf', region: 'US', reason: '버블 붕괴 대비' },
+                    { ticker: '현금', name: '현금성 자산', type: 'cash', region: 'ALL', reason: '급락 시 매수 대기' }
+                ],
+                avoid: [
+                    { ticker: 'QQQ', name: '나스닥100', type: 'etf', region: 'US', reason: '기술주 과열' },
+                    { ticker: 'NVDA', name: '엔비디아', type: 'stock', region: 'US', reason: 'AI 대장주, 고평가' },
+                    { ticker: 'SMH', name: '반도체 ETF', type: 'etf', region: 'US', reason: 'AI 관련 과열' },
+                    { ticker: '000660', name: 'SK하이닉스', type: 'stock', region: 'KR', reason: 'AI 연동 하락 위험' }
+                ],
+                assetClass: { gold: 'OVERWEIGHT', bonds: 'NEUTRAL', usEquity: 'UNDERWEIGHT', koreanFinancials: 'NEUTRAL' }
+            },
+            
+            // 🔥 스태그플레이션
+            'stagflation': {
+                name: '🔥 스태그플레이션',
+                recommended: [
+                    { ticker: 'GLD', name: '금 ETF', type: 'etf', region: 'US', reason: '인플레 헤지 1순위' },
+                    { ticker: 'DBC', name: '원자재 ETF', type: 'etf', region: 'US', reason: '인플레 헤지' },
+                    { ticker: 'TIPS', name: '물가연동채', type: 'etf', region: 'US', reason: '인플레 보호' },
+                    { ticker: 'XLE', name: '에너지 ETF', type: 'etf', region: 'US', reason: '원유/가스 수혜' }
+                ],
+                avoid: [
+                    { ticker: 'TLT', name: '장기채', type: 'etf', region: 'US', reason: '인플레로 가치 하락' },
+                    { ticker: 'QQQ', name: '기술주', type: 'etf', region: 'US', reason: '성장주 최악' },
+                    { ticker: 'XLY', name: '경기소비재', type: 'etf', region: 'US', reason: '소비 위축' },
+                    { ticker: 'HYG', name: '하이일드', type: 'etf', region: 'US', reason: '부도 + 인플레' }
+                ],
+                assetClass: { gold: 'OVERWEIGHT', bonds: 'UNDERWEIGHT', usEquity: 'UNDERWEIGHT', koreanFinancials: 'NEUTRAL' }
+            },
+            
+            // 🚀 경기 호황
+            'boom': {
+                name: '🚀 경기 호황',
+                recommended: [
+                    { ticker: 'SPY', name: 'S&P500 ETF', type: 'etf', region: 'US', reason: '경기 확장 수혜' },
+                    { ticker: 'QQQ', name: '나스닥100', type: 'etf', region: 'US', reason: '성장주 강세' },
+                    { ticker: 'EEM', name: '신흥국 ETF', type: 'etf', region: 'US', reason: '위험선호 증가' },
+                    { ticker: 'XLF', name: '금융 ETF', type: 'etf', region: 'US', reason: '경기 확장 수혜' }
+                ],
+                avoid: [
+                    { ticker: 'TLT', name: '장기채', type: 'etf', region: 'US', reason: '금리 상승 리스크' },
+                    { ticker: '현금 과다', name: '현금 비중 과다', type: 'action', region: 'ALL', reason: '기회비용' }
+                ],
+                assetClass: { gold: 'UNDERWEIGHT', bonds: 'UNDERWEIGHT', usEquity: 'OVERWEIGHT', koreanFinancials: 'OVERWEIGHT' }
+            },
+            
+            // 📉 연착륙 (기본)
+            'rate-down': {
+                name: '📉 연착륙',
+                recommended: [
+                    { ticker: 'SPY', name: 'S&P500 ETF', type: 'etf', region: 'US', reason: '안정적 성장' },
+                    { ticker: 'SCHD', name: '미국 배당', type: 'etf', region: 'US', reason: '배당 + 안정' },
+                    { ticker: 'AGG', name: '종합채권', type: 'etf', region: 'US', reason: '분산투자' }
+                ],
+                avoid: [],
+                assetClass: { gold: 'NEUTRAL', bonds: 'NEUTRAL', usEquity: 'NEUTRAL', koreanFinancials: 'NEUTRAL' }
+            },
+            
+            // 🥇 인플레 헤지
+            'inflation-hedge': {
+                name: '🥇 인플레 헤지',
+                recommended: [
+                    { ticker: 'GLD', name: '금 ETF', type: 'etf', region: 'US', reason: '인플레 헤지 핵심' },
+                    { ticker: 'TIPS', name: '물가연동채', type: 'etf', region: 'US', reason: '인플레 보호' },
+                    { ticker: 'DBC', name: '원자재 ETF', type: 'etf', region: 'US', reason: '원자재 가격 상승' },
+                    { ticker: 'XLE', name: '에너지 ETF', type: 'etf', region: 'US', reason: '유가 상승 수혜' }
+                ],
+                avoid: [
+                    { ticker: 'TLT', name: '장기채', type: 'etf', region: 'US', reason: '인플레에 취약' },
+                    { ticker: '현금', name: '현금 과다 보유', type: 'action', region: 'ALL', reason: '실질 가치 하락' }
+                ],
+                assetClass: { gold: 'OVERWEIGHT', bonds: 'UNDERWEIGHT', usEquity: 'NEUTRAL', koreanFinancials: 'NEUTRAL' }
+            }
+        };
+        
+        // 🔗 시나리오 기반 자산 추천 생성 함수
+        function getScenarioAssetRecommendations(triggeredScenarios) {
+            if (!triggeredScenarios || triggeredScenarios.length === 0) return null;
+            
+            const primary = triggeredScenarios[0];
+            
+            // 시나리오 ID 매핑 (트리거 ID → 매핑 ID)
+            // fx-up (지표 기반) → fxCrisis (더 상세한 매핑) 우선 시도
+            const idFallback = {
+                'fx-up': ['fx-up', 'fxCrisis']  // fx-up이면 fxCrisis도 시도
+            };
+            
+            let mapping = SCENARIO_ASSET_MAPPING[primary.id];
+            
+            // fallback 시도
+            if (!mapping && idFallback[primary.id]) {
+                for (const altId of idFallback[primary.id]) {
+                    if (SCENARIO_ASSET_MAPPING[altId]) {
+                        mapping = SCENARIO_ASSET_MAPPING[altId];
+                        break;
+                    }
+                }
+            }
+            
+            if (!mapping) return null;
+            
+            return {
+                scenarioId: primary.id,
+                scenarioName: mapping.name,
+                probability: primary.probability || null,
+                recommended: mapping.recommended,
+                avoid: mapping.avoid,
+                assetClass: mapping.assetClass,
+                reasoning: `${mapping.name} 시나리오(${primary.triggers?.length || 0}개 조건 충족)에 따른 자산 배분`
+            };
+        }
         
         // 표준정규분포 CDF (Zelen & Severo 근사)
         function normalCDF(z) {
@@ -8832,6 +9631,32 @@
                 }
             }
             
+            // 🔗 10번 이슈 수정: regionAdjustments AI 조정값 적용
+            // AI가 설정한 regionAdjustments 값을 포트폴리오 조정에 반영
+            let regionAdjApplied = false;
+            if (marketConfig && marketConfig.regionAdjustments) {
+                const ra = marketConfig.regionAdjustments;
+                ['US', 'KR', 'EU', 'EM', 'JP', 'Gold', 'Bond', 'Cash'].forEach(asset => {
+                    if (ra[asset] !== undefined && ra[asset] !== null && typeof ra[asset] === 'number') {
+                        // -10 ~ +10 범위 제한
+                        const adjValue = Math.max(-10, Math.min(10, ra[asset]));
+                        if (adjValue !== 0) {
+                            // JP는 EM에 포함 (별도 키 없음)
+                            const targetAsset = (asset === 'JP') ? 'EM' : asset;
+                            if (adjustment[targetAsset] !== undefined) {
+                                adjustment[targetAsset] += adjValue;
+                                adjustmentReasons[targetAsset] = adjustmentReasons[targetAsset] || [];
+                                adjustmentReasons[targetAsset].push(`AI 지역조정(${asset}): ${adjValue > 0 ? '+' : ''}${adjValue}%`);
+                                regionAdjApplied = true;
+                            }
+                        }
+                    }
+                });
+                if (regionAdjApplied) {
+                    console.log('✅ regionAdjustments 포트폴리오 반영 완료:', ra);
+                }
+            }
+            
             // 최종 배분 계산 (비례 정규화)
             const finalAllocation = {};
             let total = 0;
@@ -8892,7 +9717,8 @@
                 compositeMultiplier,
                 compositeReason,
                 riskSignals,
-                opportunitySignals
+                opportunitySignals,
+                regionAdjApplied  // 🔗 10번 이슈: regionAdjustments 적용 여부
             };
         }
         
@@ -9235,6 +10061,66 @@
                 </div>`;
             }
             
+            // 🔗 10번 이슈: regionAdjustments 적용 표시
+            if (pr.regionAdjApplied) {
+                indicatorHtml += `<div style="margin-top: 12px; padding: 10px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 6px; font-size: 0.75rem; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1rem;">🔗</span>
+                    <span><strong style="color: var(--accent-blue);">AI 지역 배분 조정 적용됨</strong><br>
+                    <span style="color: var(--text-muted);">regionAdjustments 값이 위 배분에 반영되었습니다</span></span>
+                </div>`;
+            }
+            
+            // 🔗 11번 이슈: 시나리오 기반 자산 추천 표시
+            const scenarioAssetRec = getScenarioAssetRecommendations(result.triggeredScenarios);
+            if (scenarioAssetRec) {
+                let scenarioHtml = `<div style="margin-top: 16px; padding: 14px; background: var(--bg-secondary); border-radius: 10px; border-left: 4px solid var(--accent-blue);">
+                    <h4 style="font-size: 0.9rem; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <span>🔗</span> 시나리오 기반 자산 추천
+                        <span style="font-size: 0.7rem; padding: 2px 8px; background: var(--accent-blue); color: white; border-radius: 10px; font-weight: 600;">${scenarioAssetRec.scenarioName}</span>
+                    </h4>`;
+                
+                // 권장 자산
+                if (scenarioAssetRec.recommended && scenarioAssetRec.recommended.length > 0) {
+                    scenarioHtml += `<div style="margin-bottom: 12px;">
+                        <div style="font-size: 0.75rem; color: var(--accent-green); font-weight: 600; margin-bottom: 6px;">✅ 권장 자산</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">`;
+                    scenarioAssetRec.recommended.slice(0, 5).forEach(asset => {
+                        const typeColors = { etf: '#3b82f6', stock: '#8b5cf6', cash: '#10b981', commodity: '#f59e0b' };
+                        const bgColor = typeColors[asset.type] || '#6b7280';
+                        scenarioHtml += `<div style="padding: 6px 10px; background: ${bgColor}15; border: 1px solid ${bgColor}40; border-radius: 6px; font-size: 0.7rem;">
+                            <strong style="color: ${bgColor};">${asset.ticker}</strong>
+                            <span style="color: var(--text-muted); margin-left: 4px;">${asset.name}</span>
+                            <div style="color: var(--text-muted); font-size: 0.65rem; margin-top: 2px;">${asset.reason}</div>
+                        </div>`;
+                    });
+                    scenarioHtml += `</div></div>`;
+                }
+                
+                // 회피 자산
+                if (scenarioAssetRec.avoid && scenarioAssetRec.avoid.length > 0) {
+                    scenarioHtml += `<div>
+                        <div style="font-size: 0.75rem; color: var(--accent-red); font-weight: 600; margin-bottom: 6px;">⛔ 회피 권장</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">`;
+                    scenarioAssetRec.avoid.slice(0, 4).forEach(asset => {
+                        scenarioHtml += `<div style="padding: 6px 10px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; font-size: 0.7rem;">
+                            <strong style="color: var(--accent-red);">${asset.ticker}</strong>
+                            <span style="color: var(--text-muted); margin-left: 4px;">${asset.name}</span>
+                            <div style="color: var(--text-muted); font-size: 0.65rem; margin-top: 2px;">${asset.reason}</div>
+                        </div>`;
+                    });
+                    scenarioHtml += `</div></div>`;
+                }
+                
+                scenarioHtml += `<div style="margin-top: 10px; font-size: 0.65rem; color: var(--text-muted);">
+                    💡 ${scenarioAssetRec.reasoning}
+                </div></div>`;
+                
+                indicatorHtml += scenarioHtml;
+                
+                // 콘솔 로그
+                console.log('🔗 시나리오 기반 자산 추천:', scenarioAssetRec);
+            }
+            
             // 지표 변화 표시를 위한 컨테이너 (있으면)
             const indicatorPanel = document.getElementById('indicatorImpactPanel');
             if (indicatorPanel) {
@@ -9399,6 +10285,60 @@
                 }
             }
             document.getElementById('immediateActions').innerHTML = actions.map(a => `<li>• ${a}</li>`).join('');
+            
+            // 🔗 11번 이슈: 시나리오 기반 자산 추천 (시나리오 탭)
+            const scenarioAssetRec = getScenarioAssetRecommendations(result.triggeredScenarios);
+            let scenarioAssetContainer = document.getElementById('scenarioAssetRecommendations');
+            
+            // 컨테이너가 없으면 생성
+            if (!scenarioAssetContainer) {
+                const actionsEl = document.getElementById('immediateActions');
+                if (actionsEl && actionsEl.parentNode) {
+                    scenarioAssetContainer = document.createElement('div');
+                    scenarioAssetContainer.id = 'scenarioAssetRecommendations';
+                    actionsEl.parentNode.appendChild(scenarioAssetContainer);
+                }
+            }
+            
+            if (scenarioAssetContainer && scenarioAssetRec) {
+                let assetHtml = `<div style="margin-top: 16px; padding: 14px; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 10px;">
+                    <h5 style="font-size: 0.85rem; color: var(--accent-blue); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                        🔗 ${scenarioAssetRec.scenarioName} 연동 자산 추천
+                    </h5>`;
+                
+                // 권장 자산
+                if (scenarioAssetRec.recommended && scenarioAssetRec.recommended.length > 0) {
+                    assetHtml += `<div style="margin-bottom: 10px;">
+                        <div style="font-size: 0.7rem; color: var(--accent-green); font-weight: 600; margin-bottom: 6px;">✅ 시나리오 대응 자산</div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px;">`;
+                    scenarioAssetRec.recommended.forEach(asset => {
+                        assetHtml += `<div style="padding: 8px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.7rem;">
+                            <div style="font-weight: 600; color: var(--text-primary);">${asset.ticker}</div>
+                            <div style="color: var(--text-muted); font-size: 0.65rem;">${asset.name}</div>
+                            <div style="color: var(--accent-green); font-size: 0.6rem; margin-top: 2px;">${asset.reason}</div>
+                        </div>`;
+                    });
+                    assetHtml += `</div></div>`;
+                }
+                
+                // 회피 자산
+                if (scenarioAssetRec.avoid && scenarioAssetRec.avoid.length > 0) {
+                    assetHtml += `<div>
+                        <div style="font-size: 0.7rem; color: var(--accent-red); font-weight: 600; margin-bottom: 6px;">⛔ 회피 또는 축소</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">`;
+                    scenarioAssetRec.avoid.forEach(asset => {
+                        assetHtml += `<span style="padding: 4px 10px; background: rgba(239,68,68,0.1); border-radius: 4px; font-size: 0.65rem; color: var(--accent-red);">
+                            ${asset.ticker}
+                        </span>`;
+                    });
+                    assetHtml += `</div></div>`;
+                }
+                
+                assetHtml += `</div>`;
+                scenarioAssetContainer.innerHTML = assetHtml;
+            } else if (scenarioAssetContainer) {
+                scenarioAssetContainer.innerHTML = '';
+            }
             
             // 해당 시나리오 탭 하이라이트 (시나리오 서브탭 버튼)
             document.querySelectorAll('.scenario-tab').forEach(tab => {
@@ -10039,7 +10979,77 @@
             };
             
             var rationale = '';
+            var aiOverride = false;  // 🔗 이슈 13번: AI 의견 반영 여부
+            var byMaturityOverride = false;  // 🔗 이슈 20번: 만기별 세분화 적용 여부
             
+            // 🔗 이슈 13번 + 20번: assetRecommendations.bonds 연동 (만기별 세분화 지원)
+            // AI Config에서 채권 의견이 있으면 우선 반영
+            if (window.currentConfig && window.currentConfig.assetRecommendations && window.currentConfig.assetRecommendations.bonds) {
+                var aiBonds = window.currentConfig.assetRecommendations.bonds;
+                var aiView = aiBonds.view;
+                
+                // 🔗 이슈 20번: byMaturity 세분화 처리 (우선 적용)
+                if (aiBonds.byMaturity) {
+                    var byMat = aiBonds.byMaturity;
+                    var viewToRec = {
+                        'OVERWEIGHT': { rec: '추천', color: 'green' },
+                        'STRONG_OVERWEIGHT': { rec: '강력추천', color: 'green' },
+                        'NEUTRAL': { rec: '중립', color: 'gold' },
+                        'UNDERWEIGHT': { rec: '비중축소', color: 'red' },
+                        'CAUTION': { rec: '주의', color: 'red' },
+                        'WATCH': { rec: '관망', color: 'blue' }
+                    };
+                    
+                    // 각 만기별 설정 적용
+                    ['cash', 'short', 'mid', 'long', 'kr', 'tips'].forEach(function(key) {
+                        if (byMat[key]) {
+                            var maturity = byMat[key];
+                            var mapping = viewToRec[maturity.view] || viewToRec['NEUTRAL'];
+                            recs[key].rec = maturity.viewLabel || mapping.rec;
+                            recs[key].color = mapping.color;
+                            if (typeof maturity.allocation === 'number') {
+                                recs[key].pct = maturity.allocation;
+                            }
+                            // 🔗 이슈 20번: 만기별 rationale 저장
+                            if (maturity.rationale) {
+                                recs[key].rationale = maturity.rationale;
+                            }
+                        }
+                    });
+                    
+                    rationale += '[AI 만기별 세분화 적용] ';
+                    byMaturityOverride = true;
+                    aiOverride = true;
+                } else if (aiView === 'OVERWEIGHT') {
+                    // 기존 로직: 전체 채권 비중확대 권고
+                    recs.long.rec = '추천';
+                    recs.long.color = 'green';
+                    recs.long.pct = 25;
+                    recs.mid.pct = 25;
+                    recs.short.pct = 20;
+                    rationale += '[AI 권고: 채권 비중확대] ';
+                    aiOverride = true;
+                } else if (aiView === 'UNDERWEIGHT') {
+                    // 기존 로직: AI가 채권 비중축소 권고
+                    recs.long.rec = '주의';
+                    recs.long.color = 'red';
+                    recs.long.pct = 5;
+                    recs.mid.pct = 10;
+                    recs.cash.pct = 45;
+                    recs.cash.rec = '추천';
+                    recs.cash.color = 'green';
+                    rationale += '[AI 권고: 채권 비중축소 → 현금 선호] ';
+                    aiOverride = true;
+                }
+                
+                if (aiBonds.rationale) {
+                    rationale += aiBonds.rationale + ' ';
+                }
+            }
+            
+            // 🔗 이슈 20번: byMaturity 세분화 적용 시 지표 로직 스킵 (AI 의견 우선)
+            // byMaturity가 없으면 기존 지표 기반 분석 적용
+            if (!byMaturityOverride) {
             // 1. 수익률 곡선 분석
             if (spread < 0) {
                 // 역전 → 단기채 유리
@@ -10074,21 +11084,6 @@
                 recs.kr.pct = 25;
                 recs.short.pct -= 10;
                 rationale += '환율 ' + fx.toLocaleString() + '원 고위험 → 국내채권 선호. ';
-                
-                // 환율 표시 하이라이트
-                var fxHigh = document.getElementById('bondDecision-fxHigh');
-                var fxNormal = document.getElementById('bondDecision-fxNormal');
-                if (fxHigh) fxHigh.style.border = '2px solid var(--accent-red)';
-                if (fxNormal) fxNormal.style.border = 'none';
-            } else {
-                recs.kr.rec = '중립';
-                recs.kr.color = 'gold';
-                recs.kr.pct = 10;
-                
-                var fxHigh = document.getElementById('bondDecision-fxHigh');
-                var fxNormal = document.getElementById('bondDecision-fxNormal');
-                if (fxHigh) fxHigh.style.border = 'none';
-                if (fxNormal) fxNormal.style.border = '2px solid var(--accent-green)';
             }
             
             // 4. 현금 비중 조정 (불확실성 반영)
@@ -10098,6 +11093,18 @@
                 recs.cash.rec = '추천';
                 recs.cash.color = 'green';
                 rationale += '금리 방향 불확실 → 현금 비중 확대 권고. ';
+            }
+            } // end of !byMaturityOverride
+            
+            // 환율 표시 하이라이트 (항상 업데이트)
+            var fxHigh = document.getElementById('bondDecision-fxHigh');
+            var fxNormal = document.getElementById('bondDecision-fxNormal');
+            if (fx >= 1400) {
+                if (fxHigh) fxHigh.style.border = '2px solid var(--accent-red)';
+                if (fxNormal) fxNormal.style.border = 'none';
+            } else {
+                if (fxHigh) fxHigh.style.border = 'none';
+                if (fxNormal) fxNormal.style.border = '2px solid var(--accent-green)';
             }
             
             // 화면 업데이트 - 추천 배지
@@ -10118,6 +11125,21 @@
                 }
                 if (card) {
                     card.style.borderColor = recs[key].rec.includes('추천') ? colorMap[recs[key].color].text : 'transparent';
+                    
+                    // 🔗 이슈 20번: 만기별 rationale 표시
+                    var aiRationaleEl = card.querySelector('.ai-maturity-rationale');
+                    if (recs[key].rationale) {
+                        if (!aiRationaleEl) {
+                            aiRationaleEl = document.createElement('div');
+                            aiRationaleEl.className = 'ai-maturity-rationale';
+                            aiRationaleEl.style.cssText = 'margin-top: 10px; padding: 8px; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); border-radius: 6px; font-size: 0.75rem; color: var(--text-secondary);';
+                            card.appendChild(aiRationaleEl);
+                        }
+                        aiRationaleEl.innerHTML = '🤖 <strong>AI:</strong> ' + recs[key].rationale;
+                        aiRationaleEl.style.display = 'block';
+                    } else if (aiRationaleEl) {
+                        aiRationaleEl.style.display = 'none';
+                    }
                 }
             }
             
@@ -10144,6 +11166,36 @@
             var rationaleEl = document.getElementById('aiBondRationale');
             if (rationaleEl && rationale) {
                 rationaleEl.innerHTML = '💡 <strong>근거:</strong> ' + rationale;
+            }
+            
+            // 🔗 이슈 13번: AI 연동 표시
+            var aiLinkEl = document.getElementById('bondAiLinkNote');
+            if (!aiLinkEl) {
+                // 없으면 생성
+                var rationaleContainer = document.getElementById('aiBondRationale');
+                if (rationaleContainer && rationaleContainer.parentNode) {
+                    aiLinkEl = document.createElement('div');
+                    aiLinkEl.id = 'bondAiLinkNote';
+                    aiLinkEl.style.cssText = 'margin-top: 8px; padding: 8px; border-radius: 6px; font-size: 0.7rem;';
+                    rationaleContainer.parentNode.insertBefore(aiLinkEl, rationaleContainer.nextSibling);
+                }
+            }
+            
+            if (aiLinkEl) {
+                if (byMaturityOverride) {
+                    // 🔗 이슈 20번: 만기별 세분화 적용됨
+                    aiLinkEl.style.background = 'rgba(139, 92, 246, 0.1)';
+                    aiLinkEl.style.border = '1px solid rgba(139, 92, 246, 0.3)';
+                    aiLinkEl.innerHTML = '🔗 <strong style="color: var(--accent-purple);">byMaturity 만기별 세분화 적용</strong> - AI가 각 만기별로 개별 의견을 설정했습니다.';
+                } else if (aiOverride) {
+                    aiLinkEl.style.background = 'rgba(59, 130, 246, 0.1)';
+                    aiLinkEl.style.border = '1px solid rgba(59, 130, 246, 0.3)';
+                    aiLinkEl.innerHTML = '🔗 <strong style="color: var(--accent-blue);">assetRecommendations.bonds 연동됨</strong> - AI의 채권 의견이 위 배분에 반영되었습니다.';
+                } else {
+                    aiLinkEl.style.background = 'var(--bg-card)';
+                    aiLinkEl.style.border = '1px solid var(--border-color)';
+                    aiLinkEl.innerHTML = 'ℹ️ 지표 기반 자동 계산. AI Config의 <code>assetRecommendations.bonds.byMaturity</code> 설정 시 만기별 세분화 가능!';
+                }
             }
             
             // 시장 판단 업데이트
@@ -10236,6 +11288,379 @@
             '비중축소': { bg: 'rgba(239,68,68,0.2)', text: '#ef4444' },
             '매도': { bg: 'rgba(239,68,68,0.3)', text: '#ef4444' }
         };
+        
+        // 🌐 글로벌 정책 영향 분석 렌더링
+        function renderGlobalImpactAnalysis(config) {
+            if (!config || !config.globalImpactAnalysis) {
+                console.log('ℹ️ globalImpactAnalysis 데이터 없음');
+                return;
+            }
+            
+            var gia = config.globalImpactAnalysis;
+            var grid = document.getElementById('globalImpactGrid');
+            var lastUpdateEl = document.getElementById('globalImpactLastUpdate');
+            
+            if (!grid) return;
+            
+            // 마지막 업데이트 표시
+            if (lastUpdateEl && config.dataAsOf) {
+                lastUpdateEl.textContent = config.dataAsOf;
+            }
+            
+            // 감정에 따른 색상
+            var sentimentColors = {
+                'positive': { border: '#10b981', bg: 'rgba(16,185,129,0.2)', text: '#10b981', label: '긍정적' },
+                'negative': { border: '#ef4444', bg: 'rgba(239,68,68,0.2)', text: '#ef4444', label: '부정적' },
+                'neutral': { border: '#64748b', bg: 'rgba(100,116,139,0.2)', text: '#64748b', label: '중립' },
+                'mixed': { border: '#f59e0b', bg: 'rgba(245,158,11,0.2)', text: '#f59e0b', label: '혼조' },
+                'warning': { border: '#f59e0b', bg: 'rgba(245,158,11,0.2)', text: '#f59e0b', label: '경고' }
+            };
+            
+            // 정책 아이콘
+            var policyIcons = {
+                'usTrump': '🇺🇸',
+                'usFed': '🏛️',
+                'china': '🇨🇳',
+                'chinaStimulus': '🇨🇳',
+                'japan': '🇯🇵',
+                'japanBOJ': '🇯🇵',
+                'europe': '🇪🇺',
+                'geopolitical': '⚔️'
+            };
+            
+            // 자산군 아이콘
+            var assetIcons = {
+                'equities': '📊 주식',
+                'bonds': '📜 채권',
+                'commodities': '🥇 원자재',
+                'currencies': '💱 통화',
+                'alternatives': '🏠 대안자산'
+            };
+            
+            var html = '';
+            
+            Object.keys(gia).forEach(function(policyKey) {
+                var policy = gia[policyKey];
+                if (!policy || !policy.title) return;
+                
+                var sc = sentimentColors[policy.sentiment] || sentimentColors['neutral'];
+                var icon = policyIcons[policyKey] || '🌐';
+                
+                html += '<div class="impact-card" data-policy="' + policyKey + '" style="background: var(--bg-secondary); border-radius: 10px; border-left: 4px solid ' + sc.border + '; overflow: hidden;">';
+                html += '<details>';
+                html += '<summary style="cursor: pointer; padding: 12px; display: flex; align-items: center; gap: 10px;">';
+                html += '<span style="font-size: 1.1rem;">' + icon + '</span>';
+                html += '<div style="flex: 1;">';
+                html += '<div style="font-weight: 700; font-size: 0.85rem;">' + policy.title + '</div>';
+                html += '<div style="font-size: 0.7rem; color: var(--text-muted);">' + (policy.status || '') + '</div>';
+                html += '</div>';
+                html += '<span style="padding: 2px 8px; background: ' + sc.bg + '; color: ' + sc.text + '; border-radius: 4px; font-size: 0.65rem; font-weight: 600;">' + sc.label + '</span>';
+                html += '<span style="color: var(--text-muted);">▼</span>';
+                html += '</summary>';
+                
+                // 자산군별 영향
+                if (policy.impactByAssetClass) {
+                    html += '<div style="padding: 0 12px 12px; font-size: 0.75rem;">';
+                    if (policy.details) {
+                        html += '<div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-card); border-radius: 4px;">💡 ' + policy.details + '</div>';
+                    }
+                    html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px;">';
+                    
+                    Object.keys(policy.impactByAssetClass).forEach(function(assetKey) {
+                        var asset = policy.impactByAssetClass[assetKey];
+                        if (!asset || !asset.affected || asset.affected.length === 0) return;
+                        
+                        var assetLabel = assetIcons[assetKey] || assetKey;
+                        
+                        html += '<div style="background: var(--bg-card); padding: 8px; border-radius: 6px;">';
+                        html += '<div style="color: var(--text-muted); font-size: 0.65rem; margin-bottom: 4px;">' + assetLabel + '</div>';
+                        
+                        asset.affected.slice(0, 4).forEach(function(item) {
+                            var arrow = item.direction === 'positive' ? '<span style="color: #10b981;">📈</span>' :
+                                       item.direction === 'negative' ? '<span style="color: #ef4444;">📉</span>' :
+                                       '<span style="color: #64748b;">➖</span>';
+                            html += '<div style="font-size: 0.7rem;">' + arrow + ' ' + item.name + '</div>';
+                        });
+                        
+                        html += '</div>';
+                    });
+                    
+                    html += '</div></div>';
+                }
+                
+                html += '</details></div>';
+            });
+            
+            // 🔗 이슈 12번: 중복 종목 분석 및 종합 판단
+            var stockImpactMap = {};  // 종목별 영향 수집
+            
+            Object.keys(gia).forEach(function(policyKey) {
+                var policy = gia[policyKey];
+                if (!policy || !policy.impactByAssetClass) return;
+                
+                Object.keys(policy.impactByAssetClass).forEach(function(assetKey) {
+                    var asset = policy.impactByAssetClass[assetKey];
+                    if (!asset || !asset.affected) return;
+                    
+                    asset.affected.forEach(function(item) {
+                        var key = item.ticker || item.name;
+                        if (!key) return;
+                        
+                        if (!stockImpactMap[key]) {
+                            stockImpactMap[key] = {
+                                name: item.name,
+                                ticker: item.ticker,
+                                impacts: []
+                            };
+                        }
+                        stockImpactMap[key].impacts.push({
+                            policy: policy.title || policyKey,
+                            direction: item.direction,
+                            impact: item.impact
+                        });
+                    });
+                });
+            });
+            
+            // 2개 이상 정책에서 언급된 종목 찾기
+            var duplicateStocks = [];
+            Object.keys(stockImpactMap).forEach(function(key) {
+                var stock = stockImpactMap[key];
+                if (stock.impacts.length >= 2) {
+                    // 종합 판단 계산
+                    var positiveCount = stock.impacts.filter(function(i) { return i.direction === 'positive'; }).length;
+                    var negativeCount = stock.impacts.filter(function(i) { return i.direction === 'negative'; }).length;
+                    
+                    var overallDirection = positiveCount > negativeCount ? 'positive' :
+                                          negativeCount > positiveCount ? 'negative' : 'mixed';
+                    var overallLabel = positiveCount > negativeCount ? '종합 긍정' :
+                                      negativeCount > positiveCount ? '종합 부정' : '혼조';
+                    
+                    duplicateStocks.push({
+                        key: key,
+                        name: stock.name,
+                        ticker: stock.ticker,
+                        impacts: stock.impacts,
+                        positiveCount: positiveCount,
+                        negativeCount: negativeCount,
+                        overallDirection: overallDirection,
+                        overallLabel: overallLabel
+                    });
+                }
+            });
+            
+            // 중복 종목이 있으면 종합 판단 섹션 추가
+            if (duplicateStocks.length > 0) {
+                var overallColors = {
+                    'positive': { bg: 'rgba(16,185,129,0.15)', border: '#10b981', text: '#10b981' },
+                    'negative': { bg: 'rgba(239,68,68,0.15)', border: '#ef4444', text: '#ef4444' },
+                    'mixed': { bg: 'rgba(245,158,11,0.15)', border: '#f59e0b', text: '#f59e0b' }
+                };
+                
+                html += '<div style="margin-top: 16px; padding: 14px; background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border-color);">';
+                html += '<h4 style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">';
+                html += '🔗 복수 정책 영향 종목 종합 판단';
+                html += '<span style="font-size: 0.65rem; padding: 2px 6px; background: var(--accent-blue); color: white; border-radius: 4px;">' + duplicateStocks.length + '개</span>';
+                html += '</h4>';
+                
+                html += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">';
+                
+                duplicateStocks.sort(function(a, b) { return b.impacts.length - a.impacts.length; }).slice(0, 8).forEach(function(stock) {
+                    var oc = overallColors[stock.overallDirection];
+                    
+                    html += '<div style="background: ' + oc.bg + '; border: 1px solid ' + oc.border + '; border-radius: 8px; padding: 10px;">';
+                    html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">';
+                    html += '<span style="font-weight: 700; font-size: 0.85rem;">' + (stock.ticker || stock.name) + '</span>';
+                    html += '<span style="font-size: 0.65rem; padding: 2px 6px; background: ' + oc.border + '22; color: ' + oc.text + '; border-radius: 4px; font-weight: 600;">' + stock.overallLabel + '</span>';
+                    html += '</div>';
+                    
+                    if (stock.name && stock.ticker) {
+                        html += '<div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 6px;">' + stock.name + '</div>';
+                    }
+                    
+                    html += '<div style="font-size: 0.65rem; color: var(--text-secondary);">';
+                    html += '📊 긍정: <span style="color: #10b981; font-weight: 600;">' + stock.positiveCount + '</span> / ';
+                    html += '부정: <span style="color: #ef4444; font-weight: 600;">' + stock.negativeCount + '</span>';
+                    html += '</div>';
+                    
+                    html += '<div style="margin-top: 6px; font-size: 0.6rem; color: var(--text-muted);">';
+                    stock.impacts.slice(0, 3).forEach(function(imp) {
+                        var arrow = imp.direction === 'positive' ? '📈' : imp.direction === 'negative' ? '📉' : '➖';
+                        html += arrow + ' ' + imp.policy + '<br>';
+                    });
+                    if (stock.impacts.length > 3) {
+                        html += '... 외 ' + (stock.impacts.length - 3) + '개 정책';
+                    }
+                    html += '</div>';
+                    
+                    html += '</div>';
+                });
+                
+                html += '</div>';
+                
+                // 요약 메시지
+                var mostPositive = duplicateStocks.filter(function(s) { return s.overallDirection === 'positive'; });
+                var mostNegative = duplicateStocks.filter(function(s) { return s.overallDirection === 'negative'; });
+                
+                if (mostPositive.length > 0 || mostNegative.length > 0) {
+                    html += '<div style="margin-top: 10px; padding: 8px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.7rem; color: var(--text-muted);">';
+                    html += '💡 <strong>종합 판단:</strong> ';
+                    if (mostPositive.length > 0) {
+                        html += '<span style="color: #10b981;">' + mostPositive.map(function(s) { return s.ticker || s.name; }).slice(0, 3).join(', ') + '</span>은 복수 정책에서 긍정적. ';
+                    }
+                    if (mostNegative.length > 0) {
+                        html += '<span style="color: #ef4444;">' + mostNegative.map(function(s) { return s.ticker || s.name; }).slice(0, 3).join(', ') + '</span>은 복수 정책에서 부정적 → 주의 필요.';
+                    }
+                    html += '</div>';
+                }
+                
+                html += '</div>';
+                
+                console.log('🔗 복수 정책 영향 종목:', duplicateStocks.length + '개 발견');
+            }
+            
+            if (html) {
+                grid.innerHTML = html;
+            }
+        }
+        
+        // 📰 주요 자산 뉴스 렌더링
+        function renderCorporateNews(config) {
+            if (!config || !config.corporateNews || config.corporateNews.length === 0) {
+                console.log('ℹ️ corporateNews 데이터 없음');
+                return;
+            }
+            
+            var news = config.corporateNews;
+            var grid = document.getElementById('corpNewsGrid');
+            
+            if (!grid) return;
+            
+            // 뉴스 타입별 스타일
+            var typeStyles = {
+                'positive': { border: '#10b981', bg: 'rgba(16,185,129,0.2)', text: '#10b981', label: '✅ 호재' },
+                'negative': { border: '#ef4444', bg: 'rgba(239,68,68,0.2)', text: '#ef4444', label: '❌ 악재' },
+                'warning': { border: '#f59e0b', bg: 'rgba(245,158,11,0.2)', text: '#f59e0b', label: '⚠️ 주의' },
+                'neutral': { border: '#64748b', bg: 'rgba(100,116,139,0.2)', text: '#64748b', label: 'ℹ️ 정보' }
+            };
+            
+            var html = '';
+            
+            news.forEach(function(item) {
+                var ts = typeStyles[item.newsType] || typeStyles['neutral'];
+                
+                html += '<div class="news-card" style="background: var(--bg-secondary); border-radius: 8px; padding: 12px; border-left: 3px solid ' + ts.border + ';">';
+                html += '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">';
+                html += '<div style="flex: 1;">';
+                html += '<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">';
+                html += '<span style="font-size: 0.65rem; padding: 1px 6px; background: ' + ts.bg + '; color: ' + ts.text + '; border-radius: 3px;">' + ts.label + '</span>';
+                if (item.assetType) {
+                    var typeLabel = item.assetType === 'stock' ? '주식' : item.assetType === 'bond' ? '채권' : item.assetType === 'etf' ? 'ETF' : item.assetType === 'commodity' ? '원자재' : item.assetType;
+                    html += '<span style="font-size: 0.6rem; padding: 1px 4px; background: var(--bg-card); color: var(--text-muted); border-radius: 2px;">' + typeLabel + '</span>';
+                }
+                html += '<span style="font-size: 0.65rem; color: var(--text-muted);">' + (item.date || '') + '</span>';
+                html += '</div>';
+                html += '<div style="font-weight: 700; font-size: 0.8rem;">' + (item.ticker ? item.ticker + ' ' : '') + item.headline + '</div>';
+                if (item.details || item.priceImpact) {
+                    html += '<div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">';
+                    if (item.details) html += item.details;
+                    if (item.priceImpact) html += ' → 예상 영향: ' + item.priceImpact;
+                    html += '</div>';
+                }
+                html += '</div></div>';
+                
+                // 연관 종목
+                if (item.crossAssetImpact && item.crossAssetImpact.length > 0) {
+                    html += '<div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px;">';
+                    item.crossAssetImpact.forEach(function(related) {
+                        var relColor = related.direction === 'positive' ? '#10b981' : related.direction === 'negative' ? '#ef4444' : '#64748b';
+                        var relBg = related.direction === 'positive' ? 'rgba(16,185,129,0.15)' : related.direction === 'negative' ? 'rgba(239,68,68,0.15)' : 'rgba(100,116,139,0.15)';
+                        var relArrow = related.direction === 'positive' ? '📈' : related.direction === 'negative' ? '📉' : '➖';
+                        html += '<span style="font-size: 0.6rem; padding: 2px 6px; background: ' + relBg + '; color: ' + relColor + '; border-radius: 4px;">' + relArrow + ' ' + related.name + '</span>';
+                    });
+                    html += '</div>';
+                }
+                
+                html += '</div>';
+            });
+            
+            if (html) {
+                grid.innerHTML = html;
+            }
+        }
+        
+        // 🌍 지역/자산 배분 조정 렌더링
+        function renderRegionAdjustments(config) {
+            if (!config || !config.regionAdjustments) {
+                console.log('ℹ️ regionAdjustments 데이터 없음');
+                return;
+            }
+            
+            var ra = config.regionAdjustments;
+            var grid = document.getElementById('regionAdjGrid');
+            var reasonEl = document.getElementById('regionAdjReason');
+            var reasonTextEl = document.getElementById('regionAdjReasonText');
+            
+            if (!grid) return;
+            
+            // 지역/자산 메타 정보
+            var regionMeta = {
+                'US': { icon: '🇺🇸', name: '미국', color: '#3b82f6' },
+                'KR': { icon: '🇰🇷', name: '한국', color: '#ef4444' },
+                'EU': { icon: '🇪🇺', name: '유럽', color: '#8b5cf6' },
+                'EM': { icon: '🌏', name: '신흥국', color: '#f59e0b' },
+                'JP': { icon: '🇯🇵', name: '일본', color: '#ec4899' },
+                'Gold': { icon: '🥇', name: '금', color: '#fbbf24' },
+                'Bond': { icon: '📜', name: '채권', color: '#10b981' },
+                'Cash': { icon: '💵', name: '현금', color: '#64748b' }
+            };
+            
+            var html = '';
+            var regions = ['US', 'KR', 'EU', 'EM', 'JP', 'Gold', 'Bond', 'Cash'];
+            
+            regions.forEach(function(region) {
+                var adj = ra[region];
+                if (adj === undefined || adj === null) return;
+                
+                var meta = regionMeta[region] || { icon: '📊', name: region, color: '#64748b' };
+                var adjValue = typeof adj === 'number' ? adj : 0;
+                var adjSign = adjValue > 0 ? '+' : '';
+                var adjColor = adjValue > 0 ? '#10b981' : adjValue < 0 ? '#ef4444' : '#64748b';
+                var adjBg = adjValue > 0 ? 'rgba(16,185,129,0.15)' : adjValue < 0 ? 'rgba(239,68,68,0.15)' : 'rgba(100,116,139,0.1)';
+                
+                html += '<div style="background: var(--bg-secondary); border-radius: 8px; padding: 12px; text-align: center; border-top: 3px solid ' + meta.color + ';">';
+                html += '<div style="font-size: 1.2rem; margin-bottom: 4px;">' + meta.icon + '</div>';
+                html += '<div style="font-size: 0.75rem; font-weight: 600; margin-bottom: 4px;">' + meta.name + '</div>';
+                html += '<div style="font-size: 1rem; font-weight: 700; color: ' + adjColor + '; padding: 4px 8px; background: ' + adjBg + '; border-radius: 4px;">' + adjSign + adjValue + '%</div>';
+                html += '</div>';
+            });
+            
+            if (html) {
+                grid.innerHTML = html;
+            }
+            
+            // 조정 사유 표시
+            if (reasonEl && reasonTextEl && ra.reason) {
+                reasonTextEl.textContent = ra.reason;
+                reasonEl.style.display = 'block';
+            } else if (reasonEl) {
+                reasonEl.style.display = 'none';
+            }
+            
+            // 🔗 10번 이슈: 포트폴리오 연동 안내 표시
+            var linkNote = document.createElement('div');
+            linkNote.style.cssText = 'margin-top: 12px; padding: 8px 12px; background: rgba(59, 130, 246, 0.1); border-radius: 6px; font-size: 0.7rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;';
+            linkNote.innerHTML = '🔗 <span>이 조정값은 <strong>포트폴리오 파이차트</strong>에 자동 반영됩니다</span>';
+            if (grid && grid.parentNode) {
+                // 기존 안내 제거 후 추가
+                var existingNote = grid.parentNode.querySelector('.region-link-note');
+                if (existingNote) existingNote.remove();
+                linkNote.className = 'region-link-note';
+                grid.parentNode.appendChild(linkNote);
+            }
+            
+            console.log('✅ 지역/자산 배분 조정 업데이트 완료');
+        }
         
         // 산업별 전망 렌더링
         function renderSectorOutlook(config) {
@@ -10522,17 +11947,27 @@
             p += '- 미국 실업률 (%)\n';
             p += '- 한국 기준금리 (%) 및 최근 결정\n';
             p += '- Fed 금리 현황 및 전망\n';
-            p += '- 주요 이벤트 (FOMC, 고용지표 등)\n\n';
+            p += '- ECB 금리 현황 및 유럽 경기 (인플레이션, PMI)\n';
+            p += '- 주요 이벤트 (FOMC, ECB, 고용지표 등)\n';
+            p += '- 수익률 곡선 형태 (역전/정상/가팔라짐)\n';
+            p += '- 채권 만기별 금리 (2Y, 5Y, 10Y, 30Y)\n\n';
             
             p += '## 요청사항\n';
             p += '1. **종합 판단** - 현재 시장 상황 종합 평가\n';
-            p += '2. **시나리오별 확률** - 각 시나리오의 현재 확률 (0-100%)\n';
+            p += '2. **시나리오별 확률** - 12개 시나리오 전부 작성 (0-100%)\n';
             p += '3. **자산별 견해** - 현재 상황에 맞는 투자 의견\n';
             p += '4. **목표 가격** - 환율, 금 등 전망\n';
-            p += '5. **권고사항** - 구체적 행동 지침\n\n';
+            p += '5. **권고사항** - 구체적 행동 지침\n';
+            p += '6. **산업별 전망** - sectorOutlook 12개 산업 전부 필수!\n';
+            p += '7. **글로벌 정책 영향** - 미국/중국/일본/유럽/지정학 → 주식/채권/원자재/통화 교차 영향\n';
+            p += '8. **주요 자산 뉴스** - 최근 3-5개 호재/악재 (연관 종목 포함)\n';
+            p += '9. **채권 만기별 의견** - bonds.byMaturity로 현금/단기/중기/장기/한국채/TIPS 개별 설정\n\n';
             
             p += '⚠️ **중요**: 아래 JSON의 모든 값은 **예시/플레이스홀더**입니다.\n';
-            p += '현재 시장 상황을 조사하여 **실제 값으로 수정**해주세요.\n\n';
+            p += '현재 시장 상황을 조사하여 **실제 값으로 수정**해주세요.\n';
+            p += '⚠️ **sectorOutlook 12개 산업 전부 작성 필수** (일부만 쓰면 안됨!)\n';
+            p += '⚠️ **globalImpactAnalysis** - 정책별 자산군 영향 (affected 배열에 구체적 종목/ETF)\n';
+            p += '💡 **bonds.byMaturity** - 채권 만기별 세분화로 더 정밀한 배분 권고 가능\n\n';
             
             p += '```json\n{\n';
             p += '  "dataAsOf": "' + isoDate + '",\n\n';
@@ -10569,11 +12004,11 @@
             p += '    "krRateCut": { "probability": 35, "status": "POSSIBLE", "statusLabel": "가능", "reason": "[한국 금리인하 분석]" },\n';
             p += '    "krRateHold": { "probability": 50, "status": "LIKELY", "statusLabel": "유력", "reason": "[금리동결 분석]" },\n';
             p += '    "fedPivot": { "probability": 40, "status": "POSSIBLE", "statusLabel": "가능", "reason": "[Fed 피벗 분석]" },\n';
-            p += '    "stagflation": { "probability": 20, "status": "UNLIKELY", "statusLabel": "낮음", "reason": "[스태그플레이션 분석]" },\n';
+            p += '    "stagflation": { "probability": 15, "status": "UNLIKELY", "statusLabel": "낮음", "reason": "[스태그플레이션 분석]" },\n';
             p += '    "fxCrisis": { "probability": 25, "status": "POSSIBLE", "statusLabel": "가능", "reason": "[환율위기 분석]" },\n';
             p += '    "fxNormal": { "probability": 30, "status": "POSSIBLE", "statusLabel": "가능", "reason": "[환율안정 분석]" },\n';
             p += '    "recession": { "probability": 25, "status": "POSSIBLE", "statusLabel": "가능", "reason": "[경기침체 분석]" },\n';
-            p += '    "boom": { "probability": 20, "status": "UNLIKELY", "statusLabel": "낮음", "reason": "[호황 분석]" },\n';
+            p += '    "boom": { "probability": 15, "status": "UNLIKELY", "statusLabel": "낮음", "reason": "[호황 분석]" },\n';
             p += '    "stagflationWorst": { "probability": 10, "status": "UNLIKELY", "statusLabel": "낮음", "reason": "[극단 스태그 분석]" },\n';
             p += '    "geopolitical": { "probability": 30, "status": "POSSIBLE", "statusLabel": "가능", "reason": "[지정학 분석]" },\n';
             p += '    "tariffWar": { "probability": 45, "status": "POSSIBLE", "statusLabel": "가능", "reason": "[관세전쟁 분석]" },\n';
@@ -10582,7 +12017,7 @@
             
             // targetPrices
             p += '  "targetPrices": {\n';
-            p += '    "fx": { "low": "[목표하단]", "high": "[목표상단]", "riskLevel": "[위험수준]", "timeline": "[시점]" },\n';
+            p += '    "fx": { "low": "1350", "high": "1500", "riskLevel": "HIGH", "timeline": "[시점]" },\n';
             p += '    "gold": { "target": "[목표가]", "timeline": "[시점]" }\n';
             p += '  },\n\n';
             
@@ -10591,7 +12026,21 @@
             p += '    "koreanFinancials": { "view": "OVERWEIGHT", "viewLabel": "비중확대", "expectedReturn": "+12~18%", "rationale": "[이유]" },\n';
             p += '    "gold": { "view": "NEUTRAL", "viewLabel": "중립", "expectedReturn": "+10~15%", "rationale": "[이유]" },\n';
             p += '    "usDividendETF": { "view": "UNDERWEIGHT", "viewLabel": "비중축소", "expectedReturn": "+5~10%", "rationale": "[이유]" },\n';
-            p += '    "bonds": { "view": "NEUTRAL", "viewLabel": "중립", "rationale": "[이유]" },\n';
+            p += '    // 🔗 채권 만기별 세분화 (이슈 20번) - 각 만기별로 개별 의견 설정 가능\n';
+            p += '    "bonds": {\n';
+            p += '      "view": "NEUTRAL",  // 채권 전체 의견: OVERWEIGHT/NEUTRAL/UNDERWEIGHT\n';
+            p += '      "viewLabel": "중립",\n';
+            p += '      "rationale": "[전체 채권 투자 의견 근거]",\n';
+            p += '      // 만기별 세분화 (optional - 설정 시 해당 카드에 반영)\n';
+            p += '      "byMaturity": {\n';
+            p += '        "cash": { "view": "NEUTRAL", "viewLabel": "중립", "rationale": "[현금/MMF 의견]", "allocation": 20 },\n';
+            p += '        "short": { "view": "OVERWEIGHT", "viewLabel": "비중확대", "rationale": "[단기채 1-3년 의견]", "allocation": 35 },\n';
+            p += '        "mid": { "view": "NEUTRAL", "viewLabel": "중립", "rationale": "[중기채 3-7년 의견]", "allocation": 25 },\n';
+            p += '        "long": { "view": "UNDERWEIGHT", "viewLabel": "비중축소", "rationale": "[장기채 10년+ 의견]", "allocation": 10 },\n';
+            p += '        "kr": { "view": "OVERWEIGHT", "viewLabel": "비중확대", "rationale": "[한국국채 의견]", "allocation": 10 },\n';
+            p += '        "tips": { "view": "NEUTRAL", "viewLabel": "중립", "rationale": "[물가연동채 의견]", "allocation": 0 }\n';
+            p += '      }\n';
+            p += '    },\n';
             p += '    "usEquity": { "view": "UNDERWEIGHT", "viewLabel": "비중축소", "expectedReturn": "+5~8%", "rationale": "[이유]" }\n';
             p += '  },\n\n';
             
@@ -10603,14 +12052,11 @@
             p += '  },\n\n';
             
             // ========== 작은 AI 필드들 (선택적) ==========
+            p += '  // 📢 alerts - severity: "danger"(긴급), "warning"(주의), "info"(정보)\n';
             p += '  "alerts": [\n';
-            p += '    {\n';
-            p += '      "severity": "warning",\n';
-            p += '      "title": "[알림 제목]",\n';
-            p += '      "message": "[알림 내용]",\n';
-            p += '      "affectedSectors": ["금융", "기술"],\n';
-            p += '      "createdAt": "' + isoDate + '"\n';
-            p += '    }\n';
+            p += '    { "severity": "danger", "title": "[긴급 경고]", "message": "[위험 상황]", "affectedSectors": ["금융"], "createdAt": "' + isoDate + '" },\n';
+            p += '    { "severity": "warning", "title": "[주의 알림]", "message": "[주의 필요]", "affectedSectors": ["기술"], "createdAt": "' + isoDate + '" },\n';
+            p += '    { "severity": "info", "title": "[정보 알림]", "message": "[참고 정보]", "affectedSectors": [], "createdAt": "' + isoDate + '" }\n';
             p += '  ],\n\n';
             
             p += '  "marketContext": {\n';
@@ -10619,13 +12065,19 @@
             p += '    "updatedAt": "' + isoDate + '"\n';
             p += '  },\n\n';
             
+            p += '  // 🌍 regionAdjustments - 기본 비중 대비 증감 (-10 ~ +10%)\n';
+            p += '  // ⚡ 포트폴리오 파이차트에 자동 반영됩니다!\n';
+            p += '  // 🔗 키 매핑: US→미국주식, KR→한국주식, EU→유럽, EM→신흥국(JP포함), Gold→금, Bond→채권, Cash→현금\n';
             p += '  "regionAdjustments": {\n';
-            p += '    "US": 0,\n';
-            p += '    "KR": 0,\n';
-            p += '    "Gold": 0,\n';
-            p += '    "Bond": 0,\n';
-            p += '    "Cash": 0,\n';
-            p += '    "reason": "[지역 배분 조정 사유]"\n';
+            p += '    "US": 0,      // 미국 주식 비중 조정 (기본 25%)\n';
+            p += '    "KR": 0,      // 한국 주식 비중 조정 (기본 15%)\n';
+            p += '    "EU": 0,      // 유럽 주식 비중 조정 (기본 10%)\n';
+            p += '    "EM": 0,      // 신흥국 비중 조정 (기본 8%)\n';
+            p += '    "JP": 0,      // 일본 (EM에 합산 반영)\n';
+            p += '    "Gold": 0,    // 금 비중 조정 (기본 12%)\n';
+            p += '    "Bond": 0,    // 채권 비중 조정 (기본 20%)\n';
+            p += '    "Cash": 0,    // 현금 비중 조정 (기본 10%)\n';
+            p += '    "reason": "[지역/자산 배분 조정 사유]"  // UI에 표시됨\n';
             p += '  },\n\n';
             
             // 현재 월 기준 6개월 계산
@@ -10660,6 +12112,8 @@
             p += '    ]\n';
             p += '  },\n\n';
             
+            p += '  // ⚠️ sectorOutlook: 아래 12개 산업 전부 필수 (생략 금지)\n';
+            p += '  // 💡 tags: 각 산업별 1~3개 태그 작성 권장 (빈 배열 금지!)\n';
             p += '  "sectorOutlook": {\n';
             p += '    "aiSemi": {\n';
             p += '      "name": "AI/반도체",\n';
@@ -10669,25 +12123,132 @@
             p += '      "riskLabel": "리스크",\n';
             p += '      "tags": [{"text": "조정 시 분할매수", "color": "blue"}, {"text": "고평가 주의", "color": "gold"}]\n';
             p += '    },\n';
-            p += '    "finance": {\n';
-            p += '      "name": "금융",\n';
-            p += '      "view": "비중확대",\n';
-            p += '      "status": "[현황]",\n';
-            p += '      "risk": "[호재/리스크]",\n';
-            p += '      "riskLabel": "호재",\n';
-            p += '      "tags": [{"text": "적극 매수", "color": "green"}]\n';
-            p += '    },\n';
-            p += '    "auto": { "name": "자동차", "view": "매수", "status": "[현황]", "risk": "[리스크]", "riskLabel": "리스크", "tags": [] },\n';
-            p += '    "battery": { "name": "2차전지", "view": "관망", "status": "[현황]", "risk": "[리스크]", "riskLabel": "리스크", "tags": [] },\n';
-            p += '    "energy": { "name": "에너지/원자재", "view": "선별매수", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [] },\n';
-            p += '    "healthcare": { "name": "바이오/헬스케어", "view": "중립", "status": "[현황]", "risk": "[리스크]", "riskLabel": "리스크", "tags": [] },\n';
-            p += '    "reits": { "name": "리츠/부동산", "view": "관망", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [] },\n';
-            p += '    "consumer": { "name": "소비재", "view": "중립", "status": "[현황]", "risk": "[리스크]", "riskLabel": "리스크", "tags": [] },\n';
-            p += '    "utilities": { "name": "유틸리티", "view": "매수", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [] },\n';
-            p += '    "defense": { "name": "방산", "view": "비중확대", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [] },\n';
-            p += '    "shipbuilding": { "name": "조선/해운", "view": "매수", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [] },\n';
-            p += '    "telecom": { "name": "통신", "view": "중립", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [] }\n';
+            p += '    "finance": { "name": "금융", "view": "[뷰]", "status": "[현황]", "risk": "[호재/리스크]", "riskLabel": "호재", "tags": [{"text": "NIM 개선", "color": "green"}, {"text": "배당 수혜", "color": "blue"}] },\n';
+            p += '    "auto": { "name": "자동차", "view": "[뷰]", "status": "[현황]", "risk": "[리스크]", "riskLabel": "리스크", "tags": [{"text": "관세 리스크", "color": "red"}, {"text": "EV 경쟁", "color": "gold"}] },\n';
+            p += '    "battery": { "name": "2차전지", "view": "[뷰]", "status": "[현황]", "risk": "[리스크]", "riskLabel": "리스크", "tags": [{"text": "공급과잉", "color": "red"}, {"text": "장기 성장", "color": "green"}] },\n';
+            p += '    "energy": { "name": "에너지/원자재", "view": "[뷰]", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [{"text": "유가 상승", "color": "green"}, {"text": "인플레 헤지", "color": "blue"}] },\n';
+            p += '    "healthcare": { "name": "바이오/헬스케어", "view": "[뷰]", "status": "[현황]", "risk": "[리스크]", "riskLabel": "리스크", "tags": [{"text": "FDA 이슈", "color": "gold"}, {"text": "고령화 수혜", "color": "green"}] },\n';
+            p += '    "reits": { "name": "리츠/부동산", "view": "[뷰]", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [{"text": "금리 민감", "color": "gold"}, {"text": "배당 매력", "color": "blue"}] },\n';
+            p += '    "consumer": { "name": "소비재", "view": "[뷰]", "status": "[현황]", "risk": "[리스크]", "riskLabel": "리스크", "tags": [{"text": "소비 둔화", "color": "red"}, {"text": "필수소비 방어", "color": "green"}] },\n';
+            p += '    "utilities": { "name": "유틸리티", "view": "[뷰]", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [{"text": "경기 방어", "color": "green"}, {"text": "AI 전력 수요", "color": "blue"}] },\n';
+            p += '    "defense": { "name": "방산", "view": "[뷰]", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [{"text": "지정학 수혜", "color": "green"}, {"text": "수주 호조", "color": "blue"}] },\n';
+            p += '    "shipbuilding": { "name": "조선/해운", "view": "[뷰]", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [{"text": "슈퍼사이클", "color": "green"}, {"text": "수주 잔고", "color": "blue"}] },\n';
+            p += '    "telecom": { "name": "통신", "view": "[뷰]", "status": "[현황]", "risk": "[주목점]", "riskLabel": "주목", "tags": [{"text": "배당주", "color": "blue"}, {"text": "5G/AI 인프라", "color": "green"}] }\n';
             p += '  },\n\n';
+            
+            // globalImpactAnalysis
+            p += '  // 🌐 글로벌 정책 영향 분석 (주식/채권/원자재/통화 교차 영향)\n';
+            p += '  "globalImpactAnalysis": {\n';
+            p += '    "usTrump": {\n';
+            p += '      "title": "트럼프 관세 정책",\n';
+            p += '      "status": "[현재 상황 1줄]",\n';
+            p += '      "details": "[세부 내용]",\n';
+            p += '      "sentiment": "negative",\n';
+            p += '      "impactByAssetClass": {\n';
+            p += '        "equities": {\n';
+            p += '          "summary": "[주식 영향 요약]",\n';
+            p += '          "affected": [\n';
+            p += '            { "ticker": "005380", "name": "현대차", "region": "KR", "type": "stock", "impact": "[영향]", "direction": "negative" },\n';
+            p += '            { "ticker": "TSLA", "name": "테슬라", "region": "US", "type": "stock", "impact": "[영향]", "direction": "positive" }\n';
+            p += '          ]\n';
+            p += '        },\n';
+            p += '        "bonds": {\n';
+            p += '          "summary": "[채권 영향 요약]",\n';
+            p += '          "affected": [\n';
+            p += '            { "ticker": "SHY", "name": "미국채1-3년", "region": "US", "type": "etf", "impact": "[영향]", "direction": "positive" },\n';
+            p += '            { "ticker": "TLT", "name": "미국채20년+", "region": "US", "type": "etf", "impact": "[영향]", "direction": "negative" }\n';
+            p += '          ]\n';
+            p += '        },\n';
+            p += '        "commodities": {\n';
+            p += '          "summary": "[원자재 영향 요약]",\n';
+            p += '          "affected": [\n';
+            p += '            { "ticker": "GLD", "name": "금ETF", "region": "US", "type": "etf", "impact": "[영향]", "direction": "positive" }\n';
+            p += '          ]\n';
+            p += '        },\n';
+            p += '        "currencies": {\n';
+            p += '          "summary": "[통화 영향 요약]",\n';
+            p += '          "affected": [\n';
+            p += '            { "ticker": "USD/KRW", "name": "원달러", "region": "KR", "type": "fx", "impact": "[영향]", "direction": "negative" }\n';
+            p += '          ]\n';
+            p += '        },\n';
+            p += '        "alternatives": {\n';
+            p += '          "summary": "[대안자산 영향 요약]",\n';
+            p += '          "affected": [\n';
+            p += '            { "ticker": "VNQ", "name": "미국리츠", "region": "US", "type": "etf", "impact": "[영향]", "direction": "negative" }\n';
+            p += '          ]\n';
+            p += '        }\n';
+            p += '      }\n';
+            p += '    },\n';
+            p += '    "usFed": {\n';
+            p += '      "title": "Fed 금리정책", "status": "[상황]", "details": "[세부]", "sentiment": "positive",\n';
+            p += '      "impactByAssetClass": {\n';
+            p += '        "equities": { "summary": "[요약]", "affected": [{ "ticker": "QQQ", "name": "나스닥100", "region": "US", "type": "etf", "impact": "[영향]", "direction": "positive" }] },\n';
+            p += '        "bonds": { "summary": "[요약]", "affected": [{ "ticker": "TLT", "name": "미국채20년+", "region": "US", "type": "etf", "impact": "[영향]", "direction": "positive" }] },\n';
+            p += '        "commodities": { "summary": "[요약]", "affected": [] },\n';
+            p += '        "currencies": { "summary": "[요약]", "affected": [] },\n';
+            p += '        "alternatives": { "summary": "[요약]", "affected": [{ "ticker": "VNQ", "name": "미국리츠", "region": "US", "type": "etf", "impact": "[영향]", "direction": "positive" }] }\n';
+            p += '      }\n';
+            p += '    },\n';
+            p += '    "china": {\n';
+            p += '      "title": "중국 경기", "status": "[상황]", "details": "[세부]", "sentiment": "mixed",\n';
+            p += '      "impactByAssetClass": {\n';
+            p += '        "equities": { "summary": "[요약]", "affected": [{ "ticker": "FXI", "name": "중국대형주", "region": "US", "type": "etf", "impact": "[영향]", "direction": "positive" }] },\n';
+            p += '        "bonds": { "summary": "[요약]", "affected": [] },\n';
+            p += '        "commodities": { "summary": "[요약]", "affected": [{ "ticker": "COPX", "name": "구리광산", "region": "US", "type": "etf", "impact": "[영향]", "direction": "positive" }] },\n';
+            p += '        "currencies": { "summary": "[요약]", "affected": [] },\n';
+            p += '        "alternatives": { "summary": "[요약]", "affected": [] }\n';
+            p += '      }\n';
+            p += '    },\n';
+            p += '    "japan": {\n';
+            p += '      "title": "일본 BOJ", "status": "[상황]", "details": "[세부]", "sentiment": "warning",\n';
+            p += '      "impactByAssetClass": {\n';
+            p += '        "equities": { "summary": "[요약]", "affected": [{ "ticker": "EWY", "name": "한국ETF", "region": "US", "type": "etf", "impact": "[영향]", "direction": "negative" }] },\n';
+            p += '        "bonds": { "summary": "[요약]", "affected": [] },\n';
+            p += '        "commodities": { "summary": "[요약]", "affected": [] },\n';
+            p += '        "currencies": { "summary": "[요약]", "affected": [{ "ticker": "FXY", "name": "엔화ETF", "region": "US", "type": "etf", "impact": "[영향]", "direction": "positive" }] },\n';
+            p += '        "alternatives": { "summary": "[요약]", "affected": [] }\n';
+            p += '      }\n';
+            p += '    },\n';
+            p += '    "europe": {\n';
+            p += '      "title": "유럽 ECB/경기", "status": "[ECB 금리정책 및 유럽 경기 상황]", "details": "[세부 내용: 금리 결정, 인플레이션, 경기 전망]", "sentiment": "mixed",\n';
+            p += '      "impactByAssetClass": {\n';
+            p += '        "equities": { "summary": "[유럽 증시 및 유럽 노출 기업 영향]", "affected": [{ "ticker": "EZU", "name": "유로존ETF", "region": "US", "type": "etf", "impact": "[영향]", "direction": "mixed" }, { "ticker": "VGK", "name": "유럽ETF", "region": "US", "type": "etf", "impact": "[영향]", "direction": "mixed" }] },\n';
+            p += '        "bonds": { "summary": "[유럽 국채 및 금리 영향]", "affected": [{ "ticker": "BUND", "name": "독일국채", "region": "EU", "type": "bond", "impact": "[영향]", "direction": "mixed" }] },\n';
+            p += '        "commodities": { "summary": "[에너지/원자재 영향]", "affected": [] },\n';
+            p += '        "currencies": { "summary": "[유로화 영향]", "affected": [{ "ticker": "FXE", "name": "유로ETF", "region": "US", "type": "etf", "impact": "[영향]", "direction": "mixed" }, { "ticker": "EUR/USD", "name": "유로달러", "region": "EU", "type": "fx", "impact": "[영향]", "direction": "mixed" }] },\n';
+            p += '        "alternatives": { "summary": "[유럽 리츠/대안자산 영향]", "affected": [] }\n';
+            p += '      }\n';
+            p += '    },\n';
+            p += '    "geopolitical": {\n';
+            p += '      "title": "지정학 리스크", "status": "[상황]", "details": "[세부]", "sentiment": "warning",\n';
+            p += '      "impactByAssetClass": {\n';
+            p += '        "equities": { "summary": "[요약]", "affected": [{ "ticker": "LMT", "name": "록히드마틴", "region": "US", "type": "stock", "impact": "[영향]", "direction": "positive" }] },\n';
+            p += '        "bonds": { "summary": "[요약]", "affected": [{ "ticker": "SHY", "name": "미국채단기", "region": "US", "type": "etf", "impact": "[영향]", "direction": "positive" }] },\n';
+            p += '        "commodities": { "summary": "[요약]", "affected": [{ "ticker": "GLD", "name": "금ETF", "region": "US", "type": "etf", "impact": "[영향]", "direction": "positive" }] },\n';
+            p += '        "currencies": { "summary": "[요약]", "affected": [] },\n';
+            p += '        "alternatives": { "summary": "[요약]", "affected": [] }\n';
+            p += '      }\n';
+            p += '    }\n';
+            p += '  },\n\n';
+            
+            // corporateNews
+            p += '  // 📰 주요 자산 뉴스 (최근 3-5개)\n';
+            p += '  "corporateNews": [\n';
+            p += '    {\n';
+            p += '      "date": "' + isoDate + '",\n';
+            p += '      "ticker": "NVDA",\n';
+            p += '      "name": "엔비디아",\n';
+            p += '      "region": "US",\n';
+            p += '      "assetType": "stock",\n';
+            p += '      "newsType": "warning",\n';
+            p += '      "headline": "[뉴스 제목]",\n';
+            p += '      "details": "[상세 내용]",\n';
+            p += '      "priceImpact": "-5~10%",\n';
+            p += '      "crossAssetImpact": [\n';
+            p += '        { "ticker": "000660", "name": "SK하이닉스", "type": "stock", "impact": "[영향]", "direction": "negative" }\n';
+            p += '      ]\n';
+            p += '    }\n';
+            p += '  ],\n\n';
             
             p += '  "_meta": {\n';
             p += '    "lastUpdated": "' + isoDate + '",\n';
@@ -10699,12 +12260,15 @@
             // 참고 가이드
             p += '## 📊 상태 코드 참고\n';
             p += '### scenarioAssessment status/statusLabel\n';
+            p += '⚠️ **중요: probability와 status는 반드시 아래 범위에 맞게 일치해야 합니다!**\n\n';
             p += '| status | probability | statusLabel | 의미 |\n';
             p += '|--------|-------------|-------------|------|\n';
             p += '| ACTIVE | 70%+ | 진행중 | 현재 발생 중 |\n';
             p += '| LIKELY | 50-69% | 유력 | 가능성 높음 |\n';
             p += '| POSSIBLE | 20-49% | 가능 | 가능성 있음 |\n';
             p += '| UNLIKELY | <20% | 낮음 | 가능성 낮음 |\n\n';
+            p += '❌ 잘못된 예: `"probability": 30, "status": "LIKELY"` (30%는 POSSIBLE이어야 함)\n';
+            p += '✅ 올바른 예: `"probability": 30, "status": "POSSIBLE"`\n\n';
             p += '### 시나리오 키 설명\n';
             p += '| 키 | 시나리오 | 설명 |\n';
             p += '|----|---------|------|\n';
@@ -10733,14 +12297,139 @@
             p += '| OVERWEIGHT | 비중확대 | 적극 매수 |\n';
             p += '| NEUTRAL | 중립 | 현 비중 유지 |\n';
             p += '| UNDERWEIGHT | 비중축소 | 매수 자제 |\n\n';
+            p += '### 🔗 assetRecommendations.bonds ↔ 채권 가이드 연동 (이슈 13번)\n';
+            p += '**AI의 채권 의견이 "채권/현금 투자 가이드" 섹션에 자동 반영됩니다!**\n\n';
+            p += '| bonds.view | 채권 가이드 반영 |\n';
+            p += '|------------|------------------|\n';
+            p += '| OVERWEIGHT | 장기채/중기채 비중↑, "추천" 표시 |\n';
+            p += '| NEUTRAL | 지표 기반 자동 계산 유지 |\n';
+            p += '| UNDERWEIGHT | 장기채 비중↓, 현금↑, "주의" 표시 |\n\n';
+            p += '**rationale 필드도 함께 작성하세요** - 채권 가이드의 "근거" 섹션에 표시됩니다.\n\n';
+            p += '### 🆕 bonds.byMaturity 만기별 세분화 (이슈 20번)\n';
+            p += '**각 만기별로 개별 의견을 설정할 수 있습니다!**\n\n';
+            p += '| 키 | 대상 | 설명 |\n';
+            p += '|----|------|------|\n';
+            p += '| `cash` | 현금/MMF | 듀레이션 0~3개월 |\n';
+            p += '| `short` | 단기채 | 듀레이션 1-3년 (SHY 등) |\n';
+            p += '| `mid` | 중기채 | 듀레이션 3-7년 (IEF 등) |\n';
+            p += '| `long` | 장기채 | 듀레이션 10년+ (TLT 등) |\n';
+            p += '| `kr` | 한국국채 | 원화 채권 (환헤지 불필요) |\n';
+            p += '| `tips` | 물가연동채 | TIPS (인플레 헤지) |\n\n';
+            p += '**각 만기 객체 속성:**\n';
+            p += '- `view`: OVERWEIGHT, NEUTRAL, UNDERWEIGHT, CAUTION, WATCH\n';
+            p += '- `viewLabel`: 한글 레이블 (추천, 중립, 비중축소, 주의, 관망)\n';
+            p += '- `rationale`: 해당 만기에 대한 의견 근거\n';
+            p += '- `allocation`: 권장 배분 비중 (숫자, 합계 100%)\n\n';
+            p += '**예시:**\n';
+            p += '```json\n';
+            p += '"bonds": {\n';
+            p += '  "view": "NEUTRAL",\n';
+            p += '  "byMaturity": {\n';
+            p += '    "cash": { "view": "NEUTRAL", "viewLabel": "중립", "allocation": 20 },\n';
+            p += '    "short": { "view": "OVERWEIGHT", "viewLabel": "비중확대", "allocation": 40, "rationale": "역수익률 곡선 활용" },\n';
+            p += '    "mid": { "view": "NEUTRAL", "viewLabel": "중립", "allocation": 25 },\n';
+            p += '    "long": { "view": "UNDERWEIGHT", "viewLabel": "비중축소", "allocation": 5, "rationale": "금리 상승 리스크" },\n';
+            p += '    "kr": { "view": "OVERWEIGHT", "viewLabel": "비중확대", "allocation": 10, "rationale": "고환율 시 원화채권 매력" },\n';
+            p += '    "tips": { "view": "WATCH", "viewLabel": "관망", "allocation": 0 }\n';
+            p += '  }\n';
+            p += '}\n';
+            p += '```\n\n';
+            p += '⚡ **우선순위**: byMaturity 설정 시 지표 기반 자동계산 대신 AI 의견이 우선 적용됩니다.\n\n';
             p += '### alerts severity\n';
             p += 'warning(주의), danger(위험), info(정보)\n\n';
+            p += '### marketStatus color 옵션 (이슈 16번)\n';
+            p += '**유효한 color 값만 사용하세요** - 잘못된 값은 자동으로 기본값으로 대체됩니다.\n\n';
+            p += '| 입력값 | 결과 색상 | 용도 |\n';
+            p += '|--------|----------|------|\n';
+            p += '| `var(--accent-red)` 또는 `red` | 🔴 빨강 | 위험/경고 |\n';
+            p += '| `var(--accent-gold)` 또는 `gold` | 🟡 노랑 | 주의/모니터링 |\n';
+            p += '| `var(--accent-green)` 또는 `green` | 🟢 초록 | 긍정/안전 |\n';
+            p += '| `var(--accent-blue)` 또는 `blue` | 🔵 파랑 | 정보/중립 |\n';
+            p += '| `var(--text-muted)` 또는 `gray` | ⚪ 회색 | 비활성 |\n\n';
+            p += '**예시**:\n';
+            p += '```json\n';
+            p += '"marketStatus": {\n';
+            p += '  "krRate": { "text": "동결 3.0%", "color": "var(--accent-gold)" },\n';
+            p += '  "fx": { "text": "1,473원 위험", "color": "red" }  // 단축어도 가능\n';
+            p += '}\n';
+            p += '```\n\n';
+            p += '### riskLevel 유효값 (이슈 17번)\n';
+            p += '**targetPrices.fx.riskLevel에 사용할 수 있는 값:**\n\n';
+            p += '| 값 | 의미 | 색상 | 사용 시점 |\n';
+            p += '|----|------|------|----------|\n';
+            p += '| `VERY_HIGH` | 매우 높은 위험 | 🔴 빨강 | 환율 급등, 위기 상황 |\n';
+            p += '| `HIGH` | 높은 위험 | 🟠 주황 | 상승 추세, 주의 필요 |\n';
+            p += '| `MEDIUM` | 보통 위험 | 🟡 노랑 | 일반적 변동성 |\n';
+            p += '| `LOW` | 낮은 위험 | 🟢 초록 | 안정적 흐름 |\n\n';
+            p += '**⚠️ 다른 값(CRITICAL, EXTREME 등)은 지원되지 않습니다!**\n\n';
+            p += '**예시**:\n';
+            p += '```json\n';
+            p += '"targetPrices": {\n';
+            p += '  "fx": { "low": "1350", "high": "1500", "riskLevel": "HIGH", "timeline": "2025년 상반기" }\n';
+            p += '}\n';
+            p += '```\n\n';
+            p += '### expectedReturn 형식 표준화 (이슈 18번)\n';
+            p += '**반드시 아래 형식을 사용하세요** - 일관성 있는 표시를 위해 자동 정규화됩니다.\n\n';
+            p += '| ✅ 올바른 형식 | ❌ 잘못된 형식 | 설명 |\n';
+            p += '|---------------|---------------|------|\n';
+            p += '| `+12~18%` | `12-18%`, `+12%-18%` | 범위는 `~` 사용 |\n';
+            p += '| `+15%` | `15%`, `약 15%` | 단일값은 `+` 붙이기 |\n';
+            p += '| `-5~0%` | `-5%~0%`, `마이너스` | 음수도 `~` 사용 |\n';
+            p += '| `0~5%` | `0-5%` | 0부터 시작시 `+` 생략 가능 |\n\n';
+            p += '**정규화 규칙**:\n';
+            p += '- `10-15%` → `+10~15%` (하이픈을 틸드로, + 추가)\n';
+            p += '- `15%` → `+15%` (+ 추가)\n';
+            p += '- `+10% ~ +15%` → `+10~15%` (공백 및 중복 + 제거)\n\n';
+            p += '**예시**:\n';
+            p += '```json\n';
+            p += '"assetRecommendations": {\n';
+            p += '  "koreanFinancials": { "expectedReturn": "+12~18%", ... },\n';
+            p += '  "gold": { "expectedReturn": "+8~12%", ... },\n';
+            p += '  "bonds": { "expectedReturn": "+3~5%", ... }\n';
+            p += '}\n';
+            p += '```\n\n';
             p += '## 📋 선택적 필드 설명\n';
             p += '- **alerts**: 중요 알림 (위험 경고, 이벤트 등)\n';
             p += '- **marketContext**: 시장 상황 요약 및 주요 이벤트\n';
-            p += '- **regionAdjustments**: 지역별 배분 조정 (-10 ~ +10%)\n';
+            p += '- **regionAdjustments**: 지역별 배분 조정 (-10 ~ +10%) ⚡ **포트폴리오에 자동 반영!**\n';
             p += '- **investmentTimeline**: 6개월 분할매수 전략\n';
             p += '- **sectorOutlook**: 산업별 전망 (12개 산업)\n';
+            p += '\n## 🔗 regionAdjustments ↔ 포트폴리오 연동\n';
+            p += '| 키 | 대상 자산 | 기본 비중 |\n';
+            p += '|----|----------|----------|\n';
+            p += '| US | 미국 주식 | 25% |\n';
+            p += '| KR | 한국 주식 | 15% |\n';
+            p += '| EU | 유럽 주식 | 10% |\n';
+            p += '| EM | 신흥국 주식 | 8% |\n';
+            p += '| JP | 일본 (EM에 합산) | - |\n';
+            p += '| Gold | 금 | 12% |\n';
+            p += '| Bond | 채권 | 20% |\n';
+            p += '| Cash | 현금 | 10% |\n\n';
+            p += '**예시**: `"US": -5, "Gold": +5` → 미국 20%, 금 17%로 조정\n\n';
+            p += '## 🔗 시나리오 ↔ 자산 추천 자동 연동 (이슈 11번)\n';
+            p += '시장 지표 기반으로 시나리오가 트리거되면 관련 자산이 **자동 추천**됩니다!\n\n';
+            p += '| 시나리오 | 권장 자산 | 회피 자산 |\n';
+            p += '|----------|----------|----------|\n';
+            p += '| 💱 환율 급등 (fx-up) | UUP, GLD, TIGER 미국S&P500, 삼성전자 | EWY, VWO, 해외ETF 신규매수 |\n';
+            p += '| 🏛️ 정부 방관 (fxCrisis) | USD 현금, KRX금, KB금융, 신한지주 | 해외직접투자, 코스피 성장주 |\n';
+            p += '| 📈 금리 인상 (rate-up) | SHY, BIL, SCHD, KB금융 | TLT, QQQ, ARKK |\n';
+            p += '| 💔 경기 침체 (recession) | TLT, GLD, XLU, XLP, 현금 | XLY, XLF, HYG, EEM |\n';
+            p += '| 🌍 지정학 위기 (geopolitical) | GLD, TLT, LMT, RTX, XLE | EEM, EWY, XLY |\n';
+            p += '| 🤖 AI 버블 (ai-bubble) | SCHD, VTV, GLD, 현금 | QQQ, NVDA, SMH, SK하이닉스 |\n';
+            p += '| 🔥 스태그플레이션 (stagflation) | GLD, DBC, TIPS, XLE | TLT, QQQ, XLY, HYG |\n';
+            p += '| 🚀 경기 호황 (boom) | SPY, QQQ, EEM, XLF | TLT, 현금 과다 |\n\n';
+            p += '⚡ **작동 방식**: 시장 지표 분석 → 시나리오 감지 → 해당 시나리오의 권장/회피 자산이 포트폴리오 탭과 시나리오 탭에 자동 표시\n\n';
+            p += '## 📅 날짜 필드 규칙 (⚠️ 중복 방지)\n';
+            p += '**모든 날짜는 `dataAsOf` 값을 기준으로 통일하세요!**\n\n';
+            p += '| 필드 | 용도 | 예시 |\n';
+            p += '|------|------|------|\n';
+            p += '| `dataAsOf` | 전체 데이터 기준일 (필수) | "2025-01-21" |\n';
+            p += '| `_meta.lastUpdated` | 시스템 업데이트 시각 | "2025-01-21T14:30:00" |\n';
+            p += '| `alerts[].createdAt` | 알림 생성 시점 | dataAsOf와 동일하게 |\n';
+            p += '| `corporateNews[].date` | 뉴스 발생일 | dataAsOf와 동일하게 |\n';
+            p += '| `anomaly.date` | 기현상 관찰 월 | "2025.01" (YYYY.MM) |\n\n';
+            p += '⚠️ **주의**: 각 날짜 필드가 서로 다른 날짜를 가리키면 혼란 발생!\n';
+            p += '→ 같은 시점의 분석이면 모두 동일한 날짜 사용\n';
             p += '\n## ⏰ investmentTimeline 작성 가이드\n';
             p += '- **totalAmount**: 총 투자금액 (M=백만원, 예: "200M"=2억원)\n';
             p += '- **months[].amount**: 해당 월 투자금 (예: "40M"=4천만원)\n';
@@ -10749,14 +12438,91 @@
             p += '  - 📜 채권, 🥇 금, 💵 현금/MMF\n';
             p += '  - 🇺🇸 미국, 🇰🇷 한국, 🇪🇺 유럽, 🇯🇵 일본, 🌏 신흥국\n';
             p += '  - 🔄 리밸런싱, 📊 조정\n';
-            p += '\n## 🏭 sectorOutlook view 옵션\n';
+            p += '\n## 🏭 sectorOutlook (⚠️ 12개 산업 전부 필수!)\n';
+            p += '**필수 키**: aiSemi, finance, auto, battery, energy, healthcare, reits, consumer, utilities, defense, shipbuilding, telecom\n';
+            p += '→ 일부만 작성하면 안됨! 12개 전부 작성 필수\n\n';
+            p += '### 🔗 섹터 키 ↔ 스크리닝 Industry 매핑 테이블\n';
+            p += '스크리닝 종목의 Industry 필드와 자동 연동됩니다:\n\n';
+            p += '| sectorOutlook 키 | 스크리닝 Industry | 대표 종목 예시 |\n';
+            p += '|------------------|-------------------|----------------|\n';
+            p += '| aiSemi | 반도체, 전자부품, IT | 삼성전자, SK하이닉스, NVIDIA |\n';
+            p += '| finance | 금융, 은행, 증권, 보험 | KB금융, 삼성생명 |\n';
+            p += '| auto | 자동차, 자동차부품 | 현대차, 기아 |\n';
+            p += '| battery | 2차전지, 배터리 | LG에너지, 삼성SDI |\n';
+            p += '| energy | 에너지, 정유, 유틸리티 | SK이노베이션 |\n';
+            p += '| healthcare | 바이오, 헬스케어, 제약 | 삼성바이오로직스 |\n';
+            p += '| reits | 리츠, 부동산 | 맥쿼리인프라 |\n';
+            p += '| consumer | 소비재, 유통, 음식료 | 아모레퍼시픽 |\n';
+            p += '| utilities | 전기, 가스 | 한국전력 |\n';
+            p += '| defense | 방산, 항공 | 한화에어로스페이스 |\n';
+            p += '| shipbuilding | 조선, 해운 | HD한국조선 |\n';
+            p += '| telecom | 통신, IT서비스 | SK텔레콤, KT |\n\n';
+            p += '### view 옵션\n';
             p += '강력매수 > 비중확대 > 매수 > 선별매수 > 중립 > 관망 > 신중 > 비중축소 > 매도\n';
-            p += '\n### tags color 옵션\n';
-            p += '- **green**: 긍정 (적극 매수, 배당 수혜)\n';
-            p += '- **blue**: 정보 (조정 시 분할매수, ETF 추천)\n';
-            p += '- **gold**: 주의 (환율 모니터링, 고평가)\n';
-            p += '- **red**: 경고 (비중축소, 리스크 높음)\n';
-            p += '- **gray**: 중립\n';
+            p += '\n### tags 작성 가이드 (⚠️ 빈 배열 금지!)\n';
+            p += '**각 산업별 1~3개 태그 필수 작성** - 빈 배열 `[]`로 두면 안 됩니다!\n\n';
+            p += '#### color 옵션\n';
+            p += '| color | 용도 | 예시 태그 |\n';
+            p += '|-------|------|----------|\n';
+            p += '| **green** | 긍정/호재 | 적극 매수, 배당 수혜, 수주 호조, NIM 개선 |\n';
+            p += '| **blue** | 정보/전략 | 조정 시 분할매수, ETF 추천, 장기 성장 |\n';
+            p += '| **gold** | 주의/모니터링 | 환율 모니터링, 고평가 주의, FDA 이슈 |\n';
+            p += '| **red** | 경고/리스크 | 비중축소, 관세 리스크, 공급과잉 |\n';
+            p += '| **gray** | 중립 | 박스권, 관망 |\n\n';
+            p += '#### 산업별 태그 예시\n';
+            p += '| 산업 | 추천 태그 예시 |\n';
+            p += '|------|---------------|\n';
+            p += '| aiSemi | 조정 시 분할매수, 고평가 주의, AI 수혜 |\n';
+            p += '| finance | NIM 개선, 배당 수혜, 금리 민감 |\n';
+            p += '| auto | 관세 리스크, EV 경쟁, 수출 호조 |\n';
+            p += '| battery | 공급과잉, 장기 성장, 원재료 부담 |\n';
+            p += '| energy | 유가 상승, 인플레 헤지, 지정학 수혜 |\n';
+            p += '| healthcare | FDA 이슈, 고령화 수혜, R&D 리스크 |\n';
+            p += '| reits | 금리 민감, 배당 매력, 공실률 |\n';
+            p += '| defense | 지정학 수혜, 수주 호조, 정부 예산 |\n';
+            p += '| shipbuilding | 슈퍼사이클, 수주 잔고, 인력 부족 |\n\n';
+            
+            // globalImpactAnalysis 가이드
+            p += '\n## 🌐 globalImpactAnalysis 가이드\n';
+            p += '### 정책 키\n';
+            p += '- **usTrump**: 트럼프 관세/규제 정책\n';
+            p += '- **usFed**: Fed 금리정책\n';
+            p += '- **china**: 중국 경기/정책\n';
+            p += '- **japan**: 일본 BOJ 정책\n';
+            p += '- **europe**: 유럽 ECB/경기\n';
+            p += '- **geopolitical**: 지정학 리스크 (중동, 대만 등)\n\n';
+            p += '### sentiment 옵션\n';
+            p += 'positive(긍정), negative(부정), neutral(중립), mixed(혼조), warning(경고)\n\n';
+            p += '### impactByAssetClass 키\n';
+            p += '- **equities**: 주식 (개별주, ETF)\n';
+            p += '- **bonds**: 채권 (단기/중기/장기/회사채/하이일드)\n';
+            p += '- **commodities**: 원자재 (금, 은, 원유, 구리 등)\n';
+            p += '- **currencies**: 통화 (달러, 원화, 엔화, 위안 등)\n';
+            p += '- **alternatives**: 대안자산 (리츠, 비트코인 등)\n\n';
+            p += '### affected 배열 direction 옵션\n';
+            p += 'positive(📈), negative(📉), neutral(➖)\n\n';
+            p += '### 🔗 중복 종목 자동 분석 (이슈 12번)\n';
+            p += '**같은 종목이 여러 정책에서 언급되면 시스템이 자동으로 종합 판단합니다!**\n\n';
+            p += '| 상황 | 종합 판단 | 표시 |\n';
+            p += '|------|----------|------|\n';
+            p += '| 삼성전자: usTrump 📉 + china 📈 | 혼조 | 🟡 혼조 |\n';
+            p += '| GLD: usFed 📈 + geopolitical 📈 | 종합 긍정 | 🟢 종합 긍정 |\n';
+            p += '| TLT: usFed 📉 + recession 📈 | 혼조 | 🟡 혼조 |\n\n';
+            p += '⚡ **팁**: 같은 종목을 여러 정책에 포함시키면 복합 영향을 한눈에 파악 가능!\n';
+            
+            // corporateNews 가이드
+            p += '\n## 📰 corporateNews 가이드\n';
+            p += '### assetType 옵션\n';
+            p += 'stock(주식), etf(ETF), bond(채권), commodity(원자재), fx(외환), crypto(가상자산)\n\n';
+            p += '### newsType 옵션\n';
+            p += 'positive(✅ 호재), negative(❌ 악재), warning(⚠️ 주의), neutral(ℹ️ 정보)\n\n';
+            p += '### 주요 ETF 티커 참고\n';
+            p += '**미국채**: SHY(1-3년), IEF(7-10년), TLT(20년+), GOVT(전구간), TIP(물가연동)\n';
+            p += '**회사채**: LQD(투자등급), HYG(하이일드), VCIT(중기회사채)\n';
+            p += '**원자재**: GLD(금), SLV(은), USO(원유), GDX(금광주), COPX(구리)\n';
+            p += '**리츠**: VNQ(미국), XLRE(부동산), O(리얼티인컴)\n';
+            p += '**국가**: EWY(한국), FXI(중국), EWJ(일본), EEM(신흥국)\n';
+            p += '**유럽**: EZU(유로존), VGK(유럽전체), FEZ(유로스톡스50), EWG(독일), EWQ(프랑스), FXE(유로화)\n';
             
             return p;
         }
@@ -10918,9 +12684,27 @@
                 updateDashboardFromConfig(config);
             }
             
-            // 채권 가이드 업데이트
+            // 🔗 이슈 13번: currentConfig 저장 (채권 가이드 연동용)
+            window.currentConfig = config;
+            
+            // 채권 가이드 업데이트 (assetRecommendations.bonds 연동)
             if (typeof updateBondMarketData === 'function') {
                 updateBondMarketData();
+            }
+            
+            // 🌐 글로벌 정책 영향 분석 업데이트
+            if (typeof renderGlobalImpactAnalysis === 'function') {
+                renderGlobalImpactAnalysis(config);
+            }
+            
+            // 📰 주요 자산 뉴스 업데이트
+            if (typeof renderCorporateNews === 'function') {
+                renderCorporateNews(config);
+            }
+            
+            // 🌍 지역/자산 배분 조정 업데이트
+            if (typeof renderRegionAdjustments === 'function') {
+                renderRegionAdjustments(config);
             }
             
             // 산업별 전망 업데이트
@@ -10994,15 +12778,50 @@
             var ms = config.marketStatus;
             if (!ms) return;
             
+            // 🔗 이슈 16번: color 값 검증 및 매핑
+            var validColors = {
+                // CSS 변수 (권장)
+                'var(--accent-red)': 'var(--accent-red)',
+                'var(--accent-green)': 'var(--accent-green)',
+                'var(--accent-gold)': 'var(--accent-gold)',
+                'var(--accent-blue)': 'var(--accent-blue)',
+                'var(--text-primary)': 'var(--text-primary)',
+                'var(--text-muted)': 'var(--text-muted)',
+                // 단축어 매핑 (AI가 실수로 쓸 수 있는 값들)
+                'red': 'var(--accent-red)',
+                'green': 'var(--accent-green)',
+                'gold': 'var(--accent-gold)',
+                'yellow': 'var(--accent-gold)',
+                'blue': 'var(--accent-blue)',
+                'gray': 'var(--text-muted)',
+                'grey': 'var(--text-muted)',
+                // hex 값도 허용
+                '#ef4444': '#ef4444',
+                '#10b981': '#10b981',
+                '#f59e0b': '#f59e0b',
+                '#3b82f6': '#3b82f6'
+            };
+            
+            function validateColor(color) {
+                if (!color) return 'inherit';
+                // 이미 유효한 값이면 그대로 반환
+                if (validColors[color]) return validColors[color];
+                // CSS 변수나 hex 값이면 그대로 사용
+                if (color.startsWith('var(') || color.startsWith('#')) return color;
+                // 그 외는 기본값
+                console.warn('⚠️ 유효하지 않은 marketStatus color: "' + color + '" → 기본값 사용');
+                return 'inherit';
+            }
+            
             var krEl = document.getElementById('msKrRate');
             var usEl = document.getElementById('msUsRate');
             var fxEl = document.getElementById('msFx');
             var govEl = document.getElementById('msGov');
             
-            if (krEl && ms.krRate) { krEl.textContent = ms.krRate.text || '-'; krEl.style.color = ms.krRate.color || 'inherit'; }
-            if (usEl && ms.usRate) { usEl.textContent = ms.usRate.text || '-'; usEl.style.color = ms.usRate.color || 'inherit'; }
-            if (fxEl && ms.fx) { fxEl.textContent = ms.fx.text || '-'; fxEl.style.color = ms.fx.color || 'inherit'; }
-            if (govEl && ms.gov) { govEl.textContent = ms.gov.text || '-'; govEl.style.color = ms.gov.color || 'inherit'; }
+            if (krEl && ms.krRate) { krEl.textContent = ms.krRate.text || '-'; krEl.style.color = validateColor(ms.krRate.color); }
+            if (usEl && ms.usRate) { usEl.textContent = ms.usRate.text || '-'; usEl.style.color = validateColor(ms.usRate.color); }
+            if (fxEl && ms.fx) { fxEl.textContent = ms.fx.text || '-'; fxEl.style.color = validateColor(ms.fx.color); }
+            if (govEl && ms.gov) { govEl.textContent = ms.gov.text || '-'; govEl.style.color = validateColor(ms.gov.color); }
         }
         
         // 4. 시나리오 확률 렌더링
@@ -11027,19 +12846,38 @@
             };
             
             var statusColors = { ACTIVE: '#ef4444', LIKELY: '#f59e0b', POSSIBLE: '#10b981', UNLIKELY: '#8b5cf6' };
+            var statusLabels = { ACTIVE: '진행중', LIKELY: '유력', POSSIBLE: '가능', UNLIKELY: '낮음' };
+            
+            // 🆕 probability → status 자동 검증/보정 함수
+            function validateAndCorrectStatus(prob, givenStatus) {
+                var correctStatus;
+                if (prob >= 70) correctStatus = 'ACTIVE';
+                else if (prob >= 50) correctStatus = 'LIKELY';
+                else if (prob >= 20) correctStatus = 'POSSIBLE';
+                else correctStatus = 'UNLIKELY';
+                
+                if (givenStatus !== correctStatus) {
+                    console.warn('⚠️ status-probability 불일치 자동 보정: probability=' + prob + '% → status를 ' + givenStatus + '에서 ' + correctStatus + '로 변경');
+                }
+                return correctStatus;
+            }
             
             var html = '<div style="display:grid;gap:10px;">';
             for (var key in sa) {
                 var s = sa[key];
                 var name = scenarioNames[key] || key;
                 var prob = s.probability || 0;
-                var color = statusColors[s.status] || '#888';
+                
+                // 🆕 status 자동 검증/보정
+                var validStatus = validateAndCorrectStatus(prob, s.status);
+                var color = statusColors[validStatus] || '#888';
+                var label = s.statusLabel || statusLabels[validStatus] || validStatus;
                 var barWidth = Math.min(prob, 100);
                 
                 html += '<div style="padding:12px;background:var(--bg-secondary);border-radius:8px;border-left:4px solid ' + color + ';">';
                 html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
                 html += '<span style="font-weight:600;font-size:0.85rem;">' + name + '</span>';
-                html += '<span style="padding:4px 10px;background:' + color + '22;color:' + color + ';border-radius:12px;font-size:0.75rem;font-weight:600;">' + (s.statusLabel || s.status) + ' ' + prob + '%</span>';
+                html += '<span style="padding:4px 10px;background:' + color + '22;color:' + color + ';border-radius:12px;font-size:0.75rem;font-weight:600;">' + label + ' ' + prob + '%</span>';
                 html += '</div>';
                 html += '<div style="height:6px;background:var(--bg-primary);border-radius:3px;overflow:hidden;">';
                 html += '<div style="height:100%;width:' + barWidth + '%;background:' + color + ';border-radius:3px;"></div>';
@@ -11058,6 +12896,24 @@
             var tp = config.targetPrices;
             if (!tp) return;
             
+            // riskLevel 검증 함수 (이슈 17번)
+            var validRiskLevels = ['VERY_HIGH', 'HIGH', 'MEDIUM', 'LOW'];
+            function validateRiskLevel(level) {
+                if (!level) return 'MEDIUM';
+                var upper = String(level).toUpperCase();
+                if (validRiskLevels.indexOf(upper) !== -1) return upper;
+                console.warn('⚠️ 유효하지 않은 riskLevel: "' + level + '" → MEDIUM 사용 (유효값: VERY_HIGH, HIGH, MEDIUM, LOW)');
+                return 'MEDIUM';
+            }
+            
+            // riskLevel 색상 매핑
+            var riskLevelColors = {
+                'VERY_HIGH': 'var(--accent-red)',
+                'HIGH': '#f97316',
+                'MEDIUM': 'var(--accent-gold)',
+                'LOW': 'var(--accent-green)'
+            };
+            
             var fxRangeEl = document.getElementById('tpFxRange');
             var fxRiskEl = document.getElementById('tpFxRisk');
             var fxTimeEl = document.getElementById('tpFxTimeline');
@@ -11066,7 +12922,11 @@
             
             if (tp.fx) {
                 if (fxRangeEl) fxRangeEl.textContent = (tp.fx.low || '-') + ' ~ ' + (tp.fx.high || '-') + '원';
-                if (fxRiskEl) fxRiskEl.textContent = '⚠️ 위험 수준: ' + (tp.fx.riskLevel || '-') + '원';
+                if (fxRiskEl) {
+                    var validatedLevel = validateRiskLevel(tp.fx.riskLevel);
+                    fxRiskEl.textContent = '⚠️ 위험 수준: ' + validatedLevel;
+                    fxRiskEl.style.color = riskLevelColors[validatedLevel] || 'var(--text-secondary)';
+                }
                 if (fxTimeEl) fxTimeEl.textContent = '📅 ' + (tp.fx.timeline || '-');
             }
             if (tp.gold) {
@@ -11080,6 +12940,52 @@
             var ar = config.assetRecommendations;
             var container = document.getElementById('assetList');
             if (!container || !ar) return;
+            
+            // expectedReturn 정규화 함수 (이슈 18번)
+            function normalizeExpectedReturn(value) {
+                if (!value) return null;
+                var s = String(value).trim();
+                
+                // 이미 올바른 형식인지 체크: +숫자~숫자% 또는 +숫자% 또는 -숫자~숫자%
+                if (/^[+-]?\d+~\d+%$/.test(s) || /^[+-]\d+%$/.test(s)) {
+                    return s;
+                }
+                
+                // 정규화 시도
+                var original = s;
+                
+                // 공백 제거
+                s = s.replace(/\s+/g, '');
+                
+                // "약", "대략" 등 제거
+                s = s.replace(/^(약|대략|예상|기대)/g, '');
+                
+                // 하이픈을 틸드로 변경 (범위 표현)
+                // 음수 시작이 아닌 경우만: 10-15% → 10~15%
+                if (/^\d+%-?\d+%?$/.test(s) || /^\+?\d+-\d+%$/.test(s)) {
+                    s = s.replace(/-(?=\d+%?$)/, '~');
+                }
+                
+                // 중복 % 제거: 10%~15% → 10~15%
+                s = s.replace(/%~/g, '~');
+                
+                // 중복 + 제거: +10~+15% → +10~15%
+                s = s.replace(/~\+/g, '~');
+                
+                // % 없으면 추가
+                if (!s.endsWith('%')) s += '%';
+                
+                // 양수인데 + 없으면 추가 (음수나 0 시작 제외)
+                if (/^\d/.test(s)) {
+                    s = '+' + s;
+                }
+                
+                if (original !== s) {
+                    console.log('📊 expectedReturn 정규화: "' + original + '" → "' + s + '"');
+                }
+                
+                return s;
+            }
             
             var assetNames = {
                 koreanFinancials: '🇰🇷 국내 금융주',
@@ -11103,7 +13009,8 @@
                 html += '<span style="padding:6px 12px;background:' + color + '22;color:' + color + ';border-radius:16px;font-size:0.8rem;font-weight:700;">' + (a.viewLabel || a.view) + '</span>';
                 html += '</div>';
                 if (a.expectedReturn) {
-                    html += '<div style="font-size:0.85rem;margin-bottom:6px;">📈 예상 수익률: <strong>' + a.expectedReturn + '</strong></div>';
+                    var normalizedReturn = normalizeExpectedReturn(a.expectedReturn);
+                    html += '<div style="font-size:0.85rem;margin-bottom:6px;">📈 예상 수익률: <strong>' + normalizedReturn + '</strong></div>';
                 }
                 if (a.rationale) {
                     html += '<div style="font-size:0.8rem;color:var(--text-muted);line-height:1.5;">' + a.rationale + '</div>';
@@ -11540,7 +13447,16 @@
                         el.textContent = tp.fx.low.toLocaleString() + '~' + tp.fx.high.toLocaleString();
                     });
                     document.querySelectorAll('[data-dynamic="fx-risk-level"]').forEach(function(el) {
-                        el.textContent = (tp.fx.riskLevel || 1500).toLocaleString() + '원';
+                        // riskLevel 검증 (이슈 17번)
+                        var validLevels = ['VERY_HIGH', 'HIGH', 'MEDIUM', 'LOW'];
+                        var level = tp.fx.riskLevel ? String(tp.fx.riskLevel).toUpperCase() : 'MEDIUM';
+                        if (validLevels.indexOf(level) === -1) {
+                            console.warn('⚠️ fx-risk-level: 유효하지 않은 값 "' + tp.fx.riskLevel + '" → MEDIUM 사용');
+                            level = 'MEDIUM';
+                        }
+                        var colors = { 'VERY_HIGH': 'var(--accent-red)', 'HIGH': '#f97316', 'MEDIUM': 'var(--accent-gold)', 'LOW': 'var(--accent-green)' };
+                        el.textContent = level;
+                        el.style.color = colors[level] || 'var(--text-secondary)';
                     });
                 }
                 
@@ -11558,10 +13474,24 @@
         function updateAssetCard(assetKey, data) {
             if (!data) return;
             
+            // expectedReturn 정규화 함수 (이슈 18번)
+            function normalizeExpectedReturn(value) {
+                if (!value) return null;
+                var s = String(value).trim();
+                if (/^[+-]?\d+~\d+%$/.test(s) || /^[+-]\d+%$/.test(s)) return s;
+                s = s.replace(/\s+/g, '').replace(/^(약|대략|예상|기대)/g, '');
+                if (/^\d+%-?\d+%?$/.test(s) || /^\+?\d+-\d+%$/.test(s)) s = s.replace(/-(?=\d+%?$)/, '~');
+                s = s.replace(/%~/g, '~').replace(/~\+/g, '~');
+                if (!s.endsWith('%')) s += '%';
+                if (/^\d/.test(s)) s = '+' + s;
+                return s;
+            }
+            
             // 기대수익률
             if (data.expectedReturn) {
+                var normalized = normalizeExpectedReturn(data.expectedReturn);
                 document.querySelectorAll('[data-dynamic="' + assetKey + '-return"]').forEach(function(el) {
-                    el.textContent = data.expectedReturn;
+                    el.textContent = normalized;
                 });
             }
             
@@ -11948,6 +13878,482 @@
         
         console.log('📤 Config 업로드 시스템 로드됨 (data.json 통합)');
 
+    </script>
+    
+    <!-- 종목 상세 정보 모달 -->
+    <div id="stockDetailModal" class="stock-detail-modal" onclick="if(event.target === this) closeStockDetail()">
+        <div class="stock-detail-content">
+            <div class="stock-detail-header">
+                <h2>
+                    <span id="modalStockName">종목명</span>
+                    <span id="modalStockTicker" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+                    <span id="modalStockFlags"></span>
+                </h2>
+                <button class="close-btn" onclick="closeStockDetail()">✕</button>
+            </div>
+            <div class="stock-detail-body" id="modalBody">
+                <!-- 동적으로 채워짐 -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ===== 종목 상세 모달 시스템 =====
+        
+        // 지표별 설명 정의 (2020년대 학술 연구 기반)
+        const INDICATOR_DESCRIPTIONS = {
+            // 기본 정보
+            'Code': '종목코드 - 한국 거래소 6자리 코드',
+            'Name': '종목명',
+            'Ticker': '티커 - 미국 거래소 심볼',
+            'Market': '시장구분 - KOSPI/KOSDAQ/NYSE/NASDAQ 등',
+            'Sector': '섹터 - GICS 산업분류 기준',
+            'Industry': '산업 - 세부 산업 분류',
+            
+            // 가격/시세 정보
+            'Price': '현재 주가',
+            'Close': '종가',
+            'Change(%)': '전일 대비 등락률',
+            '52wHigh': '52주 최고가 - 1년간 최고 거래 가격',
+            '52wLow': '52주 최저가 - 1년간 최저 거래 가격',
+            'MarketCap(억)': '시가총액(억원) - 주가 × 발행주식수',
+            'Volume': '거래량 - 당일 거래된 주식 수',
+            'AvgVolume': '평균 거래량 - 일정 기간 평균 거래량',
+            
+            // 밸류에이션 지표
+            'EPS': '주당순이익 - 순이익/발행주식수. PER 계산의 기초',
+            'BPS': '주당순자산 - 자본/발행주식수. PBR 계산의 기초',
+            'PER': '주가수익비율 - 주가/EPS. 낮을수록 저평가 (업종별 비교 필요)',
+            'PBR': '주가순자산비율 - 주가/BPS. 1 미만이면 청산가치 이하 (가치투자 핵심)',
+            'ForwardPE': '선행 PER - 예상 EPS 기준 PER. 성장주 평가에 유용',
+            'PSR': '주가매출비율 - 시총/매출. 적자 기업 평가에 활용',
+            'EV/EBITDA': '기업가치/EBITDA - 인수합병 시 활용되는 밸류에이션',
+            'FCFYield(%)': '잉여현금흐름 수익률 - FCF/시총. 높을수록 현금창출력 양호',
+            'DivYield(%)': '배당수익률 - 주당배당금/주가. 배당투자 핵심 지표',
+            
+            // 수익성 지표 (Novy-Marx 2013, Fama-French 2015)
+            'ROE(%)': '자기자본이익률 - 순이익/자본. 15% 이상 우수 (Quality 팩터 핵심)',
+            'ROA(%)': '총자산이익률 - 순이익/자산. 효율적 자산활용도 측정',
+            'GrossMargin(%)': '매출총이익률 - (매출-원가)/매출. Novy-Marx가 강조한 핵심 지표',
+            'OpMargin(%)': '영업이익률 - 영업이익/매출. 본업 수익성',
+            'NetMargin(%)': '순이익률 - 순이익/매출. 최종 수익성',
+            'ROIC(%)': '투하자본수익률 - NOPAT/투하자본. 워렌 버핏 선호 지표',
+            
+            // 재무안정성 지표
+            'CurrentRatio': '유동비율 - 유동자산/유동부채. 1.5 이상 안정적',
+            'DebtRatio(%)': '부채비율 - 부채/자본. 100% 이하 양호',
+            'Debt/Equity': '부채자본비율 - 총부채/자기자본',
+            'InterestCoverage': '이자보상배율 - EBIT/이자비용. 3배 이상 안전',
+            'QuickRatio': '당좌비율 - (유동자산-재고)/유동부채',
+            
+            // 성장성 지표
+            'RevenueGrowth(%)': '매출 성장률 - YoY 매출 증가율',
+            'EarningsGrowth(%)': '이익 성장률 - YoY 순이익 증가율',
+            'EPSGrowth(%)': 'EPS 성장률 - 주당순이익 증가율',
+            
+            // 모멘텀 지표 (Jegadeesh & Titman 1993, 2023)
+            'Return1D(%)': '1일 수익률',
+            'Return5D(%)': '5일 수익률',
+            'Return1W(%)': '1주일 수익률',
+            'Return1M(%)': '1개월 수익률',
+            'Return20D(%)': '20일(1개월) 수익률',
+            'Return60D(%)': '60일(3개월) 수익률 - 단기 모멘텀 핵심',
+            'Return120D(%)': '120일(6개월) 수익률 - 중기 모멘텀',
+            'Return250D(%)': '250일(1년) 수익률 - 장기 모멘텀',
+            'Return3M(%)': '3개월 수익률',
+            'Return6M(%)': '6개월 수익률 - Jegadeesh-Titman 최적 구간',
+            'Return1Y(%)': '1년 수익률',
+            
+            // 기술적 지표
+            'MA20': '20일 이동평균선 - 단기 추세 기준선',
+            'MA50': '50일 이동평균선 - 단기/중기 추세 (미국식)',
+            'MA60': '60일 이동평균선 - 중기 추세 기준선 (분기)',
+            'MA120': '120일 이동평균선 - 장기 추세 기준선 (반기)',
+            'MA200': '200일 이동평균선 - 장기 추세 판단 핵심',
+            'RSI14': 'RSI(14일) - 70 이상 과매수, 30 이하 과매도. 단, 추세장에서는 다르게 해석 (Constance Brown)',
+            'BB_Position': '볼린저밴드 위치(%) - 0=하단, 50=중단, 100=상단. 90 이상 단기 과열',
+            'vs_MA20(%)': '20일 이평선 괴리율 - 20% 이상 과열 신호',
+            'vs_MA60(%)': '60일 이평선 괴리율 - 중기 추세 이탈 측정',
+            'vs_MA120(%)': '120일 이평선 괴리율 - 장기 추세 이탈 측정',
+            'MACD': 'MACD - 단기/장기 이평선 차이. 양수면 상승 추세',
+            'MACD_Signal': 'MACD 시그널 - MACD의 9일 이평선',
+            'ADX': 'ADX - 추세 강도. 25 이상이면 강한 추세',
+            
+            // 리스크 지표 (Daniel & Moskowitz 2016)
+            'Volatility20D': '20일 변동성 - 일간 수익률의 표준편차. 높으면 모멘텀 크래시 위험',
+            'Volatility60D': '60일 변동성 - 장기 리스크 측정. 20D보다 안정적인 지표',
+            'MaxDrawdown(%)': '최대낙폭 - 고점 대비 최대 하락률. 리스크 관리 핵심',
+            'Beta': '베타 - 시장 민감도. 1 초과시 시장보다 변동성 큼 (Frazzini & Pedersen BAB)',
+            'SharpeRatio': '샤프비율 - 위험조정수익률. 1 이상 양호',
+            'SortinoRatio': '소르티노비율 - 하방위험 조정 수익률',
+            
+            // 수급/관심도 지표 (한국 연구 2018)
+            'ForeignRatio(%)': '외국인 보유비율 - 30% 미만이면 관심 낮음 (소외 종목)',
+            'InstOwn(%)': '기관 보유비율',
+            
+            // ETF 전용 지표
+            'Region': '지역 - KR(한국), US(미국) 등 상장 국가',
+            'Category': 'ETF 카테고리 - 자산군/섹터/전략 분류 (예: Large Blend, Technology)',
+            'ExpenseRatio(%)': '총보수율 - 낮을수록 유리. 0.5% 이하 저비용',
+            'TotalAssets(B)': '총자산(십억달러) - ETF 규모. 10B 이상은 대형 ETF',
+            'AUM': '순자산총액 - ETF 규모. 크면 유동성 양호',
+            'TrackingError': '추적오차 - 벤치마크 대비 괴리. 낮을수록 양호',
+            'Premium/Discount': '괴리율 - NAV 대비 시장가격 차이',
+            
+            // 스코어
+            'TotalScore': '종합점수 - 가치/품질/성장/모멘텀/리스크 가중합',
+            'ValueScore': '가치점수 - PER, PBR 등 밸류에이션 기반',
+            'QualityScore': '품질점수 - ROE, 마진, 재무안정성 기반',
+            'GrowthScore': '성장점수 - 매출/이익 성장률 기반',
+            'MomentumScore': '모멘텀점수 - 수익률, RSI 등 기반',
+            'RiskScore': '리스크점수 - 변동성, MDD, 샤프비율 기반',
+            
+            // 데이터 품질
+            'DataQuality(%)': '데이터 품질 점수 - 누락 필드 비율 기반. 100%가 최상'
+        };
+        
+        // 플래그 설명
+        const FLAG_DESCRIPTIONS = {
+            '_overbought': { icon: '🔥', name: '과매수', desc: 'RSI>70, BB상단>90, MA20괴리>20% 중 2개 이상 충족', type: 'warning' },
+            '_nearHigh': { icon: '⚠️', name: '고점근접', desc: '52주 고점 95% 이상 근접', type: 'warning' },
+            '_volatilityWarning': { icon: '⚡', name: '변동성경고', desc: '고변동성+모멘텀 = 크래시 위험 (Daniel & Moskowitz 2016)', type: 'warning' },
+            '_contrarian': { icon: '💎', name: '역발상', desc: '가치저평가+수익성양호+소외+비과열 (De Bondt 1985)', type: 'positive' },
+            '_valueGraduate': { icon: '💰', name: '가치졸업', desc: '역발상→가치주 전환 (시장이 인식 시작)', type: 'info' },
+            '_momentum': { icon: '🚀', name: '모멘텀', desc: '60일/120일 수익률 상위 (Jegadeesh & Titman)', type: 'positive' },
+            '_quality': { icon: '🏆', name: 'Quality', desc: 'ROE상위+마진우수+저변동성 (Novy-Marx 2013)', type: 'positive' },
+            '_illiquid': { icon: '🌊', name: '비유동', desc: '중소형+저거래량 = 유동성 프리미엄 (Amihud 2002)', type: 'info' },
+            '_hiddenGem': { icon: '💎🌊', name: '숨겨진보석', desc: '비유동+Quality = 역발상 수익원천', type: 'positive' }
+        };
+        
+        // 모달 열기 (stockDataId 또는 stockData 객체 모두 지원)
+        function showStockDetail(stockDataOrId) {
+            let stockData;
+            
+            // ID로 전달된 경우 window._stockDetailData에서 찾기
+            if (typeof stockDataOrId === 'string') {
+                stockData = window._stockDetailData?.[stockDataOrId];
+                if (!stockData) {
+                    console.error('종목 데이터를 찾을 수 없습니다:', stockDataOrId);
+                    return;
+                }
+            } else {
+                stockData = stockDataOrId;
+            }
+            
+            const modal = document.getElementById('stockDetailModal');
+            const nameEl = document.getElementById('modalStockName');
+            const tickerEl = document.getElementById('modalStockTicker');
+            const flagsEl = document.getElementById('modalStockFlags');
+            const bodyEl = document.getElementById('modalBody');
+            
+            // 헤더 설정
+            nameEl.textContent = stockData.Name || stockData.Symbol || '종목명';
+            tickerEl.textContent = stockData.Symbol || stockData.Ticker || '';
+            
+            // 플래그 표시
+            let flagsHtml = '';
+            Object.keys(FLAG_DESCRIPTIONS).forEach(key => {
+                if (stockData[key]) {
+                    const flag = FLAG_DESCRIPTIONS[key];
+                    flagsHtml += `<span class="detail-flag ${flag.type}" title="${flag.desc}">${flag.icon} ${flag.name}</span>`;
+                }
+            });
+            flagsEl.innerHTML = flagsHtml;
+            
+            // 본문 구성
+            let bodyHtml = '';
+            
+            // 플래그 상세 섹션
+            if (flagsHtml) {
+                bodyHtml += `
+                    <div class="detail-section">
+                        <div class="detail-section-title">🏷️ 필터 플래그 상태</div>
+                        <div class="detail-flags">${flagsHtml}</div>
+                        ${stockData._overboughtLevel ? `<div style="margin-top:8px;font-size:0.75rem;color:var(--text-muted);">과열 강도: ${stockData._overboughtLevel}/4</div>` : ''}
+                        ${stockData._nearHighType ? `<div style="margin-top:4px;font-size:0.75rem;color:var(--text-muted);">고점 유형: ${stockData._nearHighType}</div>` : ''}
+                        ${stockData._momentumStrength ? `<div style="margin-top:4px;font-size:0.75rem;color:var(--text-muted);">모멘텀 강도: ${stockData._momentumStrength}</div>` : ''}
+                        ${stockData._crashRisk ? `<div style="margin-top:4px;font-size:0.75rem;color:var(--text-muted);">크래시 리스크: ${stockData._crashRisk}</div>` : ''}
+                        ${stockData._qualityLevel ? `<div style="margin-top:4px;font-size:0.75rem;color:var(--text-muted);">품질 등급: ${stockData._qualityLevel}</div>` : ''}
+                        ${stockData._liquidityLevel ? `<div style="margin-top:4px;font-size:0.75rem;color:var(--text-muted);">유동성: ${stockData._liquidityLevel}</div>` : ''}
+                    </div>
+                `;
+            }
+            
+            // 스코어 섹션
+            bodyHtml += `
+                <div class="detail-section">
+                    <div class="detail-section-title">📊 투자 스코어</div>
+                    <div class="detail-grid">
+                        ${createDetailItem('TotalScore', stockData.TotalScore, 'score')}
+                        ${createDetailItem('ValueScore', stockData.ValueScore, 'score')}
+                        ${createDetailItem('QualityScore', stockData.QualityScore, 'score')}
+                        ${createDetailItem('GrowthScore', stockData.GrowthScore, 'score')}
+                        ${createDetailItem('MomentumScore', stockData.MomentumScore, 'score')}
+                        ${createDetailItem('RiskScore', stockData.RiskScore, 'score')}
+                    </div>
+                </div>
+            `;
+            
+            // 가격/시세 섹션
+            bodyHtml += `
+                <div class="detail-section">
+                    <div class="detail-section-title">💵 가격/시세</div>
+                    <div class="detail-grid">
+                        ${createDetailItem('Price', stockData.Price || stockData.Close, 'price')}
+                        ${createDetailItem('Change(%)', stockData['Change(%)'], 'percent')}
+                        ${createDetailItem('52wHigh', stockData['52wHigh'], 'price')}
+                        ${createDetailItem('52wLow', stockData['52wLow'], 'price')}
+                        ${createDetailItem('MarketCap(억)', stockData['MarketCap(억)'] || stockData.MarketCap, 'number')}
+                        ${createDetailItem('Volume', stockData.Volume, 'volume')}
+                    </div>
+                </div>
+            `;
+            
+            // 밸류에이션 섹션
+            bodyHtml += `
+                <div class="detail-section">
+                    <div class="detail-section-title">💎 밸류에이션</div>
+                    <div class="detail-grid">
+                        ${createDetailItem('PER', stockData.PER, 'ratio')}
+                        ${createDetailItem('PBR', stockData.PBR, 'ratio')}
+                        ${createDetailItem('ForwardPE', stockData.ForwardPE, 'ratio')}
+                        ${createDetailItem('PSR', stockData.PSR, 'ratio')}
+                        ${createDetailItem('EV/EBITDA', stockData['EV/EBITDA'], 'ratio')}
+                        ${createDetailItem('FCFYield(%)', stockData['FCFYield(%)'], 'percent')}
+                        ${createDetailItem('DivYield(%)', stockData['DivYield(%)'], 'percent')}
+                    </div>
+                </div>
+            `;
+            
+            // 수익성 섹션
+            bodyHtml += `
+                <div class="detail-section">
+                    <div class="detail-section-title">🏆 수익성 (Quality)</div>
+                    <div class="detail-grid">
+                        ${createDetailItem('ROE(%)', stockData['ROE(%)'], 'percent')}
+                        ${createDetailItem('ROA(%)', stockData['ROA(%)'], 'percent')}
+                        ${createDetailItem('GrossMargin(%)', stockData['GrossMargin(%)'], 'percent')}
+                        ${createDetailItem('OpMargin(%)', stockData['OpMargin(%)'], 'percent')}
+                        ${createDetailItem('NetMargin(%)', stockData['NetMargin(%)'], 'percent')}
+                        ${createDetailItem('ROIC(%)', stockData['ROIC(%)'], 'percent')}
+                    </div>
+                </div>
+            `;
+            
+            // 재무안정성 섹션
+            bodyHtml += `
+                <div class="detail-section">
+                    <div class="detail-section-title">🛡️ 재무안정성</div>
+                    <div class="detail-grid">
+                        ${createDetailItem('CurrentRatio', stockData.CurrentRatio, 'ratio')}
+                        ${createDetailItem('DebtRatio(%)', stockData['DebtRatio(%)'], 'percent')}
+                        ${createDetailItem('Debt/Equity', stockData['Debt/Equity'], 'ratio')}
+                        ${createDetailItem('InterestCoverage', stockData.InterestCoverage, 'ratio')}
+                    </div>
+                </div>
+            `;
+            
+            // 성장성 섹션
+            bodyHtml += `
+                <div class="detail-section">
+                    <div class="detail-section-title">📈 성장성</div>
+                    <div class="detail-grid">
+                        ${createDetailItem('RevenueGrowth(%)', stockData['RevenueGrowth(%)'], 'percent')}
+                        ${createDetailItem('EarningsGrowth(%)', stockData['EarningsGrowth(%)'], 'percent')}
+                        ${createDetailItem('EPSGrowth(%)', stockData['EPSGrowth(%)'], 'percent')}
+                    </div>
+                </div>
+            `;
+            
+            // 모멘텀 섹션
+            bodyHtml += `
+                <div class="detail-section">
+                    <div class="detail-section-title">🚀 모멘텀</div>
+                    <div class="detail-grid">
+                        ${createDetailItem('Return1D(%)', stockData['Return1D(%)'], 'percent')}
+                        ${createDetailItem('Return1W(%)', stockData['Return1W(%)'], 'percent')}
+                        ${createDetailItem('Return5D(%)', stockData['Return5D(%)'], 'percent')}
+                        ${createDetailItem('Return1M(%)', stockData['Return1M(%)'], 'percent')}
+                        ${createDetailItem('Return20D(%)', stockData['Return20D(%)'], 'percent')}
+                        ${createDetailItem('Return3M(%)', stockData['Return3M(%)'], 'percent')}
+                        ${createDetailItem('Return60D(%)', stockData['Return60D(%)'], 'percent')}
+                        ${createDetailItem('Return120D(%)', stockData['Return120D(%)'], 'percent')}
+                        ${createDetailItem('Return6M(%)', stockData['Return6M(%)'], 'percent')}
+                        ${createDetailItem('Return1Y(%)', stockData['Return1Y(%)'] || stockData['Return250D(%)'], 'percent')}
+                    </div>
+                </div>
+            `;
+            
+            // 기술적 지표 섹션
+            bodyHtml += `
+                <div class="detail-section">
+                    <div class="detail-section-title">📉 기술적 지표</div>
+                    <div class="detail-grid">
+                        ${createDetailItem('RSI14', stockData.RSI14, 'rsi')}
+                        ${createDetailItem('BB_Position', stockData.BB_Position, 'percent')}
+                        ${createDetailItem('MA20', stockData.MA20, 'price')}
+                        ${createDetailItem('MA50', stockData.MA50, 'price')}
+                        ${createDetailItem('vs_MA20(%)', stockData['vs_MA20(%)'], 'percent')}
+                        ${createDetailItem('vs_MA60(%)', stockData['vs_MA60(%)'], 'percent')}
+                        ${createDetailItem('vs_MA120(%)', stockData['vs_MA120(%)'], 'percent')}
+                        ${createDetailItem('MACD', stockData.MACD, 'number')}
+                        ${createDetailItem('ADX', stockData.ADX, 'number')}
+                    </div>
+                </div>
+            `;
+            
+            // 리스크 섹션
+            bodyHtml += `
+                <div class="detail-section">
+                    <div class="detail-section-title">⚠️ 리스크</div>
+                    <div class="detail-grid">
+                        ${createDetailItem('Volatility20D', stockData.Volatility20D, 'percent')}
+                        ${createDetailItem('Volatility60D', stockData.Volatility60D, 'percent')}
+                        ${createDetailItem('Beta', stockData.Beta, 'ratio')}
+                        ${createDetailItem('MaxDrawdown(%)', stockData['MaxDrawdown(%)'], 'percent')}
+                        ${createDetailItem('SharpeRatio', stockData.SharpeRatio, 'ratio')}
+                    </div>
+                </div>
+            `;
+            
+            // 수급 섹션
+            if (stockData['ForeignRatio(%)'] || stockData['InstOwn(%)']) {
+                bodyHtml += `
+                    <div class="detail-section">
+                        <div class="detail-section-title">👥 수급/관심도</div>
+                        <div class="detail-grid">
+                            ${createDetailItem('ForeignRatio(%)', stockData['ForeignRatio(%)'], 'percent')}
+                            ${createDetailItem('InstOwn(%)', stockData['InstOwn(%)'], 'percent')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // ETF 전용 섹션 (Region, Category, ExpenseRatio, DataQuality 등이 있으면 ETF로 판단)
+            const isETF = stockData.Region || stockData.Category || stockData['ExpenseRatio(%)'] !== undefined || stockData['DataQuality(%)'] !== undefined;
+            if (isETF) {
+                bodyHtml += `
+                    <div class="detail-section">
+                        <div class="detail-section-title">📦 ETF 정보</div>
+                        <div class="detail-grid">
+                            ${createDetailItem('Region', stockData.Region, 'text')}
+                            ${createDetailItem('Category', stockData.Category, 'text')}
+                            ${createDetailItem('ExpenseRatio(%)', stockData['ExpenseRatio(%)'], 'percent')}
+                            ${createDetailItem('TotalAssets(B)', stockData['TotalAssets(B)'], 'currency')}
+                            ${createDetailItem('AUM', stockData.AUM, 'currency')}
+                            ${createDetailItem('DivYield(%)', stockData['DivYield(%)'], 'percent')}
+                            ${createDetailItem('TrackingError', stockData.TrackingError, 'percent')}
+                            ${createDetailItem('DataQuality(%)', stockData['DataQuality(%)'], 'percent')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 기타 정보
+            bodyHtml += `
+                <div class="detail-section">
+                    <div class="detail-section-title">ℹ️ 기타 정보</div>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-item-label">섹터/유형</span>
+                            <span class="detail-item-value">${stockData.Sector || stockData.ETF_Type || '-'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-item-label">시트</span>
+                            <span class="detail-item-value">${stockData._sheet || '-'}</span>
+                        </div>
+                        ${stockData._configAdjusted ? `
+                        <div class="detail-item">
+                            <span class="detail-item-label">AI 조정</span>
+                            <span class="detail-item-value positive">적용됨</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            bodyEl.innerHTML = bodyHtml;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // 상세 아이템 생성 헬퍼
+        function createDetailItem(key, value, type) {
+            if (value === null || value === undefined || value === '') {
+                return `
+                    <div class="detail-item">
+                        <span class="detail-item-label detail-tooltip" data-tooltip="${INDICATOR_DESCRIPTIONS[key] || key}">
+                            ${key.replace(/[(%)]/, '').substring(0, 15)}
+                            <span class="info-icon">ⓘ</span>
+                        </span>
+                        <span class="detail-item-value neutral">-</span>
+                    </div>
+                `;
+            }
+            
+            let displayValue = value;
+            let valueClass = '';
+            
+            switch (type) {
+                case 'percent':
+                    displayValue = typeof value === 'number' ? value.toFixed(2) + '%' : value;
+                    valueClass = value > 0 ? 'positive' : value < 0 ? 'negative' : '';
+                    break;
+                case 'ratio':
+                    displayValue = typeof value === 'number' ? value.toFixed(2) : value;
+                    break;
+                case 'price':
+                    displayValue = typeof value === 'number' ? value.toLocaleString() : value;
+                    break;
+                case 'volume':
+                    displayValue = typeof value === 'number' ? value.toLocaleString() : value;
+                    break;
+                case 'score':
+                    displayValue = typeof value === 'number' ? value.toFixed(0) : value;
+                    valueClass = value >= 70 ? 'positive' : value < 40 ? 'negative' : '';
+                    break;
+                case 'rsi':
+                    displayValue = typeof value === 'number' ? value.toFixed(1) : value;
+                    valueClass = value > 70 ? 'negative' : value < 30 ? 'positive' : '';
+                    break;
+                default:
+                    displayValue = typeof value === 'number' ? value.toFixed(2) : value;
+            }
+            
+            return `
+                <div class="detail-item">
+                    <span class="detail-item-label detail-tooltip" data-tooltip="${INDICATOR_DESCRIPTIONS[key] || key}">
+                        ${key.replace(/[(%)]/, '').substring(0, 15)}
+                        <span class="info-icon">ⓘ</span>
+                    </span>
+                    <span class="detail-item-value ${valueClass}">${displayValue}</span>
+                </div>
+            `;
+        }
+        
+        // 모달 닫기
+        function closeStockDetail() {
+            const modal = document.getElementById('stockDetailModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeStockDetail();
+            }
+        });
+        
+        // 종목명 클릭 이벤트를 위한 전역 함수
+        function openStockDetailByIndex(index) {
+            const data = screeningData[index];
+            if (data) {
+                showStockDetail(data);
+            }
+        }
+        
+        console.log('📋 종목 상세 모달 시스템 로드됨');
     </script>
 </body>
 </html>
