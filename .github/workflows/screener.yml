@@ -1,120 +1,75 @@
-# .github/workflows/screener.yml
-# 글로벌 주식/ETF 스크리너 자동 실행
-
-name: Stock Screener
+name: Global Stock Screener
 
 on:
-  # 매일 한국시간 오전 8시 (UTC 23:00 전날)
   schedule:
-    - cron: '0 23 * * *'  # UTC 23:00 = KST 08:00
-  
-  # 수동 실행 가능
-  workflow_dispatch:
+    # 매일 UTC 08:00 (KST 17:00) 실행 - 한국/미국 장 마감 후
+    - cron: '0 8 * * *'
+    # 주중 UTC 14:00 (KST 23:00) 추가 실행 - 미국 장 마감 후
+    - cron: '0 14 * * 1-5'
+  workflow_dispatch:  # 수동 실행 가능
     inputs:
-      kr_stocks:
-        description: '한국 주식 수 (KOSPI 시총순위)'
+      full_run:
+        description: '전체 종목 수집 (기본: 제한된 수)'
         required: false
-        default: '150'
-      us_stocks:
-        description: '미국 주식 수'
-        required: false
-        default: '100'
-      kr_etfs:
-        description: '한국 ETF 수'
-        required: false
-        default: '200'
-      us_etfs:
-        description: '미국 ETF 수'
-        required: false
-        default: '100'
+        default: 'false'
+        type: boolean
 
 jobs:
-  run-screener:
+  scrape:
     runs-on: ubuntu-latest
-    
-    # 긴 실행 시간 허용 (최대 6시간, 보통 10-30분 소요)
-    timeout-minutes: 90
-    
-    # ★ 핵심 수정: Python unbuffered 모드
-    env:
-      PYTHONUNBUFFERED: "1"
-    
+    timeout-minutes: 60  # 최대 60분
+
     steps:
-      # 1. 코드 체크아웃
       - name: Checkout repository
         uses: actions/checkout@v4
-      
-      # 2. Python 설정
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
-      
-      # 3. 의존성 설치
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install yfinance pandas numpy requests beautifulsoup4 lxml openpyxl pykrx
-      
-      # 4. 스크리너 실행 (★ python -u 플래그 추가)
+          pip install yfinance openpyxl pandas requests beautifulsoup4 lxml numpy pykrx finance-datareader
+
       - name: Run screener
+        env:
+          TZ: Asia/Seoul
         run: |
-          # 파라미터 설정
-          KR_STOCKS="${{ github.event.inputs.kr_stocks || '150' }}"
-          US_STOCKS="${{ github.event.inputs.us_stocks || '100' }}"
-          KR_ETFS="${{ github.event.inputs.kr_etfs || '200' }}"
-          US_ETFS="${{ github.event.inputs.us_etfs || '100' }}"
+          echo "🚀 글로벌 스크리너 v3.0.2 시작"
+          echo "현재 시간: $(date)"
           
-          # 명령어 구성 (★ -u 플래그로 unbuffered 실행)
-          CMD="python -u global_screener_github.py --output-dir ./data"
-          CMD="$CMD --kr-stocks $KR_STOCKS --us-stocks $US_STOCKS"
-          CMD="$CMD --kr-etfs $KR_ETFS --us-etfs $US_ETFS"
+          # JSON만 출력 (PWA용)
+          python global_screener_v3.py --json-only --output-dir ./data
           
-          echo "=========================================="
-          echo "실행: $CMD"
-          echo "=========================================="
-          $CMD
-      
-      # 5. 결과 확인
-      - name: Check output
-        run: |
-          echo "=== 생성된 파일 ==="
+          echo "✅ 완료"
           ls -la ./data/
-          echo ""
-          echo "=== data.json 미리보기 (첫 500자) ==="
-          head -c 500 ./data/data.json
-      
-      # 6. Git 설정
-      - name: Configure Git
+
+      - name: Commit and push data
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-      
-      # 7. 변경사항 커밋 & 푸시
-      - name: Commit and push
-        run: |
-          # data 폴더의 변경사항만 추가
-          git add ./data/
           
-          # 변경사항 있으면 커밋
+          # data 폴더의 변경사항 추가
+          git add data/
+          
+          # 변경사항이 있을 때만 커밋
           if git diff --staged --quiet; then
-            echo "변경사항 없음"
+            echo "📝 변경사항 없음"
           else
-            DATE=$(TZ='Asia/Seoul' date '+%Y-%m-%d %H:%M')
-            git commit -m "📊 데이터 업데이트: $DATE KST"
+            git commit -m "📊 데이터 업데이트: $(date +'%Y-%m-%d %H:%M') KST"
             git push
-            echo "✅ 푸시 완료"
+            echo "✅ 데이터 푸시 완료"
           fi
-      
-      # 8. 요약 출력
-      - name: Summary
-        run: |
-          echo "## 📊 스크리닝 완료" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- 실행 시간: $(TZ='Asia/Seoul' date '+%Y-%m-%d %H:%M KST')" >> $GITHUB_STEP_SUMMARY
-          echo "- 파일: data/data.json" >> $GITHUB_STEP_SUMMARY
-          
-          # JSON 파일 크기
-          SIZE=$(ls -lh ./data/data.json | awk '{print $5}')
-          echo "- 크기: $SIZE" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload artifacts (optional)
+        uses: actions/upload-artifact@v4
+        if: failure()  # 실패 시에만 업로드
+        with:
+          name: screener-logs
+          path: |
+            ./data/
+            ./*.log
+          retention-days: 7
