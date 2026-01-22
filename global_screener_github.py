@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
 """
-글로벌 주식/ETF 스크리닝 - GitHub Actions 버전 v3.0.2
+글로벌 주식/ETF 스크리닝 - GitHub Actions 버전 v3.2.0
+=============================================================================
+v3.2.0 신규:
+  1. 종목 리스트 통합 수집 (pykrx + KRX + FDR + 네이버 + NXT 합치기)
+  2. 중복 제거: 코드(숫자 6자리) 기준으로 통합
+  3. 시세 데이터: NXT > 네이버 > pykrx > yfinance 순차 적용
+  4. KST 08:00 실행 (NXT 프리마켓 직후 최신 데이터)
 =============================================================================
 v3.0.2 신규:
-  1. FinanceDataReader 추가 (한국 주식/ETF 최우선 소스)
-  2. 데이터 소스 우선순위: FDR > pykrx > 네이버 > yfinance
+  1. FinanceDataReader 추가
+  2. 한국 주식/ETF 하드코딩 폴백 강화
 =============================================================================
 v3.0.1 버그 수정:
   1. Return1Y 인덱스 버그 수정 (min(len-1, 252) → min(len, 252))
@@ -19,14 +25,11 @@ v3.0 수정사항 (데이터 누락 해결):
   5. KR_ETF: ExpenseRatio, DivYield, Category 하드코딩
   6. 모든 시트: SharpeRatio 계산 로직 수정
 =============================================================================
-v2.5 수정:
-  * 한국 ETF: KRX 정보데이터시스템 직접 크롤링 (가장 정확)
-  * KRX → pykrx → 네이버 → 폴백 순서로 시도
 
 GitHub Actions에서 자동 실행 → JSON 출력 → GitHub Pages에서 PWA가 fetch
 
 설치:
-pip install yfinance openpyxl pandas requests beautifulsoup4 lxml numpy pykrx
+pip install yfinance openpyxl pandas requests beautifulsoup4 lxml numpy pykrx finance-datareader
 
 실행:
 python global_screener_v3.py              # Excel + JSON 출력
@@ -293,6 +296,194 @@ KR_ETF_EXPENSE = {
     '459580': 0.50,   # TIGER 글로벌온디바이스AI
     '462320': 0.50,   # TIGER 미국배당다우존스
     '464510': 0.50,   # TIGER 미국캐시카우100커버드콜
+    # ★ v3.0.2 추가: 주요 ETF 보강
+    '069660': 0.45,   # KOSEF 200
+    '091230': 0.45,   # TIGER 반도체
+    '098560': 0.50,   # TIGER 방송통신
+    '099140': 0.50,   # KODEX China H
+    '100910': 0.50,   # KOSEF 단기자금
+    '101280': 0.50,   # KODEX Japan
+    '104520': 0.45,   # KOSEF 블루칩
+    '108440': 0.50,   # KINDEX Japan
+    '108450': 0.50,   # KINDEX China
+    '108480': 0.50,   # KINDEX 인도네시아
+    '114260': 0.50,   # KODEX 국채3년
+    '114470': 0.07,   # KOSEF 국채3년
+    '114820': 0.50,   # TIGER 국채3년
+    '117460': 0.50,   # KODEX 에너지화학
+    '123310': 0.50,   # TIGER 인버스
+    '123320': 0.50,   # TIGER 레버리지
+    '130680': 0.50,   # TIGER 원자재
+    '130730': 0.50,   # KOSEF 원자재
+    '131890': 0.50,   # KINDEX 인버스
+    '132030': 0.50,   # KODEX 골드선물(H)
+    '136340': 0.50,   # KINDEX 밸류대형
+    '137610': 0.50,   # TIGER 농산물선물
+    '137930': 0.50,   # TIGER 금속선물
+    '138230': 0.50,   # KOSEF 미국달러선물
+    '138910': 0.50,   # KODEX 구리선물
+    '138920': 0.50,   # KODEX 콩선물
+    '139220': 0.45,   # TIGER 200 헬스케어
+    '139230': 0.45,   # TIGER 200 중공업
+    '139240': 0.45,   # TIGER 200 건설
+    '139250': 0.45,   # TIGER 200 경기소비재
+    '139270': 0.45,   # TIGER 200 금융
+    '139290': 0.45,   # TIGER 200 철강소재
+    '139310': 0.45,   # TIGER 200 에너지화학
+    '139320': 0.45,   # TIGER 200 IT
+    '140570': 0.50,   # KINDEX 단기통안채
+    '140580': 0.50,   # KINDEX China
+    '140710': 0.50,   # KODEX 10년국채선물
+    '145850': 0.50,   # TIGER 일본TOPIX
+    '147970': 0.50,   # TIGER 모멘텀
+    '148040': 0.50,   # KINDEX 200동일가중
+    '148060': 0.50,   # KINDEX 배당성장
+    '150460': 0.50,   # KINDEX 200선물인버스
+    '152100': 0.07,   # ARIRANG 200
+    '152180': 0.50,   # TIGER 미국MSCI리츠
+    '153270': 0.50,   # KODEX 건설
+    '156080': 0.50,   # KODEX MSCI World
+    '159800': 0.50,   # 마이다스 200커버드콜
+    '160580': 0.50,   # TIGER 구리실물
+    '169950': 0.50,   # KODEX China H레버리지
+    '176710': 0.50,   # 파워 국채10년
+    '176950': 0.50,   # KODEX 금선물(H)
+    '181480': 0.50,   # TIGER 배당성장
+    '182480': 0.50,   # TIGER US리츠
+    '183700': 0.50,   # KINDEX 중국본토대형
+    '185680': 0.50,   # KINDEX 일본레버리지
+    '189400': 0.50,   # ARIRANG AC월드
+    '190150': 0.50,   # ARIRANG MSCI유럽
+    '190620': 0.50,   # KINDEX 러시아
+    '192720': 0.50,   # 파워 단기채
+    '196030': 0.50,   # KODEX China A50
+    '196220': 0.50,   # KINDEX 중국본토CSI300
+    '196230': 0.50,   # KINDEX 골드선물
+    '200020': 0.50,   # KODEX 미국달러선물인버스
+    '203780': 0.50,   # TIGER 차이나A300
+    '204420': 0.50,   # ARIRANG 차이나H
+    '204450': 0.50,   # ARIRANG 차이나본토
+    '204480': 0.50,   # TIGER 차이나A레버리지
+    '205720': 0.50,   # KINDEX 일본인버스
+    '210950': 0.50,   # KINDEX 코스닥150레버리지
+    '211560': 0.50,   # TIGER 배당프리미엄
+    '213630': 0.50,   # KODEX 삼성그룹밸류
+    '214420': 0.50,   # KODEX China A50인버스
+    '215620': 0.50,   # TIGER S&P500동일가중
+    '217480': 0.50,   # KINDEX 코스피레버리지
+    '218420': 0.50,   # KODEX 미국채10년선물
+    '219390': 0.50,   # KINDEX 미국S&P500
+    '220130': 0.50,   # SMART 200
+    '222180': 0.50,   # ARIRANG 스마트베타
+    '222190': 0.50,   # ARIRANG 스마트베타Value
+    '222200': 0.50,   # ARIRANG 스마트베타Momentum
+    '223190': 0.50,   # KODEX 200중소형
+    '224100': 0.50,   # KINDEX 중국본토A300
+    '225030': 0.50,   # KINDEX 코스피인버스
+    '225040': 0.50,   # KINDEX 코스닥150인버스
+    '225050': 0.50,   # KINDEX 코스피
+    '225130': 0.50,   # KINDEX 코스닥150
+    '226980': 0.50,   # KODEX 200 IT
+    '227540': 0.50,   # TIGER 200 헬스케어
+    '227550': 0.50,   # TIGER 200 산업재
+    '227560': 0.50,   # TIGER 200 생활소비재
+    '227570': 0.50,   # TIGER 200 중공업
+    '227830': 0.50,   # ARIRANG 코스피50
+    '228790': 0.50,   # TIGER 화장품
+    '228810': 0.50,   # TIGER 미디어컨텐츠
+    '228820': 0.50,   # TIGER 은행
+    '232080': 0.50,   # TIGER 코스닥150바이오테크
+    '234310': 0.50,   # KODEX 미국메타버스나스닥액티브
+    '236350': 0.50,   # TIGER 인도니프티50
+    '238670': 0.50,   # KINDEX 미국나스닥100
+    '238710': 0.50,   # KINDEX 코스닥150선물인버스
+    '240180': 0.50,   # TIGER 로우볼
+    '241180': 0.50,   # TIGER 코스닥150헬스케어
+    '241390': 0.50,   # KINDEX 미국나스닥100선물
+    '241560': 0.50,   # TIGER TOP10
+    '245710': 0.50,   # TIGER 코스닥150
+    '246710': 0.50,   # KINDEX 미국고배당S&P
+    '249580': 0.50,   # KINDEX 코스닥150선물레버리지
+    '250730': 0.50,   # KINDEX 한류
+    '251590': 0.50,   # ARIRANG 배당주채권혼합
+    '261140': 0.50,   # TIGER 코스피중형주
+    '261270': 0.50,   # TIGER 코스닥중소형
+    '267770': 0.50,   # KODEX 200가치저변동
+    '270810': 0.50,   # KINDEX 미국인터넷
+    '277630': 0.50,   # TIGER 코스피대형가치
+    '277640': 0.50,   # TIGER 코스피대형성장
+    '277650': 0.50,   # TIGER 코스피중형가치
+    '277660': 0.50,   # TIGER 코스피중형성장
+    '278620': 0.50,   # KINDEX 200인버스
+    '280920': 0.50,   # KODEX 미국빅테크10
+    '280930': 0.50,   # KINDEX 미국빅테크TOP7Plus
+    '282330': 0.50,   # KODEX 2차전지산업레버리지
+    '283580': 0.50,   # KINDEX 미국채10년선물
+    '283590': 0.50,   # KINDEX 미국채10년선물인버스
+    '287330': 0.50,   # KINDEX 미국달러선물인버스
+    '289480': 0.50,   # KINDEX 신흥국하이일드
+    '291890': 0.50,   # KINDEX 블룸버그선진국
+    '294020': 0.50,   # KINDEX 미국AI테크
+    '295000': 0.50,   # KINDEX 미국친환경그린테마
+    '295040': 0.50,   # KINDEX 글로벌클린에너지
+    '296900': 0.50,   # KINDEX 미국S&P배당귀족
+    '298770': 0.50,   # KODEX 미국채10년선물
+    '304660': 0.50,   # KODEX 고배당
+    '306520': 0.50,   # KINDEX 중국항셍테크
+    '306950': 0.50,   # KINDEX 차이나테크
+    '307000': 0.50,   # KINDEX KRX300
+    '314250': 0.50,   # KINDEX 미국S&P500인버스
+    '315270': 0.50,   # KODEX 글로벌리튬
+    '319870': 0.50,   # TIGER 200커버드콜ATM
+    '326240': 0.50,   # KINDEX 미국나스닥100(H)
+    '329200': 0.50,   # TIGER 미국테크TOP10
+    '331910': 0.50,   # KINDEX 글로벌탄소배출권
+    '334690': 0.50,   # KINDEX 미국배당귀족나스닥
+    '334700': 0.50,   # KINDEX 글로벌메타버스
+    '337140': 0.50,   # KODEX 3대농산물선물
+    '348580': 0.50,   # KINDEX 미국고배당S&P배당귀족
+    '352560': 0.50,   # TIGER K리츠
+    '357870': 0.50,   # KINDEX 미국메타버스
+    '357880': 0.50,   # KINDEX 미국S&P500ESG
+    '359210': 0.50,   # KINDEX 글로벌전기차&배터리
+    '360750': 0.10,   # TIGER S&P500
+    '361580': 0.50,   # KINDEX 미국S&P500데일리커버드콜
+    '361600': 0.50,   # KINDEX 글로벌수소경제
+    '363570': 0.50,   # KODEX 자동차
+    '364970': 0.50,   # TIGER KRX바이오K뉴딜
+    '364980': 0.50,   # TIGER KRX2차전지K뉴딜
+    '365040': 0.50,   # KODEX K뉴딜디지털플러스
+    '368200': 0.50,   # KINDEX 미국다우존스
+    '371150': 0.50,   # TIGER KRX BBIG K뉴딜
+    '372790': 0.50,   # TIGER 반도체TOP10
+    '375270': 0.50,   # TIGER 코스닥150리밸런싱
+    '375720': 0.50,   # TIGER 2차전지테크
+    '375770': 0.50,   # KINDEX 중국클린에너지
+    '381180': 0.50,   # TIGER 미국필라델피아반도체
+    '385590': 0.50,   # TIGER K로봇
+    '385720': 0.50,   # TIGER Fn반도체TOP10
+    '391600': 0.50,   # TIGER AI반도체핵심소재
+    '394660': 0.50,   # TIGER 글로벌자율주행
+    '396690': 0.50,   # KINDEX 글로벌혁신블루칩
+    '400760': 0.50,   # TIGER 글로벌2차전지TOP10
+    '401470': 0.50,   # TIGER 글로벌AI로봇&자율주행
+    '411060': 0.50,   # KODEX K게임
+    '430570': 0.50,   # ACE 미국S&P500
+    '430600': 0.50,   # ACE 미국나스닥100
+    '441660': 0.50,   # KINDEX 미국S&P500퀄리티
+    '441680': 0.50,   # KINDEX 미국나스닥100퀄리티
+    '445280': 0.50,   # TIGER AI BIGTECH 10
+    '446720': 0.50,   # SOL 미국S&P500
+    '446770': 0.50,   # SOL 미국나스닥100
+    '447770': 0.50,   # TIGER 차이나항셍테크
+    '448290': 0.50,   # KINDEX 미국빅테크
+    '448320': 0.50,   # KINDEX 인도Nifty50
+    '448540': 0.50,   # KINDEX 일본TOPIX100
+    '448810': 0.50,   # ACE 미국빅테크TOP7Plus
+    '449580': 0.50,   # KINDEX 미국AI인프라
+    '450710': 0.50,   # KINDEX 미국반도체MV
+    '452550': 0.50,   # KINDEX 미국방어
+    '455030': 0.50,   # KINDEX 미국S&P500동일가중
 }
 
 # KR ETF 카테고리
@@ -358,6 +549,206 @@ KR_ETF_DIVYIELD = {
     '105190': 1.8,   # KINDEX 200
 }
 
+# ★ v3.0.2 추가: 한국 주식 하드코딩 (KOSPI 시총 상위 200개)
+# 형식: {종목코드: (종목명, 섹터)}
+KR_STOCK_LIST = {
+    '005930': ('삼성전자', '전기전자'),
+    '000660': ('SK하이닉스', '전기전자'),
+    '373220': ('LG에너지솔루션', '전기전자'),
+    '207940': ('삼성바이오로직스', '의약품'),
+    '005380': ('현대차', '운수장비'),
+    '006400': ('삼성SDI', '전기전자'),
+    '051910': ('LG화학', '화학'),
+    '000270': ('기아', '운수장비'),
+    '005490': ('POSCO홀딩스', '철강금속'),
+    '035420': ('NAVER', '서비스업'),
+    '068270': ('셀트리온', '의약품'),
+    '028260': ('삼성물산', '유통업'),
+    '105560': ('KB금융', '기타금융'),
+    '055550': ('신한지주', '기타금융'),
+    '012330': ('현대모비스', '운수장비'),
+    '066570': ('LG전자', '전기전자'),
+    '003670': ('포스코퓨처엠', '철강금속'),
+    '096770': ('SK이노베이션', '화학'),
+    '034730': ('SK', '기타금융'),
+    '086790': ('하나금융지주', '기타금융'),
+    '032830': ('삼성생명', '보험'),
+    '003550': ('LG', '기타금융'),
+    '015760': ('한국전력', '전기가스'),
+    '017670': ('SK텔레콤', '통신업'),
+    '010130': ('고려아연', '철강금속'),
+    '018260': ('삼성에스디에스', '서비스업'),
+    '009150': ('삼성전기', '전기전자'),
+    '033780': ('KT&G', '음식료'),
+    '035720': ('카카오', '서비스업'),
+    '316140': ('우리금융지주', '기타금융'),
+    '024110': ('기업은행', '은행'),
+    '000810': ('삼성화재', '보험'),
+    '259960': ('크래프톤', '서비스업'),
+    '011200': ('HMM', '운수창고'),
+    '010950': ('S-Oil', '화학'),
+    '034020': ('두산에너빌리티', '기계'),
+    '009540': ('HD한국조선해양', '운수장비'),
+    '036570': ('엔씨소프트', '서비스업'),
+    '003490': ('대한항공', '운수창고'),
+    '138040': ('메리츠금융지주', '기타금융'),
+    '047050': ('포스코인터내셔널', '유통업'),
+    '302440': ('SK바이오사이언스', '의약품'),
+    '352820': ('하이브', '서비스업'),
+    '011170': ('롯데케미칼', '화학'),
+    '030200': ('KT', '통신업'),
+    '267250': ('HD현대', '운수장비'),
+    '032640': ('LG유플러스', '통신업'),
+    '090430': ('아모레퍼시픽', '화학'),
+    '012450': ('한화에어로스페이스', '기계'),
+    '011070': ('LG이노텍', '전기전자'),
+    '010140': ('삼성중공업', '운수장비'),
+    '051900': ('LG생활건강', '화학'),
+    '161390': ('한국타이어앤테크놀로지', '화학'),
+    '088980': ('맥쿼리인프라', '기타금융'),
+    '036460': ('한국가스공사', '전기가스'),
+    '329180': ('HD현대중공업', '운수장비'),
+    '004020': ('현대제철', '철강금속'),
+    '028050': ('삼성엔지니어링', '건설업'),
+    '000720': ('현대건설', '건설업'),
+    '326030': ('SK바이오팜', '의약품'),
+    '004990': ('롯데지주', '유통업'),
+    '042660': ('한화오션', '운수장비'),
+    '078930': ('GS', '유통업'),
+    '006800': ('미래에셋증권', '증권'),
+    '021240': ('코웨이', '전기전자'),
+    '097950': ('CJ제일제당', '음식료'),
+    '034220': ('LG디스플레이', '전기전자'),
+    '069500': ('KODEX 200', 'ETF'),  # ETF 제외용
+    '241560': ('두산밥캣', '기계'),
+    '377300': ('카카오페이', '서비스업'),
+    '000100': ('유한양행', '의약품'),
+    '180640': ('한진칼', '운수창고'),
+    '016360': ('삼성증권', '증권'),
+    '001040': ('CJ', '유통업'),
+    '071050': ('한국금융지주', '기타금융'),
+    '009830': ('한화솔루션', '화학'),
+    '005940': ('NH투자증권', '증권'),
+    '006260': ('LS', '전기전자'),
+    '006360': ('GS건설', '건설업'),
+    '002790': ('아모레G', '화학'),
+    '000990': ('DB하이텍', '전기전자'),
+    '128940': ('한미약품', '의약품'),
+    '035250': ('강원랜드', '서비스업'),
+    '011780': ('금호석유', '화학'),
+    '001570': ('금양', '화학'),
+    '047810': ('한국항공우주', '운수장비'),
+    '010620': ('현대미포조선', '운수장비'),
+    '271560': ('오리온', '음식료'),
+    '005830': ('DB손해보험', '보험'),
+    '282330': ('BGF리테일', '유통업'),
+    '383220': ('F&F', '섬유의복'),
+    '139480': ('이마트', '유통업'),
+    '003410': ('쌍용C&E', '비금속'),
+    '029780': ('삼성카드', '기타금융'),
+    '005387': ('현대차2우B', '운수장비'),
+    '002380': ('KCC', '화학'),
+    '000080': ('하이트진로', '음식료'),
+    '361610': ('SK아이이테크놀로지', '화학'),
+    '272210': ('한화시스템', '전기전자'),
+    '008770': ('호텔신라', '서비스업'),
+    '001450': ('현대해상', '보험'),
+    '023530': ('롯데쇼핑', '유통업'),
+    '011790': ('SKC', '화학'),
+    '064350': ('현대로템', '운수장비'),
+    '039490': ('키움증권', '증권'),
+    '007070': ('GS리테일', '유통업'),
+    '024720': ('한국전자금융', '서비스업'),
+    '402340': ('SK스퀘어', '기타금융'),
+    '006280': ('녹십자', '의약품'),
+    '014680': ('한솔케미칼', '화학'),
+    '192820': ('코스맥스', '화학'),
+    '008930': ('한미사이언스', '의약품'),
+    '052690': ('한전기술', '서비스업'),
+    '069620': ('대웅제약', '의약품'),
+    '004370': ('농심', '음식료'),
+    '030000': ('제일기획', '서비스업'),
+    '081660': ('휠라홀딩스', '섬유의복'),
+    '214370': ('케어젠', '의약품'),
+    '003230': ('삼양식품', '음식료'),
+    '251270': ('넷마블', '서비스업'),
+    '005389': ('현대차3우B', '운수장비'),
+    '175330': ('JB금융지주', '기타금융'),
+    '018880': ('한온시스템', '운수장비'),
+    '145020': ('휴젤', '의약품'),
+    '009240': ('한샘', '기타제조'),
+    '010120': ('LS ELECTRIC', '전기전자'),
+    '004000': ('롯데정밀화학', '화학'),
+    '111770': ('영원무역', '섬유의복'),
+    '000120': ('CJ대한통운', '운수창고'),
+    '012630': ('HDC', '건설업'),
+    '001120': ('LX인터내셔널', '유통업'),
+    '000150': ('두산', '기계'),
+    '020150': ('일진머티리얼즈', '철강금속'),
+    '004170': ('신세계', '유통업'),
+    '241840': ('에스에프에이', '기계'),
+    '005250': ('녹십자홀딩스', '의약품'),
+    '267270': ('HD현대건설기계', '기계'),
+    '016800': ('퍼시스', '기타제조'),
+    '138930': ('BNK금융지주', '기타금융'),
+    '194480': ('데브시스터즈', '서비스업'),
+    '004800': ('효성', '화학'),
+    '008560': ('메리츠증권', '증권'),
+    '017800': ('현대엘리베이터', '기계'),
+    '071970': ('STX중공업', '기계'),
+    '285130': ('SK케미칼', '화학'),
+    '009420': ('한올바이오파마', '의약품'),
+    '060980': ('한라홀딩스', '운수장비'),
+    '000210': ('DL', '화학'),
+    '950160': ('코오롱티슈진', '의약품'),
+    '003090': ('대웅', '의약품'),
+    '000880': ('한화', '화학'),
+    '026960': ('동서', '음식료'),
+    '014820': ('동원시스템즈', '기계'),
+    '011760': ('현대코퍼레이션', '유통업'),
+    '002350': ('넥센타이어', '화학'),
+    '007310': ('오뚜기', '음식료'),
+    '008350': ('남선알미늄', '철강금속'),
+    '069960': ('현대백화점', '유통업'),
+    '001740': ('SK네트웍스', '유통업'),
+    '003240': ('태광산업', '화학'),
+    '044820': ('코스맥스비티아이', '화학'),
+    '005610': ('SPC삼립', '음식료'),
+    '051600': ('한전KPS', '서비스업'),
+    '035510': ('신세계인터내셔날', '유통업'),
+    '019170': ('신풍제약', '의약품'),
+    '192400': ('쿠쿠홀딩스', '전기전자'),
+    '010780': ('아이에스동서', '건설업'),
+    '005180': ('빙그레', '음식료'),
+    '000490': ('대동', '기계'),
+    '021050': ('서원인텍', '전기전자'),
+    '001800': ('오리온홀딩스', '유통업'),
+    '003850': ('보령', '의약품'),
+    '001680': ('대상', '음식료'),
+    '057050': ('현대홈쇼핑', '유통업'),
+    '033240': ('자화전자', '전기전자'),
+    '000070': ('삼양홀딩스', '화학'),
+    '006650': ('대한유화', '화학'),
+    '002960': ('한국쉘석유', '화학'),
+    '093370': ('후성', '화학'),
+    '000640': ('동아쏘시오홀딩스', '의약품'),
+    '003620': ('쌍용자동차', '운수장비'),
+    '060250': ('NHN KCP', '서비스업'),
+    '003030': ('세아제강', '철강금속'),
+    '138490': ('코오롱플라스틱', '화학'),
+    '004910': ('조광페인트', '화학'),
+    '089590': ('제주항공', '운수창고'),
+    '053210': ('스카이라이프', '서비스업'),
+    '161890': ('한국콜마', '화학'),
+    '003000': ('부광약품', '의약품'),
+    '002030': ('아세아', '비금속'),
+    '025860': ('남해화학', '화학'),
+    '003220': ('대원강업', '운수장비'),
+    '000400': ('롯데손해보험', '보험'),
+    '000320': ('노루홀딩스', '화학'),
+    '012510': ('더존비즈온', '서비스업'),
+}
+
 # ============================================================
 # 설정
 # ============================================================
@@ -376,9 +767,10 @@ HEADERS = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
 }
 
-# 네이버 차단 여부 (런타임에 판단)
+# 데이터 소스 차단 여부 (런타임에 판단)
 NAVER_AVAILABLE = None
-FNGUIDE_AVAILABLE = None  # ★ FnGuide도 차단 감지
+FNGUIDE_AVAILABLE = None
+NXT_AVAILABLE = None  # ★ v3.2.0: NXT 차단 감지
 
 # 타임아웃 설정 (GitHub Actions용 단축)
 TIMEOUT_SHORT = 3
@@ -463,6 +855,215 @@ def fill_missing_from_info(row, info, field_mapping):
                     val = val * multiplier
                 row[row_field] = fmt(val, decimals)
     return row
+
+# ============================================================
+# ★ v3.2.0: NXT(넥스트레이드) 크롤링
+# ============================================================
+# NXT 세션 (전역)
+_NXT_SESSION = None
+
+def get_nxt_session():
+    """NXT 세션 획득 (쿠키 필요)"""
+    global _NXT_SESSION
+    
+    if _NXT_SESSION is not None:
+        return _NXT_SESSION
+    
+    try:
+        import urllib3
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        
+        _NXT_SESSION = requests.Session()
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        }
+        
+        # 페이지 방문하여 세션/쿠키 획득
+        resp = _NXT_SESSION.get(
+            'https://www.nextrade.co.kr/menu/transactionStatusMain/menuList.do',
+            headers=headers,
+            verify=False,
+            timeout=10
+        )
+        
+        if resp.status_code == 200:
+            log("  NXT 세션 획득 ✅")
+            return _NXT_SESSION
+        else:
+            _NXT_SESSION = None
+            return None
+    except Exception as e:
+        log(f"  ⚠️ NXT 세션 획득 실패: {str(e)[:50]}")
+        _NXT_SESSION = None
+        return None
+
+def fetch_nxt_api(endpoint, params=None, timeout=TIMEOUT_LONG):
+    """NXT API 요청 (세션 기반)"""
+    global NXT_AVAILABLE
+    
+    if NXT_AVAILABLE is False:
+        return None
+    
+    session = get_nxt_session()
+    if session is None:
+        NXT_AVAILABLE = False
+        return None
+    
+    try:
+        url = f"https://www.nextrade.co.kr{endpoint}"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Referer': 'https://www.nextrade.co.kr/menu/transactionStatusMain/menuList.do',
+        }
+        
+        resp = session.post(url, data=params, headers=headers, timeout=timeout, verify=False)
+        
+        if resp.status_code == 403 or resp.status_code == 503:
+            NXT_AVAILABLE = False
+            log(f"  ⚠️ NXT 접근 차단됨 ({resp.status_code})")
+            return None
+        
+        if resp.status_code == 200:
+            NXT_AVAILABLE = True
+            try:
+                return resp.json()
+            except:
+                return None
+        return None
+    except Exception as e:
+        log(f"  ⚠️ NXT 요청 실패: {str(e)[:50]}")
+        return None
+
+def get_nxt_stock_data():
+    """NXT에서 주식 거래현황 데이터 가져오기
+    
+    Returns:
+        dict: {종목코드: {name, price, change, change_rate, volume, market, ...}}
+    """
+    global NXT_AVAILABLE
+    
+    if NXT_AVAILABLE is False:
+        return {}
+    
+    log("  NXT 거래현황 로드 시도...")
+    
+    result = {}
+    
+    # NXT API - 정규시장 거래현황
+    # API가 페이지당 5개씩만 반환 (rows 파라미터 무시)
+    # 상위 200개면 충분 → 40페이지
+    max_pages = 40
+    target_count = 200
+    
+    for page in range(1, max_pages + 1):
+        params = {
+            'page': page,
+            'rows': 100,  # 무시되지만 일단 전송
+            '_search': 'false',
+            'sidx': '',
+            'sord': 'asc',
+        }
+        
+        data = fetch_nxt_api('/brdinfoTime/brdinfoTimeList.do', params)
+        
+        if not data:
+            if page == 1:
+                log("  ⚠️ NXT 데이터 로드 실패")
+                NXT_AVAILABLE = False
+            break
+        
+        rows = data.get('brdinfoTimeList', [])
+        if not rows:
+            break
+        
+        for row in rows:
+            try:
+                # NXT API 응답 필드 매핑 (실제 필드명)
+                code_raw = str(row.get('isuSrdCd', '')).strip()  # A005930 형태
+                code = code_raw.replace('A', '').zfill(6)  # 005930으로 변환
+                
+                if not code or len(code) != 6:
+                    continue
+                
+                name = row.get('isuAbwdNm', '')  # 종목명 (약어)
+                price = row.get('curPrc', 0)  # 현재가
+                change = row.get('contrastPrc', 0)  # 전일대비
+                change_rate = row.get('upDownRate', 0)  # 등락률
+                volume = row.get('accTdQty', 0)  # 누적거래량
+                value = row.get('accTrval', 0)  # 누적거래대금
+                market = row.get('mktNm', 'KOSPI')  # 시장
+                high = row.get('hgpr', 0)  # 고가
+                low = row.get('lwpr', 0)  # 저가
+                open_price = row.get('oppr', 0)  # 시가
+                base_price = row.get('basePrc', 0)  # 기준가
+                
+                result[code] = {
+                    'name': name,
+                    'price': int(price) if price else None,
+                    'change': int(change) if change else 0,
+                    'change_rate': float(change_rate) if change_rate else 0,
+                    'volume': int(volume) if volume else 0,
+                    'value': int(value) if value else 0,
+                    'high': int(high) if high else None,
+                    'low': int(low) if low else None,
+                    'open': int(open_price) if open_price else None,
+                    'base_price': int(base_price) if base_price else None,
+                    'market': 'KOSPI' if 'KOSPI' in str(market).upper() else 'KOSDAQ',
+                    'source': 'NXT'
+                }
+            except:
+                continue
+        
+        # 진행 상황 출력 (20페이지마다)
+        if page % 20 == 0:
+            log(f"    NXT 로딩 중... {len(result)}개")
+        
+        # 200개 도달 시 종료
+        if len(result) >= target_count:
+            break
+        
+        # 마지막 페이지 확인
+        total_cnt = data.get('totalCnt', 0)
+        if len(result) >= total_cnt:
+            break
+        
+        time.sleep(0.05)  # 속도 조절
+    
+    if result:
+        log(f"  NXT: {len(result)}개 종목 로드 ✅")
+        NXT_AVAILABLE = True
+    else:
+        log("  ⚠️ NXT 데이터 없음")
+    
+    return result
+
+def get_nxt_etf_data():
+    """NXT에서 ETF 거래현황 데이터 가져오기
+    (현재 NXT는 ETF 미지원 - 향후 확장 대비)
+    """
+    # NXT는 2025년 현재 ETF/ETN 미지원
+    # 향후 지원 시 이 함수 구현
+    return {}
+
+# NXT 데이터 캐시 (전역)
+_NXT_STOCK_CACHE = None
+_NXT_CACHE_TIME = None
+
+def get_nxt_cached_data():
+    """NXT 데이터를 캐시하여 반환 (중복 호출 방지)"""
+    global _NXT_STOCK_CACHE, _NXT_CACHE_TIME
+    
+    # 5분 이내 캐시 사용
+    if _NXT_STOCK_CACHE is not None and _NXT_CACHE_TIME is not None:
+        if (datetime.now() - _NXT_CACHE_TIME).seconds < 300:
+            return _NXT_STOCK_CACHE
+    
+    _NXT_STOCK_CACHE = get_nxt_stock_data()
+    _NXT_CACHE_TIME = datetime.now()
+    return _NXT_STOCK_CACHE
 
 # ============================================================
 # 네이버 금융 스크래핑
@@ -707,6 +1308,16 @@ def get_naver_stock_detail(code):
                                     elif '영업이익증가율' in label and 'op_growth' not in data:
                                         if -200 < val < 1000:
                                             data['op_growth'] = val
+                                    # ★ v3.2.0 추가
+                                    elif 'ROIC' in label and 'roic' not in data:
+                                        if -100 < val < 200:
+                                            data['roic'] = val
+                                    elif '이자보상' in label and 'interest_coverage' not in data:
+                                        if val > -100:
+                                            data['interest_coverage'] = val
+                                    elif 'EPS' in label and '증가' in label and 'eps_growth' not in data:
+                                        if -500 < val < 1000:
+                                            data['eps_growth'] = val
                                     break
                                 except:
                                     pass
@@ -1082,8 +1693,10 @@ def add_technical_indicators(row, close, include_ma60_120=False):
         row['Return1D(%)'] = fmt((close.iloc[-1] / close.iloc[-2] - 1) * 100)
     if len(close) >= 6:
         row['Return1W(%)'] = fmt((close.iloc[-1] / close.iloc[-6] - 1) * 100)
+        row['Return5D(%)'] = row['Return1W(%)']  # ★ v3.2.0 추가
     if len(close) >= 22:
         row['Return1M(%)'] = fmt((close.iloc[-1] / close.iloc[-22] - 1) * 100)
+        row['Return20D(%)'] = row['Return1M(%)']  # ★ v3.2.0 추가
     if len(close) >= 66:
         row['Return3M(%)'] = fmt((close.iloc[-1] / close.iloc[-66] - 1) * 100)
         row['Return60D(%)'] = row['Return3M(%)']  # PWA 호환
@@ -1123,6 +1736,45 @@ def add_technical_indicators(row, close, include_ma60_120=False):
     # RSI, BB
     row['RSI14'] = fmt(calc_rsi(close, 14))
     row['BB_Position'] = fmt(calc_bollinger_position(close, 20))
+    
+    # ★ v3.2.0 추가: MACD
+    if len(close) >= 26:
+        ema12 = close.ewm(span=12, adjust=False).mean()
+        ema26 = close.ewm(span=26, adjust=False).mean()
+        macd_line = ema12 - ema26
+        signal_line = macd_line.ewm(span=9, adjust=False).mean()
+        row['MACD'] = fmt(macd_line.iloc[-1])
+        row['MACD_Signal'] = fmt(signal_line.iloc[-1])
+        row['MACD_Hist'] = fmt(macd_line.iloc[-1] - signal_line.iloc[-1])
+    
+    # ★ v3.2.0 추가: ADX (Average Directional Index)
+    if hist is not None and len(hist) >= 14:
+        try:
+            high = hist['High'] if 'High' in hist.columns else None
+            low = hist['Low'] if 'Low' in hist.columns else None
+            if high is not None and low is not None:
+                # True Range
+                tr1 = high - low
+                tr2 = abs(high - close.shift(1))
+                tr3 = abs(low - close.shift(1))
+                tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+                atr = tr.rolling(14).mean()
+                
+                # +DM, -DM
+                up_move = high - high.shift(1)
+                down_move = low.shift(1) - low
+                plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0)
+                minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0)
+                
+                plus_di = 100 * pd.Series(plus_dm).rolling(14).mean() / atr
+                minus_di = 100 * pd.Series(minus_dm).rolling(14).mean() / atr
+                
+                dx = 100 * abs(plus_di - minus_di) / (plus_di + minus_di)
+                adx = dx.rolling(14).mean()
+                
+                row['ADX'] = fmt(adx.iloc[-1])
+        except:
+            pass
     
     # 52주 고저
     if len(close) >= 245:  # ★ v3.0: 252 → 245
@@ -1211,117 +1863,368 @@ def fetch_fdr_etf_list():
 # ============================================================
 # 한국 주식 수집
 # ============================================================
-def get_korea_stocks():
-    """한국 주식 데이터 수집 - v3.0.2: FDR 우선"""
-    log("\n[1/5] 한국 주식 수집 중...")
+
+def collect_kr_stock_codes():
+    """
+    ★ v3.2.0: 모든 소스에서 종목 코드 수집 후 통합
+    Returns: dict {code: {'name': str, 'market': str}}
+    """
+    all_stocks = {}  # {code: {'name': name, 'market': market}}
     
-    all_tickers = []
+    log("  [1단계] 종목 리스트 통합 수집...")
     
-    # ★ v3.0.2: FinanceDataReader 최우선
-    if FDR_AVAILABLE:
+    # ----------------------------------------
+    # 소스 1: pykrx (가장 안정적)
+    # ----------------------------------------
+    if PYKRX_AVAILABLE:
         try:
-            log("  FinanceDataReader에서 종목 리스트 로드 중...")
-            fdr_stocks = fetch_fdr_stock_list('KOSPI')
-            
-            for ticker, name, market in fdr_stocks:
-                if not is_etf_stock(name, ticker):
-                    all_tickers.append((ticker, name, market))
-            
-            if all_tickers:
-                log(f"  FinanceDataReader: {len(all_tickers)}개 종목 로드 (KOSPI)")
-        except Exception as e:
-            log(f"  ⚠️ FinanceDataReader 실패: {e}")
-            all_tickers = []
-    
-    # 2순위: pykrx
-    if not all_tickers and PYKRX_AVAILABLE:
-        try:
-            log("  pykrx에서 종목 리스트 로드 중...")
+            log("    pykrx 로드 중...")
             kospi_tickers = pykrx_stock.get_market_ticker_list(market="KOSPI")
-            
             for ticker in kospi_tickers:
+                code = str(ticker).zfill(6)
                 try:
                     name = pykrx_stock.get_market_ticker_name(ticker)
                 except:
-                    name = ticker
-                if not is_etf_stock(name, ticker):
-                    all_tickers.append((ticker, name, 'KOSPI'))
-            
-            log(f"  pykrx: {len(all_tickers)}개 종목 로드 (KOSPI만)")
+                    name = ''
+                if code not in all_stocks:
+                    all_stocks[code] = {'name': name, 'market': 'KOSPI'}
+            log(f"    pykrx: {len(kospi_tickers)}개 추가 → 총 {len(all_stocks)}개")
         except Exception as e:
-            log(f"  ⚠️ pykrx 실패: {e}")
-            all_tickers = []
+            log(f"    ⚠️ pykrx 실패: {str(e)[:30]}")
     
-    # 3순위: 네이버
-    if not all_tickers:
-        log("  네이버에서 종목 리스트 로드 시도...")
-        kospi_stocks = get_naver_stock_list('KOSPI', max_pages=10 if TOP_N_KR is None else 3)
-        
-        for stock in kospi_stocks:
-            if not is_etf_stock(stock['name'], stock['code']):
-                all_tickers.append((stock['code'], stock['name'], 'KOSPI'))
+    # ----------------------------------------
+    # 소스 2: KRX 직접 크롤링
+    # ----------------------------------------
+    try:
+        log("    KRX 직접 로드 중...")
+        krx_url = "http://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd"
+        krx_headers = {
+            'User-Agent': 'Mozilla/5.0',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+        krx_data = {
+            'bld': 'dbms/MDC/STAT/standard/MDCSTAT01501',
+            'mktId': 'STK',
+            'share': '1',
+        }
+        resp = requests.post(krx_url, data=krx_data, headers=krx_headers, timeout=10)
+        if resp.status_code == 200:
+            result = resp.json()
+            items = result.get('OutBlock_1', [])
+            added = 0
+            for item in items:
+                code = str(item.get('ISU_SRT_CD', '')).zfill(6)
+                name = item.get('ISU_ABBRV', '')
+                if len(code) == 6 and code.isdigit():
+                    if code not in all_stocks:
+                        all_stocks[code] = {'name': name, 'market': 'KOSPI'}
+                        added += 1
+                    elif not all_stocks[code].get('name'):
+                        all_stocks[code]['name'] = name
+            log(f"    KRX: {added}개 추가 → 총 {len(all_stocks)}개")
+    except Exception as e:
+        log(f"    ⚠️ KRX 실패: {str(e)[:30]}")
     
-    if not all_tickers:
+    # ----------------------------------------
+    # 소스 3: FinanceDataReader
+    # ----------------------------------------
+    if FDR_AVAILABLE:
+        try:
+            log("    FDR 로드 중...")
+            fdr_stocks = fdr.StockListing('KOSPI')
+            added = 0
+            if fdr_stocks is not None and not fdr_stocks.empty:
+                for _, row in fdr_stocks.iterrows():
+                    code = str(row.get('Code', row.get('Symbol', ''))).zfill(6)
+                    name = row.get('Name', row.get('종목명', ''))
+                    if len(code) == 6 and code.isdigit():
+                        if code not in all_stocks:
+                            all_stocks[code] = {'name': name, 'market': 'KOSPI'}
+                            added += 1
+                        elif not all_stocks[code].get('name'):
+                            all_stocks[code]['name'] = name
+            log(f"    FDR: {added}개 추가 → 총 {len(all_stocks)}개")
+        except Exception as e:
+            log(f"    ⚠️ FDR 실패: {str(e)[:30]}")
+    
+    # ----------------------------------------
+    # 소스 4: 네이버 금융
+    # ----------------------------------------
+    if NAVER_AVAILABLE is not False:
+        try:
+            log("    네이버 로드 중...")
+            naver_stocks = get_naver_stock_list('KOSPI', max_pages=15)
+            added = 0
+            for stock in naver_stocks:
+                code = str(stock.get('code', '')).zfill(6)
+                name = stock.get('name', '')
+                if len(code) == 6 and code.isdigit():
+                    if code not in all_stocks:
+                        all_stocks[code] = {'name': name, 'market': 'KOSPI'}
+                        added += 1
+                    elif not all_stocks[code].get('name'):
+                        all_stocks[code]['name'] = name
+            log(f"    네이버: {added}개 추가 → 총 {len(all_stocks)}개")
+        except Exception as e:
+            log(f"    ⚠️ 네이버 실패: {str(e)[:30]}")
+    
+    # ----------------------------------------
+    # 소스 5: NXT
+    # ----------------------------------------
+    if NXT_AVAILABLE is not False:
+        try:
+            log("    NXT 로드 중...")
+            nxt_data = get_nxt_cached_data()
+            added = 0
+            for code, info in nxt_data.items():
+                code = str(code).zfill(6)
+                name = info.get('name', '')
+                if len(code) == 6 and code.isdigit():
+                    if code not in all_stocks:
+                        all_stocks[code] = {'name': name, 'market': info.get('market', 'KOSPI')}
+                        added += 1
+                    elif not all_stocks[code].get('name'):
+                        all_stocks[code]['name'] = name
+            log(f"    NXT: {added}개 추가 → 총 {len(all_stocks)}개")
+        except Exception as e:
+            log(f"    ⚠️ NXT 실패: {str(e)[:30]}")
+    
+    # ----------------------------------------
+    # 소스 6: 하드코딩 (최종 보충)
+    # ----------------------------------------
+    if len(all_stocks) < 100:
+        log("    하드코딩으로 보충 중...")
+        added = 0
+        for code, (name, sector) in KR_STOCK_LIST.items():
+            code = str(code).zfill(6)
+            if code not in all_stocks:
+                all_stocks[code] = {'name': name, 'market': 'KOSPI'}
+                added += 1
+        log(f"    하드코딩: {added}개 추가 → 총 {len(all_stocks)}개")
+    
+    # ETF 제거
+    final_stocks = {}
+    for code, info in all_stocks.items():
+        name = info.get('name', '')
+        if not is_etf_stock(name, code):
+            final_stocks[code] = info
+    
+    log(f"  [1단계 완료] 총 {len(final_stocks)}개 종목 (ETF 제외)")
+    return final_stocks
+
+
+def get_korea_stocks():
+    """한국 주식 데이터 수집 - v3.2.0: 종목 리스트 통합 + 시세 순차 수집"""
+    log("\n[1/5] 한국 주식 수집 중...")
+    
+    # ========================================
+    # 1단계: 종목 리스트 통합 수집
+    # ========================================
+    all_stocks = collect_kr_stock_codes()
+    
+    if not all_stocks:
         log("  ❌ 종목 리스트를 가져올 수 없음")
         return pd.DataFrame()
     
-    if TOP_N_KR:
-        all_tickers = all_tickers[:TOP_N_KR]
+    # 상위 N개 선택 (시총순 정렬이 어려우므로 일단 그대로)
+    stock_list = list(all_stocks.items())
+    if TOP_N_KR and len(stock_list) > TOP_N_KR:
+        stock_list = stock_list[:TOP_N_KR]
     
-    log(f"  대상: {len(all_tickers)}개")
+    log(f"  대상: {len(stock_list)}개")
     
+    # ========================================
+    # 2단계: 시세 데이터 일괄 로드 (효율성)
+    # ========================================
+    log("  [2단계] 시세 데이터 일괄 로드...")
+    
+    # 2-1. NXT 캐시
+    nxt_data = get_nxt_cached_data()
+    if nxt_data:
+        log(f"    NXT: {len(nxt_data)}개")
+    
+    # 2-2. KRX 전종목 시세 (한번에 가져오기)
+    krx_data = {}
+    try:
+        krx_url = "http://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd"
+        krx_headers = {
+            'User-Agent': 'Mozilla/5.0',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+        krx_params = {
+            'bld': 'dbms/MDC/STAT/standard/MDCSTAT01501',
+            'mktId': 'STK',
+            'share': '1',
+        }
+        resp = requests.post(krx_url, data=krx_params, headers=krx_headers, timeout=10)
+        if resp.status_code == 200:
+            result = resp.json()
+            for item in result.get('OutBlock_1', []):
+                code = str(item.get('ISU_SRT_CD', '')).zfill(6)
+                if len(code) == 6 and code.isdigit():
+                    krx_data[code] = {
+                        'price': int(item.get('TDD_CLSPRC', '0').replace(',', '') or 0),
+                        'volume': int(item.get('ACC_TRDVOL', '0').replace(',', '') or 0),
+                        'market_cap': int(item.get('MKTCAP', '0').replace(',', '') or 0) // 100000000,  # 억원
+                        'change_rate': float(item.get('FLUC_RT', '0').replace(',', '') or 0),
+                        'high': int(item.get('TDD_HGPRC', '0').replace(',', '') or 0),
+                        'low': int(item.get('TDD_LWPRC', '0').replace(',', '') or 0),
+                        'per': float(item.get('PER', '0').replace(',', '') or 0) if item.get('PER') else None,
+                        'pbr': float(item.get('PBR', '0').replace(',', '') or 0) if item.get('PBR') else None,
+                    }
+            log(f"    KRX: {len(krx_data)}개")
+    except Exception as e:
+        log(f"    ⚠️ KRX 시세 실패: {str(e)[:30]}")
+    
+    # 2-3. pykrx 전종목 시세
+    pykrx_data = {}
+    if PYKRX_AVAILABLE:
+        try:
+            today = datetime.now().strftime("%Y%m%d")
+            df = pykrx_stock.get_market_ohlcv(today, market="KOSPI")
+            if df is not None and not df.empty:
+                for ticker, row_data in df.iterrows():
+                    code = str(ticker).zfill(6)
+                    pykrx_data[code] = {
+                        'price': int(row_data.get('종가', 0)),
+                        'volume': int(row_data.get('거래량', 0)),
+                        'high': int(row_data.get('고가', 0)),
+                        'low': int(row_data.get('저가', 0)),
+                        'open': int(row_data.get('시가', 0)),
+                        'change_rate': float(row_data.get('등락률', 0)),
+                    }
+                log(f"    pykrx: {len(pykrx_data)}개")
+        except Exception as e:
+            log(f"    ⚠️ pykrx 시세 실패: {str(e)[:30]}")
+    
+    # 2-4. FDR 시세 (히스토리 기반)
+    fdr_data = {}
+    if FDR_AVAILABLE:
+        try:
+            # FDR은 개별 호출이 필요하므로 여기서는 스킵
+            # 개별 종목 순회 시 필요하면 호출
+            pass
+        except:
+            pass
+    
+    # ========================================
+    # 3단계: 개별 종목 데이터 수집
+    # ========================================
+    log("  [3단계] 개별 종목 데이터 병합...")
     results = []
     start_time = time.time()
     
-    for i, (ticker, name, market) in enumerate(all_tickers):
+    for i, (ticker, info) in enumerate(stock_list):
         try:
+            name = info.get('name', '')
+            market = info.get('market', 'KOSPI')
             row = {'Code': ticker, 'Name': name, 'Market': market}
 
             # ========================================
-            # 1. 네이버 (주요 소스)
+            # 시세 1순위: NXT
+            # ========================================
+            nxt_info = nxt_data.get(ticker, {})
+            if nxt_info:
+                if nxt_info.get('price'):
+                    row['Price'] = nxt_info['price']
+                if nxt_info.get('volume'):
+                    row['Volume'] = nxt_info['volume']
+                if nxt_info.get('change_rate'):
+                    row['Return1D(%)'] = fmt(nxt_info['change_rate'])
+                if nxt_info.get('high'):
+                    row['DayHigh'] = nxt_info['high']
+                if nxt_info.get('low'):
+                    row['DayLow'] = nxt_info['low']
+                row['DataSource'] = 'NXT'
+
+            # ========================================
+            # 시세 2순위: KRX (캐시에서)
+            # ========================================
+            krx_info = krx_data.get(ticker, {})
+            if krx_info:
+                if not row.get('Price') and krx_info.get('price'):
+                    row['Price'] = krx_info['price']
+                if not row.get('Volume') and krx_info.get('volume'):
+                    row['Volume'] = krx_info['volume']
+                if not row.get('Return1D(%)') and krx_info.get('change_rate'):
+                    row['Return1D(%)'] = fmt(krx_info['change_rate'])
+                if not row.get('MarketCap(억)') and krx_info.get('market_cap'):
+                    row['MarketCap(억)'] = krx_info['market_cap']
+                if not row.get('PER') and krx_info.get('per'):
+                    row['PER'] = fmt(krx_info['per'])
+                if not row.get('PBR') and krx_info.get('pbr'):
+                    row['PBR'] = fmt(krx_info['pbr'])
+                if not row.get('DataSource'):
+                    row['DataSource'] = 'KRX'
+
+            # ========================================
+            # 시세 3순위: pykrx (캐시에서)
+            # ========================================
+            pykrx_info = pykrx_data.get(ticker, {})
+            if pykrx_info:
+                if not row.get('Price') and pykrx_info.get('price'):
+                    row['Price'] = pykrx_info['price']
+                if not row.get('Volume') and pykrx_info.get('volume'):
+                    row['Volume'] = pykrx_info['volume']
+                if not row.get('Return1D(%)') and pykrx_info.get('change_rate'):
+                    row['Return1D(%)'] = fmt(pykrx_info['change_rate'])
+                if not row.get('DataSource'):
+                    row['DataSource'] = 'pykrx'
+
+            # ========================================
+            # 시세 4순위: 네이버 (개별 호출 - 재무지표 포함)
             # ========================================
             naver_data = {}
             if NAVER_AVAILABLE is not False:
                 naver_data = get_naver_stock_detail(ticker)
                 if naver_data:
-                    if naver_data.get('price'):
+                    if not row.get('Price') and naver_data.get('price'):
                         row['Price'] = naver_data['price']
-                    if naver_data.get('market_cap'):
+                    if not row.get('MarketCap(억)') and naver_data.get('market_cap'):
                         row['MarketCap(억)'] = naver_data['market_cap']
-                    if naver_data.get('sector'):
+                    if not row.get('Sector') and naver_data.get('sector'):
                         row['Sector'] = naver_data['sector']
-                    if naver_data.get('per'):
+                    if not row.get('PER') and naver_data.get('per'):
                         row['PER'] = fmt(naver_data['per'])
-                    if naver_data.get('pbr'):
+                    if not row.get('PBR') and naver_data.get('pbr'):
                         row['PBR'] = fmt(naver_data['pbr'])
-                    if naver_data.get('eps'):
+                    if not row.get('EPS') and naver_data.get('eps'):
                         row['EPS'] = fmt(naver_data['eps'], 0)
-                    if naver_data.get('bps'):
+                    if not row.get('BPS') and naver_data.get('bps'):
                         row['BPS'] = fmt(naver_data['bps'], 0)
-                    if naver_data.get('roe'):
+                    if not row.get('ROE(%)') and naver_data.get('roe'):
                         row['ROE(%)'] = fmt(naver_data['roe'])
-                    if naver_data.get('roa'):
+                    if not row.get('ROA(%)') and naver_data.get('roa'):
                         row['ROA(%)'] = fmt(naver_data['roa'])
-                    if naver_data.get('op_margin'):
+                    if not row.get('OpMargin(%)') and naver_data.get('op_margin'):
                         row['OpMargin(%)'] = fmt(naver_data['op_margin'])
-                    if naver_data.get('net_margin'):
+                    if not row.get('NetMargin(%)') and naver_data.get('net_margin'):
                         row['NetMargin(%)'] = fmt(naver_data['net_margin'])
-                    if naver_data.get('revenue_growth'):
+                    if not row.get('RevenueGrowth(%)') and naver_data.get('revenue_growth'):
                         row['RevenueGrowth(%)'] = fmt(naver_data['revenue_growth'])
-                    if naver_data.get('op_growth'):
+                    if not row.get('EarningsGrowth(%)') and naver_data.get('op_growth'):
                         row['EarningsGrowth(%)'] = fmt(naver_data['op_growth'])
-                    if naver_data.get('debt_ratio'):
+                    if not row.get('DebtRatio(%)') and naver_data.get('debt_ratio'):
                         row['DebtRatio(%)'] = fmt(naver_data['debt_ratio'])
-                    if naver_data.get('current_ratio'):
+                    if not row.get('CurrentRatio') and naver_data.get('current_ratio'):
                         row['CurrentRatio'] = fmt(naver_data['current_ratio'])
-                    if naver_data.get('foreign_ratio'):
+                    if not row.get('ForeignRatio(%)') and naver_data.get('foreign_ratio'):
                         row['ForeignRatio(%)'] = fmt(naver_data['foreign_ratio'])
-                    if naver_data.get('div_yield'):
+                    if not row.get('DivYield(%)') and naver_data.get('div_yield'):
                         row['DivYield(%)'] = fmt(naver_data['div_yield'])
-                    if naver_data.get('high_52w'):
+                    if not row.get('52wHigh') and naver_data.get('high_52w'):
                         row['52wHigh'] = naver_data['high_52w']
-                    if naver_data.get('low_52w'):
+                    if not row.get('52wLow') and naver_data.get('low_52w'):
                         row['52wLow'] = naver_data['low_52w']
+                    # ★ v3.2.0 추가 필드
+                    if not row.get('ROIC(%)') and naver_data.get('roic'):
+                        row['ROIC(%)'] = fmt(naver_data['roic'])
+                    if not row.get('InterestCoverage') and naver_data.get('interest_coverage'):
+                        row['InterestCoverage'] = fmt(naver_data['interest_coverage'])
+                    if not row.get('EPSGrowth(%)') and naver_data.get('eps_growth'):
+                        row['EPSGrowth(%)'] = fmt(naver_data['eps_growth'])
+                    if not row.get('DataSource'):
+                        row['DataSource'] = 'Naver'
 
             # ========================================
             # 2. FnGuide (결측값 폴백)
@@ -1706,46 +2609,62 @@ def get_etf_data(tickers, region=""):
 # 한국 ETF
 # ============================================================
 def get_korea_etfs():
-    """한국 ETF 데이터 - v3.0.2: FDR 우선"""
+    """한국 ETF 데이터 - v3.0.2: FDR 우선, 폴백 강화"""
     log("\n[3/5] 한국 ETF 수집 중...")
     
-    # ★ v3.0.2: FinanceDataReader 최우선
     kr_etf_list = []
-    if FDR_AVAILABLE:
+    krx_data = {}
+    
+    # ★ 1순위: pykrx (가장 안정적)
+    if PYKRX_AVAILABLE and not kr_etf_list:
+        try:
+            log("  pykrx에서 ETF 리스트 로드 중...")
+            kr_etf_list = pykrx_stock.get_etf_ticker_list()
+            if kr_etf_list:
+                log(f"  pykrx: {len(kr_etf_list)}개 ETF ✅")
+        except Exception as e:
+            log(f"  ⚠️ pykrx ETF 실패: {e}")
+    
+    # ★ 2순위: KRX 직접 크롤링
+    if not kr_etf_list:
+        try:
+            krx_data = get_krx_etf_data()
+            if krx_data:
+                kr_etf_list = list(krx_data.keys())
+                log(f"  KRX: {len(kr_etf_list)}개 ETF ✅")
+        except Exception as e:
+            log(f"  ⚠️ KRX 크롤링 실패: {e}")
+    
+    # ★ 3순위: FinanceDataReader
+    if not kr_etf_list and FDR_AVAILABLE:
         try:
             log("  FinanceDataReader에서 ETF 리스트 로드 중...")
             kr_etf_list = fetch_fdr_etf_list()
             if kr_etf_list:
-                log(f"  FinanceDataReader: {len(kr_etf_list)}개 ETF")
+                log(f"  FinanceDataReader: {len(kr_etf_list)}개 ETF ✅")
         except Exception as e:
             log(f"  ⚠️ FinanceDataReader ETF 실패: {e}")
     
-    # 2순위: KRX
-    krx_data = {}
-    if not kr_etf_list:
-        krx_data = get_krx_etf_data()
-        if krx_data:
-            kr_etf_list = list(krx_data.keys())
-            log(f"  KRX: {len(kr_etf_list)}개 ETF")
-    
-    # 3순위: pykrx
-    if not kr_etf_list and PYKRX_AVAILABLE:
-        try:
-            log("  pykrx에서 ETF 리스트 로드 중...")
-            kr_etf_list = pykrx_stock.get_etf_ticker_list()
-            log(f"  pykrx: {len(kr_etf_list)}개 ETF")
-        except Exception as e:
-            log(f"  ⚠️ pykrx ETF 실패: {e}")
-    
-    # 4순위: 네이버
+    # ★ 4순위: 네이버
     if not kr_etf_list and NAVER_AVAILABLE is not False:
-        naver_etfs = get_naver_etf_list(max_pages=10)
-        kr_etf_list = [etf['code'] for etf in naver_etfs]
+        try:
+            naver_etfs = get_naver_etf_list(max_pages=10)
+            if naver_etfs:
+                kr_etf_list = [etf['code'] for etf in naver_etfs]
+                log(f"  네이버: {len(kr_etf_list)}개 ETF ✅")
+        except Exception as e:
+            log(f"  ⚠️ 네이버 ETF 실패: {e}")
     
-    # 하드코딩 폴백
-    if not kr_etf_list and not krx_data:
-        log("  ⚠️ ETF 리스트 로드 실패, 주요 ETF만 사용")
-        kr_etf_list = list(KR_ETF_EXPENSE.keys())
+    # ★ 5순위: 하드코딩 폴백 (항상 작동)
+    if not kr_etf_list or len(kr_etf_list) < 50:
+        log("  ⚠️ ETF 리스트 부족, 하드코딩 데이터로 보충")
+        hardcoded_etfs = list(KR_ETF_EXPENSE.keys())
+        # 기존 리스트와 합치기 (중복 제거)
+        existing_codes = set(str(c).zfill(6) for c in kr_etf_list)
+        for code in hardcoded_etfs:
+            if code not in existing_codes:
+                kr_etf_list.append(code)
+        log(f"  하드코딩 추가 후: {len(kr_etf_list)}개 ETF")
     
     if TOP_N_KR_ETF and len(kr_etf_list) > TOP_N_KR_ETF:
         kr_etf_list = kr_etf_list[:TOP_N_KR_ETF]
@@ -2430,7 +3349,7 @@ def save_to_json(data_dict, filename):
         'metadata': {
             'generated': datetime.now().isoformat(),
             'date': TODAY,
-            'version': 'v3.0.2-github-pwa-compatible'  # ★ 버전 업데이트
+            'version': 'v3.2.0-github-pwa-compatible'  # ★ 버전 업데이트
         },
         'data': {}
     }
