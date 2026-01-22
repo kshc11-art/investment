@@ -2,8 +2,8 @@ name: Global Stock Screener
 
 on:
   schedule:
-    # 매일 UTC 08:00 (KST 17:00) 실행 - 한국/미국 장 마감 후
-    - cron: '0 8 * * *'
+    # 매일 UTC 23:00 (KST 08:00) 실행 - NXT 프리마켓 직후, 최신 데이터
+    - cron: '0 23 * * *'
     # 주중 UTC 14:00 (KST 23:00) 추가 실행 - 미국 장 마감 후
     - cron: '0 14 * * 1-5'
   workflow_dispatch:  # 수동 실행 가능
