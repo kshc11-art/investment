@@ -4,6 +4,8 @@ on:
   schedule:
     # 매일 UTC 23:00 (KST 08:00) 실행 - NXT 프리마켓 직후, 최신 데이터
     - cron: '0 23 * * *'
+    # 주중 UTC 14:00 (KST 23:00) 추가 실행 - 미국 장 마감 후
+    - cron: '0 14 * * 1-5'
   workflow_dispatch:  # 수동 실행 가능
     inputs:
       full_run:
@@ -36,11 +38,11 @@ jobs:
         env:
           TZ: Asia/Seoul
         run: |
-          echo "🚀 글로벌 스크리너 v3.1시작"
+          echo "🚀 글로벌 스크리너 v3.0.2 시작"
           echo "현재 시간: $(date)"
           
           # JSON만 출력 (PWA용)
-          python global_screener_github.py --json-only --output-dir ./data
+          python global_screener_v3.py --json-only --output-dir ./data
           
           echo "✅ 완료"
           ls -la ./data/
