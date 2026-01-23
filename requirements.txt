@@ -9,3 +9,4 @@ beautifulsoup4>=4.12.0
 lxml>=4.9.0
 openpyxl>=3.1.0
 pykrx>=1.0.45
+finance-datareader>=0.9.101
