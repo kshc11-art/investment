@@ -2199,59 +2199,72 @@ def get_korea_stocks():
                     pass
 
             # ========================================
-            # 5. 네이버 (재무지표 - 필수)
+            # 5. 네이버 (재무지표 - 조건부)
             # ========================================
+            # ★ 성능 최적화: Price가 이미 있으면 재무지표가 필요한 경우만 호출
+            need_naver = (
+                not row.get('Price') or  # 가격 없음
+                not row.get('PER') or    # 밸류에이션 없음
+                not row.get('ROE(%)')    # 재무지표 없음
+            )
+            
             naver_data = {}
-            if NAVER_AVAILABLE is not False:
-                naver_data = get_naver_stock_detail(ticker)
-                if naver_data:
-                    if not row.get('Price') and naver_data.get('price'):
-                        row['Price'] = naver_data['price']
-                    if not row.get('MarketCap(억)') and naver_data.get('market_cap'):
-                        row['MarketCap(억)'] = naver_data['market_cap']
-                    if not row.get('Sector') and naver_data.get('sector'):
-                        row['Sector'] = naver_data['sector']
-                    if not row.get('PER') and naver_data.get('per'):
-                        row['PER'] = fmt(naver_data['per'])
-                    if not row.get('PBR') and naver_data.get('pbr'):
-                        row['PBR'] = fmt(naver_data['pbr'])
-                    if not row.get('EPS') and naver_data.get('eps'):
-                        row['EPS'] = fmt(naver_data['eps'], 0)
-                    if not row.get('BPS') and naver_data.get('bps'):
-                        row['BPS'] = fmt(naver_data['bps'], 0)
-                    if not row.get('ROE(%)') and naver_data.get('roe'):
-                        row['ROE(%)'] = fmt(naver_data['roe'])
-                    if not row.get('ROA(%)') and naver_data.get('roa'):
-                        row['ROA(%)'] = fmt(naver_data['roa'])
-                    if not row.get('OpMargin(%)') and naver_data.get('op_margin'):
-                        row['OpMargin(%)'] = fmt(naver_data['op_margin'])
-                    if not row.get('NetMargin(%)') and naver_data.get('net_margin'):
-                        row['NetMargin(%)'] = fmt(naver_data['net_margin'])
-                    if not row.get('RevenueGrowth(%)') and naver_data.get('revenue_growth'):
-                        row['RevenueGrowth(%)'] = fmt(naver_data['revenue_growth'])
-                    if not row.get('EarningsGrowth(%)') and naver_data.get('op_growth'):
-                        row['EarningsGrowth(%)'] = fmt(naver_data['op_growth'])
-                    if not row.get('DebtRatio(%)') and naver_data.get('debt_ratio'):
-                        row['DebtRatio(%)'] = fmt(naver_data['debt_ratio'])
-                    if not row.get('CurrentRatio') and naver_data.get('current_ratio'):
-                        row['CurrentRatio'] = fmt(naver_data['current_ratio'])
-                    if not row.get('ForeignRatio(%)') and naver_data.get('foreign_ratio'):
-                        row['ForeignRatio(%)'] = fmt(naver_data['foreign_ratio'])
-                    if not row.get('DivYield(%)') and naver_data.get('div_yield'):
-                        row['DivYield(%)'] = fmt(naver_data['div_yield'])
-                    if not row.get('52wHigh') and naver_data.get('high_52w'):
-                        row['52wHigh'] = naver_data['high_52w']
-                    if not row.get('52wLow') and naver_data.get('low_52w'):
-                        row['52wLow'] = naver_data['low_52w']
-                    # ★ v3.2.0 추가 필드
-                    if not row.get('ROIC(%)') and naver_data.get('roic'):
-                        row['ROIC(%)'] = fmt(naver_data['roic'])
-                    if not row.get('InterestCoverage') and naver_data.get('interest_coverage'):
-                        row['InterestCoverage'] = fmt(naver_data['interest_coverage'])
-                    if not row.get('EPSGrowth(%)') and naver_data.get('eps_growth'):
-                        row['EPSGrowth(%)'] = fmt(naver_data['eps_growth'])
-                    if not row.get('DataSource'):
-                        row['DataSource'] = 'Naver'
+            if need_naver and NAVER_AVAILABLE is not False:
+                try:
+                    naver_data = get_naver_stock_detail(ticker)
+                    if naver_data:
+                        if not row.get('Price') and naver_data.get('price'):
+                            row['Price'] = naver_data['price']
+                        if not row.get('MarketCap(억)') and naver_data.get('market_cap'):
+                            row['MarketCap(억)'] = naver_data['market_cap']
+                        if not row.get('Sector') and naver_data.get('sector'):
+                            row['Sector'] = naver_data['sector']
+                        if not row.get('PER') and naver_data.get('per'):
+                            row['PER'] = fmt(naver_data['per'])
+                        if not row.get('PBR') and naver_data.get('pbr'):
+                            row['PBR'] = fmt(naver_data['pbr'])
+                        if not row.get('EPS') and naver_data.get('eps'):
+                            row['EPS'] = fmt(naver_data['eps'], 0)
+                        if not row.get('BPS') and naver_data.get('bps'):
+                            row['BPS'] = fmt(naver_data['bps'], 0)
+                        if not row.get('ROE(%)') and naver_data.get('roe'):
+                            row['ROE(%)'] = fmt(naver_data['roe'])
+                        if not row.get('ROA(%)') and naver_data.get('roa'):
+                            row['ROA(%)'] = fmt(naver_data['roa'])
+                        if not row.get('OpMargin(%)') and naver_data.get('op_margin'):
+                            row['OpMargin(%)'] = fmt(naver_data['op_margin'])
+                        if not row.get('NetMargin(%)') and naver_data.get('net_margin'):
+                            row['NetMargin(%)'] = fmt(naver_data['net_margin'])
+                        if not row.get('RevenueGrowth(%)') and naver_data.get('revenue_growth'):
+                            row['RevenueGrowth(%)'] = fmt(naver_data['revenue_growth'])
+                        if not row.get('EarningsGrowth(%)') and naver_data.get('op_growth'):
+                            row['EarningsGrowth(%)'] = fmt(naver_data['op_growth'])
+                        if not row.get('DebtRatio(%)') and naver_data.get('debt_ratio'):
+                            row['DebtRatio(%)'] = fmt(naver_data['debt_ratio'])
+                        if not row.get('CurrentRatio') and naver_data.get('current_ratio'):
+                            row['CurrentRatio'] = fmt(naver_data['current_ratio'])
+                        if not row.get('ForeignRatio(%)') and naver_data.get('foreign_ratio'):
+                            row['ForeignRatio(%)'] = fmt(naver_data['foreign_ratio'])
+                        if not row.get('DivYield(%)') and naver_data.get('div_yield'):
+                            row['DivYield(%)'] = fmt(naver_data['div_yield'])
+                        if not row.get('52wHigh') and naver_data.get('high_52w'):
+                            row['52wHigh'] = naver_data['high_52w']
+                        if not row.get('52wLow') and naver_data.get('low_52w'):
+                            row['52wLow'] = naver_data['low_52w']
+                        # ★ v3.2.0 추가 필드
+                        if not row.get('ROIC(%)') and naver_data.get('roic'):
+                            row['ROIC(%)'] = fmt(naver_data['roic'])
+                        if not row.get('InterestCoverage') and naver_data.get('interest_coverage'):
+                            row['InterestCoverage'] = fmt(naver_data['interest_coverage'])
+                        if not row.get('EPSGrowth(%)') and naver_data.get('eps_growth'):
+                            row['EPSGrowth(%)'] = fmt(naver_data['eps_growth'])
+                        if not row.get('DataSource'):
+                            row['DataSource'] = 'Naver'
+                except Exception as e:
+                    # 네이버 타임아웃/오류 시 계속 진행
+                    if i < 5:
+                        log(f"    ⚠️ 네이버 실패: {ticker} - {str(e)[:30]}")
+                    pass
 
             # ========================================
             # 6. FnGuide (재무지표 보충)
@@ -2308,32 +2321,20 @@ def get_korea_stocks():
                     pass
 
             # ========================================
-            # 8. yfinance (폴백)
+            # 8. yfinance (폴백 - hist 없을 때만)
             # ========================================
             info = {}
             
             if hist.empty:
-                ticker_variants = [f"{ticker}.KS"]
-                t, hist, info = try_multiple_tickers(ticker_variants, max_retries=1)
-            else:
-                # FDR 성공 시에도 yfinance info는 가져옴 (재무 데이터용)
+                # hist가 없을 때만 yfinance 시도
                 try:
-                    t = yf.Ticker(f"{ticker}.KS")
-                    info = t.info or {}
+                    ticker_variants = [f"{ticker}.KS"]
+                    t, hist, info = try_multiple_tickers(ticker_variants, max_retries=1)
                 except:
-                    info = {}
-            
-            if hist.empty:
-                ticker_variants = [f"{ticker}.KS"]
-                t, hist, info = try_multiple_tickers(ticker_variants, max_retries=1)
-            else:
-                # FDR 성공 시에도 yfinance info는 가져옴 (재무 데이터용)
-                try:
-                    t = yf.Ticker(f"{ticker}.KS")
-                    info = t.info or {}
-                except:
-                    info = {}
+                    pass
+            # ★ FDR 성공 시 yfinance info 스킵 (이미 KRX, 네이버에서 데이터 확보)
 
+            # yfinance info로 결측값 보충 (hist 없을 때만 info가 있음)
             if not row.get('Price'):
                 row['Price'] = fmt(safe_get(info, 'regularMarketPrice'))
             if not row.get('Sector'):
