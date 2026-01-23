@@ -2383,13 +2383,13 @@ def get_korea_stocks():
         except Exception as e:
             results.append({'Code': ticker, 'Name': name, 'Market': market, 'Remark': str(e)[:30]})
         
-        if (i + 1) % 10 == 0 or i == 0:
+        if (i + 1) % 30 == 0 or i == 0:
             elapsed = time.time() - start_time
             per_stock = elapsed / (i + 1) if i > 0 else 0
             remaining = per_stock * (len(stock_list) - i - 1)
             log(f"  진행: {i+1}/{len(stock_list)} ({(i+1)/len(stock_list)*100:.0f}%) - 남은시간: {remaining/60:.1f}분")
         
-        time.sleep(0.02)
+        time.sleep(0.01)  # 0.02 → 0.01로 단축
     
     log(f"  ✅ 완료: {len(results)}개")
     return pd.DataFrame(results)
