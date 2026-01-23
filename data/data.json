@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated": "2026-01-23T14:00:03.365728",
+    "generated": "2026-01-23T16:02:34.973933",
     "date": "20260123",
     "version": "v3.2.0-github-pwa-compatible"
   },
@@ -97,14 +97,14 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "012330",
-        "Name": "현대모비스",
+        "Code": "035420",
+        "Name": "NAVER",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "035420",
-        "Name": "NAVER",
+        "Code": "012330",
+        "Name": "현대모비스",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -163,14 +163,14 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "010140",
-        "Name": "삼성중공업",
+        "Code": "035720",
+        "Name": "카카오",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "035720",
-        "Name": "카카오",
+        "Code": "010140",
+        "Name": "삼성중공업",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -199,14 +199,14 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "034730",
-        "Name": "SK",
+        "Code": "316140",
+        "Name": "우리금융지주",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "316140",
-        "Name": "우리금융지주",
+        "Code": "034730",
+        "Name": "SK",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -217,14 +217,14 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "267250",
-        "Name": "HD현대",
+        "Code": "006800",
+        "Name": "미래에셋증권",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "006800",
-        "Name": "미래에셋증권",
+        "Code": "267250",
+        "Name": "HD현대",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -241,14 +241,14 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "096770",
-        "Name": "SK이노베이션",
+        "Code": "086280",
+        "Name": "현대글로비스",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "086280",
-        "Name": "현대글로비스",
+        "Code": "096770",
+        "Name": "SK이노베이션",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -265,14 +265,14 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "272210",
-        "Name": "한화시스템",
+        "Code": "033780",
+        "Name": "KT&G",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "033780",
-        "Name": "KT&G",
+        "Code": "272210",
+        "Name": "한화시스템",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -301,14 +301,14 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "010120",
-        "Name": "LS ELECTRIC",
+        "Code": "000150",
+        "Name": "두산",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "000150",
-        "Name": "두산",
+        "Code": "010120",
+        "Name": "LS ELECTRIC",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -325,14 +325,14 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "017670",
-        "Name": "SK텔레콤",
+        "Code": "018260",
+        "Name": "삼성에스디에스",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "018260",
-        "Name": "삼성에스디에스",
+        "Code": "017670",
+        "Name": "SK텔레콤",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -361,6 +361,12 @@
         "Remark": "name 'hist' is not defined"
       },
       {
+        "Code": "323410",
+        "Name": "카카오뱅크",
+        "Market": "KOSPI",
+        "Remark": "name 'hist' is not defined"
+      },
+      {
         "Code": "010950",
         "Name": "S-Oil",
         "Market": "KOSPI",
@@ -379,12 +385,6 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "323410",
-        "Name": "카카오뱅크",
-        "Market": "KOSPI",
-        "Remark": "name 'hist' is not defined"
-      },
-      {
         "Code": "278470",
         "Name": "에이피알",
         "Market": "KOSPI",
@@ -397,20 +397,26 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "003230",
-        "Name": "삼양식품",
-        "Market": "KOSPI",
-        "Remark": "name 'hist' is not defined"
-      },
-      {
         "Code": "326030",
         "Name": "SK바이오팜",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
       {
+        "Code": "003230",
+        "Name": "삼양식품",
+        "Market": "KOSPI",
+        "Remark": "name 'hist' is not defined"
+      },
+      {
         "Code": "039490",
         "Name": "키움증권",
+        "Market": "KOSPI",
+        "Remark": "name 'hist' is not defined"
+      },
+      {
+        "Code": "377300",
+        "Name": "카카오페이",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -445,20 +451,14 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "005940",
-        "Name": "NH투자증권",
-        "Market": "KOSPI",
-        "Remark": "name 'hist' is not defined"
-      },
-      {
         "Code": "000100",
         "Name": "유한양행",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "377300",
-        "Name": "카카오페이",
+        "Code": "005940",
+        "Name": "NH투자증권",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -511,14 +511,14 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "011070",
-        "Name": "LG이노텍",
+        "Code": "005385",
+        "Name": "현대차우",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "005385",
-        "Name": "현대차우",
+        "Code": "011070",
+        "Name": "LG이노텍",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -583,12 +583,6 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "001440",
-        "Name": "대한전선",
-        "Market": "KOSPI",
-        "Remark": "name 'hist' is not defined"
-      },
-      {
         "Code": "028050",
         "Name": "삼성E&A",
         "Market": "KOSPI",
@@ -597,6 +591,12 @@
       {
         "Code": "009830",
         "Name": "한화솔루션",
+        "Market": "KOSPI",
+        "Remark": "name 'hist' is not defined"
+      },
+      {
+        "Code": "001440",
+        "Name": "대한전선",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -625,14 +625,14 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "271560",
-        "Name": "오리온",
+        "Code": "175330",
+        "Name": "JB금융지주",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "175330",
-        "Name": "JB금융지주",
+        "Code": "271560",
+        "Name": "오리온",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -703,14 +703,14 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "111770",
-        "Name": "영원무역",
+        "Code": "036460",
+        "Name": "한국가스공사",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "036460",
-        "Name": "한국가스공사",
+        "Code": "111770",
+        "Name": "영원무역",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -817,20 +817,14 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "439260",
-        "Name": "대한조선",
-        "Market": "KOSPI",
-        "Remark": "name 'hist' is not defined"
-      },
-      {
-        "Code": "001430",
-        "Name": "세아베스틸지주",
-        "Market": "KOSPI",
-        "Remark": "name 'hist' is not defined"
-      },
-      {
         "Code": "489790",
         "Name": "한화비전",
+        "Market": "KOSPI",
+        "Remark": "name 'hist' is not defined"
+      },
+      {
+        "Code": "439260",
+        "Name": "대한조선",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -841,8 +835,8 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "005850",
-        "Name": "에스엘",
+        "Code": "001430",
+        "Name": "세아베스틸지주",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -853,14 +847,14 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "051600",
-        "Name": "한전KPS",
+        "Code": "009420",
+        "Name": "한올바이오파마",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "042670",
-        "Name": "HD현대인프라코어",
+        "Code": "005850",
+        "Name": "에스엘",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -871,14 +865,20 @@
         "Remark": "name 'hist' is not defined"
       },
       {
+        "Code": "042670",
+        "Name": "HD현대인프라코어",
+        "Market": "KOSPI",
+        "Remark": "name 'hist' is not defined"
+      },
+      {
         "Code": "004800",
         "Name": "효성",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "009420",
-        "Name": "한올바이오파마",
+        "Code": "051600",
+        "Name": "한전KPS",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
@@ -895,14 +895,14 @@
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "353200",
-        "Name": "대덕전자",
+        "Code": "004370",
+        "Name": "농심",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       },
       {
-        "Code": "336260",
-        "Name": "두산퓨얼셀",
+        "Code": "001450",
+        "Name": "현대해상",
         "Market": "KOSPI",
         "Remark": "name 'hist' is not defined"
       }
@@ -1314,7 +1314,7 @@
         "Code": "0148J0",
         "Region": "KR",
         "Name": "TIGER KOREA HUMANOID ROBOT",
-        "Price": 14355.0,
+        "Price": 13455.0,
         "Category": null,
         "ExpenseRatio(%)": null,
         "DivYield(%)": null,
@@ -1777,7 +1777,7 @@
         "Return1W(%)": -6.63,
         "Return1M(%)": 4.9,
         "Return3M(%)": -24.74,
-        "Return1Y(%)": 3.58,
+        "Return1Y(%)": 4.13,
         "52wHigh": 52.33,
         "52wLow": 13.47,
         "From52wHigh(%)": -70.11,
@@ -1790,11 +1790,11 @@
         "Category": "지수",
         "Ticker": "^KS11",
         "Name": "코스피",
-        "Price": 4975.28,
-        "Change(%)": 0.46,
-        "Return1W(%)": 2.78,
-        "Return1M(%)": 21.17,
-        "Return3M(%)": 30.11,
+        "Price": 4990.07,
+        "Change(%)": 0.76,
+        "Return1W(%)": 3.08,
+        "Return1M(%)": 21.53,
+        "Return3M(%)": 30.5,
         "Return1Y(%)": null,
         "52wHigh": null,
         "52wLow": null,
@@ -1808,11 +1808,11 @@
         "Category": "지수",
         "Ticker": "^KQ11",
         "Name": "코스닥",
-        "Price": 998.02,
-        "Change(%)": 2.85,
-        "Return1W(%)": 4.55,
-        "Return1M(%)": 7.41,
-        "Return3M(%)": 14.39,
+        "Price": 993.93,
+        "Change(%)": 2.43,
+        "Return1W(%)": 4.12,
+        "Return1M(%)": 6.97,
+        "Return3M(%)": 13.92,
         "Return1Y(%)": null,
         "52wHigh": null,
         "52wLow": null,
@@ -1826,16 +1826,16 @@
         "Category": "지수",
         "Ticker": "^N225",
         "Name": "니케이 225",
-        "Price": 53815.66,
-        "Change(%)": 0.24,
-        "Return1W(%)": -0.22,
-        "Return1M(%)": 8.7,
-        "Return3M(%)": 11.47,
-        "Return1Y(%)": 34.68,
+        "Price": 53846.87,
+        "Change(%)": 0.29,
+        "Return1W(%)": -0.17,
+        "Return1M(%)": 8.77,
+        "Return3M(%)": 11.54,
+        "Return1Y(%)": 34.76,
         "52wHigh": 54341.23,
         "52wLow": 31136.58,
-        "From52wHigh(%)": -0.97,
-        "From52wLow(%)": 72.84,
+        "From52wHigh(%)": -0.91,
+        "From52wLow(%)": 72.94,
         "Signal": null,
         "Description": null,
         "Previous": null
@@ -1844,16 +1844,16 @@
         "Category": "지수",
         "Ticker": "^HSI",
         "Name": "항셍",
-        "Price": 26718.13,
-        "Change(%)": 0.33,
-        "Return1W(%)": -0.47,
-        "Return1M(%)": 3.55,
-        "Return3M(%)": 3.32,
-        "Return1Y(%)": 35.62,
+        "Price": 26730.43,
+        "Change(%)": 0.38,
+        "Return1W(%)": -0.43,
+        "Return1M(%)": 3.6,
+        "Return3M(%)": 3.37,
+        "Return1Y(%)": 35.68,
         "52wHigh": 27287.12,
         "52wLow": 19700.56,
-        "From52wHigh(%)": -2.09,
-        "From52wLow(%)": 35.62,
+        "From52wHigh(%)": -2.04,
+        "From52wLow(%)": 35.68,
         "Signal": null,
         "Description": null,
         "Previous": null
@@ -1898,16 +1898,16 @@
         "Category": "환율",
         "Ticker": "USDKRW=X",
         "Name": "USD/KRW",
-        "Price": 1466.88,
-        "Change(%)": 0.14,
-        "Return1W(%)": -0.13,
-        "Return1M(%)": -0.67,
-        "Return3M(%)": 2.53,
-        "Return1Y(%)": 1.75,
+        "Price": 1466.0699,
+        "Change(%)": 0.08,
+        "Return1W(%)": -0.19,
+        "Return1M(%)": -0.73,
+        "Return3M(%)": 2.47,
+        "Return1Y(%)": 1.69,
         "52wHigh": 1486.13,
         "52wLow": 1348.5,
-        "From52wHigh(%)": -1.3,
-        "From52wLow(%)": 8.78,
+        "From52wHigh(%)": -1.35,
+        "From52wLow(%)": 8.72,
         "Signal": null,
         "Description": null,
         "Previous": null
@@ -1916,16 +1916,16 @@
         "Category": "환율",
         "Ticker": "EURUSD=X",
         "Name": "EUR/USD",
-        "Price": 1.1754,
-        "Change(%)": 0.69,
-        "Return1W(%)": 1.25,
-        "Return1M(%)": -0.1,
-        "Return3M(%)": 1.32,
-        "Return1Y(%)": 13.05,
+        "Price": 1.1748,
+        "Change(%)": 0.64,
+        "Return1W(%)": 1.2,
+        "Return1M(%)": -0.15,
+        "Return3M(%)": 1.27,
+        "Return1Y(%)": 12.99,
         "52wHigh": 1.1871,
         "52wLow": 1.0248,
-        "From52wHigh(%)": -0.99,
-        "From52wLow(%)": 14.69,
+        "From52wHigh(%)": -1.04,
+        "From52wLow(%)": 14.64,
         "Signal": null,
         "Description": null,
         "Previous": null
@@ -1934,16 +1934,16 @@
         "Category": "환율",
         "Ticker": "USDJPY=X",
         "Name": "USD/JPY",
-        "Price": 158.538,
-        "Change(%)": 0.05,
-        "Return1W(%)": -0.04,
-        "Return1M(%)": 1.06,
-        "Return3M(%)": 4.37,
-        "Return1Y(%)": 2.88,
+        "Price": 158.897,
+        "Change(%)": 0.28,
+        "Return1W(%)": 0.19,
+        "Return1M(%)": 1.29,
+        "Return3M(%)": 4.61,
+        "Return1Y(%)": 3.11,
         "52wHigh": 159.179,
         "52wLow": 140.876,
-        "From52wHigh(%)": -0.4,
-        "From52wLow(%)": 12.54,
+        "From52wHigh(%)": -0.18,
+        "From52wLow(%)": 12.79,
         "Signal": null,
         "Description": null,
         "Previous": null
@@ -1952,16 +1952,16 @@
         "Category": "환율",
         "Ticker": "DX-Y.NYB",
         "Name": "달러 인덱스",
-        "Price": 98.351,
-        "Change(%)": -0.41,
-        "Return1W(%)": -0.79,
-        "Return1M(%)": -0.25,
-        "Return3M(%)": -0.08,
-        "Return1Y(%)": -8.98,
+        "Price": 98.411,
+        "Change(%)": 0.05,
+        "Return1W(%)": -0.92,
+        "Return1M(%)": 0.12,
+        "Return3M(%)": -0.18,
+        "Return1Y(%)": -8.4,
         "52wHigh": 108.99,
         "52wLow": 96.63,
-        "From52wHigh(%)": -9.76,
-        "From52wLow(%)": 1.78,
+        "From52wHigh(%)": -9.71,
+        "From52wLow(%)": 1.84,
         "Signal": null,
         "Description": null,
         "Previous": null
@@ -1970,16 +1970,16 @@
         "Category": "환율",
         "Ticker": "USDCNY=X",
         "Name": "USD/CNY",
-        "Price": 6.9622,
-        "Change(%)": -0.02,
-        "Return1W(%)": -0.05,
-        "Return1M(%)": -1.12,
-        "Return3M(%)": -2.24,
-        "Return1Y(%)": -3.05,
+        "Price": 6.9632,
+        "Change(%)": -0.01,
+        "Return1W(%)": -0.04,
+        "Return1M(%)": -1.1,
+        "Return3M(%)": -2.23,
+        "Return1Y(%)": -3.03,
         "52wHigh": 7.35,
         "52wLow": 6.9599,
-        "From52wHigh(%)": -5.28,
-        "From52wLow(%)": 0.03,
+        "From52wHigh(%)": -5.26,
+        "From52wLow(%)": 0.05,
         "Signal": null,
         "Description": null,
         "Previous": null
@@ -1988,16 +1988,16 @@
         "Category": "원자재",
         "Ticker": "GC=F",
         "Name": "금 선물",
-        "Price": 4959.3,
-        "Change(%)": 2.64,
-        "Return1W(%)": 7.2,
-        "Return1M(%)": 13.71,
-        "Return3M(%)": 18.36,
-        "Return1Y(%)": 79.48,
-        "52wHigh": 4959.3,
+        "Price": 4954.6,
+        "Change(%)": 0.93,
+        "Return1W(%)": 7.33,
+        "Return1M(%)": 11.47,
+        "Return3M(%)": 14.26,
+        "Return1Y(%)": 78.4,
+        "52wHigh": 4954.6,
         "52wLow": 2737.5,
         "From52wHigh(%)": 0.0,
-        "From52wLow(%)": 81.16,
+        "From52wLow(%)": 80.99,
         "Signal": null,
         "Description": null,
         "Previous": null
@@ -2006,16 +2006,16 @@
         "Category": "원자재",
         "Ticker": "SI=F",
         "Name": "은 선물",
-        "Price": 98.71,
-        "Change(%)": 7.04,
-        "Return1W(%)": 8.62,
-        "Return1M(%)": 47.66,
-        "Return3M(%)": 97.95,
-        "Return1Y(%)": 221.8,
-        "52wHigh": 98.71,
+        "Price": 99.28,
+        "Change(%)": 3.44,
+        "Return1W(%)": 8.05,
+        "Return1M(%)": 46.19,
+        "Return3M(%)": 94.2,
+        "Return1Y(%)": 220.0,
+        "52wHigh": 99.28,
         "52wLow": 29.12,
         "From52wHigh(%)": 0.0,
-        "From52wLow(%)": 239.01,
+        "From52wLow(%)": 240.96,
         "Signal": null,
         "Description": null,
         "Previous": null
@@ -2024,16 +2024,16 @@
         "Category": "원자재",
         "Ticker": "CL=F",
         "Name": "WTI 원유",
-        "Price": 59.9,
-        "Change(%)": -1.19,
-        "Return1W(%)": -3.42,
-        "Return1M(%)": 5.72,
-        "Return3M(%)": 4.1,
-        "Return1Y(%)": -19.73,
+        "Price": 59.96,
+        "Change(%)": 1.01,
+        "Return1W(%)": 1.3,
+        "Return1M(%)": 3.36,
+        "Return3M(%)": 4.24,
+        "Return1Y(%)": -19.69,
         "52wHigh": 75.14,
         "52wLow": 55.27,
-        "From52wHigh(%)": -20.28,
-        "From52wLow(%)": 8.38,
+        "From52wHigh(%)": -20.2,
+        "From52wLow(%)": 8.49,
         "Signal": null,
         "Description": null,
         "Previous": null
@@ -2042,16 +2042,16 @@
         "Category": "원자재",
         "Ticker": "BZ=F",
         "Name": "브렌트유",
-        "Price": 64.62,
-        "Change(%)": -0.95,
-        "Return1W(%)": -2.86,
-        "Return1M(%)": 6.86,
-        "Return3M(%)": 5.43,
-        "Return1Y(%)": -17.46,
+        "Price": 64.68,
+        "Change(%)": 0.97,
+        "Return1W(%)": 1.44,
+        "Return1M(%)": 4.2,
+        "Return3M(%)": 6.02,
+        "Return1Y(%)": -17.61,
         "52wHigh": 78.5,
         "52wLow": 58.92,
-        "From52wHigh(%)": -17.68,
-        "From52wLow(%)": 9.67,
+        "From52wHigh(%)": -17.61,
+        "From52wLow(%)": 9.78,
         "Signal": null,
         "Description": null,
         "Previous": null
@@ -2060,16 +2060,16 @@
         "Category": "원자재",
         "Ticker": "NG=F",
         "Name": "천연가스",
-        "Price": 4.99,
-        "Change(%)": 2.26,
-        "Return1W(%)": 59.78,
-        "Return1M(%)": 25.13,
-        "Return3M(%)": 65.72,
-        "Return1Y(%)": 26.36,
+        "Price": 4.76,
+        "Change(%)": -5.63,
+        "Return1W(%)": 52.21,
+        "Return1M(%)": 20.08,
+        "Return3M(%)": 40.15,
+        "Return1Y(%)": 18.23,
         "52wHigh": 5.29,
         "52wLow": 2.7,
-        "From52wHigh(%)": -5.75,
-        "From52wLow(%)": 84.9,
+        "From52wHigh(%)": -9.98,
+        "From52wLow(%)": 76.59,
         "Signal": null,
         "Description": null,
         "Previous": null
@@ -2078,16 +2078,16 @@
         "Category": "원자재",
         "Ticker": "HG=F",
         "Name": "구리 선물",
-        "Price": 5.83,
-        "Change(%)": 1.72,
-        "Return1W(%)": -3.01,
-        "Return1M(%)": 7.14,
-        "Return3M(%)": 18.18,
-        "Return1Y(%)": 35.55,
+        "Price": 5.84,
+        "Change(%)": 1.73,
+        "Return1W(%)": -1.78,
+        "Return1M(%)": 7.44,
+        "Return3M(%)": 16.89,
+        "Return1Y(%)": 36.18,
         "52wHigh": 6.01,
         "52wLow": 4.13,
-        "From52wHigh(%)": -3.04,
-        "From52wLow(%)": 41.2,
+        "From52wHigh(%)": -2.8,
+        "From52wLow(%)": 41.54,
         "Signal": null,
         "Description": null,
         "Previous": null
@@ -2168,16 +2168,16 @@
         "Category": "암호화폐",
         "Ticker": "BTC-USD",
         "Name": "비트코인",
-        "Price": 89899.2,
-        "Change(%)": 0.58,
-        "Return1W(%)": -5.47,
-        "Return1M(%)": 1.32,
-        "Return3M(%)": -3.28,
-        "Return1Y(%)": -13.13,
+        "Price": 89390.77,
+        "Change(%)": -0.08,
+        "Return1W(%)": -4.53,
+        "Return1M(%)": -0.62,
+        "Return3M(%)": -2.27,
+        "Return1Y(%)": -13.37,
         "52wHigh": 124752.53,
         "52wLow": 84648.36,
-        "From52wHigh(%)": -27.94,
-        "From52wLow(%)": 6.2,
+        "From52wHigh(%)": -28.35,
+        "From52wLow(%)": 5.6,
         "Signal": null,
         "Description": null,
         "Previous": null
@@ -2186,16 +2186,16 @@
         "Category": "암호화폐",
         "Ticker": "ETH-USD",
         "Name": "이더리움",
-        "Price": 2978.28,
-        "Change(%)": -0.02,
-        "Return1W(%)": -9.99,
-        "Return1M(%)": -0.74,
-        "Return3M(%)": -4.63,
-        "Return1Y(%)": 17.43,
+        "Price": 2935.76,
+        "Change(%)": -0.47,
+        "Return1W(%)": -10.53,
+        "Return1M(%)": -6.04,
+        "Return3M(%)": -2.89,
+        "Return1Y(%)": 18.58,
         "52wHigh": 4831.35,
         "52wLow": 2228.21,
-        "From52wHigh(%)": -38.36,
-        "From52wLow(%)": 33.66,
+        "From52wHigh(%)": -39.24,
+        "From52wLow(%)": 31.75,
         "Signal": null,
         "Description": null,
         "Previous": null
@@ -2330,7 +2330,7 @@
         "Category": "심리",
         "Ticker": "F&G",
         "Name": "Fear & Greed Index",
-        "Price": 51.8,
+        "Price": 51.7,
         "Change(%)": null,
         "Return1W(%)": null,
         "Return1M(%)": null,
@@ -2342,7 +2342,7 @@
         "From52wLow(%)": null,
         "Signal": "neutral",
         "Description": null,
-        "Previous": 50.4
+        "Previous": 51.8
       },
       {
         "Category": "밸류에이션",
