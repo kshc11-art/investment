@@ -2386,8 +2386,8 @@ def get_korea_stocks():
         if (i + 1) % 10 == 0 or i == 0:
             elapsed = time.time() - start_time
             per_stock = elapsed / (i + 1) if i > 0 else 0
-            remaining = per_stock * (len(all_tickers) - i - 1)
-            log(f"  진행: {i+1}/{len(all_tickers)} ({(i+1)/len(all_tickers)*100:.0f}%) - 남은시간: {remaining/60:.1f}분")
+            remaining = per_stock * (len(stock_list) - i - 1)
+            log(f"  진행: {i+1}/{len(stock_list)} ({(i+1)/len(stock_list)*100:.0f}%) - 남은시간: {remaining/60:.1f}분")
         
         time.sleep(0.02)
     
