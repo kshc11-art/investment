@@ -768,13 +768,13 @@ HEADERS = {
 }
 
 # 데이터 소스 차단 여부 (런타임에 판단)
-NAVER_AVAILABLE = None
+NAVER_AVAILABLE = None  # ★ 다시 활성화 (재무지표 필수)
 FNGUIDE_AVAILABLE = None
-NXT_AVAILABLE = None  # ★ v3.2.0: NXT 차단 감지
+NXT_AVAILABLE = None
 
-# 타임아웃 설정 (GitHub Actions용 단축)
-TIMEOUT_SHORT = 3
-TIMEOUT_LONG = 5
+# 타임아웃 설정
+TIMEOUT_SHORT = 3  # ★ 1초→3초 (너무 짧으면 정상 요청도 실패)
+TIMEOUT_LONG = 5   # ★ 2초→5초
 
 # 데이터 품질 검증용 필수 컬럼
 REQUIRED_COLS_KR_STOCK = ['PER', 'PBR', 'ROE(%)', 'Return60D(%)', 'RSI14', 'Volatility20D']
@@ -1907,7 +1907,7 @@ def collect_kr_stock_codes():
             'mktId': 'STK',
             'share': '1',
         }
-        resp = requests.post(krx_url, data=krx_data, headers=krx_headers, timeout=10)
+        resp = requests.post(krx_url, data=krx_data, headers=krx_headers, timeout=TIMEOUT_LONG)  # ★ v3.2.0
         if resp.status_code == 200:
             result = resp.json()
             items = result.get('OutBlock_1', [])
@@ -2056,7 +2056,7 @@ def get_korea_stocks():
             'mktId': 'STK',
             'share': '1',
         }
-        resp = requests.post(krx_url, data=krx_params, headers=krx_headers, timeout=10)
+        resp = requests.post(krx_url, data=krx_params, headers=krx_headers, timeout=TIMEOUT_LONG)  # ★ v3.2.0: 10→2초
         if resp.status_code == 200:
             result = resp.json()
             for item in result.get('OutBlock_1', []):
@@ -2171,8 +2171,35 @@ def get_korea_stocks():
                 if not row.get('DataSource'):
                     row['DataSource'] = 'pykrx'
 
+
             # ========================================
-            # 시세 4순위: 네이버 (개별 호출 - 재무지표 포함)
+            # 4. FDR 히스토리 (기술지표 + 현재가)
+            # ========================================
+            hist = pd.DataFrame()
+            fdr_data = None
+            
+            if FDR_AVAILABLE:
+                try:
+                    fdr_data = fdr.DataReader(ticker, DATE_1Y_AGO)
+                    if fdr_data is not None and not fdr_data.empty and len(fdr_data) > 20:
+                        hist = fdr_data
+                        if 'Close' not in hist.columns and '종가' in hist.columns:
+                            hist = hist.rename(columns={'종가': 'Close', '시가': 'Open', '고가': 'High', '저가': 'Low', '거래량': 'Volume'})
+                        
+                        # ★ v3.2.0: FDR에서 현재가, 거래량도 추출
+                        if not row.get('Price') and 'Close' in hist.columns:
+                            row['Price'] = fmt(hist['Close'].iloc[-1], 0)
+                        if not row.get('Volume') and 'Volume' in hist.columns:
+                            row['Volume'] = int(hist['Volume'].iloc[-1])
+                        if not row.get('DataSource'):
+                            row['DataSource'] = 'FDR'
+                        
+                        log(f"    {ticker}: FDR 데이터 {len(hist)}일") if i == 0 else None
+                except:
+                    pass
+
+            # ========================================
+            # 5. 네이버 (재무지표 - 필수)
             # ========================================
             naver_data = {}
             if NAVER_AVAILABLE is not False:
@@ -2227,7 +2254,7 @@ def get_korea_stocks():
                         row['DataSource'] = 'Naver'
 
             # ========================================
-            # 2. FnGuide (결측값 폴백)
+            # 6. FnGuide (재무지표 보충)
             # ========================================
             need_fnguide = (
                 row.get('ROE(%)') is None or
@@ -2263,7 +2290,7 @@ def get_korea_stocks():
                         row['BPS'] = fmt(fnguide_data['bps'], 0)
 
             # ========================================
-            # 3. pykrx (결측값 폴백)
+            # 7. pykrx 개별 호출 (결측값 폴백)
             # ========================================
             if PYKRX_AVAILABLE:
                 try:
@@ -2281,26 +2308,20 @@ def get_korea_stocks():
                     pass
 
             # ========================================
-            # 4. ★ v3.0.2: FinanceDataReader 우선 (기술적 지표)
-            # ========================================
-            hist = pd.DataFrame()
-            fdr_data = None
-            
-            if FDR_AVAILABLE:
-                try:
-                    fdr_data = fdr.DataReader(ticker, DATE_1Y_AGO)
-                    if fdr_data is not None and not fdr_data.empty and len(fdr_data) > 20:
-                        hist = fdr_data
-                        if 'Close' not in hist.columns and '종가' in hist.columns:
-                            hist = hist.rename(columns={'종가': 'Close', '시가': 'Open', '고가': 'High', '저가': 'Low', '거래량': 'Volume'})
-                        log(f"    {ticker}: FDR 데이터 {len(hist)}일") if i == 0 else None
-                except:
-                    pass
-
-            # ========================================
-            # 5. yfinance (폴백)
+            # 8. yfinance (폴백)
             # ========================================
             info = {}
+            
+            if hist.empty:
+                ticker_variants = [f"{ticker}.KS"]
+                t, hist, info = try_multiple_tickers(ticker_variants, max_retries=1)
+            else:
+                # FDR 성공 시에도 yfinance info는 가져옴 (재무 데이터용)
+                try:
+                    t = yf.Ticker(f"{ticker}.KS")
+                    info = t.info or {}
+                except:
+                    info = {}
             
             if hist.empty:
                 ticker_variants = [f"{ticker}.KS"]
