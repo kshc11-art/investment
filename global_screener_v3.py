@@ -2817,6 +2817,9 @@ def get_korea_etfs():
             results.append(row)
 
         except Exception as e:
+            # ★ 에러 로깅 추가 (처음 5개만)
+            if len(results) < 5:
+                log(f"    ⚠️ ETF 실패: {code} - {str(e)[:50]}")
             pass
         
         if (i + 1) % 20 == 0 or i == 0:
@@ -2828,7 +2831,11 @@ def get_korea_etfs():
         time.sleep(0.05)
     
     log(f"  ✅ 완료: {len(results)}개")
-    return pd.DataFrame(results)
+    df = pd.DataFrame(results)
+    log(f"  📊 DataFrame 생성: {len(df)}행 × {len(df.columns)}열")
+    if len(df) != len(results):
+        log(f"  ⚠️ 경고: results({len(results)}) ≠ DataFrame({len(df)})")
+    return df
 
 # ============================================================
 # 미국 ETF
