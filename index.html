@@ -5306,6 +5306,7 @@
             const display = sorted.slice(0, 150);
             
             const tbody = document.getElementById('screening-tbody');
+            if (!tbody) return;
             if (display.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="14" style="text-align:center;padding:40px;color:var(--text-muted);">결과 없음</td></tr>';
                 return;
@@ -5566,7 +5567,10 @@
                 // 0% 데이터 → 0.6배 (최대 40% 감점)
                 if (d.TotalScore != null) {
                     const penalty = 0.6 + 0.4 * completeness;
-                    d._originalScore = d.TotalScore;
+                    // 원본 점수 보존 (regime 적용 전 점수가 있으면 그것을 원본으로)
+                    if (d._originalScore == null) {
+                        d._originalScore = d._preRegimeScore || d.TotalScore;
+                    }
                     d.TotalScore = d.TotalScore * penalty;
                 }
             });
@@ -5579,8 +5583,9 @@
         // BEAR/RECESSION → Quality/Risk↑, Momentum/Growth↓
         // BULL/EXPANSION → Growth/Momentum↑, Risk↓
         function getRegimeWeightAdjustment() {
+            if (typeof appData === 'undefined' || !appData || !appData.marketState) return null;
             var ms = appData.marketState;
-            if (!ms || !ms.finalState) return null;
+            if (!ms.finalState) return null;
 
             var state = ms.finalState;
             // 각 팩터에 대한 가중치 델타 (절대값, 최대 ±0.05)
