@@ -19,6 +19,7 @@
         :root {
             --bg-primary: #0a0a0f;
             --bg-secondary: #14141c;
+            --bg-tertiary: #1a1a26;
             --bg-card: #1c1c28;
             --bg-card-hover: #252535;
             --accent-gold: #f59e0b;
@@ -29,7 +30,7 @@
             --accent-purple: #8b5cf6;
             --text-primary: #f8fafc;
             --text-secondary: #a1a1aa;
-            --text-muted: #71717a;
+            --text-muted: #8a8a96;
             --border-color: #2d2d3a;
             --border-accent: #3d3d4a;
             /* 모바일 기본 폰트 크기 변수 */
@@ -495,12 +496,12 @@
         .score-fair { background: #f59e0b; color: white; }
         .score-poor { background: #64748b; color: white; }
         
-        th.sorted-desc::after { content: ' ▼'; color: var(--accent-gold); font-size: 0.6rem; }
-        th.sorted-asc::after { content: ' ▲'; color: var(--accent-gold); font-size: 0.6rem; }
+        th.sorted-desc::after { content: ' ▼'; color: var(--accent-gold); font-size: 0.7rem; }
+        th.sorted-asc::after { content: ' ▲'; color: var(--accent-gold); font-size: 0.7rem; }
         
         .stock-cell { display: flex; align-items: center; gap: var(--space-xs); }
         .stock-cell .stock-name { font-weight: 500; font-size: 0.7rem; white-space: nowrap; }
-        .stock-cell .stock-ticker { font-size: 0.6rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+        .stock-cell .stock-ticker { font-size: 0.7rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
         
         .positive { color: var(--accent-green); }
         .negative { color: var(--accent-red); }
@@ -602,7 +603,7 @@
             padding: 4px 8px;
             background: var(--bg-card);
             border-radius: 6px;
-            font-size: 0.65rem;
+            font-size: 0.75rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -613,7 +614,7 @@
         /* 테이블 내 섹터 chip */
         .stock-table .breakdown-chip {
             max-width: 70px;
-            font-size: 0.6rem;
+            font-size: 0.7rem;
             padding: 3px 6px;
         }
 
@@ -903,9 +904,9 @@
         /* ===== 반응형 미디어 쿼리 - 데스크톱용 ===== */
         @media (min-width: 768px) {
             :root {
-                --font-xs: 0.8rem;
-                --font-sm: 0.9rem;
-                --font-base: 1rem;
+                --font-xs: 0.85rem;
+                --font-sm: 0.95rem;
+                --font-base: 1.05rem;
                 --font-lg: 1.15rem;
                 --font-xl: 1.35rem;
                 --font-2xl: 1.75rem;
@@ -1663,7 +1664,7 @@
                 <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <h3 class="card-title">📈 글로벌 스크리닝</h3>
-                        <span id="dataLoadTime" style="font-size: 0.65rem; color: var(--text-muted); background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px; display: none;"></span>
+                        <span id="dataLoadTime" style="font-size: 0.75rem; color: var(--text-muted); background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px; display: none;"></span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <label id="refreshDataBtn" style="cursor: pointer; background: var(--accent-gold); color: #000; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
@@ -1691,30 +1692,30 @@
                     
                     <!-- 버전 선택 -->
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                        <span style="font-size: 0.65rem; color: var(--text-muted);">버전</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">버전</span>
                         <div style="display: flex; gap: 3px; background: var(--bg-card); padding: 3px; border-radius: 8px;">
                             <label style="cursor: pointer;">
                                 <input type="radio" name="scoringVersion" value="A" checked style="display: none;">
-                                <span class="version-pill" data-version="A" style="display: block; padding: 5px 16px; border-radius: 6px; font-size: 0.65rem; font-weight: 600; color: var(--accent-gold); background: rgba(245,158,11,0.2);">A</span>
+                                <span class="version-pill" data-version="A" style="display: block; padding: 5px 16px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--accent-gold); background: rgba(245,158,11,0.2);">A</span>
                             </label>
                             <label style="cursor: pointer;">
                                 <input type="radio" name="scoringVersion" value="B" style="display: none;">
-                                <span class="version-pill" data-version="B" style="display: block; padding: 5px 16px; border-radius: 6px; font-size: 0.65rem; font-weight: 600; color: var(--text-muted); background: transparent;">B</span>
+                                <span class="version-pill" data-version="B" style="display: block; padding: 5px 16px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: transparent;">B</span>
                             </label>
                             <label style="cursor: pointer;">
                                 <input type="radio" name="scoringVersion" value="C" style="display: none;">
-                                <span class="version-pill" data-version="C" style="display: block; padding: 5px 16px; border-radius: 6px; font-size: 0.65rem; font-weight: 600; color: var(--text-muted); background: transparent;">C</span>
+                                <span class="version-pill" data-version="C" style="display: block; padding: 5px 16px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: transparent;">C</span>
                             </label>
                             <label style="cursor: pointer;">
                                 <input type="radio" name="scoringVersion" value="D" style="display: none;">
-                                <span class="version-pill" data-version="D" style="display: block; padding: 5px 16px; border-radius: 6px; font-size: 0.65rem; font-weight: 600; color: var(--text-muted); background: transparent;">D</span>
+                                <span class="version-pill" data-version="D" style="display: block; padding: 5px 16px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: transparent;">D</span>
                             </label>
                             <label style="cursor: pointer;">
                                 <input type="radio" name="scoringVersion" value="E" style="display: none;">
-                                <span class="version-pill" data-version="E" style="display: block; padding: 5px 16px; border-radius: 6px; font-size: 0.65rem; font-weight: 600; color: var(--text-muted); background: transparent;">E</span>
+                                <span class="version-pill" data-version="E" style="display: block; padding: 5px 16px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: transparent;">E</span>
                             </label>
                         </div>
-                        <span id="versionDesc" style="font-size: 0.65rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">V25 Q20 G15 M15 R20 F5</span>
+                        <span id="versionDesc" style="font-size: 0.75rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">V25 Q20 G15 M15 R20 F5</span>
                     </div>
                 </div>
 
@@ -1722,7 +1723,7 @@
                 <div style="background: var(--bg-secondary); border-radius: 10px; padding: 8px 10px; margin-bottom: 16px;">
                     <!-- 스크리닝 필터 -->
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 5px;">
-                        <span style="font-size: 0.6rem; color: var(--text-muted); line-height: 1;">필터</span>
+                        <span style="font-size: 0.7rem; color: var(--text-muted); line-height: 1;">필터</span>
                         <div style="display: flex; flex-direction: column; gap: 2px;">
                             <!-- 1줄: 기존 필터 (경고/제외) -->
                             <div style="display: flex; gap: 2px; background: var(--bg-card); padding: 2px; border-radius: 5px; height: 26px; align-items: center; overflow: hidden;">
@@ -1751,22 +1752,22 @@
                     
                     <!-- 점수 필터 -->
                     <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 5px;">
-                        <span style="font-size: 0.6rem; color: var(--text-muted); line-height: 1;">점수</span>
+                        <span style="font-size: 0.7rem; color: var(--text-muted); line-height: 1;">점수</span>
                         <div style="display: flex; gap: 2px; background: var(--bg-card); padding: 2px; border-radius: 5px; height: 26px; align-items: center; overflow: hidden;">
-                            <button class="score-pill active" data-filter="score" data-value="all" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.6rem; font-weight: 600; cursor: pointer; background: rgba(245,158,11,0.2); color: var(--accent-gold); box-sizing: border-box;">전체</button>
-                            <button class="score-pill" data-filter="score" data-value="70" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.6rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">70+</button>
-                            <button class="score-pill" data-filter="score" data-value="60" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.6rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">60+</button>
-                            <button class="score-pill" data-filter="score" data-value="50" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.6rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">50+</button>
+                            <button class="score-pill active" data-filter="score" data-value="all" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: rgba(245,158,11,0.2); color: var(--accent-gold); box-sizing: border-box;">전체</button>
+                            <button class="score-pill" data-filter="score" data-value="70" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">70+</button>
+                            <button class="score-pill" data-filter="score" data-value="60" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">60+</button>
+                            <button class="score-pill" data-filter="score" data-value="50" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">50+</button>
                         </div>
                     </div>
                     
                     <!-- 추세 필터 -->
                     <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 0.6rem; color: var(--text-muted); line-height: 1;">추세</span>
+                        <span style="font-size: 0.7rem; color: var(--text-muted); line-height: 1;">추세</span>
                         <div style="display: flex; gap: 2px; background: var(--bg-card); padding: 2px; border-radius: 5px; height: 26px; align-items: center; overflow: hidden;">
-                            <button class="momentum-pill active" data-filter="momentum" data-value="all" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.6rem; font-weight: 600; cursor: pointer; background: rgba(245,158,11,0.2); color: var(--accent-gold); box-sizing: border-box;">전체</button>
-                            <button class="momentum-pill" data-filter="momentum" data-value="up" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.6rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">📈</button>
-                            <button class="momentum-pill" data-filter="momentum" data-value="down" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.6rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">📉</button>
+                            <button class="momentum-pill active" data-filter="momentum" data-value="all" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: rgba(245,158,11,0.2); color: var(--accent-gold); box-sizing: border-box;">전체</button>
+                            <button class="momentum-pill" data-filter="momentum" data-value="up" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">📈</button>
+                            <button class="momentum-pill" data-filter="momentum" data-value="down" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">📉</button>
                         </div>
                     </div>
                 </div>
@@ -2288,7 +2289,7 @@
                 <div style="margin-bottom: 16px;">
                     <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
                         <span>📚</span> <strong>시나리오별 채권 전략</strong>
-                        <span style="font-size: 0.65rem; padding: 2px 6px; background: rgba(139,92,246,0.2); color: var(--accent-purple); border-radius: 4px;">Harvey 1988, Estrella 1996</span>
+                        <span style="font-size: 0.75rem; padding: 2px 6px; background: rgba(139,92,246,0.2); color: var(--accent-purple); border-radius: 4px;">Harvey 1988, Estrella 1996</span>
                     </div>
                     
                     <div style="display: grid; gap: 8px;">
@@ -2301,7 +2302,7 @@
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-size: 0.75rem; color: var(--accent-green); font-weight: 600;">▶ 단기채</div>
-                                <div style="font-size: 0.65rem; color: var(--text-muted);">SHY, SGOV, BIL</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">SHY, SGOV, BIL</div>
                             </div>
                         </div>
                         <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(239,68,68,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: 0.7rem; color: var(--text-secondary);">
@@ -2318,7 +2319,7 @@
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-size: 0.75rem; color: var(--accent-blue); font-weight: 600;">▶ 장기채</div>
-                                <div style="font-size: 0.65rem; color: var(--text-muted);">TLT, EDV, ZROZ</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">TLT, EDV, ZROZ</div>
                             </div>
                         </div>
                         <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(16,185,129,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: 0.7rem; color: var(--text-secondary);">
@@ -2335,7 +2336,7 @@
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-size: 0.75rem; color: var(--accent-gold); font-weight: 600;">▶ 초단기/MMF</div>
-                                <div style="font-size: 0.65rem; color: var(--text-muted);">SGOV, BIL, MMF</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">SGOV, BIL, MMF</div>
                             </div>
                         </div>
                         <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(245,158,11,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: 0.7rem; color: var(--text-secondary);">
@@ -2352,7 +2353,7 @@
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-size: 0.75rem; color: var(--accent-purple); font-weight: 600;">▶ TIPS</div>
-                                <div style="font-size: 0.65rem; color: var(--text-muted);">TIP, SCHP, VTIP</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">TIP, SCHP, VTIP</div>
                             </div>
                         </div>
                         <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(139,92,246,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: 0.7rem; color: var(--text-secondary);">
@@ -2369,7 +2370,7 @@
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-size: 0.75rem; color: var(--accent-blue); font-weight: 600;">▶ 미국 장기국채</div>
-                                <div style="font-size: 0.65rem; color: var(--text-muted);">TLT, EDV, Gold</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">TLT, EDV, Gold</div>
                             </div>
                         </div>
                         <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(59,130,246,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: 0.7rem; color: var(--text-secondary);">
@@ -2386,7 +2387,7 @@
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-size: 0.75rem; color: #f472b6; font-weight: 600;">▶ 국내채권</div>
-                                <div style="font-size: 0.65rem; color: var(--text-muted);">국고채, KOSEF</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">국고채, KOSEF</div>
                             </div>
                         </div>
                         <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(244,114,182,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: 0.7rem; color: var(--text-secondary);">
@@ -2401,7 +2402,7 @@
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
                         <span style="font-size: 0.85rem;">🤖</span>
                         <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">AI 채권 배분 권고</span>
-                        <span id="bondScenarioTag" style="font-size: 0.65rem; padding: 2px 6px; background: rgba(239,68,68,0.2); color: var(--accent-red); border-radius: 4px;">역수익률 곡선</span>
+                        <span id="bondScenarioTag" style="font-size: 0.75rem; padding: 2px 6px; background: rgba(239,68,68,0.2); color: var(--accent-red); border-radius: 4px;">역수익률 곡선</span>
                     </div>
                     <div id="aiBondAllocation" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
                         <span style="padding: 6px 10px; background: var(--bg-card); border-radius: 6px; font-size: 0.75rem;">
@@ -4528,27 +4529,27 @@
                 <div id="indicatorDashboard" style="background: var(--bg-secondary); border-radius: 8px; padding: 10px; margin-bottom: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <h4 style="font-size: 0.75rem; color: var(--accent-gold); margin: 0;">📊 핵심 지표 현황</h4>
-                        <span id="indicatorLoadTime" style="font-size: 0.6rem; color: var(--text-muted);"></span>
+                        <span id="indicatorLoadTime" style="font-size: 0.7rem; color: var(--text-muted);"></span>
                     </div>
-                    <div id="indicatorGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 6px; font-size: 0.65rem;"></div>
+                    <div id="indicatorGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 6px; font-size: 0.75rem;"></div>
                 </div>
                 
                 <!-- 4개 레이어 + 판단근거 (2행) -->
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px;">
                     <div style="background: var(--bg-secondary); border-radius: 6px; padding: 6px; text-align: center;">
-                        <div style="font-size: 0.6rem; color: var(--accent-blue); margin-bottom: 2px;">🏛️ 경기</div>
+                        <div style="font-size: 0.7rem; color: var(--accent-blue); margin-bottom: 2px;">🏛️ 경기</div>
                         <div id="layerMacro" style="font-size: 0.7rem; font-weight: 600;">-</div>
                     </div>
                     <div style="background: var(--bg-secondary); border-radius: 6px; padding: 6px; text-align: center;">
-                        <div style="font-size: 0.6rem; color: var(--accent-purple); margin-bottom: 2px;">💰 밸류</div>
+                        <div style="font-size: 0.7rem; color: var(--accent-purple); margin-bottom: 2px;">💰 밸류</div>
                         <div id="layerValuation" style="font-size: 0.7rem; font-weight: 600;">-</div>
                     </div>
                     <div style="background: var(--bg-secondary); border-radius: 6px; padding: 6px; text-align: center;">
-                        <div style="font-size: 0.6rem; color: var(--accent-green); margin-bottom: 2px;">💭 심리</div>
+                        <div style="font-size: 0.7rem; color: var(--accent-green); margin-bottom: 2px;">💭 심리</div>
                         <div id="layerSentiment" style="font-size: 0.7rem; font-weight: 600;">-</div>
                     </div>
                     <div style="background: var(--bg-secondary); border-radius: 6px; padding: 6px; text-align: center;">
-                        <div style="font-size: 0.6rem; color: var(--accent-gold); margin-bottom: 2px;">🇰🇷 한국</div>
+                        <div style="font-size: 0.7rem; color: var(--accent-gold); margin-bottom: 2px;">🇰🇷 한국</div>
                         <div id="layerKorea" style="font-size: 0.7rem; font-weight: 600;">-</div>
                     </div>
                 </div>
@@ -4579,7 +4580,7 @@
                 <details>
                     <summary style="cursor: pointer; padding: 10px 12px; margin: -16px; display: flex; align-items: center;">
                         <h3 class="card-title" style="font-size: 0.85rem; margin: 0;">📈 Market_Indicators 상세</h3>
-                        <span class="card-badge" id="rawIndicatorCount" style="font-size: 0.65rem; margin-left: 8px;">0개 로드</span>
+                        <span class="card-badge" id="rawIndicatorCount" style="font-size: 0.75rem; margin-left: 8px;">0개 로드</span>
                         <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: auto;">▼</span>
                     </summary>
                     <div id="rawIndicatorContent" style="padding: 12px;">
@@ -4634,7 +4635,7 @@
                         <strong style="color: var(--accent-purple); font-size: 0.75rem;">📋 AI 프롬프트</strong>
                         <button onclick="togglePromptView()" style="background: none; border: none; cursor: pointer; font-size: 0.8rem;">✕</button>
                     </div>
-                    <textarea id="promptTextArea" readonly style="width: 100%; height: 150px; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: 0.6rem; box-sizing: border-box;"></textarea>
+                    <textarea id="promptTextArea" readonly style="width: 100%; height: 150px; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: 0.7rem; box-sizing: border-box;"></textarea>
                     <button onclick="copyFromTextArea()" style="margin-top: 6px; width: 100%; padding: 6px; background: var(--accent-purple); color: #fff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.75rem;">📋 복사</button>
                 </div>
                 
@@ -4645,7 +4646,7 @@
                         <span style="font-size: 0.7rem; color: var(--text-muted); margin-left: auto;">▼</span>
                     </summary>
                     <div style="margin-top: 6px; padding: 10px; background: var(--bg-secondary); border-radius: 6px; border: 1px solid var(--border-color);">
-                        <textarea id="jsonInputArea" placeholder='AI JSON 붙여넣기 (시장분석, 시나리오, 자산추천)' style="width: 100%; height: 80px; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: 0.65rem; box-sizing: border-box;"></textarea>
+                        <textarea id="jsonInputArea" placeholder='AI JSON 붙여넣기 (시장분석, 시나리오, 자산추천)' style="width: 100%; height: 80px; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: 0.75rem; box-sizing: border-box;"></textarea>
                         <div style="display: flex; gap: 6px; margin-top: 6px;">
                             <button onclick="applyJsonInput()" style="flex: 1; padding: 6px; background: #10b981; color: #fff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.75rem;">✅ 적용</button>
                             <button onclick="document.getElementById('jsonInputArea').value=''; document.getElementById('jsonResultMsg').style.display='none';" style="padding: 6px 10px; background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; font-size: 0.7rem;">지우기</button>
@@ -4666,9 +4667,9 @@
                             <button onclick="toggleConfig2PromptView()" style="padding: 6px 10px; background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; font-size: 0.7rem;">👁️ 보기</button>
                         </div>
                         <div id="config2PromptViewBox" style="display: none; margin-bottom: 6px;">
-                            <textarea id="config2PromptTextArea" readonly style="width: 100%; height: 100px; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: 0.6rem; box-sizing: border-box;"></textarea>
+                            <textarea id="config2PromptTextArea" readonly style="width: 100%; height: 100px; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: 0.7rem; box-sizing: border-box;"></textarea>
                         </div>
-                        <textarea id="config2InputArea" placeholder='Config2 JSON 붙여넣기 (체크리스트, 행동 트리거, 환율 매트릭스 등)' style="width: 100%; height: 80px; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: 0.65rem; box-sizing: border-box;"></textarea>
+                        <textarea id="config2InputArea" placeholder='Config2 JSON 붙여넣기 (체크리스트, 행동 트리거, 환율 매트릭스 등)' style="width: 100%; height: 80px; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: 0.75rem; box-sizing: border-box;"></textarea>
                         <div style="display: flex; gap: 6px; margin-top: 6px;">
                             <button onclick="applyConfig2Input()" style="flex: 1; padding: 6px; background: #ec4899; color: #fff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.75rem;">✅ 적용</button>
                             <button onclick="document.getElementById('config2InputArea').value=''; document.getElementById('config2ResultMsg').style.display='none';" style="padding: 6px 10px; background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; font-size: 0.7rem;">지우기</button>
@@ -7522,7 +7523,7 @@
                                        val.toFixed(1);
                     
                     html += `<div style="background: ${bg}; padding: 4px 6px; border-radius: 4px; text-align: center;">
-                        <div style="font-size: 0.6rem; color: var(--text-muted);">${ind.icon} ${ind.label}</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">${ind.icon} ${ind.label}</div>
                         <div style="font-size: 0.75rem; font-weight: 600; color: ${color};">${displayVal}</div>
                     </div>`;
                 }
@@ -7578,10 +7579,10 @@
                 html += `<div style="background: var(--bg-secondary); border-radius: 6px; padding: 8px; border-left: 3px solid ${style.color};">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                         <span style="font-size: 0.75rem; font-weight: 600;">${style.icon} ${style.name}</span>
-                        <span style="font-size: 0.65rem; color: var(--text-muted);">${ticker}</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">${ticker}</span>
                     </div>
                     <div style="font-size: 0.9rem; font-weight: 700; color: ${style.color}; margin-bottom: 4px;">${price}</div>
-                    <div style="display: flex; gap: 8px; font-size: 0.65rem;">
+                    <div style="display: flex; gap: 8px; font-size: 0.75rem;">
                         ${ret1m !== null ? `<span style="color: ${parseFloat(ret1m) >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'};">1M: ${ret1m}%</span>` : ''}
                         ${ret3m !== null ? `<span style="color: ${parseFloat(ret3m) >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'};">3M: ${ret3m}%</span>` : ''}
                         ${ret1y !== null ? `<span style="color: ${parseFloat(ret1y) >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'};">1Y: ${ret1y}%</span>` : ''}
@@ -7915,7 +7916,7 @@
                                 <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">${alert.message}</div>
                                 ${alert.affectedSectors ? `<div style="margin-top: 6px; font-size: 0.7rem; color: var(--text-muted);">관련 섹터: ${alert.affectedSectors.join(', ')}</div>` : ''}
                             </div>
-                            <span style="font-size: 0.6rem; color: var(--text-muted); white-space: nowrap;">${alert.createdAt || ''}</span>
+                            <span style="font-size: 0.7rem; color: var(--text-muted); white-space: nowrap;">${alert.createdAt || ''}</span>
                         </div>
                     </div>
                 `;
@@ -8007,7 +8008,7 @@
                     if (header && !header.querySelector('.current-badge')) {
                         const badge = document.createElement('span');
                         badge.className = 'current-badge';
-                        badge.style.cssText = 'background: var(--accent-blue); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.65rem; margin-left: 8px;';
+                        badge.style.cssText = 'background: var(--accent-blue); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; margin-left: 8px;';
                         badge.textContent = '현재';
                         header.appendChild(badge);
                     }
@@ -8051,7 +8052,7 @@
                 banner.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-weight: 700; color: var(--accent-green); font-size: 0.85rem;">📊 시장 데이터 현황</span>
-                        <span style="font-size: 0.65rem; color: var(--text-muted);">config 업데이트: ${lastUpdate}</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">config 업데이트: ${lastUpdate}</span>
                     </div>
                     ${metrics ? `
                     <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
@@ -8308,7 +8309,7 @@
                 <div style="background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1)); border: 1px solid rgba(139,92,246,0.3); border-radius: 10px; padding: 12px; margin-bottom: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <span style="font-weight: 700; color: #8b5cf6; font-size: 0.85rem;">🌐 현재 시장 상황</span>
-                        <span style="font-size: 0.6rem; color: var(--text-muted);">업데이트: ${ctx.updatedAt || '-'}</span>
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">업데이트: ${ctx.updatedAt || '-'}</span>
                     </div>
                     <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;">${ctx.summary}</div>
                     ${ctx.keyEvents ? `
@@ -8667,15 +8668,18 @@
         // ========== localStorage 및 보유종목 관리 ==========
         const STORAGE_KEY = 'investmentDashboard_v2';
         
-        // 기본 목표 비중 (2026.1 권고)
+        // ★ v4.0: 통합 기본 배분 상수 (모든 곳에서 동일한 값 참조)
+        const BASE_ALLOCATION = { US: 25, KR: 15, EU: 10, EM: 8, Gold: 12, Bond: 20, Cash: 10 };
+
+        // 기본 목표 비중 (BASE_ALLOCATION 기반)
         const defaultTargetAllocation = {
-            US_Stock: 20,
-            KR_Stock: 15,
-            EU_Stock: 10,
-            EM_Stock: 8,
-            Gold: 17,
-            Bond: 15,
-            Cash: 15
+            US_Stock: BASE_ALLOCATION.US,
+            KR_Stock: BASE_ALLOCATION.KR,
+            EU_Stock: BASE_ALLOCATION.EU,
+            EM_Stock: BASE_ALLOCATION.EM,
+            Gold: BASE_ALLOCATION.Gold,
+            Bond: BASE_ALLOCATION.Bond,
+            Cash: BASE_ALLOCATION.Cash
         };
         
         const assetClassLabels = {
@@ -9365,7 +9369,7 @@
         
         // 시나리오별 포트폴리오 배분
         const SCENARIO_ALLOCATIONS = {
-            base: { US: 20, KR: 15, EU: 10, EM: 8, Gold: 17, Bond: 15, Cash: 15 },
+            base: { ...BASE_ALLOCATION },
             recession: { US: 10, KR: 5, EU: 5, EM: 0, Gold: 20, Bond: 30, Cash: 30 },
             geopolitical: { US: 15, KR: 5, EU: 5, EM: 0, Gold: 25, Bond: 25, Cash: 25 },
             stagflation: { US: 5, KR: 5, EU: 5, EM: 0, Gold: 30, Bond: 10, Cash: 45 },
@@ -9957,9 +9961,9 @@
                 console.error('스택:', err.stack);
                 // 기본값 설정
                 portfolioResult = {
-                    base: { US: 20, KR: 15, EU: 10, EM: 8, Gold: 17, Bond: 15, Cash: 15 },
+                    base: { ...BASE_ALLOCATION },
                     adjustment: {},
-                    allocation: { US: 20, KR: 15, EU: 10, EM: 8, Gold: 17, Bond: 15, Cash: 15 },
+                    allocation: { ...BASE_ALLOCATION },
                     reasons: {},
                     indicatorImpacts: [],
                     compositeMultiplier: 1,
@@ -10049,7 +10053,7 @@
                     severity: 'warning',
                     triggers: rateUpTriggers,
                     // 수정: 금리 상승 시 무이자 자산(금) 불리, 채권 불리
-                    portfolioImpact: { US: -5, KR: -3, Bond: -8, Cash: +10, Gold: -5 }
+                    portfolioImpact: { US: -5, KR: -3, Bond: -8, Cash: 10, Gold: -5 }
                 });
             }
             
@@ -10090,7 +10094,7 @@
                     triggers: fxUpTriggers,
                     // 수정: 환율 급등 시 기존 달러 자산 가치 상승, 신규 해외투자는 자제
                     // US: 기존 보유분 유리하므로 비중 유지(0), KR/EM: 외인 이탈로 불리
-                    portfolioImpact: { US: 0, KR: -8, EM: -5, Cash: +8, Gold: +5 }
+                    portfolioImpact: { US: 0, KR: -8, EM: -5, Cash: 8, Gold: 5 }
                 });
             }
             
@@ -10111,7 +10115,7 @@
                     priority: 2,
                     severity: 'danger',
                     triggers: geopoliticalTriggers,
-                    portfolioImpact: { US: -10, KR: -15, EM: -10, Gold: +10, Bond: +10, Cash: +15 }
+                    portfolioImpact: { US: -10, KR: -15, EM: -10, Gold: 10, Bond: 10, Cash: 15 }
                 });
             }
             
@@ -10128,7 +10132,7 @@
                     priority: 6,
                     severity: 'warning',
                     triggers: inflationHedgeTriggers,
-                    portfolioImpact: { US: -3, KR: -3, Gold: +8, Bond: -5, Cash: -3 }
+                    portfolioImpact: { US: -3, KR: -3, Gold: 8, Bond: -5, Cash: -3 }
                 });
             }
             
@@ -10150,7 +10154,7 @@
                     severity: 'danger',
                     triggers: aiBubbleTriggers,
                     // 수정: 미국 기술주 버블 붕괴 시 한국 반도체/IT도 동반 하락
-                    portfolioImpact: { US: -10, KR: -8, EM: -5, Gold: +5, Bond: +8, Cash: +10 }
+                    portfolioImpact: { US: -10, KR: -8, EM: -5, Gold: 5, Bond: 8, Cash: 10 }
                 });
             }
             
@@ -10171,7 +10175,7 @@
                     priority: 1, // 최우선
                     severity: 'danger',
                     triggers: recessionTriggers,
-                    portfolioImpact: { US: -15, KR: -15, EM: -10, Gold: +5, Bond: +15, Cash: +20 }
+                    portfolioImpact: { US: -15, KR: -15, EM: -10, Gold: 5, Bond: 15, Cash: 20 }
                 });
             }
             
@@ -10190,7 +10194,7 @@
                     priority: 9,
                     severity: 'positive',
                     triggers: boomTriggers,
-                    portfolioImpact: { US: +5, KR: +5, EM: +3, Gold: -5, Bond: -5, Cash: -8 }
+                    portfolioImpact: { US: 5, KR: 5, EM: 3, Gold: -5, Bond: -5, Cash: -8 }
                 });
             }
             
@@ -10212,7 +10216,7 @@
                     triggers: stagflationTriggers,
                     // 스태그플레이션: 인플레 헤지(금, 원자재) 확대, 현금 축소
                     // 채권도 인플레로 불리하므로 축소
-                    portfolioImpact: { US: -15, KR: -15, EM: -10, Gold: +25, Bond: -10, Cash: 0 }
+                    portfolioImpact: { US: -15, KR: -15, EM: -10, Gold: 25, Bond: -10, Cash: 0 }
                 });
             }
             
@@ -11154,7 +11158,7 @@
                         scenarioHtml += `<div style="padding: 6px 10px; background: ${bgColor}15; border: 1px solid ${bgColor}40; border-radius: 6px; font-size: 0.7rem;">
                             <strong style="color: ${bgColor};">${asset.ticker}</strong>
                             <span style="color: var(--text-muted); margin-left: 4px;">${asset.name}</span>
-                            <div style="color: var(--text-muted); font-size: 0.65rem; margin-top: 2px;">${asset.reason}</div>
+                            <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 2px;">${asset.reason}</div>
                         </div>`;
                     });
                     scenarioHtml += `</div></div>`;
@@ -11169,13 +11173,13 @@
                         scenarioHtml += `<div style="padding: 6px 10px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; font-size: 0.7rem;">
                             <strong style="color: var(--accent-red);">${asset.ticker}</strong>
                             <span style="color: var(--text-muted); margin-left: 4px;">${asset.name}</span>
-                            <div style="color: var(--text-muted); font-size: 0.65rem; margin-top: 2px;">${asset.reason}</div>
+                            <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 2px;">${asset.reason}</div>
                         </div>`;
                     });
                     scenarioHtml += `</div></div>`;
                 }
                 
-                scenarioHtml += `<div style="margin-top: 10px; font-size: 0.65rem; color: var(--text-muted);">
+                scenarioHtml += `<div style="margin-top: 10px; font-size: 0.75rem; color: var(--text-muted);">
                     💡 ${scenarioAssetRec.reasoning}
                 </div></div>`;
                 
@@ -11203,14 +11207,14 @@
                     if (el) el.textContent = Math.round(value);
                 };
                 
-                updateEl('alloc-us', allocation.US || 20);
-                updateEl('alloc-kr', allocation.KR || 15);
-                updateEl('alloc-eu', allocation.EU || 10);
-                updateEl('alloc-em', allocation.EM || 8);
-                updateEl('alloc-gold', allocation.Gold || 17);
-                updateEl('alloc-bond', allocation.Bond || 15);
-                updateEl('alloc-cash', allocation.Cash || 15);
-                
+                updateEl('alloc-us', allocation.US ?? BASE_ALLOCATION.US);
+                updateEl('alloc-kr', allocation.KR ?? BASE_ALLOCATION.KR);
+                updateEl('alloc-eu', allocation.EU ?? BASE_ALLOCATION.EU);
+                updateEl('alloc-em', allocation.EM ?? BASE_ALLOCATION.EM);
+                updateEl('alloc-gold', allocation.Gold ?? BASE_ALLOCATION.Gold);
+                updateEl('alloc-bond', allocation.Bond ?? BASE_ALLOCATION.Bond);
+                updateEl('alloc-cash', allocation.Cash ?? BASE_ALLOCATION.Cash);
+
                 // 세부 비중 업데이트 (메인 비중 기준 비례 배분)
                 const updateSubAllocs = (className, mainAlloc, ratios) => {
                     const els = document.querySelectorAll('.' + className);
@@ -11221,19 +11225,19 @@
                         }
                     });
                 };
-                
+
                 // 미국: 40%, 25%, 20%, 15%
-                updateSubAllocs('sub-alloc-us', allocation.US || 20, [0.4, 0.25, 0.2, 0.15]);
+                updateSubAllocs('sub-alloc-us', allocation.US ?? BASE_ALLOCATION.US, [0.4, 0.25, 0.2, 0.15]);
                 // 금: 70%, 18%, 12%
-                updateSubAllocs('sub-alloc-gold', allocation.Gold || 17, [0.7, 0.18, 0.12]);
+                updateSubAllocs('sub-alloc-gold', allocation.Gold ?? BASE_ALLOCATION.Gold, [0.7, 0.18, 0.12]);
                 // 채권: 53%, 33%, 14%
-                updateSubAllocs('sub-alloc-bond', allocation.Bond || 15, [0.53, 0.33, 0.14]);
+                updateSubAllocs('sub-alloc-bond', allocation.Bond ?? BASE_ALLOCATION.Bond, [0.53, 0.33, 0.14]);
                 // 유럽/일본: 50%, 50%
-                updateSubAllocs('sub-alloc-eu', allocation.EU || 10, [0.5, 0.5]);
+                updateSubAllocs('sub-alloc-eu', allocation.EU ?? BASE_ALLOCATION.EU, [0.5, 0.5]);
                 // 신흥국: 50%, 25%, 25%
-                updateSubAllocs('sub-alloc-em', allocation.EM || 8, [0.5, 0.25, 0.25]);
+                updateSubAllocs('sub-alloc-em', allocation.EM ?? BASE_ALLOCATION.EM, [0.5, 0.25, 0.25]);
                 // 한국: 33%, 27%, 20%, 20%
-                updateSubAllocs('sub-alloc-kr', allocation.KR || 15, [0.33, 0.27, 0.2, 0.2]);
+                updateSubAllocs('sub-alloc-kr', allocation.KR ?? BASE_ALLOCATION.KR, [0.33, 0.27, 0.2, 0.2]);
                 
                 console.log('✅ 세부 비중 업데이트 완료');
             }
@@ -11277,7 +11281,7 @@
                     ${isPrimary ? 'border: 2px solid ' + severityTextColors[s.severity] + ';' : ''}
                 ">
                     ${s.name}
-                    ${isPrimary ? '<span style="font-size: 0.65rem;">(우선)</span>' : ''}
+                    ${isPrimary ? '<span style="font-size: 0.75rem;">(우선)</span>' : ''}
                 </span>`;
             });
             document.getElementById('triggeredScenariosList').innerHTML = triggeredHtml;
@@ -11378,8 +11382,8 @@
                     scenarioAssetRec.recommended.forEach(asset => {
                         assetHtml += `<div style="padding: 8px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.7rem;">
                             <div style="font-weight: 600; color: var(--text-primary);">${asset.ticker}</div>
-                            <div style="color: var(--text-muted); font-size: 0.65rem;">${asset.name}</div>
-                            <div style="color: var(--accent-green); font-size: 0.6rem; margin-top: 2px;">${asset.reason}</div>
+                            <div style="color: var(--text-muted); font-size: 0.75rem;">${asset.name}</div>
+                            <div style="color: var(--accent-green); font-size: 0.7rem; margin-top: 2px;">${asset.reason}</div>
                         </div>`;
                     });
                     assetHtml += `</div></div>`;
@@ -11391,7 +11395,7 @@
                         <div style="font-size: 0.7rem; color: var(--accent-red); font-weight: 600; margin-bottom: 6px;">⛔ 회피 또는 축소</div>
                         <div style="display: flex; flex-wrap: wrap; gap: 6px;">`;
                     scenarioAssetRec.avoid.forEach(asset => {
-                        assetHtml += `<span style="padding: 4px 10px; background: rgba(239,68,68,0.1); border-radius: 4px; font-size: 0.65rem; color: var(--accent-red);">
+                        assetHtml += `<span style="padding: 4px 10px; background: rgba(239,68,68,0.1); border-radius: 4px; font-size: 0.75rem; color: var(--accent-red);">
                             ${asset.ticker}
                         </span>`;
                     });
@@ -11751,14 +11755,14 @@
                 if (el) el.textContent = Math.round(value);
             };
             
-            updateEl('alloc-us', allocation.US || 20);
-            updateEl('alloc-kr', allocation.KR || 15);
-            updateEl('alloc-eu', allocation.EU || 10);
-            updateEl('alloc-em', allocation.EM || 8);
-            updateEl('alloc-gold', allocation.Gold || 17);
-            updateEl('alloc-bond', allocation.Bond || 15);
-            updateEl('alloc-cash', allocation.Cash || 15);
-            
+            updateEl('alloc-us', allocation.US ?? BASE_ALLOCATION.US);
+            updateEl('alloc-kr', allocation.KR ?? BASE_ALLOCATION.KR);
+            updateEl('alloc-eu', allocation.EU ?? BASE_ALLOCATION.EU);
+            updateEl('alloc-em', allocation.EM ?? BASE_ALLOCATION.EM);
+            updateEl('alloc-gold', allocation.Gold ?? BASE_ALLOCATION.Gold);
+            updateEl('alloc-bond', allocation.Bond ?? BASE_ALLOCATION.Bond);
+            updateEl('alloc-cash', allocation.Cash ?? BASE_ALLOCATION.Cash);
+
             // 세부 비중 업데이트 (메인 비중 기준 비례 배분)
             const updateSubAllocs = (className, mainAlloc, ratios) => {
                 const els = document.querySelectorAll(`.${className}`);
@@ -11769,19 +11773,19 @@
                     }
                 });
             };
-            
+
             // 미국: 40%, 25%, 20%, 15%
-            updateSubAllocs('sub-alloc-us', allocation.US || 20, [0.4, 0.25, 0.2, 0.15]);
+            updateSubAllocs('sub-alloc-us', allocation.US ?? BASE_ALLOCATION.US, [0.4, 0.25, 0.2, 0.15]);
             // 금: 70%, 18%, 12%
-            updateSubAllocs('sub-alloc-gold', allocation.Gold || 17, [0.7, 0.18, 0.12]);
+            updateSubAllocs('sub-alloc-gold', allocation.Gold ?? BASE_ALLOCATION.Gold, [0.7, 0.18, 0.12]);
             // 채권: 53%, 33%, 14%
-            updateSubAllocs('sub-alloc-bond', allocation.Bond || 15, [0.53, 0.33, 0.14]);
+            updateSubAllocs('sub-alloc-bond', allocation.Bond ?? BASE_ALLOCATION.Bond, [0.53, 0.33, 0.14]);
             // 유럽/일본: 50%, 50%
-            updateSubAllocs('sub-alloc-eu', allocation.EU || 10, [0.5, 0.5]);
+            updateSubAllocs('sub-alloc-eu', allocation.EU ?? BASE_ALLOCATION.EU, [0.5, 0.5]);
             // 신흥국: 50%, 25%, 25%
-            updateSubAllocs('sub-alloc-em', allocation.EM || 8, [0.5, 0.25, 0.25]);
+            updateSubAllocs('sub-alloc-em', allocation.EM ?? BASE_ALLOCATION.EM, [0.5, 0.25, 0.25]);
             // 한국: 33%, 27%, 20%, 20%
-            updateSubAllocs('sub-alloc-kr', allocation.KR || 15, [0.33, 0.27, 0.2, 0.2]);
+            updateSubAllocs('sub-alloc-kr', allocation.KR ?? BASE_ALLOCATION.KR, [0.33, 0.27, 0.2, 0.2]);
             
             console.log('✅ 포트폴리오 비중 업데이트 완료');
         }
@@ -12466,7 +12470,7 @@
                 html += '<div style="font-weight: 700; font-size: 0.85rem;">' + policy.title + '</div>';
                 html += '<div style="font-size: 0.7rem; color: var(--text-muted);">' + (policy.status || '') + '</div>';
                 html += '</div>';
-                html += '<span style="padding: 2px 8px; background: ' + sc.bg + '; color: ' + sc.text + '; border-radius: 4px; font-size: 0.65rem; font-weight: 600;">' + sc.label + '</span>';
+                html += '<span style="padding: 2px 8px; background: ' + sc.bg + '; color: ' + sc.text + '; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">' + sc.label + '</span>';
                 html += '<span style="color: var(--text-muted);">▼</span>';
                 html += '</summary>';
                 
@@ -12485,7 +12489,7 @@
                         var assetLabel = assetIcons[assetKey] || assetKey;
                         
                         html += '<div style="background: var(--bg-card); padding: 8px; border-radius: 6px;">';
-                        html += '<div style="color: var(--text-muted); font-size: 0.65rem; margin-bottom: 4px;">' + assetLabel + '</div>';
+                        html += '<div style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 4px;">' + assetLabel + '</div>';
                         
                         asset.affected.slice(0, 4).forEach(function(item) {
                             var arrow = item.direction === 'positive' ? '<span style="color: #10b981;">📈</span>' :
@@ -12572,7 +12576,7 @@
                 html += '<div style="margin-top: 16px; padding: 14px; background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border-color);">';
                 html += '<h4 style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">';
                 html += '🔗 복수 정책 영향 종목 종합 판단';
-                html += '<span style="font-size: 0.65rem; padding: 2px 6px; background: var(--accent-blue); color: white; border-radius: 4px;">' + duplicateStocks.length + '개</span>';
+                html += '<span style="font-size: 0.75rem; padding: 2px 6px; background: var(--accent-blue); color: white; border-radius: 4px;">' + duplicateStocks.length + '개</span>';
                 html += '</h4>';
                 
                 html += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">';
@@ -12583,19 +12587,19 @@
                     html += '<div style="background: ' + oc.bg + '; border: 1px solid ' + oc.border + '; border-radius: 8px; padding: 10px;">';
                     html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">';
                     html += '<span style="font-weight: 700; font-size: 0.85rem;">' + (stock.ticker || stock.name) + '</span>';
-                    html += '<span style="font-size: 0.65rem; padding: 2px 6px; background: ' + oc.border + '22; color: ' + oc.text + '; border-radius: 4px; font-weight: 600;">' + stock.overallLabel + '</span>';
+                    html += '<span style="font-size: 0.75rem; padding: 2px 6px; background: ' + oc.border + '22; color: ' + oc.text + '; border-radius: 4px; font-weight: 600;">' + stock.overallLabel + '</span>';
                     html += '</div>';
                     
                     if (stock.name && stock.ticker) {
                         html += '<div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 6px;">' + stock.name + '</div>';
                     }
                     
-                    html += '<div style="font-size: 0.65rem; color: var(--text-secondary);">';
+                    html += '<div style="font-size: 0.75rem; color: var(--text-secondary);">';
                     html += '📊 긍정: <span style="color: #10b981; font-weight: 600;">' + stock.positiveCount + '</span> / ';
                     html += '부정: <span style="color: #ef4444; font-weight: 600;">' + stock.negativeCount + '</span>';
                     html += '</div>';
                     
-                    html += '<div style="margin-top: 6px; font-size: 0.6rem; color: var(--text-muted);">';
+                    html += '<div style="margin-top: 6px; font-size: 0.7rem; color: var(--text-muted);">';
                     stock.impacts.slice(0, 3).forEach(function(imp) {
                         var arrow = imp.direction === 'positive' ? '📈' : imp.direction === 'negative' ? '📉' : '➖';
                         html += arrow + ' ' + imp.policy + '<br>';
@@ -12665,12 +12669,12 @@
                 html += '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">';
                 html += '<div style="flex: 1;">';
                 html += '<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">';
-                html += '<span style="font-size: 0.65rem; padding: 1px 6px; background: ' + ts.bg + '; color: ' + ts.text + '; border-radius: 3px;">' + ts.label + '</span>';
+                html += '<span style="font-size: 0.75rem; padding: 1px 6px; background: ' + ts.bg + '; color: ' + ts.text + '; border-radius: 3px;">' + ts.label + '</span>';
                 if (item.assetType) {
                     var typeLabel = item.assetType === 'stock' ? '주식' : item.assetType === 'bond' ? '채권' : item.assetType === 'etf' ? 'ETF' : item.assetType === 'commodity' ? '원자재' : item.assetType;
-                    html += '<span style="font-size: 0.6rem; padding: 1px 4px; background: var(--bg-card); color: var(--text-muted); border-radius: 2px;">' + typeLabel + '</span>';
+                    html += '<span style="font-size: 0.7rem; padding: 1px 4px; background: var(--bg-card); color: var(--text-muted); border-radius: 2px;">' + typeLabel + '</span>';
                 }
-                html += '<span style="font-size: 0.65rem; color: var(--text-muted);">' + (item.date || '') + '</span>';
+                html += '<span style="font-size: 0.75rem; color: var(--text-muted);">' + (item.date || '') + '</span>';
                 html += '</div>';
                 html += '<div style="font-weight: 700; font-size: 0.8rem;">' + (item.ticker ? item.ticker + ' ' : '') + item.headline + '</div>';
                 if (item.details || item.priceImpact) {
@@ -12688,7 +12692,7 @@
                         var relColor = related.direction === 'positive' ? '#10b981' : related.direction === 'negative' ? '#ef4444' : '#64748b';
                         var relBg = related.direction === 'positive' ? 'rgba(16,185,129,0.15)' : related.direction === 'negative' ? 'rgba(239,68,68,0.15)' : 'rgba(100,116,139,0.15)';
                         var relArrow = related.direction === 'positive' ? '📈' : related.direction === 'negative' ? '📉' : '➖';
-                        html += '<span style="font-size: 0.6rem; padding: 2px 6px; background: ' + relBg + '; color: ' + relColor + '; border-radius: 4px;">' + relArrow + ' ' + related.name + '</span>';
+                        html += '<span style="font-size: 0.7rem; padding: 2px 6px; background: ' + relBg + '; color: ' + relColor + '; border-radius: 4px;">' + relArrow + ' ' + related.name + '</span>';
                     });
                     html += '</div>';
                 }
@@ -12924,7 +12928,7 @@
             // regionAdjustments에서 계산된 비중 가져오기 (있으면)
             var calculatedWeights = {};
             if (config.regionAdjustments) {
-                var baseAlloc = { US: 25, KR: 15, EU: 10, EM: 8, Gold: 12, Bond: 20, Cash: 10 };
+                var baseAlloc = BASE_ALLOCATION;
                 var ra = config.regionAdjustments;
                 calculatedWeights = {
                     us: baseAlloc.US + (ra.US || 0),
@@ -13132,7 +13136,7 @@
                         if (header && !header.querySelector('.current-month-badge')) {
                             var badge = document.createElement('span');
                             badge.className = 'current-month-badge';
-                            badge.style.cssText = 'font-size: 0.65rem; background: var(--accent-gold); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;';
+                            badge.style.cssText = 'font-size: 0.75rem; background: var(--accent-gold); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;';
                             badge.textContent = '현재';
                             header.appendChild(badge);
                         }
@@ -13995,6 +13999,29 @@
             alert('복사되었습니다!');
         }
         
+        // ★ v4.0: JSON 전처리 공통 함수 (주석 제거, URL 보존)
+        function sanitizeJsonText(text) {
+            // 마크다운 코드블록 제거
+            text = text.replace(/```json\n?/gi, '').replace(/```\n?/gi, '').trim();
+            // 문자열 안의 // (URL 등) 보존하면서 주석만 제거
+            // 1단계: 문자열 리터럴을 임시 토큰으로 치환
+            var strings = [];
+            text = text.replace(/"(?:[^"\\]|\\.)*"/g, function(match) {
+                strings.push(match);
+                return '__STR_' + (strings.length - 1) + '__';
+            });
+            // 2단계: 주석 제거 (이제 문자열 밖의 // 만 남아있음)
+            text = text.replace(/^\s*\/\/.*$/gm, '');
+            text = text.replace(/\s*\/\/.*$/gm, '');
+            // 3단계: 문자열 복원
+            text = text.replace(/__STR_(\d+)__/g, function(match, idx) {
+                return strings[parseInt(idx)];
+            });
+            // 후처리: trailing comma 제거
+            text = text.replace(/,(\s*[}\]])/g, '$1');
+            return text;
+        }
+
         // Config 파일 업로드 핸들러
         function handleConfigUpload(event) {
             var file = event.target.files[0];
@@ -14002,14 +14029,7 @@
             var reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    var text = e.target.result;
-                    // 마크다운 코드블록 제거
-                    text = text.replace(/```json\n?/gi, '').replace(/```\n?/gi, '').trim();
-                    // JavaScript 스타일 주석 제거
-                    text = text.replace(/^\s*\/\/.*$/gm, '');
-                    text = text.replace(/,\s*\/\/.*$/gm, ',');
-                    text = text.replace(/(\}|\])\s*\/\/.*$/gm, '$1');
-                    text = text.replace(/,(\s*[}\]])/g, '$1');
+                    var text = sanitizeJsonText(e.target.result);
                     var config = JSON.parse(text);
                     
                     // 정합성 검증
@@ -14039,16 +14059,8 @@
             var text = ta.value.trim();
             if (!text) { showMsg(msg, '❌ JSON을 입력하세요', false); return; }
             try {
-                // 마크다운 코드블록 제거
-                text = text.replace(/```json\n?/gi, '').replace(/```\n?/gi, '').trim();
-                // JavaScript 스타일 주석 제거 (// 로 시작하는 줄)
-                text = text.replace(/^\s*\/\/.*$/gm, '');
-                // 줄 끝 주석 제거 (값 뒤의 // 주석)
-                text = text.replace(/,\s*\/\/.*$/gm, ',');
-                text = text.replace(/(\}|\])\s*\/\/.*$/gm, '$1');
-                // 연속 콤마 정리
-                text = text.replace(/,(\s*[}\]])/g, '$1');
-                
+                text = sanitizeJsonText(text);
+
                 var config = JSON.parse(text);
                 
                 // 정합성 검증
@@ -14087,7 +14099,9 @@
             
             // 흔한 오류 패턴 분석
             if (msg.includes('Unexpected token') || msg.includes('Unrecognized token')) {
-                if (text.includes('//')) return 'JSON에 주석(//) 사용 불가' + lineInfo;
+                // // 가 문자열 밖에 있는 경우만 주석 경고 (URL 오탐 방지)
+                var hasComment = text.replace(/"(?:[^"\\]|\\.)*"/g, '').includes('//');
+                if (hasComment) return 'JSON에 주석(//) 사용 불가' + lineInfo;
                 if (text.match(/,\s*[\}\]]/)) return '마지막 항목 뒤 쉼표 제거 필요' + lineInfo;
                 if (text.match(/[{,]\s*[a-zA-Z_]+\s*:/)) return '키에 따옴표 필요 (예: name → "name")' + lineInfo;
                 return '잘못된 문자 발견' + lineInfo;
@@ -14120,11 +14134,25 @@
                 });
             }
             
-            // 2. regionAdjustments 합계 검증
+            // 2. regionAdjustments 합계 및 범위 검증
             if (config.regionAdjustments) {
                 var ra = config.regionAdjustments;
-                var sum = (ra.US || 0) + (ra.KR || 0) + (ra.EU || 0) + (ra.EM || 0) + 
-                          (ra.JP || 0) + (ra.Gold || 0) + (ra.Bond || 0) + (ra.Cash || 0);
+                var raKeys = ['US', 'KR', 'EU', 'EM', 'JP', 'Gold', 'Bond', 'Cash'];
+                var sum = 0;
+                raKeys.forEach(function(k) {
+                    var v = ra[k];
+                    if (typeof v === 'number') {
+                        sum += v;
+                        if (v < -10 || v > 10) {
+                            warnings.push(k + ' 조정값 ' + v + '%는 -10~+10 범위 초과');
+                        }
+                        // 기본 배분 이하로 줄이는지 검증
+                        var base = BASE_ALLOCATION[k] || 0;
+                        if (base + v < 0) {
+                            warnings.push(k + ' 조정 후 ' + (base + v) + '% (음수 불가)');
+                        }
+                    }
+                });
                 if (Math.abs(sum) > 1) {
                     warnings.push('지역조정 합계 ' + sum + '%≠0');
                 }
@@ -14381,14 +14409,10 @@
             var text = ta.value.trim();
             if (!text) { showMsg(msg, '❌ JSON을 입력하세요', false); return; }
             try {
-                text = text.replace(/```json\n?/gi, '').replace(/```\n?/gi, '').trim();
-                text = text.replace(/^\s*\/\/.*$/gm, '');
-                text = text.replace(/,\s*\/\/.*$/gm, ',');
-                text = text.replace(/(\}|\])\s*\/\/.*$/gm, '$1');
-                text = text.replace(/,(\s*[}\]])/g, '$1');
-                
+                text = sanitizeJsonText(text);
+
                 var config = JSON.parse(text);
-                
+
                 // 정합성 검증
                 var warnings = validateConfig2(config);
                 
