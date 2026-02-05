@@ -4582,6 +4582,17 @@
                 <div id="assetJudgmentReasoning" style="margin-top: 10px; padding: 8px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.6;"></div>
             </div>
 
+            <!-- 🔔 매도 타이밍 판단 시스템 -->
+            <div class="card" id="sellTimingCard" style="display:none; padding: 12px;">
+                <h3 class="card-title" style="font-size: 0.85rem; margin-bottom: 10px;">🔔 매도 신호 체크리스트 — 룰 기반 EXIT 시스템</h3>
+                <p style="font-size:0.65rem;color:var(--text-muted);margin-bottom:10px;line-height:1.5;">
+                    코로나 이후 자산간 상관관계 변화로 예측형 매도보다 <b>룰 기반 출구전략</b>이 효과적.
+                    아래 신호가 3개 이상 점등 시 비중 축소 고려, 5개 이상 시 적극 방어 전환 권장.
+                </p>
+                <div id="sellSignalGrid" style="display: grid; grid-template-columns: 1fr; gap: 6px;"></div>
+                <div id="sellTimingSummary" style="margin-top: 10px; padding: 8px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.6;"></div>
+            </div>
+
             <!-- 📊 상세 지표 현황 (엑셀/JSON 원시 데이터) - 접기 가능 -->
             <div class="card" id="rawIndicatorCard" style="display:none;">
                 <details>
@@ -5386,9 +5397,66 @@
             
             // 통계 업데이트
             document.getElementById('filteredCount').textContent = filtered.length;
-            const avg = filtered.length > 0 ? 
+            const avg = filtered.length > 0 ?
                 Math.round(filtered.reduce((s, d) => s + (d.TotalScore || 0), 0) / filtered.length) : 0;
             document.getElementById('avgScore').textContent = avg;
+
+            // ========== 섹터 집중도 경고 ==========
+            // 상위 20개 중 특정 섹터가 40% 이상 차지 시 경고 표시
+            var top20 = sorted.slice(0, 20);
+            var sectorCounts = {};
+            top20.forEach(function(d) {
+                var sec = d.Sector || d.ETF_Type || d.Category || 'Unknown';
+                sectorCounts[sec] = (sectorCounts[sec] || 0) + 1;
+            });
+            var concentrationWarnings = [];
+            Object.keys(sectorCounts).forEach(function(sec) {
+                var pct = (sectorCounts[sec] / top20.length) * 100;
+                if (pct >= 40 && sec !== 'Unknown' && sec !== '-') {
+                    concentrationWarnings.push(sec + ' ' + Math.round(pct) + '% (' + sectorCounts[sec] + '/' + top20.length + ')');
+                }
+            });
+
+            var warnEl = document.getElementById('sectorConcentrationWarning');
+            if (!warnEl) {
+                warnEl = document.createElement('div');
+                warnEl.id = 'sectorConcentrationWarning';
+                warnEl.style.cssText = 'padding:8px 12px;margin:8px 0 0;border-radius:8px;font-size:0.75rem;display:none;';
+                var tbodyEl = document.getElementById('screening-tbody');
+                if (tbodyEl && tbodyEl.closest('table')) {
+                    tbodyEl.closest('table').parentNode.insertBefore(warnEl, tbodyEl.closest('table').nextSibling);
+                }
+            }
+            if (concentrationWarnings.length > 0) {
+                warnEl.style.display = 'block';
+                warnEl.style.background = 'rgba(245,158,11,0.15)';
+                warnEl.style.color = 'var(--accent-gold)';
+                warnEl.style.border = '1px solid rgba(245,158,11,0.3)';
+                warnEl.innerHTML = '⚠️ <b>섹터 집중 경고</b>: 상위 20개 중 ' + concentrationWarnings.join(', ') + ' — 분산투자 점검 권장';
+            } else {
+                warnEl.style.display = 'none';
+            }
+
+            // 데이터 완성도 낮은 종목 경고
+            var lowDataCount = display.filter(function(d) { return d._dataCompleteness != null && d._dataCompleteness < 0.4; }).length;
+            var dataWarnEl = document.getElementById('dataCompletenessWarning');
+            if (!dataWarnEl) {
+                dataWarnEl = document.createElement('div');
+                dataWarnEl.id = 'dataCompletenessWarning';
+                dataWarnEl.style.cssText = 'padding:8px 12px;margin:4px 0 0;border-radius:8px;font-size:0.75rem;display:none;';
+                if (warnEl && warnEl.parentNode) {
+                    warnEl.parentNode.insertBefore(dataWarnEl, warnEl.nextSibling);
+                }
+            }
+            if (lowDataCount > 0) {
+                dataWarnEl.style.display = 'block';
+                dataWarnEl.style.background = 'rgba(100,116,139,0.15)';
+                dataWarnEl.style.color = 'var(--text-muted)';
+                dataWarnEl.style.border = '1px solid rgba(100,116,139,0.3)';
+                dataWarnEl.innerHTML = '📉 데이터 불완전 종목 ' + lowDataCount + '개 — 점수에 완성도 패널티 반영됨 (지표 40% 미만 보유)';
+            } else {
+                dataWarnEl.style.display = 'none';
+            }
         }
         
         // 필터 버튼 이벤트
@@ -5468,6 +5536,121 @@
             return data.filter(d => d._sheet === sheet).map(d => d[col]).filter(x => x != null && !isNaN(x));
         }
         
+        // ========== 데이터 완성도 기반 점수 보정 (null→50 결함 해소) ==========
+        // 핵심 지표가 null인 종목은 percentileRank가 50(중간)을 반환하여
+        // 데이터 부족 종목이 "무난하게 중간"에 위치하는 문제 해결
+        // 방법: 데이터 완성도(0~1)를 계산하고, TotalScore에 패널티 적용
+        function applyDataCompletenessPenalty(data) {
+            const stockKeys = ['PER', 'PBR', 'ForwardPE', 'FCFYield(%)', 'ROE(%)', 'ROA(%)',
+                'GrossMargin(%)', 'OpMargin(%)', 'CurrentRatio', 'DebtRatio(%)',
+                'RevenueGrowth(%)', 'EarningsGrowth(%)', 'Return60D(%)', 'Return120D(%)',
+                'Volatility20D', 'MaxDrawdown(%)', 'RSI14', 'Beta'];
+            const etfKeys = ['ExpenseRatio(%)', 'Return3M(%)', 'Return6M(%)', 'Return1Y(%)',
+                'Return60D(%)', 'Return120D(%)', 'Volatility20D', 'DivYield(%)'];
+
+            data.forEach(d => {
+                const isETF = (d._sheet || '').includes('ETF');
+                const keys = isETF ? etfKeys : stockKeys;
+
+                let available = 0;
+                keys.forEach(k => {
+                    if (d[k] != null && !isNaN(d[k])) available++;
+                });
+
+                const completeness = available / keys.length; // 0~1
+                d._dataCompleteness = completeness;
+
+                // 패널티 적용: score * (0.6 + 0.4 * completeness)
+                // 100% 데이터 → 1.0배 (변화 없음)
+                // 50% 데이터 → 0.8배
+                // 0% 데이터 → 0.6배 (최대 40% 감점)
+                if (d.TotalScore != null) {
+                    const penalty = 0.6 + 0.4 * completeness;
+                    d._originalScore = d.TotalScore;
+                    d.TotalScore = d.TotalScore * penalty;
+                }
+            });
+
+            return data;
+        }
+
+        // ========== 시장 레짐 기반 동적 가중치 조정 ==========
+        // appData.marketState를 참조하여 스코어링 가중치를 보수적으로(±5%) 조정
+        // BEAR/RECESSION → Quality/Risk↑, Momentum/Growth↓
+        // BULL/EXPANSION → Growth/Momentum↑, Risk↓
+        function getRegimeWeightAdjustment() {
+            var ms = appData.marketState;
+            if (!ms || !ms.finalState) return null;
+
+            var state = ms.finalState;
+            // 각 팩터에 대한 가중치 델타 (절대값, 최대 ±0.05)
+            // Value, Quality, Growth, Momentum, Risk, Flow 순서
+            var adjustments = {
+                'BEAR':        { Value: 0.03, Quality: 0.05, Growth: -0.04, Momentum: -0.05, Risk: 0.04, Flow: -0.03 },
+                'CAUTION':     { Value: 0.02, Quality: 0.03, Growth: -0.02, Momentum: -0.03, Risk: 0.03, Flow: -0.03 },
+                'NEUTRAL':     { Value: 0, Quality: 0, Growth: 0, Momentum: 0, Risk: 0, Flow: 0 },
+                'BULL':        { Value: -0.02, Quality: -0.02, Growth: 0.04, Momentum: 0.04, Risk: -0.03, Flow: -0.01 },
+                'OPPORTUNITY': { Value: 0.05, Quality: 0.03, Growth: -0.03, Momentum: -0.05, Risk: 0.03, Flow: -0.03 }
+            };
+
+            return adjustments[state] || null;
+        }
+
+        // 레짐 가중치를 적용하여 TotalScore 재계산 (주식만, ETF는 팩터 구조 다름)
+        function applyRegimeWeights(data) {
+            var adj = getRegimeWeightAdjustment();
+            if (!adj) return data;
+
+            data.forEach(d => {
+                var sh = d._sheet || '';
+                if (sh.includes('ETF')) return; // ETF는 Cost/Momentum/Risk/Income 구조라 별도 처리 불필요
+
+                // 기본 가중치 (Version A 기준, 다른 버전도 비슷한 비율)
+                var baseW;
+                if (sh === 'KR_Stocks') {
+                    baseW = { Value: 0.25, Quality: 0.20, Growth: 0.15, Momentum: 0.15, Risk: 0.20, Flow: 0.05 };
+                } else if (sh === 'US_Stocks') {
+                    baseW = { Value: 0.25, Quality: 0.20, Growth: 0.15, Momentum: 0.15, Risk: 0.15, Flow: 0.10 };
+                } else {
+                    return;
+                }
+
+                // 조정된 가중치 적용
+                var newW = {};
+                var sum = 0;
+                Object.keys(baseW).forEach(k => {
+                    newW[k] = Math.max(0.01, baseW[k] + (adj[k] || 0));
+                    sum += newW[k];
+                });
+                // 합계 1.0으로 정규화
+                Object.keys(newW).forEach(k => { newW[k] /= sum; });
+
+                // 점수 재계산
+                if (d.ValueScore != null && d.QualityScore != null) {
+                    var regimeScore =
+                        (d.ValueScore || 0) * newW.Value +
+                        (d.QualityScore || 0) * newW.Quality +
+                        (d.GrowthScore || 0) * newW.Growth +
+                        (d.MomentumScore || 0) * newW.Momentum +
+                        (d.RiskScore || 0) * newW.Risk +
+                        (d.FlowScore || 0) * newW.Flow;
+
+                    d._regimeAdjusted = true;
+                    d._preRegimeScore = d.TotalScore;
+                    d.TotalScore = regimeScore;
+                }
+            });
+
+            return data;
+        }
+
+        // 데이터 완성도 + 레짐 가중치를 일괄 적용하는 후처리 함수
+        function applyPostScoringAdjustments(data) {
+            applyRegimeWeights(data);
+            applyDataCompletenessPenalty(data);
+            return data;
+        }
+
         // ========== 공통 필터 플래그 계산 (모든 버전에서 동일) ==========
         // data.json 원시 데이터 기반으로 _overbought, _nearHigh, _contrarian 설정
         // 🔬 2020년대 학술 연구 기반 개선 (이슈 21번)
@@ -7336,13 +7519,14 @@
                     } else {
                         calcScoresVersionE(screeningData);
                     }
+                    applyPostScoringAdjustments(screeningData);
                     const _tb = document.getElementById('totalBadge'); if(_tb) _tb.textContent = `✅ ${screeningData.length}개 종목 (v${this.value})`;
                     renderTable();
                     console.log(`버전 ${this.value}로 재계산 완료`);
                 }
             });
         });
-        
+
         // 스크리닝 필터 이벤트 (모든 버전 공통) - 2020년대 연구 기반 7개 필터
         ['filterOverbought', 'filterNearHigh', 'filterVolatility', 'filterContrarianOnly', 'filterMomentumOnly', 'filterQualityOnly', 'filterIlliquidOnly', 'filterValueGraduate'].forEach(id => {
             const el = document.getElementById(id);
@@ -7453,8 +7637,9 @@
                     } else {
                         calcScoresVersionE(screeningData);
                     }
+                    applyPostScoringAdjustments(screeningData);
                     console.log(`스크리닝 점수 계산 완료 (버전 ${version})`);
-                    
+
                     // 필터 버튼 업데이트 (null 체크)
                     var sheetAllBtn = document.querySelector('[data-filter="sheet"][data-value="ALL"]');
                     if (sheetAllBtn) sheetAllBtn.textContent = `전체 (${newData.length})`;
@@ -8542,7 +8727,8 @@
                     } else {
                         calcScoresVersionE(screeningData);
                     }
-                    
+                    applyPostScoringAdjustments(screeningData);
+
                     // UI 업데이트
                     const sheetFilter = document.querySelector('[data-filter="sheet"][data-value="ALL"]');
                     if (sheetFilter) sheetFilter.textContent = `전체 (${newData.length})`;
@@ -8668,6 +8854,7 @@
         } else {
             calcScoresVersionE(screeningData);
         }
+        applyPostScoringAdjustments(screeningData);
 
         // 초기 렌더링
         renderTable();
@@ -9985,6 +10172,11 @@
             const assetJudgment = evaluateAssetClass(ind, macro, valuation, sentiment, korea, resolvedScenario);
             console.log('🔍 assetJudgment:', assetJudgment);
 
+            // ★ v4.0: 매도 타이밍 판단
+            console.log('🔍 매도 신호 판단 시작...');
+            const sellSignals = evaluateSellSignals(ind, macro, valuation, sentiment, korea);
+            console.log('🔍 sellSignals:', sellSignals);
+
             // 종합 상태 결정
             let finalState = resolvedScenario.marketState;
             let riskLevel = resolvedScenario.riskLevel;
@@ -10002,6 +10194,7 @@
                 resolvedScenario,
                 portfolioResult,
                 assetJudgment,
+                sellSignals,
                 layers: { macro, valuation, sentiment, korea },
                 indicators: ind
             };
@@ -11450,6 +11643,190 @@
         
         // 결과 표시
         // ★★★ v4.0: 거시환경 종합 → 자산별 매수/중립/회피 판단 ★★★
+        // ========== 매도 타이밍 판단 (룰 기반 EXIT 시스템) ==========
+        // 코로나 이후 전통 상관관계 붕괴 → 예측형 X, 룰 기반 출구전략 O
+        // 핵심 원칙: 각 신호는 독립적으로 판단, 누적 개수로 위험도 평가
+        function evaluateSellSignals(ind, macro, valuation, sentiment, korea) {
+            var signals = [];
+
+            // 1. VIX 급등 (공포 지수)
+            if (ind.vix != null) {
+                if (ind.vix > 30) {
+                    signals.push({ id: 'vix-spike', name: 'VIX 공포 영역', icon: '🚨',
+                        status: 'danger', detail: 'VIX ' + ind.vix.toFixed(1) + ' — 30 이상은 극심한 공포, 변동성 확대 구간' });
+                } else if (ind.vix > 22) {
+                    signals.push({ id: 'vix-elevated', name: 'VIX 경계 구간', icon: '⚠️',
+                        status: 'warning', detail: 'VIX ' + ind.vix.toFixed(1) + ' — 22~30 불안심리 확산 중' });
+                } else {
+                    signals.push({ id: 'vix-ok', name: 'VIX 안정', icon: '✅',
+                        status: 'ok', detail: 'VIX ' + ind.vix.toFixed(1) + ' — 정상 범위' });
+                }
+            }
+
+            // 2. 수익률 곡선 역전 (경기침체 선행지표)
+            if (ind.yield10Y != null && ind.yield2Y != null) {
+                var spread = ind.yield10Y - ind.yield2Y;
+                if (spread < 0) {
+                    signals.push({ id: 'yield-inversion', name: '수익률 곡선 역전', icon: '🚨',
+                        status: 'danger', detail: '10Y-2Y 스프레드 ' + (spread * 100).toFixed(0) + 'bp — 침체 선행 신호' });
+                } else if (spread < 0.25) {
+                    signals.push({ id: 'yield-flat', name: '수익률 곡선 평탄화', icon: '⚠️',
+                        status: 'warning', detail: '10Y-2Y 스프레드 ' + (spread * 100).toFixed(0) + 'bp — 경계 구간' });
+                } else {
+                    signals.push({ id: 'yield-normal', name: '수익률 곡선 정상', icon: '✅',
+                        status: 'ok', detail: '10Y-2Y 스프레드 ' + (spread * 100).toFixed(0) + 'bp' });
+                }
+            }
+
+            // 3. 하이일드 스프레드 (신용 리스크)
+            if (ind.hySpread != null) {
+                if (ind.hySpread > 5.0) {
+                    signals.push({ id: 'hy-wide', name: '하이일드 스프레드 확대', icon: '🚨',
+                        status: 'danger', detail: 'HY 스프레드 ' + ind.hySpread.toFixed(2) + '% — 신용경색 우려' });
+                } else if (ind.hySpread > 4.0) {
+                    signals.push({ id: 'hy-elevated', name: '하이일드 스프레드 경계', icon: '⚠️',
+                        status: 'warning', detail: 'HY 스프레드 ' + ind.hySpread.toFixed(2) + '% — 리스크 프리미엄 상승 중' });
+                } else {
+                    signals.push({ id: 'hy-ok', name: '하이일드 스프레드 안정', icon: '✅',
+                        status: 'ok', detail: 'HY 스프레드 ' + ind.hySpread.toFixed(2) + '%' });
+                }
+            }
+
+            // 4. 공포탐욕 극단 (과열 → 매도, 공포 → 홀드/매수)
+            if (ind.fng != null && !isNaN(ind.fng)) {
+                if (ind.fng > 80) {
+                    signals.push({ id: 'fng-greed', name: '극단적 탐욕', icon: '🚨',
+                        status: 'danger', detail: 'F&G ' + ind.fng + ' — 과열 정점 근처, 되돌림 가능성 높음' });
+                } else if (ind.fng > 65) {
+                    signals.push({ id: 'fng-high', name: '탐욕 구간', icon: '⚠️',
+                        status: 'warning', detail: 'F&G ' + ind.fng + ' — 시장 과열 경계' });
+                } else if (ind.fng < 20) {
+                    signals.push({ id: 'fng-fear', name: '극단적 공포', icon: '💎',
+                        status: 'opportunity', detail: 'F&G ' + ind.fng + ' — 역발상 매수 구간, 매도 보류' });
+                } else {
+                    signals.push({ id: 'fng-neutral', name: '심리 중립', icon: '✅',
+                        status: 'ok', detail: 'F&G ' + ind.fng });
+                }
+            }
+
+            // 5. CAPE 고평가 (장기 밸류에이션)
+            if (ind.cape != null) {
+                if (ind.cape > 35) {
+                    signals.push({ id: 'cape-extreme', name: 'CAPE 극단적 고평가', icon: '🚨',
+                        status: 'danger', detail: 'CAPE ' + ind.cape.toFixed(1) + ' — 역사적 상위 5%, 10년 기대수익률 저조' });
+                } else if (ind.cape > 28) {
+                    signals.push({ id: 'cape-high', name: 'CAPE 고평가 구간', icon: '⚠️',
+                        status: 'warning', detail: 'CAPE ' + ind.cape.toFixed(1) + ' — 장기 평균(16~18) 크게 상회' });
+                } else {
+                    signals.push({ id: 'cape-ok', name: 'CAPE 적정/저평가', icon: '✅',
+                        status: 'ok', detail: 'CAPE ' + ind.cape.toFixed(1) });
+                }
+            }
+
+            // 6. 거시경제 레짐 (macro layer)
+            if (macro && macro.regime) {
+                if (macro.regime === 'RECESSION') {
+                    signals.push({ id: 'regime-recession', name: '경기 침체 국면', icon: '🚨',
+                        status: 'danger', detail: macro.regime + ' — ISM/고용 악화, 방어적 자산 전환 필요' });
+                } else if (macro.regime === 'LATE_CYCLE') {
+                    signals.push({ id: 'regime-late', name: '경기 후반부', icon: '⚠️',
+                        status: 'warning', detail: macro.regime + ' — 순환적 고점 근접, 이익 실현 고려' });
+                } else {
+                    signals.push({ id: 'regime-ok', name: '경기 확장/초기', icon: '✅',
+                        status: 'ok', detail: macro.regime + ' — 유지 가능' });
+                }
+            }
+
+            // 7. 모멘텀 붕괴 (S&P500 1개월 수익률)
+            if (ind.sp5001m != null && !isNaN(ind.sp5001m)) {
+                if (ind.sp5001m < -8) {
+                    signals.push({ id: 'sp-crash', name: 'S&P500 급락', icon: '🚨',
+                        status: 'danger', detail: 'S&P500 1M ' + ind.sp5001m.toFixed(1) + '% — 모멘텀 붕괴, 추세 반전 가능' });
+                } else if (ind.sp5001m < -4) {
+                    signals.push({ id: 'sp-drop', name: 'S&P500 조정 진행', icon: '⚠️',
+                        status: 'warning', detail: 'S&P500 1M ' + ind.sp5001m.toFixed(1) + '% — 단기 약세 국면' });
+                } else {
+                    signals.push({ id: 'sp-ok', name: 'S&P500 모멘텀 유지', icon: '✅',
+                        status: 'ok', detail: 'S&P500 1M ' + (ind.sp5001m >= 0 ? '+' : '') + ind.sp5001m.toFixed(1) + '%' });
+                }
+            }
+
+            // 8. 원화 급락 (한국 투자자 환 리스크)
+            if (ind.usdkrw != null) {
+                if (ind.usdkrw > 1400) {
+                    signals.push({ id: 'krw-weak', name: '원화 약세 극단', icon: '⚠️',
+                        status: 'warning', detail: 'USD/KRW ' + ind.usdkrw.toFixed(0) + ' — 해외자산 환차익 기대, 추가매수 신중' });
+                } else if (ind.usdkrw > 1350) {
+                    signals.push({ id: 'krw-elevated', name: '원화 약세', icon: '⚠️',
+                        status: 'warning', detail: 'USD/KRW ' + ind.usdkrw.toFixed(0) + ' — 환율 부담 구간' });
+                } else {
+                    signals.push({ id: 'krw-ok', name: '환율 안정', icon: '✅',
+                        status: 'ok', detail: 'USD/KRW ' + ind.usdkrw.toFixed(0) });
+                }
+            }
+
+            // 9. ISM PMI (실물경기 축소)
+            if (ind.ism != null) {
+                if (ind.ism < 45) {
+                    signals.push({ id: 'ism-contract', name: 'ISM 제조업 깊은 수축', icon: '🚨',
+                        status: 'danger', detail: 'ISM ' + ind.ism.toFixed(1) + ' — 45 미만 경기 급랭, 기업이익 감소 예상' });
+                } else if (ind.ism < 50) {
+                    signals.push({ id: 'ism-sub50', name: 'ISM 50 이하 수축', icon: '⚠️',
+                        status: 'warning', detail: 'ISM ' + ind.ism.toFixed(1) + ' — 제조업 수축 구간' });
+                } else {
+                    signals.push({ id: 'ism-ok', name: 'ISM 확장', icon: '✅',
+                        status: 'ok', detail: 'ISM ' + ind.ism.toFixed(1) + ' — 제조업 확장 유지' });
+                }
+            }
+
+            // 10. 외국인 매도 (한국 시장 특수)
+            if (ind.foreign20d != null && !isNaN(ind.foreign20d)) {
+                if (ind.foreign20d < -1.5) {
+                    signals.push({ id: 'foreign-sell', name: '외국인 대규모 순매도', icon: '🚨',
+                        status: 'danger', detail: '외국인 20일 순매수 ' + ind.foreign20d.toFixed(1) + '조 — 한국 비중 축소 고려' });
+                } else if (ind.foreign20d < -0.5) {
+                    signals.push({ id: 'foreign-weak', name: '외국인 매도 기조', icon: '⚠️',
+                        status: 'warning', detail: '외국인 20일 순매수 ' + ind.foreign20d.toFixed(1) + '조' });
+                } else {
+                    signals.push({ id: 'foreign-ok', name: '외국인 수급 양호', icon: '✅',
+                        status: 'ok', detail: '외국인 20일 순매수 ' + (ind.foreign20d >= 0 ? '+' : '') + ind.foreign20d.toFixed(1) + '조' });
+                }
+            }
+
+            // 집계
+            var dangerCount = signals.filter(function(s) { return s.status === 'danger'; }).length;
+            var warningCount = signals.filter(function(s) { return s.status === 'warning'; }).length;
+            var totalWarning = dangerCount + warningCount;
+
+            var overallLevel, overallDesc, overallColor;
+            if (dangerCount >= 3 || totalWarning >= 5) {
+                overallLevel = 'SELL_STRONG';
+                overallDesc = '적극 방어 전환 — 위험자산 비중 대폭 축소, 현금/단기채 확대';
+                overallColor = 'var(--accent-red)';
+            } else if (dangerCount >= 2 || totalWarning >= 3) {
+                overallLevel = 'SELL_PARTIAL';
+                overallDesc = '부분 이익 실현 — 수익 종목 비중 줄이기, 트레일링 스탑 설정';
+                overallColor = '#f97316';
+            } else if (totalWarning >= 2) {
+                overallLevel = 'CAUTION';
+                overallDesc = '경계 유지 — 신규 매수 자제, 기존 포지션 모니터링 강화';
+                overallColor = 'var(--accent-gold)';
+            } else {
+                overallLevel = 'HOLD';
+                overallDesc = '유지 가능 — 현재 매도 압력 낮음, 기존 전략 유지';
+                overallColor = 'var(--accent-green)';
+            }
+
+            return {
+                signals: signals,
+                dangerCount: dangerCount,
+                warningCount: warningCount,
+                overallLevel: overallLevel,
+                overallDesc: overallDesc,
+                overallColor: overallColor
+            };
+        }
+
         function evaluateAssetClass(ind, macro, valuation, sentiment, korea, resolvedScenario) {
             /*
              * 6대 자산군(주식KR, 주식US, 채권, 금, 현금, 원자재)에 대해
@@ -11793,8 +12170,53 @@
                 reasonHtml += '<div style="margin-top: 4px;">' + aj.reasons.map(r => '<div style="padding: 2px 0;">• ' + r + '</div>').join('') + '</div>';
                 document.getElementById('assetJudgmentReasoning').innerHTML = reasonHtml;
             }
+
+            // ★ v4.0: 매도 타이밍 판단 패널 렌더링
+            if (result.sellSignals) {
+                var ss = result.sellSignals;
+                document.getElementById('sellTimingCard').style.display = 'block';
+
+                var statusColors = {
+                    danger: 'var(--accent-red)',
+                    warning: 'var(--accent-gold)',
+                    ok: 'var(--accent-green)',
+                    opportunity: 'var(--accent-blue)'
+                };
+                var statusBg = {
+                    danger: 'rgba(239,68,68,0.12)',
+                    warning: 'rgba(245,158,11,0.12)',
+                    ok: 'rgba(16,185,129,0.08)',
+                    opportunity: 'rgba(59,130,246,0.12)'
+                };
+
+                var signalHtml = ss.signals.map(function(s) {
+                    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:' + (statusBg[s.status] || 'var(--bg-secondary)') + ';border-radius:6px;border-left:3px solid ' + (statusColors[s.status] || 'var(--text-muted)') + ';">' +
+                        '<span style="font-size:1rem;flex-shrink:0;">' + s.icon + '</span>' +
+                        '<div style="flex:1;min-width:0;">' +
+                            '<div style="font-size:0.75rem;font-weight:600;color:' + (statusColors[s.status] || 'var(--text-primary)') + ';">' + s.name + '</div>' +
+                            '<div style="font-size:0.65rem;color:var(--text-muted);margin-top:1px;">' + s.detail + '</div>' +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+
+                document.getElementById('sellSignalGrid').innerHTML = signalHtml;
+
+                // 종합 판단
+                var summaryHtml = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
+                    '<span style="font-size:0.85rem;font-weight:700;color:' + ss.overallColor + ';">' + ss.overallLevel + '</span>' +
+                    '<span style="font-size:0.65rem;color:var(--text-muted);">위험 ' + ss.dangerCount + ' / 경고 ' + ss.warningCount + ' / 총 ' + ss.signals.length + '개 신호</span>' +
+                '</div>' +
+                '<div style="font-size:0.75rem;color:var(--text-secondary);">' + ss.overallDesc + '</div>' +
+                '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bg-card);font-size:0.65rem;color:var(--text-muted);line-height:1.5;">' +
+                    '💡 <b>코로나 이후 참고사항</b>: 전통적 자산 상관관계(주식↓채권↑)가 약화됨. ' +
+                    '금리 인상기에 주식·채권 동반 하락, 금·비트코인이 위험자산처럼 움직이는 등 ' +
+                    '새로운 패턴 출현. 단일 지표 의존보다 <b>복수 신호 교차 확인</b>이 중요.' +
+                '</div>';
+
+                document.getElementById('sellTimingSummary').innerHTML = summaryHtml;
+            }
         }
-        
+
         // 샘플 데이터 로드
         function loadSampleData() {
             document.getElementById('ind_vix').value = '15.86';
