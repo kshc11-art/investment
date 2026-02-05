@@ -4575,6 +4575,13 @@
                 </div>
             </div>
             
+            <!-- ★ v4.0: 자산별 매수 판단 패널 -->
+            <div class="card" id="assetJudgmentCard" style="display:none; padding: 12px;">
+                <h3 class="card-title" style="font-size: 0.85rem; margin-bottom: 10px;">📊 지금 뭘 살까? — 거시환경 기반 자산별 판단</h3>
+                <div id="assetJudgmentGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px;"></div>
+                <div id="assetJudgmentReasoning" style="margin-top: 10px; padding: 8px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.6;"></div>
+            </div>
+
             <!-- 📊 상세 지표 현황 (엑셀/JSON 원시 데이터) - 접기 가능 -->
             <div class="card" id="rawIndicatorCard" style="display:none;">
                 <details>
@@ -9973,12 +9980,17 @@
                 };
             }
             
+            // ★ v4.0: 자산별 매수 판단
+            console.log('🔍 자산별 매수 판단 시작...');
+            const assetJudgment = evaluateAssetClass(ind, macro, valuation, sentiment, korea, resolvedScenario);
+            console.log('🔍 assetJudgment:', assetJudgment);
+
             // 종합 상태 결정
             let finalState = resolvedScenario.marketState;
             let riskLevel = resolvedScenario.riskLevel;
             let actionBias = resolvedScenario.actionBias;
             let reasoning = resolvedScenario.reasoning;
-            
+
             // 결과 객체
             const result = {
                 finalState,
@@ -9989,6 +10001,7 @@
                 triggeredScenarios,
                 resolvedScenario,
                 portfolioResult,
+                assetJudgment,
                 layers: { macro, valuation, sentiment, korea },
                 indicators: ind
             };
@@ -11436,6 +11449,214 @@
         }
         
         // 결과 표시
+        // ★★★ v4.0: 거시환경 종합 → 자산별 매수/중립/회피 판단 ★★★
+        function evaluateAssetClass(ind, macro, valuation, sentiment, korea, resolvedScenario) {
+            /*
+             * 6대 자산군(주식KR, 주식US, 채권, 금, 현금, 원자재)에 대해
+             * 거시경제 지표를 종합하여 BUY / NEUTRAL / AVOID 판단 제공
+             *
+             * 판단 기준 (학술/실무 근거):
+             * - 금리 사이클: 금리 상승기=채권 불리/주식 중립, 금리 하락기=채권 유리/성장주 유리
+             * - 밸류에이션: CAPE>35=주식 고평가, CAPE<20=주식 저평가
+             * - 경기 사이클: 확장기=주식 유리, 침체기=채권/금/현금 유리
+             * - VIX: >30=위험자산 회피, <15=위험자산 긍정
+             * - 실질금리: 양수=금 불리, 음수=금 유리
+             * - 환율: 원화 약세=한국주식 불리(외국인 이탈), 원화 강세=유리
+             */
+
+            const assets = {};
+            const reasons = [];
+
+            // === 점수 시스템: -3(강한 회피) ~ +3(강한 매수) ===
+            let usStockScore = 0, krStockScore = 0, bondScore = 0, goldScore = 0, cashScore = 0, commodityScore = 0;
+
+            // 1. 경기 사이클 (가장 큰 영향)
+            if (macro.regime === 'EXPANSION') {
+                usStockScore += 2; krStockScore += 2; bondScore -= 1; goldScore -= 1; cashScore -= 1;
+                reasons.push('🏛️ 경기확장: 주식 비중 확대, 채권/금 축소 적기');
+            } else if (macro.regime === 'RECESSION') {
+                usStockScore -= 2; krStockScore -= 2; bondScore += 2; goldScore += 2; cashScore += 2; commodityScore -= 1;
+                reasons.push('🏛️ 침체 신호: 안전자산(채권/금/현금) 확대, 주식 축소');
+            } else if (macro.regime === 'LATE_CYCLE') {
+                usStockScore -= 1; krStockScore -= 1; bondScore += 1; goldScore += 1; cashScore += 1;
+                reasons.push('🏛️ 후기 사이클: 방어적 포지션으로 전환 고려');
+            }
+
+            // 2. 금리 환경
+            if (ind.yield10Y != null) {
+                if (ind.yield10Y > 4.5) {
+                    bondScore -= 1; usStockScore -= 1; krStockScore -= 1;
+                    reasons.push('📈 10Y ' + ind.yield10Y.toFixed(1) + '%: 고금리 부담 — 채권가격 하방, 기업 비용 증가');
+                    // 단, 금리가 정점에 가까우면 장기채 매수 기회
+                    if (ind.yield10Y > 5.0) {
+                        bondScore += 1;
+                        reasons.push('💡 5% 초과: 역사적 고금리 — 장기채 분할 매수 고려 (금리 정점 시 큰 수익)');
+                    }
+                } else if (ind.yield10Y < 3.0) {
+                    usStockScore += 1; krStockScore += 1; bondScore -= 1;
+                    reasons.push('📉 저금리 환경: 주식 밸류에이션 지지, 채권 수익률 매력 낮음');
+                }
+
+                // 수익률 곡선 역전 (강력한 침체 신호)
+                if (ind.yield2Y != null && ind.yield10Y < ind.yield2Y) {
+                    usStockScore -= 1; krStockScore -= 1; bondScore += 1; cashScore += 1;
+                    reasons.push('⚠️ 수익률 곡선 역전: 6~18개월 내 침체 가능성 — 단기채/현금 선호');
+                }
+            }
+
+            // 3. 밸류에이션
+            if (valuation.state === 'BUBBLE') {
+                usStockScore -= 2; krStockScore -= 1;
+                reasons.push('🫧 밸류에이션 버블: 미국 주식 신규 진입 매우 위험');
+            } else if (valuation.state === 'EXPENSIVE') {
+                usStockScore -= 1;
+                reasons.push('💰 고평가: 미국 주식 추가 매수 신중 — 가치주/배당주 선호');
+            } else if (valuation.state === 'CHEAP') {
+                usStockScore += 2; krStockScore += 1;
+                reasons.push('💎 저평가: 주식 적극 매수 구간');
+            }
+
+            // CAPE 세부 (US 전용)
+            if (ind.cape != null) {
+                if (ind.cape > 38) {
+                    usStockScore -= 1;
+                } else if (ind.cape < 20) {
+                    usStockScore += 1;
+                }
+            }
+
+            // KOSPI PER (KR 전용)
+            if (ind.kospiPer != null) {
+                if (ind.kospiPer < 10) {
+                    krStockScore += 1;
+                    reasons.push('🇰🇷 코스피 PER ' + ind.kospiPer.toFixed(1) + '배: 한국 주식 저평가 구간');
+                } else if (ind.kospiPer > 14) {
+                    krStockScore -= 1;
+                }
+            }
+
+            // 4. 심리/센티먼트
+            if (ind.vix != null) {
+                if (ind.vix > 35) {
+                    usStockScore -= 1; krStockScore -= 1; goldScore += 1; cashScore += 1;
+                    reasons.push('😰 VIX ' + ind.vix.toFixed(0) + ': 극심한 공포 — 단, 역발상 분할 매수 기회일 수도');
+                } else if (ind.vix > 25) {
+                    cashScore += 1;
+                    reasons.push('😟 VIX 높음: 불확실성 큼 — 현금 비중 유지');
+                } else if (ind.vix < 13) {
+                    goldScore -= 1;
+                    reasons.push('😌 VIX 매우 낮음: 시장 안정 — 안전자산 매력 감소');
+                }
+            }
+
+            if (ind.fng != null) {
+                if (ind.fng <= 20) {
+                    usStockScore += 1; krStockScore += 1;
+                    reasons.push('😱 F&G ' + ind.fng + ' (극심한 공포): 역발상 매수 시그널');
+                } else if (ind.fng >= 80) {
+                    usStockScore -= 1; cashScore += 1;
+                    reasons.push('🤑 F&G ' + ind.fng + ' (극심한 탐욕): 차익실현 고려, 신규 매수 자제');
+                }
+            }
+
+            // 5. 한국 특수 요인
+            if (korea.overall === 'UNFAVORABLE') {
+                krStockScore -= 1;
+                reasons.push('🇰🇷 외국인 이탈 + 환율 부담: 한국 비중 축소 권고');
+            } else if (korea.overall === 'FAVORABLE') {
+                krStockScore += 1;
+                reasons.push('🇰🇷 외국인 유입 + 원화 안정: 한국 비중 확대 유리');
+            }
+
+            if (ind.usdkrw != null) {
+                if (ind.usdkrw > 1400) {
+                    krStockScore -= 1; goldScore += 1;
+                    reasons.push('💱 환율 ' + ind.usdkrw.toFixed(0) + '원: 원화 약세 — 달러자산/금 헤지 필요');
+                }
+            }
+
+            // 6. 금 특수 요인 (실질금리, 인플레이션)
+            if (ind.yield10Y != null && ind.gold1y != null) {
+                if (ind.gold1y > 30) {
+                    goldScore += 1;
+                    reasons.push('🥇 금 1Y +' + ind.gold1y.toFixed(0) + '%: 강한 상승 모멘텀');
+                }
+            }
+
+            // 7. 원자재
+            if (ind.wti1y != null) {
+                if (ind.wti1y > 20) {
+                    commodityScore += 1;
+                    reasons.push('🛢️ WTI +' + ind.wti1y.toFixed(0) + '%: 에너지 섹터/원자재 ETF 주목');
+                } else if (ind.wti1y < -20) {
+                    commodityScore -= 1;
+                }
+            }
+
+            // 8. ISM PMI
+            if (ind.ism != null) {
+                if (ind.ism > 55) {
+                    usStockScore += 1; commodityScore += 1;
+                    reasons.push('🏭 ISM ' + ind.ism.toFixed(0) + ': 제조업 호황 — 경기순환주/원자재 유리');
+                } else if (ind.ism < 45) {
+                    usStockScore -= 1; bondScore += 1;
+                    reasons.push('🏭 ISM ' + ind.ism.toFixed(0) + ': 제조업 위축 — 채권/방어주 전환');
+                }
+            }
+
+            // === 점수 → 판단 매핑 ===
+            function scoreToJudgment(score, name) {
+                let judgment, color, icon, desc;
+                if (score >= 2) {
+                    judgment = '적극 매수'; color = '#10b981'; icon = '🟢';
+                    desc = name + ' 비중 확대 적기';
+                } else if (score >= 1) {
+                    judgment = '매수 우위'; color = '#34d399'; icon = '🔵';
+                    desc = name + ' 분할 매수 고려';
+                } else if (score <= -2) {
+                    judgment = '회피'; color = '#ef4444'; icon = '🔴';
+                    desc = name + ' 비중 축소 또는 진입 자제';
+                } else if (score <= -1) {
+                    judgment = '축소 고려'; color = '#f97316'; icon = '🟠';
+                    desc = name + ' 신규 매수 신중';
+                } else {
+                    judgment = '중립'; color = '#a1a1aa'; icon = '⚪';
+                    desc = name + ' 현 비중 유지';
+                }
+                return { score, judgment, color, icon, desc };
+            }
+
+            assets.usStock = scoreToJudgment(Math.max(-3, Math.min(3, usStockScore)), '미국 주식');
+            assets.krStock = scoreToJudgment(Math.max(-3, Math.min(3, krStockScore)), '한국 주식');
+            assets.bond = scoreToJudgment(Math.max(-3, Math.min(3, bondScore)), '채권');
+            assets.gold = scoreToJudgment(Math.max(-3, Math.min(3, goldScore)), '금');
+            assets.cash = scoreToJudgment(Math.max(-3, Math.min(3, cashScore)), '현금');
+            assets.commodity = scoreToJudgment(Math.max(-3, Math.min(3, commodityScore)), '원자재');
+
+            // 핵심 한줄 요약
+            const allScores = [
+                { name: '미국주식', score: usStockScore },
+                { name: '한국주식', score: krStockScore },
+                { name: '채권', score: bondScore },
+                { name: '금', score: goldScore },
+                { name: '현금', score: cashScore },
+                { name: '원자재', score: commodityScore }
+            ];
+            const best = allScores.reduce((a, b) => a.score > b.score ? a : b);
+            const worst = allScores.reduce((a, b) => a.score < b.score ? a : b);
+
+            let summary = '';
+            if (best.score >= 2) {
+                summary = '현재 ' + best.name + ' 매수에 가장 유리한 환경입니다.';
+            } else if (worst.score <= -2) {
+                summary = worst.name + '은(는) 현재 비중 축소가 권고됩니다.';
+            } else {
+                summary = '뚜렷한 방향성 없음 — 분산투자 유지, 급격한 비중 변동 자제.';
+            }
+
+            return { assets, reasons, summary };
+        }
+
         function displayMarketResult(result) {
             document.getElementById('marketResultCard').style.display = 'block';
             document.getElementById('signalDetailsCard').style.display = 'block';
@@ -11529,6 +11750,49 @@
                     <div style="font-size: 0.8rem; margin-top: 4px;">${s.signal}</div>
                 </div>
             `).join('');
+
+            // ★ v4.0: 자산별 매수 판단 패널 렌더링
+            if (result.assetJudgment) {
+                const aj = result.assetJudgment;
+                document.getElementById('assetJudgmentCard').style.display = 'block';
+
+                const assetLabels = {
+                    usStock: { name: '🇺🇸 미국 주식', sub: 'S&P500, 나스닥' },
+                    krStock: { name: '🇰🇷 한국 주식', sub: 'KOSPI, KOSDAQ' },
+                    bond: { name: '📜 채권', sub: '미국채, 회사채' },
+                    gold: { name: '🥇 금', sub: 'GLD, 금현물' },
+                    cash: { name: '💵 현금', sub: 'MMF, 단기채' },
+                    commodity: { name: '🛢️ 원자재', sub: 'WTI, 구리' }
+                };
+
+                let gridHtml = '';
+                for (const [key, info] of Object.entries(assetLabels)) {
+                    const a = aj.assets[key];
+                    if (!a) continue;
+                    // 점수 바 (-3 ~ +3 → 0~100%)
+                    const barPct = ((a.score + 3) / 6) * 100;
+                    gridHtml += `
+                        <div style="background: var(--bg-secondary); border-radius: 8px; padding: 10px; border-top: 3px solid ${a.color};">
+                            <div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 2px;">${info.name}</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 6px;">${info.sub}</div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                <span style="font-size: 1rem;">${a.icon}</span>
+                                <span style="font-size: 0.85rem; font-weight: 700; color: ${a.color};">${a.judgment}</span>
+                            </div>
+                            <div style="background: var(--bg-card); border-radius: 3px; height: 6px; overflow: hidden;">
+                                <div style="height: 100%; width: ${barPct}%; background: ${a.color}; border-radius: 3px; transition: width 0.5s;"></div>
+                            </div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 4px;">${a.desc}</div>
+                        </div>
+                    `;
+                }
+                document.getElementById('assetJudgmentGrid').innerHTML = gridHtml;
+
+                // 판단 근거
+                let reasonHtml = '<div style="font-weight: 600; color: var(--text-primary); margin-bottom: 6px;">💡 ' + aj.summary + '</div>';
+                reasonHtml += '<div style="margin-top: 4px;">' + aj.reasons.map(r => '<div style="padding: 2px 0;">• ' + r + '</div>').join('') + '</div>';
+                document.getElementById('assetJudgmentReasoning').innerHTML = reasonHtml;
+            }
         }
         
         // 샘플 데이터 로드
