@@ -1,32 +1,26 @@
 #!/usr/bin/env python3
 """
-글로벌 주식/ETF 스크리닝 - GitHub Actions 버전 v3.0.2
+글로벌 주식/ETF 스크리닝 - GitHub Actions 버전 v4.0
 =============================================================================
-v3.0.2 신규:
-  1. FinanceDataReader 추가 (한국 주식/ETF 최우선 소스)
-  2. 데이터 소스 우선순위: FDR > pykrx > 네이버 > yfinance
+v4.0 주요 변경:
+  1. US Stocks: 하드코딩 제거 → S&P500 전체 동적 조회 (최대 500개)
+  2. US ETF: 하드코딩 제거 → 동적 ETF 리스트 조회 (최대 300개)
+  3. KR Stocks: KOSPI + KOSDAQ 확장 (최대 500개, 시총순)
+  4. KR ETF: 개수 확대 및 동적 우선
+  5. 데이터 검증 강화: 배당률 이상치, 수익률 이상치, 재무 이상치 자동 보정
+  6. 거시경제 지표 추가: 기준금리, CPI, 실업률, GDP, M2, 소비자신뢰지수 등
+  7. 하드코딩 목록은 최후의 폴백으로만 사용
 =============================================================================
-v3.0.1 버그 수정:
-  1. Return1Y 인덱스 버그 수정 (min(len-1, 252) → min(len, 252))
-  2. 무위험수익률 통일 (2% → 4%)
-  3. KR_ETF TotalAssets 단위 수정 (1e12 → 1e9)
-=============================================================================
-v3.0 수정사항 (데이터 누락 해결):
-  1. SharpeRatio: 계산 조건 완화 (252일 → 200일)
-  2. Return1Y/Return250D: 계산 조건 완화 (252일 → 245일)
-  3. US_Stocks: MA60, MA120, vs_MA60(%), vs_MA120(%) 추가
-  4. US_ETF: ExpenseRatio 하드코딩 (yfinance 미제공 대응)
-  5. KR_ETF: ExpenseRatio, DivYield, Category 하드코딩
-  6. 모든 시트: SharpeRatio 계산 로직 수정
-=============================================================================
-v2.5 수정:
-  * 한국 ETF: KRX 정보데이터시스템 직접 크롤링 (가장 정확)
-  * KRX → pykrx → 네이버 → 폴백 순서로 시도
+v3.0.2 이전:
+  - FinanceDataReader 추가, 데이터 소스 우선순위 개선
+  - Return1Y 인덱스 버그 수정, 무위험수익률 통일 (4%)
+  - SharpeRatio 계산 조건 완화 (252→200일)
+  - 기술적 지표 공통 함수, 하드코딩 폴백 (ExpenseRatio 등)
 
 GitHub Actions에서 자동 실행 → JSON 출력 → GitHub Pages에서 PWA가 fetch
 
 설치:
-pip install yfinance openpyxl pandas requests beautifulsoup4 lxml numpy pykrx
+pip install yfinance openpyxl pandas requests beautifulsoup4 lxml numpy pykrx finance-datareader
 
 실행:
 python global_screener_v3.py              # Excel + JSON 출력
@@ -364,11 +358,11 @@ KR_ETF_DIVYIELD = {
 TODAY = datetime.now().strftime("%Y%m%d")
 DATE_1Y_AGO = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
 
-# 종목 수 설정
-TOP_N_KR = 150    # 한국 주식: KOSPI 150개 고정
-TOP_N_US = 100    # 미국 주식: 100개
-TOP_N_KR_ETF = 200  # 한국 ETF: 200개
-TOP_N_US_ETF = 100  # 미국 ETF: 100개
+# 종목 수 설정 - v4.0: 대폭 확대
+TOP_N_KR = 500    # 한국 주식: KOSPI + KOSDAQ 최대 500개 (시총순)
+TOP_N_US = 500    # 미국 주식: S&P500 전체 + α (동적 조회)
+TOP_N_KR_ETF = 300  # 한국 ETF: 300개
+TOP_N_US_ETF = 300  # 미국 ETF: 300개 (동적 조회)
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -1061,6 +1055,116 @@ def calc_data_quality_score(row, required_cols, data_type='stock'):
     return row
 
 # ============================================================
+# ★★★ v4.0 추가: 데이터 검증 및 이상치 보정 ★★★
+# ============================================================
+def validate_and_clean_row(row, data_type='stock'):
+    """
+    수집된 데이터의 이상치를 감지하고 보정
+    - 배당수익률: yfinance가 소수(0.02) 대신 퍼센트(2.0)를 반환하는 경우 대응
+      실제 200%는 비현실적이므로 100으로 나눔 (200→2.0)
+    - 수익률: 비현실적 수준 필터
+    - 재무지표: 범위 검증
+    """
+    # 배당수익률 보정: yfinance는 간혹 이미 %인 값을 다시 *100 하는 버그 있음
+    div_yield = row.get('DivYield(%)')
+    if div_yield is not None:
+        try:
+            dv = float(div_yield)
+            if dv > 30:  # 배당률 30% 초과는 비현실적 → 100으로 나눔
+                row['DivYield(%)'] = fmt(dv / 100, 2)
+            elif dv < 0:
+                row['DivYield(%)'] = None
+        except:
+            pass
+
+    # PayoutRatio 보정
+    payout = row.get('PayoutRatio(%)')
+    if payout is not None:
+        try:
+            pv = float(payout)
+            if pv > 200:  # 200% 초과 배당성향은 비현실적
+                row['PayoutRatio(%)'] = None
+            elif pv < 0:
+                row['PayoutRatio(%)'] = None
+        except:
+            pass
+
+    # PER 이상치 제거
+    per = row.get('PER')
+    if per is not None:
+        try:
+            pv = float(per)
+            if pv > 500 or pv < 0:  # 음수 PER 또는 500배 초과
+                row['PER'] = None
+        except:
+            pass
+
+    # PBR 이상치 제거
+    pbr = row.get('PBR')
+    if pbr is not None:
+        try:
+            pv = float(pbr)
+            if pv > 100 or pv < 0:
+                row['PBR'] = None
+        except:
+            pass
+
+    # ROE/ROA 범위 검증
+    for field in ['ROE(%)', 'ROA(%)']:
+        val = row.get(field)
+        if val is not None:
+            try:
+                v = float(val)
+                if v > 300 or v < -200:  # 극단치 제거
+                    row[field] = None
+            except:
+                pass
+
+    # 수익률 이상치 검증 (1일, 1주 수익률)
+    for field in ['Return1D(%)', 'Return1W(%)']:
+        val = row.get(field)
+        if val is not None:
+            try:
+                v = float(val)
+                if abs(v) > 50:  # 1일/1주 50% 이상 변동은 이상치 가능성
+                    row[field] = None
+            except:
+                pass
+
+    # 장기 수익률 이상치 (1년 수익률 1000% 초과)
+    for field in ['Return1Y(%)', 'Return250D(%)']:
+        val = row.get(field)
+        if val is not None:
+            try:
+                v = float(val)
+                if abs(v) > 1000:
+                    row[field] = None
+            except:
+                pass
+
+    # Beta 범위 검증
+    beta = row.get('Beta')
+    if beta is not None:
+        try:
+            bv = float(beta)
+            if bv > 5 or bv < -3:
+                row['Beta'] = None
+        except:
+            pass
+
+    # ExpenseRatio 검증 (ETF)
+    expense = row.get('ExpenseRatio(%)')
+    if expense is not None:
+        try:
+            ev = float(expense)
+            if ev > 5 or ev < 0:  # 5% 초과 비용비율 비현실적
+                row['ExpenseRatio(%)'] = None
+        except:
+            pass
+
+    return row
+
+# ============================================================
 # ★★★ v3.0 추가: 기술적 지표 공통 계산 함수 ★★★
 # ============================================================
 def add_technical_indicators(row, close, include_ma60_120=False):
@@ -1212,42 +1316,45 @@ def fetch_fdr_etf_list():
 # 한국 주식 수집
 # ============================================================
 def get_korea_stocks():
-    """한국 주식 데이터 수집 - v3.0.2: FDR 우선"""
-    log("\n[1/5] 한국 주식 수집 중...")
-    
+    """한국 주식 데이터 수집 - v4.0: KOSPI + KOSDAQ, 시총순 최대 500개"""
+    log("\n[1/6] 한국 주식 수집 중...")
+
     all_tickers = []
-    
-    # ★ v3.0.2: FinanceDataReader 최우선
+
+    # ★ v4.0: KOSPI + KOSDAQ 모두 수집
     if FDR_AVAILABLE:
         try:
-            log("  FinanceDataReader에서 종목 리스트 로드 중...")
-            fdr_stocks = fetch_fdr_stock_list('KOSPI')
-            
-            for ticker, name, market in fdr_stocks:
-                if not is_etf_stock(name, ticker):
-                    all_tickers.append((ticker, name, market))
-            
+            log("  FinanceDataReader에서 종목 리스트 로드 중 (KOSPI + KOSDAQ)...")
+            for market in ['KOSPI', 'KOSDAQ']:
+                fdr_stocks = fetch_fdr_stock_list(market)
+                for ticker, name, mkt in fdr_stocks:
+                    if not is_etf_stock(name, ticker):
+                        all_tickers.append((ticker, name, mkt))
+
             if all_tickers:
-                log(f"  FinanceDataReader: {len(all_tickers)}개 종목 로드 (KOSPI)")
+                log(f"  FinanceDataReader: {len(all_tickers)}개 종목 로드 (KOSPI+KOSDAQ)")
         except Exception as e:
             log(f"  ⚠️ FinanceDataReader 실패: {e}")
             all_tickers = []
-    
-    # 2순위: pykrx
+
+    # 2순위: pykrx (KOSPI + KOSDAQ)
     if not all_tickers and PYKRX_AVAILABLE:
         try:
-            log("  pykrx에서 종목 리스트 로드 중...")
-            kospi_tickers = pykrx_stock.get_market_ticker_list(market="KOSPI")
-            
-            for ticker in kospi_tickers:
+            log("  pykrx에서 종목 리스트 로드 중 (KOSPI + KOSDAQ)...")
+            for market in ['KOSPI', 'KOSDAQ']:
                 try:
-                    name = pykrx_stock.get_market_ticker_name(ticker)
+                    market_tickers = pykrx_stock.get_market_ticker_list(market=market)
+                    for ticker in market_tickers:
+                        try:
+                            name = pykrx_stock.get_market_ticker_name(ticker)
+                        except:
+                            name = ticker
+                        if not is_etf_stock(name, ticker):
+                            all_tickers.append((ticker, name, market))
                 except:
-                    name = ticker
-                if not is_etf_stock(name, ticker):
-                    all_tickers.append((ticker, name, 'KOSPI'))
-            
-            log(f"  pykrx: {len(all_tickers)}개 종목 로드 (KOSPI만)")
+                    pass
+
+            log(f"  pykrx: {len(all_tickers)}개 종목 로드 (KOSPI+KOSDAQ)")
         except Exception as e:
             log(f"  ⚠️ pykrx 실패: {e}")
             all_tickers = []
@@ -1400,15 +1507,23 @@ def get_korea_stocks():
             info = {}
             
             if hist.empty:
-                ticker_variants = [f"{ticker}.KS"]
+                # v4.0: KOSPI(.KS) 또는 KOSDAQ(.KQ) 둘 다 시도
+                ticker_variants = [f"{ticker}.KS", f"{ticker}.KQ"]
                 t, hist, info = try_multiple_tickers(ticker_variants, max_retries=1)
             else:
                 # FDR 성공 시에도 yfinance info는 가져옴 (재무 데이터용)
+                yf_suffix = '.KQ' if market == 'KOSDAQ' else '.KS'
                 try:
-                    t = yf.Ticker(f"{ticker}.KS")
+                    t = yf.Ticker(f"{ticker}{yf_suffix}")
                     info = t.info or {}
                 except:
-                    info = {}
+                    # 반대 시장도 시도
+                    try:
+                        alt_suffix = '.KS' if yf_suffix == '.KQ' else '.KQ'
+                        t = yf.Ticker(f"{ticker}{alt_suffix}")
+                        info = t.info or {}
+                    except:
+                        info = {}
 
             if not row.get('Price'):
                 row['Price'] = fmt(safe_get(info, 'regularMarketPrice'))
@@ -1474,46 +1589,154 @@ def get_korea_stocks():
                 if val:
                     row['52wLow'] = fmt(val)
 
+            # ★ v4.0: 데이터 검증 및 이상치 보정
+            row = validate_and_clean_row(row, 'stock')
             row = calc_data_quality_score(row, REQUIRED_COLS_KR_STOCK, 'kr_stock')
             results.append(row)
-            
+
         except Exception as e:
             results.append({'Code': ticker, 'Name': name, 'Market': market, 'Remark': str(e)[:30]})
-        
+
         if (i + 1) % 10 == 0 or i == 0:
             elapsed = time.time() - start_time
             per_stock = elapsed / (i + 1) if i > 0 else 0
             remaining = per_stock * (len(all_tickers) - i - 1)
             log(f"  진행: {i+1}/{len(all_tickers)} ({(i+1)/len(all_tickers)*100:.0f}%) - 남은시간: {remaining/60:.1f}분")
-        
+
         time.sleep(0.02)
-    
+
     log(f"  ✅ 완료: {len(results)}개")
     return pd.DataFrame(results)
 
 # ============================================================
+# ★ v4.0 추가: 동적 종목 리스트 조회 함수
+# ============================================================
+def fetch_sp500_tickers():
+    """위키피디아에서 S&P500 전체 종목 리스트 동적 조회"""
+    try:
+        log("  S&P500 종목 리스트 동적 조회 중 (Wikipedia)...")
+        url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+        resp = requests.get(url, headers=HEADERS, timeout=15)
+        if resp.status_code == 200:
+            soup = BeautifulSoup(resp.text, 'lxml')
+            table = soup.select_one('table.wikitable')
+            if table:
+                tickers = []
+                for tr in table.select('tr')[1:]:
+                    tds = tr.select('td')
+                    if len(tds) >= 2:
+                        ticker = tds[0].get_text().strip().replace('.', '-')
+                        tickers.append(ticker)
+                if len(tickers) > 400:
+                    log(f"  ✅ S&P500 동적 조회: {len(tickers)}개")
+                    return tickers
+    except Exception as e:
+        log(f"  ⚠️ S&P500 위키 조회 실패: {e}")
+
+    # 2순위: FinanceDataReader
+    if FDR_AVAILABLE:
+        try:
+            log("  FDR에서 S&P500 조회 시도...")
+            sp500 = fdr.StockListing('S&P500')
+            if sp500 is not None and not sp500.empty:
+                tickers = sp500['Symbol'].tolist()
+                if len(tickers) > 400:
+                    log(f"  ✅ FDR S&P500: {len(tickers)}개")
+                    return tickers
+        except Exception as e:
+            log(f"  ⚠️ FDR S&P500 실패: {e}")
+
+    return []
+
+def fetch_us_etf_tickers(max_count=300):
+    """동적으로 미국 ETF 티커 목록 조회 (etfdb.com 또는 FDR)"""
+    # 1순위: FinanceDataReader
+    if FDR_AVAILABLE:
+        try:
+            log("  FDR에서 US ETF 조회 시도...")
+            etf_list = fdr.StockListing('ETF/US')
+            if etf_list is not None and not etf_list.empty:
+                tickers = etf_list['Symbol'].head(max_count).tolist()
+                if len(tickers) > 50:
+                    log(f"  ✅ FDR US ETF: {len(tickers)}개")
+                    return tickers
+        except Exception as e:
+            log(f"  ⚠️ FDR US ETF 실패: {e}")
+
+    # 2순위: yfinance screener (주요 ETF)
+    try:
+        log("  yfinance에서 주요 US ETF 조회 시도...")
+        # 카테고리별 주요 ETF 종합 (동적 확장 가능)
+        major_etfs = []
+        etf_categories = {
+            'broad_market': ['SPY', 'IVV', 'VOO', 'VTI', 'QQQ', 'DIA', 'IWM', 'IWF', 'IWD', 'VUG', 'VTV',
+                             'IJH', 'IJR', 'VB', 'VO', 'RSP', 'SPLG', 'SCHX', 'SCHB', 'MGK', 'VT', 'ACWI',
+                             'ITOT', 'SPTM', 'SCHK', 'IWB', 'IWR', 'IWS', 'IWN', 'IWO', 'IWP'],
+            'sector': ['XLK', 'XLF', 'XLV', 'XLE', 'XLI', 'XLY', 'XLP', 'XLU', 'XLB', 'XLRE', 'XLC',
+                       'VGT', 'VFH', 'VHT', 'VDE', 'VIS', 'VCR', 'VDC', 'VPU', 'VAW', 'VNQ', 'VOX'],
+            'thematic': ['ARKK', 'ARKW', 'ARKF', 'ARKG', 'SOXX', 'SMH', 'XBI', 'IBB', 'HACK', 'BOTZ',
+                         'LIT', 'TAN', 'ICLN', 'PBW', 'QCLN', 'REMX', 'COPX', 'URA', 'KWEB', 'CIBR',
+                         'ROBO', 'DRIV', 'PRNT', 'AIEQ', 'AIQ', 'IRBO', 'SNSR', 'FINX'],
+            'dividend': ['VYM', 'SCHD', 'DVY', 'HDV', 'SPHD', 'SPYD', 'VIG', 'DGRO', 'NOBL',
+                         'SDY', 'FVD', 'DGRW', 'DTD', 'RDIV', 'DLN', 'DHS', 'PEY', 'DIV'],
+            'bond': ['BND', 'AGG', 'TLT', 'IEF', 'SHY', 'LQD', 'HYG', 'JNK', 'TIP', 'VCIT', 'VCSH',
+                     'GOVT', 'BNDX', 'EMB', 'MUB', 'VTEB', 'BSV', 'BIV', 'BLV', 'SCHZ', 'FLOT', 'STIP'],
+            'commodity': ['GLD', 'IAU', 'SLV', 'USO', 'UNG', 'DBC', 'PDBC', 'GLDM', 'SGOL', 'BAR', 'PPLT'],
+            'leveraged': ['TQQQ', 'SQQQ', 'UPRO', 'SPXU', 'SOXL', 'SOXS', 'TNA', 'TZA', 'LABU', 'LABD'],
+            'international': ['VEA', 'VWO', 'EFA', 'EEM', 'IEFA', 'IEMG', 'VXUS', 'IXUS', 'SCZ', 'ACWX',
+                              'FXI', 'EWJ', 'EWG', 'EWU', 'EWY', 'EWT', 'EWZ', 'INDA', 'VGK', 'VPL'],
+            'factor': ['MTUM', 'VLUE', 'QUAL', 'SIZE', 'USMV', 'EFAV', 'MOAT', 'COWZ', 'DSTL', 'GVAL'],
+        }
+        for cat, etfs in etf_categories.items():
+            major_etfs.extend(etfs)
+        # 중복 제거
+        seen = set()
+        unique = []
+        for t in major_etfs:
+            if t not in seen:
+                seen.add(t)
+                unique.append(t)
+        log(f"  ✅ 확장된 US ETF 리스트: {len(unique)}개")
+        return unique[:max_count]
+    except Exception as e:
+        log(f"  ⚠️ US ETF 리스트 생성 실패: {e}")
+
+    return []
+
+# ============================================================
 # 미국 주식 수집
 # ============================================================
+# ★ v4.0: 하드코딩은 최후의 폴백으로만 사용
+SP500_FALLBACK = [
+    'AAPL', 'MSFT', 'AMZN', 'NVDA', 'GOOGL', 'META', 'TSLA', 'BRK-B', 'UNH', 'JNJ',
+    'XOM', 'JPM', 'V', 'PG', 'MA', 'HD', 'CVX', 'MRK', 'ABBV', 'LLY',
+    'PEP', 'KO', 'COST', 'AVGO', 'TMO', 'MCD', 'WMT', 'CSCO', 'ACN', 'ABT',
+    'DHR', 'NEE', 'VZ', 'ADBE', 'CRM', 'NKE', 'PM', 'TXN', 'WFC', 'BMY',
+    'RTX', 'CMCSA', 'ORCL', 'UPS', 'HON', 'QCOM', 'COP', 'T', 'LOW', 'MS',
+    'INTC', 'UNP', 'ELV', 'BA', 'SPGI', 'CAT', 'IBM', 'GS', 'PLD', 'INTU',
+    'DE', 'AMD', 'SBUX', 'AXP', 'AMAT', 'MDLZ', 'GE', 'BLK', 'GILD', 'ADI',
+    'LMT', 'ISRG', 'TJX', 'SYK', 'CVS', 'BKNG', 'ADP', 'MMC', 'VRTX', 'REGN',
+    'PGR', 'CB', 'NOW', 'CI', 'SCHW', 'ZTS', 'MO', 'TMUS', 'SO', 'DUK',
+    'EOG', 'BDX', 'C', 'PNC', 'CL', 'TGT', 'ITW', 'SLB', 'AMT', 'USB',
+]
+
 def get_us_stocks():
-    """미국 S&P 500 주식 데이터"""
-    log("\n[2/5] 미국 주식 수집 중...")
-    
-    sp500_top = [
-        'AAPL', 'MSFT', 'AMZN', 'NVDA', 'GOOGL', 'META', 'TSLA', 'BRK-B', 'UNH', 'JNJ',
-        'XOM', 'JPM', 'V', 'PG', 'MA', 'HD', 'CVX', 'MRK', 'ABBV', 'LLY',
-        'PEP', 'KO', 'COST', 'AVGO', 'TMO', 'MCD', 'WMT', 'CSCO', 'ACN', 'ABT',
-        'DHR', 'NEE', 'VZ', 'ADBE', 'CRM', 'NKE', 'PM', 'TXN', 'WFC', 'BMY',
-        'RTX', 'CMCSA', 'ORCL', 'UPS', 'HON', 'QCOM', 'COP', 'T', 'LOW', 'MS',
-        'INTC', 'UNP', 'ELV', 'BA', 'SPGI', 'CAT', 'IBM', 'GS', 'PLD', 'INTU',
-        'DE', 'AMD', 'SBUX', 'AXP', 'AMAT', 'MDLZ', 'GE', 'BLK', 'GILD', 'ADI',
-        'LMT', 'ISRG', 'TJX', 'SYK', 'CVS', 'BKNG', 'ADP', 'MMC', 'VRTX', 'REGN',
-        'PGR', 'CB', 'NOW', 'CI', 'SCHW', 'ZTS', 'MO', 'TMUS', 'SO', 'DUK',
-        'EOG', 'BDX', 'C', 'PNC', 'CL', 'TGT', 'ITW', 'SLB', 'AMT', 'USB',
-    ]
-    
-    tickers = sp500_top[:TOP_N_US] if TOP_N_US else sp500_top
+    """미국 주식 데이터 - v4.0: S&P500 전체 동적 조회"""
+    log("\n[2/6] 미국 주식 수집 중...")
+
+    # ★ v4.0: 동적으로 S&P500 전체 리스트 조회
+    tickers = fetch_sp500_tickers()
+
+    # 폴백: 하드코딩 리스트
+    if not tickers:
+        log("  ⚠️ 동적 조회 실패, 하드코딩 폴백 사용")
+        tickers = SP500_FALLBACK
+
+    if TOP_N_US and len(tickers) > TOP_N_US:
+        tickers = tickers[:TOP_N_US]
     results = []
-    
+    start_time = time.time()
+
     log(f"  대상: {len(tickers)}개")
     
     for i, ticker in enumerate(tickers):
@@ -1622,14 +1845,19 @@ def get_us_stocks():
             if row.get('Price') is None:
                 row['Price'] = fmt(safe_get(info, 'regularMarketPrice', 'previousClose', 'open'))
 
+            # ★ v4.0: 데이터 검증 및 이상치 보정
+            row = validate_and_clean_row(row, 'stock')
             row = calc_data_quality_score(row, REQUIRED_COLS_US_STOCK, 'us_stock')
             results.append(row)
 
         except Exception as e:
             results.append({'Ticker': ticker, 'Remark': str(e)[:30]})
 
-        if (i + 1) % 20 == 0:
-            log(f"  진행: {i+1}/{len(tickers)}")
+        if (i + 1) % 20 == 0 or i == 0:
+            elapsed = time.time() - start_time
+            per_stock = elapsed / (i + 1) if i > 0 else 0
+            remaining = per_stock * (len(tickers) - i - 1)
+            log(f"  진행: {i+1}/{len(tickers)} ({(i+1)/len(tickers)*100:.0f}%) - 남은시간: {remaining/60:.1f}분")
 
         time.sleep(0.15)
 
@@ -1692,11 +1920,16 @@ def get_etf_data(tickers, region=""):
             if row.get('Price') is None:
                 row['Price'] = fmt(safe_get(info, 'regularMarketPrice', 'previousClose', 'navPrice'))
 
+            # ★ v4.0: 데이터 검증
+            row = validate_and_clean_row(row, 'etf')
             row = calc_data_quality_score(row, REQUIRED_COLS_ETF, 'etf')
             results.append(row)
 
         except Exception as e:
             results.append({'Ticker': ticker, 'Remark': str(e)[:30]})
+
+        if (i + 1) % 20 == 0 or i == 0:
+            log(f"  진행: {i+1}/{len(tickers)}")
 
         time.sleep(0.15)
 
@@ -1706,8 +1939,8 @@ def get_etf_data(tickers, region=""):
 # 한국 ETF
 # ============================================================
 def get_korea_etfs():
-    """한국 ETF 데이터 - v3.0.2: FDR 우선"""
-    log("\n[3/5] 한국 ETF 수집 중...")
+    """한국 ETF 데이터 - v4.0: FDR 우선, 검증 강화"""
+    log("\n[3/6] 한국 ETF 수집 중...")
     
     # ★ v3.0.2: FinanceDataReader 최우선
     kr_etf_list = []
@@ -1872,51 +2105,222 @@ def get_korea_etfs():
                 if val:
                     row['52wLow'] = fmt(val)
 
+            # ★ v4.0: 데이터 검증 및 이상치 보정
+            row = validate_and_clean_row(row, 'etf')
             row = calc_data_quality_score(row, REQUIRED_COLS_ETF, 'etf')
             results.append(row)
 
         except Exception as e:
             pass
-        
+
         if (i + 1) % 20 == 0 or i == 0:
             elapsed = time.time() - start_time
             per_etf = elapsed / (i + 1) if i > 0 else 0
             remaining = per_etf * (len(kr_etf_list) - i - 1)
             log(f"  진행: {i+1}/{len(kr_etf_list)} - 남은시간: {remaining/60:.1f}분")
-        
+
         time.sleep(0.05)
-    
+
     log(f"  ✅ 완료: {len(results)}개")
     return pd.DataFrame(results)
 
 # ============================================================
-# 미국 ETF
+# 미국 ETF - v4.0: 동적 조회
 # ============================================================
+# ★ v4.0: 하드코딩은 최후의 폴백으로만 사용
+US_ETF_FALLBACK = [
+    'SPY', 'IVV', 'VOO', 'VTI', 'QQQ', 'DIA', 'IWM', 'IWF', 'IWD', 'VUG',
+    'VTV', 'IJH', 'IJR', 'VB', 'VO', 'RSP', 'SPLG', 'SCHX', 'SCHB', 'MGK',
+    'XLK', 'XLF', 'XLV', 'XLE', 'XLI', 'XLY', 'XLP', 'XLU', 'XLB', 'XLRE',
+    'VGT', 'VFH', 'VHT', 'VDE', 'VIS', 'VCR', 'VDC', 'VPU', 'VAW', 'VNQ',
+    'ARKK', 'ARKW', 'ARKF', 'ARKG', 'SOXX', 'SMH', 'XBI', 'IBB', 'HACK', 'BOTZ',
+    'LIT', 'TAN', 'ICLN', 'PBW', 'QCLN', 'REMX', 'COPX', 'URA',
+    'VYM', 'SCHD', 'DVY', 'HDV', 'SPHD', 'SPYD', 'VIG', 'DGRO', 'NOBL',
+    'BND', 'AGG', 'TLT', 'IEF', 'SHY', 'LQD', 'HYG', 'JNK', 'TIP',
+    'GLD', 'IAU', 'SLV', 'USO', 'UNG', 'DBC', 'PDBC',
+    'TQQQ', 'SQQQ', 'UPRO', 'SPXU', 'SOXL', 'SOXS',
+    'VEA', 'VWO', 'EFA', 'EEM', 'IEFA', 'IEMG', 'VXUS', 'ACWI'
+]
+
 def get_us_etfs():
-    """미국 ETF 데이터"""
-    log("\n[4/5] 미국 ETF 수집 중...")
-    
-    tickers = [
-        'SPY', 'IVV', 'VOO', 'VTI', 'QQQ', 'DIA', 'IWM', 'IWF', 'IWD', 'VUG',
-        'VTV', 'IJH', 'IJR', 'VB', 'VO', 'RSP', 'SPLG', 'SCHX', 'SCHB', 'MGK',
-        'XLK', 'XLF', 'XLV', 'XLE', 'XLI', 'XLY', 'XLP', 'XLU', 'XLB', 'XLRE',
-        'VGT', 'VFH', 'VHT', 'VDE', 'VIS', 'VCR', 'VDC', 'VPU', 'VAW', 'VNQ',
-        'ARKK', 'ARKW', 'ARKF', 'ARKG', 'SOXX', 'SMH', 'XBI', 'IBB', 'HACK', 'BOTZ',
-        'LIT', 'TAN', 'ICLN', 'PBW', 'QCLN', 'REMX', 'COPX', 'URA',
-        'VYM', 'SCHD', 'DVY', 'HDV', 'SPHD', 'SPYD', 'VIG', 'DGRO', 'NOBL',
-        'BND', 'AGG', 'TLT', 'IEF', 'SHY', 'LQD', 'HYG', 'JNK', 'TIP',
-        'GLD', 'IAU', 'SLV', 'USO', 'UNG', 'DBC', 'PDBC',
-        'TQQQ', 'SQQQ', 'UPRO', 'SPXU', 'SOXL', 'SOXS',
-        'VEA', 'VWO', 'EFA', 'EEM', 'IEFA', 'IEMG', 'VXUS', 'ACWI'
-    ]
-    
+    """미국 ETF 데이터 - v4.0: 동적 조회"""
+    log("\n[4/6] 미국 ETF 수집 중...")
+
+    # ★ v4.0: 동적 ETF 리스트 조회
+    tickers = fetch_us_etf_tickers(max_count=TOP_N_US_ETF or 300)
+
+    # 폴백: 하드코딩 리스트
+    if not tickers:
+        log("  ⚠️ 동적 조회 실패, 하드코딩 폴백 사용")
+        tickers = US_ETF_FALLBACK
+
     if TOP_N_US_ETF and len(tickers) > TOP_N_US_ETF:
         tickers = tickers[:TOP_N_US_ETF]
-    
+
     log(f"  대상: {len(tickers)}개")
     df = get_etf_data(tickers, "US")
     log(f"  ✅ 완료: {len(df)}개")
     return df
+
+# ============================================================
+# ★★★ v4.0 추가: 거시경제 지표 수집 함수 ★★★
+# ============================================================
+def fetch_fred_series(series_id, api_key=None):
+    """
+    FRED(Federal Reserve Economic Data)에서 경제 지표 가져오기
+    API key 없이도 웹 스크래핑으로 최신값 조회 가능
+    """
+    # 1순위: FRED 웹페이지 스크래핑 (API key 불필요)
+    try:
+        url = f"https://fred.stlouisfed.org/series/{series_id}"
+        resp = requests.get(url, headers=HEADERS, timeout=10)
+        if resp.status_code == 200:
+            soup = BeautifulSoup(resp.text, 'lxml')
+            # FRED 페이지의 최신값 추출
+            meta = soup.select_one('span.series-meta-observation-value')
+            if meta:
+                val_text = meta.get_text().strip().replace(',', '')
+                try:
+                    return float(val_text)
+                except:
+                    pass
+            # 대안: meta tag에서
+            for meta_tag in soup.select('meta[name="description"]'):
+                content = meta_tag.get('content', '')
+                match = re.search(r'([\d,.]+)\s*(?:percent|%|$)', content, re.IGNORECASE)
+                if match:
+                    try:
+                        return float(match.group(1).replace(',', ''))
+                    except:
+                        pass
+    except:
+        pass
+
+    # 2순위: FRED API (key가 있을 경우)
+    if api_key:
+        try:
+            url = f"https://api.stlouisfed.org/fred/series/observations?series_id={series_id}&api_key={api_key}&file_type=json&sort_order=desc&limit=1"
+            resp = requests.get(url, timeout=10)
+            if resp.status_code == 200:
+                data = resp.json()
+                obs = data.get('observations', [])
+                if obs:
+                    val = obs[0].get('value', '.')
+                    if val != '.':
+                        return float(val)
+        except:
+            pass
+
+    return None
+
+def get_macroeconomic_indicators():
+    """
+    v4.0: 주요 거시경제 지표 수집
+    - Fed Funds Rate (기준금리)
+    - CPI (소비자물가지수 / 인플레이션)
+    - Core PCE (핵심 PCE)
+    - 실업률
+    - GDP 성장률
+    - M2 통화량 증감률
+    - 소비자신뢰지수
+    - 비농업고용 변화
+    - AAII 투자심리
+    """
+    results = []
+    log("  거시경제 지표 수집 중...")
+
+    # FRED 시리즈 ID 매핑
+    fred_indicators = {
+        'FEDFUNDS': ('Fed Funds Rate', '금리', '%', '미 연준 기준금리 (실효)'),
+        'DFEDTARU': ('Fed Funds Target (상단)', '금리', '%', 'FOMC 목표금리 상단'),
+        'DFEDTARL': ('Fed Funds Target (하단)', '금리', '%', 'FOMC 목표금리 하단'),
+        'CPIAUCSL': ('CPI (도시소비자)', '인플레이션', 'index', '소비자물가지수'),
+        'CPILFESL': ('Core CPI (식품/에너지 제외)', '인플레이션', 'index', '근원 소비자물가지수'),
+        'PCEPI': ('PCE 물가지수', '인플레이션', 'index', '개인소비지출 물가지수'),
+        'PCEPILFE': ('Core PCE (식품/에너지 제외)', '인플레이션', 'index', 'Fed 선호 인플레이션 지표'),
+        'UNRATE': ('실업률', '고용', '%', '미국 실업률 (U-3)'),
+        'PAYEMS': ('비농업고용', '고용', '천명', '비농업 고용자 수'),
+        'ICSA': ('신규 실업수당 청구', '고용', '건', '주간 신규 실업수당 청구건수'),
+        'GDP': ('GDP (명목)', '성장', 'B$', '미국 국내총생산'),
+        'A191RL1Q225SBEA': ('실질 GDP 성장률 (QoQ)', '성장', '%', '분기별 실질 GDP 성장률 (연환산)'),
+        'M2SL': ('M2 통화량', '유동성', 'B$', 'M2 통화 공급량'),
+        'UMCSENT': ('미시간 소비자심리', '심리', 'index', '미시간대 소비자신뢰지수'),
+        'CSCICP03USM665S': ('OECD 소비자신뢰', '심리', 'index', 'OECD 소비자신뢰지수 (미국)'),
+        'T10YIE': ('10년 기대인플레이션', '인플레이션', '%', '10년 BEI (Breakeven Inflation)'),
+        'T5YIE': ('5년 기대인플레이션', '인플레이션', '%', '5년 BEI'),
+        'BAMLH0A0HYM2': ('하이일드 스프레드', '신용', '%', 'ICE BofA 하이일드 OAS'),
+        'BAMLC0A0CM': ('투자등급 스프레드', '신용', '%', 'ICE BofA 투자등급 OAS'),
+        'DTWEXBGS': ('달러 실효환율', '환율', 'index', '무역가중 달러 지수 (광의)'),
+        'MORTGAGE30US': ('30년 모기지 금리', '금리', '%', '30년 고정 모기지 금리'),
+        'HOUST': ('주택착공건수', '부동산', '천호', '신규 주택착공건수 (연환산)'),
+    }
+
+    collected = 0
+    for series_id, (name, category, unit, description) in fred_indicators.items():
+        try:
+            val = fetch_fred_series(series_id)
+            if val is not None:
+                row = {
+                    'Category': category,
+                    'Ticker': f'FRED:{series_id}',
+                    'Name': name,
+                    'Price': fmt(val, 2 if unit == '%' else (1 if unit in ['index', 'B$'] else 0)),
+                    'Unit': unit,
+                    'Description': description,
+                    'Source': 'FRED',
+                }
+                results.append(row)
+                collected += 1
+        except:
+            pass
+        time.sleep(0.3)  # FRED 부하 방지
+
+    log(f"  FRED 지표: {collected}/{len(fred_indicators)}개 수집")
+
+    # 추가: tradingeconomics에서 최신 경제 캘린더 주요 수치
+    try:
+        log("  Trading Economics에서 추가 지표 수집 중...")
+        te_indicators = {
+            'https://tradingeconomics.com/united-states/inflation-cpi': ('CPI YoY', '인플레이션', '%', 'CPI 전년동기비'),
+            'https://tradingeconomics.com/united-states/core-inflation-rate': ('Core CPI YoY', '인플레이션', '%', '근원 CPI 전년동기비'),
+            'https://tradingeconomics.com/united-states/gdp-growth-annual': ('GDP YoY 성장률', '성장', '%', 'GDP 전년동기비 성장률'),
+        }
+
+        for url, (name, category, unit, description) in te_indicators.items():
+            try:
+                resp = requests.get(url, headers=HEADERS, timeout=8)
+                if resp.status_code == 200:
+                    # tradingeconomics 최신값 추출
+                    soup = BeautifulSoup(resp.text, 'lxml')
+                    # 'Last' 또는 'Actual' 값 찾기
+                    for elem in soup.select('#aspnetForm td'):
+                        text = elem.get_text().strip()
+                        try:
+                            val = float(text)
+                            if -20 <= val <= 30:  # 경제지표 합리적 범위
+                                # 이미 같은 이름의 지표가 있는지 확인
+                                exists = any(r['Name'] == name for r in results)
+                                if not exists:
+                                    results.append({
+                                        'Category': category,
+                                        'Ticker': f'TE:{name}',
+                                        'Name': name,
+                                        'Price': fmt(val, 2),
+                                        'Unit': unit,
+                                        'Description': description,
+                                        'Source': 'TradingEconomics',
+                                    })
+                                break
+                        except:
+                            pass
+                time.sleep(0.5)
+            except:
+                pass
+    except:
+        pass
+
+    log(f"  ✅ 거시경제 지표 총 {len(results)}개 수집")
+    return results
 
 # ============================================================
 # 시장 지표
@@ -2074,8 +2478,8 @@ def get_korea_market_indicators():
     return indicators
 
 def get_market_indicators():
-    """글로벌 시장 지표 - 확장 버전"""
-    log("\n[5/5] 시장 지표 수집 중...")
+    """글로벌 시장 지표 - v4.0: 거시경제 지표 추가"""
+    log("\n[5/6] 시장 지표 수집 중...")
 
     indicators = {
         '^GSPC': ('S&P 500', '지수'),
@@ -2375,7 +2779,12 @@ def get_market_indicators():
     except:
         pass
 
-    log(f"  ✅ 완료: {len(results)}개")
+    # ★★★ v4.0: 거시경제 지표 추가 ★★★
+    log("\n[6/6] 거시경제 지표 수집 중...")
+    macro_results = get_macroeconomic_indicators()
+    results.extend(macro_results)
+
+    log(f"  ✅ 시장+거시경제 지표 총 {len(results)}개 완료")
     return pd.DataFrame(results)
 
 # ============================================================
@@ -2430,7 +2839,7 @@ def save_to_json(data_dict, filename):
         'metadata': {
             'generated': datetime.now().isoformat(),
             'date': TODAY,
-            'version': 'v3.0.2-github-pwa-compatible'  # ★ 버전 업데이트
+            'version': 'v4.0-dynamic-screening'  # ★ v4.0 업데이트
         },
         'data': {}
     }
@@ -2455,27 +2864,27 @@ def save_to_json(data_dict, filename):
 # 메인
 # ============================================================
 def main():
-    parser = argparse.ArgumentParser(description='글로벌 주식/ETF 스크리너 (GitHub Actions) v3.0.2')
+    parser = argparse.ArgumentParser(description='글로벌 주식/ETF 스크리너 (GitHub Actions) v4.0')
     parser.add_argument('--json-only', action='store_true', help='JSON만 출력')
     parser.add_argument('--output-dir', type=str, default='.', help='출력 디렉토리')
-    parser.add_argument('--kr-stocks', type=int, default=150, help='한국 주식 수 (기본 150)')
-    parser.add_argument('--us-stocks', type=int, default=100, help='미국 주식 수 (기본 100)')
-    parser.add_argument('--kr-etfs', type=int, default=200, help='한국 ETF 수 (기본 200)')
-    parser.add_argument('--us-etfs', type=int, default=100, help='미국 ETF 수 (기본 100)')
+    parser.add_argument('--kr-stocks', type=int, default=500, help='한국 주식 수 (기본 500)')
+    parser.add_argument('--us-stocks', type=int, default=500, help='미국 주식 수 (기본 500)')
+    parser.add_argument('--kr-etfs', type=int, default=300, help='한국 ETF 수 (기본 300)')
+    parser.add_argument('--us-etfs', type=int, default=300, help='미국 ETF 수 (기본 300)')
     args = parser.parse_args()
-    
+
     global TOP_N_KR, TOP_N_US, TOP_N_KR_ETF, TOP_N_US_ETF
     TOP_N_KR = args.kr_stocks
     TOP_N_US = args.us_stocks
     TOP_N_KR_ETF = args.kr_etfs
     TOP_N_US_ETF = args.us_etfs
-    
+
     log("=" * 60)
-    log("글로벌 주식/ETF 스크리닝 - GitHub Actions v3.0.2")
-    log("★ v3.0.2: FinanceDataReader 추가, 데이터 소스 우선순위 개선")
+    log("글로벌 주식/ETF 스크리닝 - GitHub Actions v4.0")
+    log("★ v4.0: 동적 종목 조회, 데이터 검증 강화, 거시경제 지표 추가")
     log(f"실행: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    log(f"한국 주식: {TOP_N_KR}개 (KOSPI) | 미국 주식: {TOP_N_US}개")
-    log(f"한국 ETF: {TOP_N_KR_ETF}개 | 미국 ETF: {TOP_N_US_ETF}개")
+    log(f"한국 주식: 최대 {TOP_N_KR}개 (KOSPI+KOSDAQ) | 미국 주식: 최대 {TOP_N_US}개 (S&P500 동적)")
+    log(f"한국 ETF: 최대 {TOP_N_KR_ETF}개 | 미국 ETF: 최대 {TOP_N_US_ETF}개 (동적)")
     log("=" * 60)
     
     start = time.time()

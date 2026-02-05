@@ -15,7 +15,7 @@ on:
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 60  # 최대 60분
+    timeout-minutes: 120  # v4.0: 종목수 확대로 시간 증가
 
     steps:
       - name: Checkout repository
@@ -36,7 +36,7 @@ jobs:
         env:
           TZ: Asia/Seoul
         run: |
-          echo "🚀 글로벌 스크리너 v3.2.0 시작"
+          echo "🚀 글로벌 스크리너 v4.0 시작"
           echo "현재 시간: $(date)"
           
           # JSON만 출력 (PWA용)
