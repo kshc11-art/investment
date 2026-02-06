@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-title" content="Investment">
     <meta name="theme-color" content="#0a0a0f">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>투자 의사결정 시스템 v5.2</title>
+    <title>투자 의사결정 시스템 v3.0</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
@@ -2100,10 +2100,98 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- ==================== TAB 4: 투자 근거 ==================== -->
+            <!-- ★ v5.3: 일일 상세 매매 판단 (시장판단에서 이동) -->
+            <div class="card" id="dailyDetailedCard" style="display:none; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                    <h3 class="card-title" style="font-size: 0.85rem; margin: 0;">🎯 일일 상세 매매 판단</h3>
+                    <span id="dailyDecisionDate" style="font-size: 0.65rem; color: var(--text-muted); padding: 3px 8px; background: var(--bg-secondary); border-radius: 4px;"></span>
+                </div>
+                
+                <!-- 최상단: 오늘의 핵심 한줄 -->
+                <div id="dailyHeadline" style="padding: 10px 12px; background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.04)); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; margin-bottom: 12px; font-size: 0.8rem; font-weight: 600; line-height: 1.5;"></div>
+                
+                <!-- 카테고리 탭 — onclick 방식 (이벤트 위임 대신 직접 바인딩) -->
+                <div id="ddCatTabContainer" style="display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap;">
+                    <button class="dd-cat-tab active" onclick="switchDDTab('bonds', this)" style="padding: 6px 12px; border: 1px solid var(--accent-green); background: var(--accent-green); color: #000; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; font-family: inherit;">📜 채권</button>
+                    <button class="dd-cat-tab" onclick="switchDDTab('kr-sectors', this)" style="padding: 6px 12px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; font-family: inherit;">🇰🇷 한국섹터</button>
+                    <button class="dd-cat-tab" onclick="switchDDTab('us-sectors', this)" style="padding: 6px 12px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; font-family: inherit;">🇺🇸 미국섹터</button>
+                    <button class="dd-cat-tab" onclick="switchDDTab('alternatives', this)" style="padding: 6px 12px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; font-family: inherit;">🥇 금·원자재</button>
+                </div>
+                
+                <!-- 채권 듀레이션별 -->
+                <div class="dd-cat-content" data-ddpanel="bonds">
+                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-secondary); border-radius: 4px; line-height: 1.5;">
+                        💡 <b>핵심 변수</b>: Fed 금리 경로, 일본 JGB 환류, 인플레 기대, 수익률 곡선 기울기. 듀레이션이 길수록 금리 변동에 민감 (30Y 듀레이션 ~17배).
+                    </div>
+                    <div id="ddBondsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px;"></div>
+                </div>
+                
+                <!-- 한국 섹터별 -->
+                <div class="dd-cat-content" data-ddpanel="kr-sectors" style="display:none;">
+                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-secondary); border-radius: 4px; line-height: 1.5;">
+                        💡 <b>핵심 변수</b>: KOSPI PER·외국인 수급·환율·반도체 사이클·정책(밸류업). 섹터 순환 = 금리↓금융↑, AI↑반도체↑, 지정학→방산↑
+                    </div>
+                    <div id="ddKrGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px;"></div>
+                </div>
+                
+                <!-- 미국 섹터별 -->
+                <div class="dd-cat-content" data-ddpanel="us-sectors" style="display:none;">
+                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-secondary); border-radius: 4px; line-height: 1.5;">
+                        💡 <b>핵심 변수</b>: S&P500 PER(27~29x), CAPE(39x), 경기사이클, 금리, AI capex. 방어적 전환 시 Healthcare>Utility>Staples
+                    </div>
+                    <div id="ddUsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px;"></div>
+                </div>
+                
+                <!-- 금·원자재 -->
+                <div class="dd-cat-content" data-ddpanel="alternatives" style="display:none;">
+                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-secondary); border-radius: 4px; line-height: 1.5;">
+                        💡 <b>핵심 변수</b>: 실질금리, 중앙은행 매입, 지정학 리스크, 달러인덱스. 금은 인플레+불확실성 헤지, 구리는 AI 인프라 수혜.
+                    </div>
+                    <div id="ddAltGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px;"></div>
+                </div>
+                
+                <!-- 종합 매트릭스: 전 자산 한눈에 -->
+                <details style="margin-top: 12px;">
+                    <summary style="cursor: pointer; padding: 8px 10px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
+                        📋 전체 자산 매트릭스 (펼치기)
+                    </summary>
+                    <div id="ddFullMatrix" style="margin-top: 8px; overflow-x: auto;"></div>
+                </details>
+            </div>
+
+            <!-- ★ v5.3: 매도 신호 체크리스트 (시장판단에서 이동) -->
+            <div class="card" id="sellTimingCard" style="display:none; padding: 12px;">
+                <h3 class="card-title" style="font-size: 0.85rem; margin-bottom: 10px;">🔔 매도 신호 체크리스트 — 룰 기반 EXIT 시스템</h3>
+                <p style="font-size:0.65rem;color:var(--text-muted);margin-bottom:10px;line-height:1.5;">
+                    코로나 이후 자산간 상관관계 변화로 예측형 매도보다 <b>룰 기반 출구전략</b>이 효과적.
+                    아래 신호가 3개 이상 점등 시 비중 축소 고려, 5개 이상 시 적극 방어 전환 권장.
+                </p>
+                <div id="sellSignalGrid" style="display: grid; grid-template-columns: 1fr; gap: 6px;"></div>
+                <div id="sellTimingSummary" style="margin-top: 10px; padding: 8px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.6;"></div>
+            </div>
+        </div>
         <div class="tab-content" id="rationale">
+            <!-- ★ v5.3: 정적 투자근거 vs 동적 시장판단 충돌 감지 배너 -->
+            <div id="rationaleConflictBanner" class="card" style="display:none; padding: 12px; background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(239,68,68,0.05)); border: 1px solid rgba(245,158,11,0.4);">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: 1.1rem;">⚠️</span>
+                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-gold);">투자논리 vs 시장판단 충돌 감지</span>
+                </div>
+                <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.5;">
+                    아래 자산의 <b>정적 투자논리</b>(Config 기반)와 <b>동적 거시판단</b>(실시간 지표 기반)이 상충합니다.
+                    실시간 시장 환경이 초기 투자 전제와 달라졌을 수 있으니 점검이 필요합니다.
+                </p>
+                <div id="rationaleConflictDetails" style="font-size: 0.75rem; line-height: 1.8;"></div>
+            </div>
+
+            <!-- ★ v5.3: 거시환경 기반 동적 자산 판단 (시장판단에서 이동) -->
+            <div class="card" id="assetJudgmentCard" style="display:none; padding: 12px;">
+                <h3 class="card-title" style="font-size: 0.85rem; margin-bottom: 10px;">📊 거시환경 기반 동적 자산 판단</h3>
+                <div id="assetJudgmentGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px;"></div>
+                <div id="assetJudgmentReasoning" style="margin-top: 10px; padding: 8px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.6;"></div>
+            </div>
+
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">📋 투자 근거 & 기대수익률</h3>
@@ -4575,81 +4663,17 @@
                 </div>
             </div>
             
-            <!-- ★ v4.0: 자산별 매수 판단 패널 -->
-            <div class="card" id="assetJudgmentCard" style="display:none; padding: 12px;">
-                <h3 class="card-title" style="font-size: 0.85rem; margin-bottom: 10px;">📊 지금 뭘 살까? — 거시환경 기반 자산별 판단</h3>
-                <div id="assetJudgmentGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px;"></div>
-                <div id="assetJudgmentReasoning" style="margin-top: 10px; padding: 8px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.6;"></div>
-            </div>
-
-            <!-- 🔔 매도 타이밍 판단 시스템 -->
-            <div class="card" id="sellTimingCard" style="display:none; padding: 12px;">
-                <h3 class="card-title" style="font-size: 0.85rem; margin-bottom: 10px;">🔔 매도 신호 체크리스트 — 룰 기반 EXIT 시스템</h3>
-                <p style="font-size:0.65rem;color:var(--text-muted);margin-bottom:10px;line-height:1.5;">
-                    코로나 이후 자산간 상관관계 변화로 예측형 매도보다 <b>룰 기반 출구전략</b>이 효과적.
-                    아래 신호가 3개 이상 점등 시 비중 축소 고려, 5개 이상 시 적극 방어 전환 권장.
-                </p>
-                <div id="sellSignalGrid" style="display: grid; grid-template-columns: 1fr; gap: 6px;"></div>
-                <div id="sellTimingSummary" style="margin-top: 10px; padding: 8px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.6;"></div>
-            </div>
-
-            <!-- ★ v5.2: 일일 상세 매매 판단 — 채권 듀레이션별 / 주식 섹터별 / 금 -->
-            <div class="card" id="dailyDetailedCard" style="display:none; padding: 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-                    <h3 class="card-title" style="font-size: 0.85rem; margin: 0;">🎯 일일 상세 매매 판단</h3>
-                    <span id="dailyDecisionDate" style="font-size: 0.65rem; color: var(--text-muted); padding: 3px 8px; background: var(--bg-secondary); border-radius: 4px;"></span>
+            <!-- ★ v5.3: 탭 이동 안내 (시장 판단 후 표시) -->
+            <div id="tabNavigationGuide" class="card" style="display:none; padding: 12px; background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.08)); border: 1px solid rgba(59,130,246,0.3);">
+                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">📌 상세 분석 결과가 다른 탭에 업데이트되었습니다</div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button onclick="document.querySelector('[data-tab=timing]').click();" style="padding: 8px 16px; background: var(--accent-green); color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.75rem; font-family: inherit;">
+                        ⏰ 매수타이밍 → 일일 상세 판단 · 매도 신호
+                    </button>
+                    <button onclick="document.querySelector('[data-tab=rationale]').click();" style="padding: 8px 16px; background: var(--accent-blue); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.75rem; font-family: inherit;">
+                        📋 투자근거 → 거시환경 자산 판단 · 충돌 감지
+                    </button>
                 </div>
-                
-                <!-- 최상단: 오늘의 핵심 한줄 -->
-                <div id="dailyHeadline" style="padding: 10px 12px; background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.04)); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; margin-bottom: 12px; font-size: 0.8rem; font-weight: 600; line-height: 1.5;"></div>
-                
-                <!-- 카테고리 탭 -->
-                <div style="display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap;">
-                    <button class="dd-cat-tab active" data-ddcat="bonds" style="padding: 6px 12px; border: 1px solid var(--accent-green); background: var(--accent-green); color: #000; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; font-family: inherit;">📜 채권</button>
-                    <button class="dd-cat-tab" data-ddcat="kr-sectors" style="padding: 6px 12px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; font-family: inherit;">🇰🇷 한국섹터</button>
-                    <button class="dd-cat-tab" data-ddcat="us-sectors" style="padding: 6px 12px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; font-family: inherit;">🇺🇸 미국섹터</button>
-                    <button class="dd-cat-tab" data-ddcat="alternatives" style="padding: 6px 12px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; font-family: inherit;">🥇 금·원자재</button>
-                </div>
-                
-                <!-- 채권 듀레이션별 -->
-                <div class="dd-cat-content active" id="dd-bonds">
-                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-secondary); border-radius: 4px; line-height: 1.5;">
-                        💡 <b>핵심 변수</b>: Fed 금리 경로, 일본 JGB 환류, 인플레 기대, 수익률 곡선 기울기. 듀레이션이 길수록 금리 변동에 민감 (30Y 듀레이션 ~17배).
-                    </div>
-                    <div id="ddBondsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px;"></div>
-                </div>
-                
-                <!-- 한국 섹터별 -->
-                <div class="dd-cat-content" id="dd-kr-sectors" style="display:none;">
-                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-secondary); border-radius: 4px; line-height: 1.5;">
-                        💡 <b>핵심 변수</b>: KOSPI PER·외국인 수급·환율·반도체 사이클·정책(밸류업). 섹터 순환 = 금리↓금융↑, AI↑반도체↑, 지정학→방산↑
-                    </div>
-                    <div id="ddKrGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px;"></div>
-                </div>
-                
-                <!-- 미국 섹터별 -->
-                <div class="dd-cat-content" id="dd-us-sectors" style="display:none;">
-                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-secondary); border-radius: 4px; line-height: 1.5;">
-                        💡 <b>핵심 변수</b>: S&P500 PER(27~29x), CAPE(39x), 경기사이클, 금리, AI capex. 방어적 전환 시 Healthcare>Utility>Staples
-                    </div>
-                    <div id="ddUsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px;"></div>
-                </div>
-                
-                <!-- 금·원자재 -->
-                <div class="dd-cat-content" id="dd-alternatives" style="display:none;">
-                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-secondary); border-radius: 4px; line-height: 1.5;">
-                        💡 <b>핵심 변수</b>: 실질금리, 중앙은행 매입, 지정학 리스크, 달러인덱스. 금은 인플레+불확실성 헤지, 구리는 AI 인프라 수혜.
-                    </div>
-                    <div id="ddAltGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px;"></div>
-                </div>
-                
-                <!-- 종합 매트릭스: 전 자산 한눈에 -->
-                <details style="margin-top: 12px;">
-                    <summary style="cursor: pointer; padding: 8px 10px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
-                        📋 전체 자산 매트릭스 (펼치기)
-                    </summary>
-                    <div id="ddFullMatrix" style="margin-top: 8px; overflow-x: auto;"></div>
-                </details>
             </div>
 
             <!-- 📊 상세 지표 현황 (엑셀/JSON 원시 데이터) - 접기 가능 -->
@@ -4686,13 +4710,13 @@
                     <input type="number" id="ind_foreign20d">
                     <input type="number" id="ind_kospiPer">
                     <input type="number" id="ind_ism">
-                    <!-- ★ v5.2: 한국 채권/금리 + JGB (투자판단 정밀화용) -->
+                    <!-- ★ v5.3: 한국 채권/금리 + JGB -->
                     <input type="number" id="ind_kr3y">
                     <input type="number" id="ind_kr10y">
+                    <input type="number" id="ind_kr1y">
                     <input type="number" id="ind_bokRate">
                     <input type="number" id="ind_cd91">
                     <input type="number" id="ind_jgb10y">
-                    <input type="number" id="ind_kr1y">
                 </div>
                 
                 <!-- Config 업로드 버튼 영역 (더 컴팩트) -->
@@ -5191,6 +5215,33 @@
             }
         };
         
+        // ★ v5.3: 일일 상세 판단 카테고리 탭 전환 (직접 onclick 방식)
+        function switchDDTab(targetPanel, clickedBtn) {
+            // 모든 탭 비활성화
+            document.querySelectorAll('#ddCatTabContainer .dd-cat-tab').forEach(function(t) {
+                t.style.background = 'transparent';
+                t.style.color = 'var(--text-secondary)';
+                t.style.borderColor = 'var(--border-color)';
+                t.classList.remove('active');
+            });
+            // 클릭된 탭 활성화
+            if (clickedBtn) {
+                clickedBtn.classList.add('active');
+                clickedBtn.style.background = 'var(--accent-green)';
+                clickedBtn.style.color = '#000';
+                clickedBtn.style.borderColor = 'var(--accent-green)';
+            }
+            // 모든 콘텐츠 패널 숨기기
+            document.querySelectorAll('.dd-cat-content').forEach(function(c) { c.style.display = 'none'; });
+            // 대상 패널 표시
+            var targetEl = document.querySelector('.dd-cat-content[data-ddpanel="' + targetPanel + '"]');
+            if (targetEl) {
+                targetEl.style.display = 'block';
+            } else {
+                console.error('dd-cat-content not found:', targetPanel);
+            }
+        }
+
         // Main Tab Navigation
         document.querySelectorAll('.main-tab').forEach(tab => {
             tab.addEventListener('click', () => {
@@ -7905,24 +7956,14 @@
                 // 환율
                 'USDKRW=X': { inputId: 'ind_usdkrw', field: 'Price' },
                 
-                // 미국채 (★ v5.2: 2Y 매핑 수정 — ^FVX는 5Y, 2YY=F가 2Y)
+                // 미국채
                 '^TNX': { inputId: 'ind_10y', field: 'Price' },
-                '2YY=F': { inputId: 'ind_2y', field: 'Price' },
-                'US-2Y': { inputId: 'ind_2y', field: 'Price', fallback: true },
-                '^FVX': { inputId: 'ind_2y', field: 'Price', fallback: true },
-                
-                // ★ v5.2: 한국 국고채 + 한국은행 기준금리 + JGB
-                'KR-3Y': { inputId: 'ind_kr3y', field: 'Price' },
-                'KR-10Y': { inputId: 'ind_kr10y', field: 'Price' },
-                'KR-1Y': { inputId: 'ind_kr1y', field: 'Price' },
-                'BOK-RATE': { inputId: 'ind_bokRate', field: 'Price' },
-                'KR-CD91': { inputId: 'ind_cd91', field: 'Price' },
-                'JGB-10Y': { inputId: 'ind_jgb10y', field: 'Price' },
+                '^FVX': { inputId: 'ind_2y', field: 'Price' },
                 
                 // 원자재
                 'GC=F': [
                     { inputId: 'ind_gold1y', field: 'Return1Y(%)' },
-                    { inputId: 'ind_gold1y', field: 'Return3M(%)', fallback: true }
+                    { inputId: 'ind_gold1y', field: 'Return3M(%)', fallback: true }  // 1Y 없으면 3M
                 ],
                 'CL=F': [
                     { inputId: 'ind_wti1y', field: 'Return1Y(%)' },
@@ -7944,14 +7985,22 @@
                 // 하이일드 스프레드
                 'HY-IG': { inputId: 'ind_hyspread', field: 'Price' },
                 
-                // 코스피 PER
+                // 코스피 PER (없으면 스킵)
                 'KOSPI-PER': { inputId: 'ind_kospiPer', field: 'Price' },
                 
-                // 외국인
+                // 외국인 (없으면 스킵)
                 'KR-외국인': { inputId: 'ind_foreign', field: 'Price' },
                 
-                // ISM PMI
-                'ISM-PMI': { inputId: 'ind_ism', field: 'Price' }
+                // ★ v5.3: 한국 채권/금리
+                'KR-3Y': { inputId: 'ind_kr3y', field: 'Price' },
+                'KR-10Y': { inputId: 'ind_kr10y', field: 'Price' },
+                'KR-1Y': { inputId: 'ind_kr1y', field: 'Price' },
+                'BOK-RATE': { inputId: 'ind_bokRate', field: 'Price' },
+                'KR-CD91': { inputId: 'ind_cd91', field: 'Price' },
+                'JGB-10Y': { inputId: 'ind_jgb10y', field: 'Price' },
+                // 미국채 2년 (기존 ^FVX는 5년 — 2YY=F 또는 US-2Y 우선)
+                '2YY=F': { inputId: 'ind_2y', field: 'Price' },
+                'US-2Y': { inputId: 'ind_2y', field: 'Price', fallback: true }
             };
             
             let loadedCount = 0;
@@ -10232,7 +10281,7 @@
                 foreign20d: parseFloat(document.getElementById('ind_foreign20d').value),
                 kospiPer: parseFloat(document.getElementById('ind_kospiPer').value) || null,
                 ism: parseFloat(document.getElementById('ind_ism').value) || null,
-                // ★ v5.2: 한국 채권/금리 + JGB (투자판단 정밀화)
+                // ★ v5.3: 한국 채권/금리 + JGB
                 kr3y: parseFloat(document.getElementById('ind_kr3y').value) || null,
                 kr10y: parseFloat(document.getElementById('ind_kr10y').value) || null,
                 kr1y: parseFloat(document.getElementById('ind_kr1y').value) || null,
@@ -10305,7 +10354,7 @@
             const sellSignals = evaluateSellSignals(ind, macro, valuation, sentiment, korea);
             console.log('🔍 sellSignals:', sellSignals);
 
-            // ★ v5.2: 상세 자산별 매매 판단 (채권 듀레이션/섹터별)
+            // ★ v5.3: 상세 자산별 매매 판단 (채권 듀레이션/섹터별)
             console.log('🔍 상세 자산별 판단 시작...');
             const detailedAssets = evaluateDetailedAssets(ind, macro, valuation, sentiment, korea);
             console.log('🔍 detailedAssets:', detailedAssets);
@@ -10341,12 +10390,19 @@
                 console.error('❌ displayMarketResult 오류:', err);
             }
 
-            // ★ v5.2: 상세 자산별 판단 렌더링
+            // ★ v5.3: 상세 자산별 판단 렌더링 (매수타이밍 탭)
             try {
                 console.log('🔍 renderDetailedAssets 호출...');
                 renderDetailedAssets(result.detailedAssets);
             } catch (err) {
                 console.error('❌ renderDetailedAssets 오류:', err);
+            }
+
+            // ★ v5.3: 투자근거 충돌 감지
+            try {
+                if (result.assetJudgment) checkRationaleConflicts(result.assetJudgment);
+            } catch (err) {
+                console.error('❌ checkRationaleConflicts 오류:', err);
             }
 
             // 🆕 포트폴리오 탭 업데이트
@@ -12188,13 +12244,13 @@
             return { assets, reasons, summary };
         }
 
-        // ★★★ v5.2: 상세 자산별 매매 판단 (채권 듀레이션/주식 섹터/금·원자재 세분화) ★★★
+        // ★★★ v5.3: 상세 자산별 매매 판단 (채권 듀레이션/주식 섹터/금·원자재 세분화) ★★★
         function evaluateDetailedAssets(ind, macro, valuation, sentiment, korea) {
-            const result = { bonds: {}, krSectors: {}, usSectors: {}, alternatives: {}, allAssets: [], headline: '', dataLoaded: false };
+            var result = { bonds: {}, krSectors: {}, usSectors: {}, alternatives: {}, allAssets: [], headline: '', dataLoaded: false };
             
-            // BUG#9 FIX: 최소 데이터 존재 여부 확인 (핵심 지표 3개 이상 있어야 유의미)
-            const coreIndicators = [ind.yield10Y, ind.vix, ind.cape, ind.fng, ind.usdkrw, ind.ism];
-            const loadedCount = coreIndicators.filter(v => v != null).length;
+            // 최소 데이터 존재 여부 확인
+            var coreIndicators = [ind.yield10Y, ind.vix, ind.cape, ind.fng, ind.usdkrw, ind.ism];
+            var loadedCount = coreIndicators.filter(function(v) { return v != null; }).length;
             if (loadedCount < 2) {
                 result.headline = '⚠️ 시장 지표 데이터 부족 (' + loadedCount + '/6) — 엑셀 또는 JSON을 먼저 로드해주세요.';
                 result.dataLoaded = false;
@@ -12202,50 +12258,45 @@
             }
             result.dataLoaded = true;
             
-            // === 헬퍼: 점수 → 판단 변환 ===
+            // 점수 → 판단 변환
             function s2j(score, name, etf, rationale) {
                 score = Math.max(-3, Math.min(3, score));
-                let judgment, color, icon, action;
+                var judgment, color, icon, action;
                 if (score >= 2) { judgment = '적극 매수'; color = '#10b981'; icon = '🟢'; action = '비중 확대'; }
                 else if (score >= 1) { judgment = '매수 우위'; color = '#34d399'; icon = '🔵'; action = '분할 매수'; }
                 else if (score <= -2) { judgment = '매도/회피'; color = '#ef4444'; icon = '🔴'; action = '비중 축소'; }
                 else if (score <= -1) { judgment = '축소 고려'; color = '#f97316'; icon = '🟠'; action = '신규 진입 자제'; }
                 else { judgment = '중립'; color = '#a1a1aa'; icon = '⚪'; action = '현 비중 유지'; }
-                return { score, judgment, color, icon, action, name, etf, rationale: rationale || '' };
+                return { score:score, judgment:judgment, color:color, icon:icon, action:action, name:name, etf:etf, rationale: rationale || '' };
             }
 
-            // === 공통 변수 추출 ===
-            const y10 = ind.yield10Y, y2 = ind.yield2Y;
-            const spread = (y10 != null && y2 != null) ? y10 - y2 : null;
-            const regime = macro ? macro.regime : 'NEUTRAL';
-            const isRecession = regime === 'RECESSION';
-            const isLateCycle = regime === 'LATE_CYCLE';
-            const isExpansion = regime === 'EXPANSION';
-            const vix = ind.vix, fng = ind.fng, cape = ind.cape;
-            const usdkrw = ind.usdkrw, kospiPer = ind.kospiPer;
-            const gold1y = ind.gold1y, wti1y = ind.wti1y, ism = ind.ism;
-            const sp1m = ind.sp5001m;
+            // 공통 변수
+            var y10 = ind.yield10Y, y2 = ind.yield2Y;
+            var spread = (y10 != null && y2 != null) ? y10 - y2 : null;
+            var regime = macro ? macro.regime : 'NEUTRAL';
+            var isRecession = regime === 'RECESSION';
+            var isLateCycle = regime === 'LATE_CYCLE';
+            var isExpansion = regime === 'EXPANSION';
+            var vix = ind.vix, fng = ind.fng, cape = ind.cape;
+            var usdkrw = ind.usdkrw, kospiPer = ind.kospiPer;
+            var gold1y = ind.gold1y, wti1y = ind.wti1y, ism = ind.ism;
+            var sp1m = ind.sp5001m;
+            var kr3y = ind.kr3y, kr10y = ind.kr10y, bokRate = ind.bokRate;
+            var jgb10y = ind.jgb10y;
 
-            // ==============================
-            // 1. 채권 — 듀레이션별 분석
-            // ==============================
-            let bondShortScore = 0, bondMidScore = 0, bondLongScore = 0;
-            let bondReasons = [];
-
-            // 기본: 금리 인하 사이클 진입 시 모든 채권 유리, 특히 장기
-            // BUG#2 FIX: 인플레 proxy (gold1y>30% || wti1y>20%) → 스태그플레이션 구분
-            const infProxy = ((gold1y != null && gold1y > 30) || (wti1y != null && wti1y > 20));
+            // === 1. 채권 — 듀레이션별 분석 ===
+            var bondShortScore = 0, bondMidScore = 0, bondLongScore = 0;
+            var bondReasons = [];
+            var infProxy = ((gold1y != null && gold1y > 30) || (wti1y != null && wti1y > 20));
             
             if (isRecession) {
                 bondShortScore += 2; bondMidScore += 2; bondLongScore += 3;
                 bondReasons.push('침체기: 금리 인하 기대 → 전 만기 채권 유리, 장기채 최대 수혜');
             } else if (isLateCycle) {
                 if (infProxy) {
-                    // 스태그플레이션: 성장↓ + 인플레↑ → 채권 실질수익률 악화
-                    bondShortScore += 0; bondMidScore -= 1; bondLongScore -= 1;
-                    bondReasons.push('⚠️ 스태그플레이션 경계(후기사이클+인플레proxy↑): 채권 실질수익률 악화. 1970s 교훈 — 장기채 회피');
+                    bondMidScore -= 1; bondLongScore -= 1;
+                    bondReasons.push('⚠️ 스태그플레이션 경계: 채권 실질수익률 악화, 장기채 회피');
                 } else {
-                    // 일반 후기사이클: 금리 인하 전환 기대
                     bondShortScore += 1; bondMidScore += 1; bondLongScore += 1;
                     bondReasons.push('후기 사이클: 금리 인하 전환 기대 → 채권 비중 확대 구간');
                 }
@@ -12254,541 +12305,251 @@
                 bondReasons.push('경기확장: 금리 상승 압력 → 장기채 불리');
             }
 
-            // 10Y 금리 수준별
             if (y10 != null) {
-                if (y10 > 4.8) {
-                    bondLongScore += 2; bondMidScore += 1;
-                    bondReasons.push('10Y ' + y10.toFixed(2) + '%: 역사적 고금리 → 장기채 분할매수 매력적');
-                } else if (y10 > 4.3) {
-                    bondLongScore += 0; bondMidScore += 1; bondShortScore += 1;
-                    bondReasons.push('10Y ' + y10.toFixed(2) + '%: 높지만 추가 상승 가능 → 중단기 선호');
-                } else if (y10 < 3.5) {
-                    // BUG#1 FIX: 침체기에는 저금리 페널티 면제 (금리 추가 하락 = 장기채 가격 추가 상승)
-                    if (!isRecession) {
-                        bondLongScore -= 1; bondShortScore -= 1;
-                        bondReasons.push('10Y ' + y10.toFixed(2) + '%: 저금리 → 채권 수익률 매력 낮음');
-                    } else {
-                        bondLongScore += 1; // 침체기 금리 하락 방향 = 장기채 듀레이션 수혜 극대화
-                        bondReasons.push('10Y ' + y10.toFixed(2) + '%: 침체기 추가 금리 인하 기대 → 장기채 듀레이션(17x) 가격 상승 극대화');
-                    }
-                }
+                if (y10 > 4.8) { bondLongScore += 2; bondMidScore += 1; bondReasons.push('10Y ' + y10.toFixed(2) + '%: 역사적 고금리 → 장기채 매력적'); }
+                else if (y10 > 4.3) { bondMidScore += 1; bondShortScore += 1; bondReasons.push('10Y ' + y10.toFixed(2) + '%: 중단기 선호'); }
+                else if (y10 < 3.5 && !isRecession) { bondLongScore -= 1; bondReasons.push('10Y ' + y10.toFixed(2) + '%: 저금리 → 채권 수익률 매력↓'); }
             }
-
-            // 수익률 곡선 기울기
             if (spread != null) {
-                if (spread < 0) {
-                    bondShortScore += 1; bondLongScore -= 1;
-                    bondReasons.push('곡선 역전(' + (spread*100).toFixed(0) + 'bp): 단기채 유리, 장기채 위험 프리미엄 부족');
-                } else if (spread > 0.8) {
-                    bondLongScore += 1;
-                    bondReasons.push('곡선 가파름(' + (spread*100).toFixed(0) + 'bp): 장기채 캐리 매력');
-                }
+                if (spread < 0) { bondShortScore += 1; bondLongScore += 1; bondReasons.push('수익률 곡선 역전(' + spread.toFixed(2) + '%): 단기채 이자+장기채 잠재 가격상승'); }
+                else if (spread > 1.5) { bondMidScore += 1; bondReasons.push('수익률 곡선 정상(' + spread.toFixed(2) + '%)'); }
             }
-
-            // VIX 높으면 안전자산 수요 → 채권 유리
-            if (vix != null && vix > 25) {
-                bondShortScore += 1; bondMidScore += 1;
-                bondReasons.push('VIX ' + vix.toFixed(0) + ': 위험 회피 → 채권 안전자산 수요↑');
-            }
-
-            // 단기채 특수: 금리 정점 근처면 4%+ 확정 수익
-            if (y2 != null && y2 > 4.0) {
-                bondShortScore += 1;
-                bondReasons.push('2Y ' + y2.toFixed(2) + '%: 단기채 4%+ → 무위험 수익 확보 가능');
-            }
-
-            // 장기채 특수 리스크: 일본 JGB 환류 (구조적 변수)
-            // ★ v5.2: ind.jgb10y 실데이터 사용 (스크리너 v4.1에서 수집)
-            const jgb10y = ind.jgb10y;
-            if (jgb10y != null) {
-                // 실제 JGB 데이터 기반 판단
-                if (jgb10y > 1.5 && !isRecession) {
-                    bondLongScore -= 1;
-                    bondReasons.push('⚠️ JGB ' + jgb10y.toFixed(2) + '% (>1.5%): 일본→미국 환류 리스크 → 장기채 매도 압력');
-                } else if (jgb10y <= 1.0) {
-                    bondReasons.push('✅ JGB ' + jgb10y.toFixed(2) + '% (≤1.0%): 환류 리스크 낮음');
-                }
-            } else {
-                // JGB 데이터 미수집 시 2026 기준 임시 상수 (침체기 면제)
-                if (!isRecession) {
-                    bondLongScore -= 1;
-                    bondReasons.push('⚠️ JGB 환류 리스크(임시상수): US-JGB 스프레드 축소 → 장기채 매도 압력');
-                }
+            if (jgb10y != null && jgb10y > 1.5 && !isRecession) {
+                bondLongScore -= 1;
+                bondReasons.push('⚠️ JGB ' + jgb10y.toFixed(2) + '% (>1.5%): 일본 환류 리스크');
             }
 
             result.bonds = {
-                short: s2j(bondShortScore, '단기채 (1~3Y)', 'SHY, BIL, SGOV', bondReasons.filter(r => r.includes('단기') || r.includes('침체') || r.includes('VIX') || r.includes('2Y') || r.includes('후기')).join(' | ')),
-                mid: s2j(bondMidScore, '중기채 (7~10Y)', 'IEF, VGIT', bondReasons.filter(r => r.includes('중단기') || r.includes('침체') || r.includes('VIX') || r.includes('10Y') || r.includes('곡선 가파') || r.includes('후기')).join(' | ')),
-                long: s2j(bondLongScore, '장기채 (20~30Y)', 'TLT, EDV, ZROZ', bondReasons.filter(r => r.includes('장기') || r.includes('침체') || r.includes('JGB') || r.includes('역사적') || r.includes('확장')).join(' | ')),
+                short: s2j(bondShortScore, '📘 단기채 (1-3Y)', 'SHY, BIL, KODEX단기채권', '만기 짧아 금리 위험↓, 현금 대용'),
+                mid: s2j(bondMidScore, '📗 중기채 (3-7Y)', 'IEF, KOSEF국고채, TIGER중장기국채', '듀레이션 중간, 금리 민감도 적당'),
+                long: s2j(bondLongScore, '📕 장기채 (10Y+)', 'TLT, EDV, TIGER미국채30년', '듀레이션 17+ → 금리 1%↓ 시 +17% 기대'),
                 reasons: bondReasons
             };
 
-            // ==============================
-            // 2. 한국 섹터별 분석
-            // ==============================
-            let krScores = { semi: 0, fin: 0, defense: 0, battery: 0, bio: 0, shipbuild: 0 };
-
-            // 경기 사이클 영향
-            if (isExpansion) {
-                krScores.semi += 1; krScores.battery += 1; krScores.shipbuild += 1;
-                krScores.bio -= 0; // 경기 무관
-            } else if (isRecession) {
-                krScores.semi -= 1; krScores.battery -= 1; krScores.shipbuild -= 1;
-                krScores.bio += 1; krScores.fin -= 1;
-            } else if (isLateCycle) {
-                krScores.defense += 1; krScores.bio += 1;
-                krScores.semi -= 1;
-            }
-
-            // 환율 영향 (원화 약세 → 수출주 매출↑ but 외국인 이탈)
+            // === 2. 한국 섹터별 분석 ===
+            var krScores = { semi:0, fin:0, defense:0, battery:0, bio:0, shipbuild:0 };
+            if (isExpansion) { krScores.semi += 1; krScores.shipbuild += 1; krScores.battery += 1; }
+            else if (isRecession) { krScores.bio += 1; krScores.defense += 1; krScores.semi -= 1; krScores.battery -= 1; }
+            else if (isLateCycle) { krScores.defense += 1; krScores.bio += 1; }
             if (usdkrw != null) {
-                if (usdkrw > 1400) {
-                    krScores.semi -= 1; krScores.fin -= 1; // 외국인 이탈 집중
-                    krScores.defense += 1; // 내수+정부 수주 → 환율 영향 적음
-                } else if (usdkrw < 1250) {
-                    krScores.semi += 1; krScores.fin += 1; // 외국인 유입 기대
-                }
+                if (usdkrw > 1450) { krScores.semi -= 1; krScores.fin -= 1; krScores.shipbuild += 1; }
+                else if (usdkrw < 1300) { krScores.semi += 1; krScores.fin += 1; }
             }
-
-            // KOSPI PER 영향
             if (kospiPer != null) {
-                if (kospiPer < 10) {
-                    krScores.fin += 1; // 저PER 섹터 수혜
-                    krScores.semi += 1;
-                } else if (kospiPer > 15) {
-                    krScores.fin -= 1;
-                }
+                if (kospiPer < 10) { krScores.semi += 1; krScores.fin += 1; }
+                else if (kospiPer > 14) { krScores.semi -= 1; }
             }
-
-            // 외국인 수급
-            if (korea && korea.overall === 'UNFAVORABLE') {
-                krScores.semi -= 1; krScores.fin -= 1;
-            } else if (korea && korea.overall === 'FAVORABLE') {
-                krScores.semi += 1; krScores.fin += 1;
-            }
-
-            // 금리 영향 (BUG#3 FIX: 한국 은행 NIM은 한국 기준금리 연동)
-            // ★ v5.2: ind.kr3y, ind.bokRate 실데이터 사용 (스크리너 v4.1에서 수집)
-            const kr3y = ind.kr3y, bokRate = ind.bokRate;
-            
             if (kr3y != null) {
-                // 한국 국고채 3Y 기반 금융 NIM 판단 (정상 경로)
-                if (kr3y > 3.5) {
-                    krScores.fin += 1; // 고금리 → 은행 NIM 확대
-                } else if (kr3y < 2.5) {
-                    krScores.fin -= 1; // 저금리 → NIM 축소
-                }
+                if (kr3y > 3.5) { krScores.fin += 1; }
+                else if (kr3y < 2.5) { krScores.fin -= 1; krScores.battery += 1; }
             }
-            
-            // 글로벌 금리 → 한국 성장주 할인율 (미국 10Y 간접 경로)
-            if (y10 != null) {
-                if (y10 > 4.5) {
-                    krScores.battery -= 1;
-                    krScores.bio -= 1;
-                } else if (y10 < 3.5) {
-                    krScores.battery += 1; krScores.bio += 1;
-                }
-            }
-
-            // 밸류업 정책 수혜
-            krScores.fin += 1; // 구조적 수혜 (배당세 인하, TSR 목표)
-
-            // AI/반도체 사이클 (ISM, 기술주 모멘텀 proxy)
-            if (ism != null && ism > 50) {
-                krScores.semi += 1;
-            }
-
-            // 지정학 (VIX proxy)
-            if (vix != null && vix > 20) {
-                krScores.defense += 1;
-            }
-
-            // BUG#6 FIX: FnG 극단 → 한국 리스크자산에도 글로벌 센티먼트 반영
-            if (fng != null) {
-                if (fng >= 80) {
-                    krScores.semi -= 1; krScores.battery -= 1; // 글로벌 과열 → 한국 성장주 경계
-                } else if (fng <= 20) {
-                    krScores.semi += 1; // 극단 공포 시 역발상 매수
-                }
-            }
+            if (vix != null) { if (vix > 30) { krScores.defense += 1; } }
+            if (fng != null) { if (fng >= 80) { krScores.semi -= 1; } else if (fng <= 20) { krScores.semi += 1; } }
 
             result.krSectors = {
-                semi: s2j(krScores.semi, '🔬 반도체', '삼성전자, SK하이닉스', '반도체 슈퍼사이클+AI 수요. 단 외국인 수급·환율 영향 큼'),
-                fin: s2j(krScores.fin, '🏦 금융', 'KB금융, 신한지주', '밸류업 수혜, PER 8x/PBR 0.8x 저평가. 금리↑NIM↑ but 경기둔화 건전성 우려'),
-                defense: s2j(krScores.defense, '🛡️ 방산/조선', '한화에어로, HD현대중공업', '지정학 수혜, 수주잔고 역대 최고. VIX↑ 시 모멘텀 강화'),
-                battery: s2j(krScores.battery, '🔋 2차전지', 'LG에너지, 삼성SDI', '장기 성장 but 고금리·공급과잉·가격 하락 부담. 금리 전환 시 반등 기대'),
-                bio: s2j(krScores.bio, '💊 바이오', '삼성바이오, 셀트리온', '방어적 성격+파이프라인 이벤트. 경기 침체기 상대적 아웃퍼폼'),
-                shipbuild: s2j(krScores.shipbuild, '🚢 조선', 'HD한국조선해양', '글로벌 친환경 선박 교체 수요. 경기 확장기 최대 수혜')
+                semi: s2j(krScores.semi, '🔬 반도체', '삼성전자, SK하이닉스', '반도체 슈퍼사이클+AI 수요. 외국인 수급·환율 영향 큼'),
+                fin: s2j(krScores.fin, '🏦 금융', 'KB금융, 신한지주', '밸류업 수혜, PBR 저평가. 금리↑NIM↑'),
+                defense: s2j(krScores.defense, '🛡️ 방산', '한화에어로, HD현대중공업', '지정학 수혜, 수주잔고 역대 최고'),
+                battery: s2j(krScores.battery, '🔋 2차전지', 'LG에너지, 삼성SDI', '장기 성장, 고금리·공급과잉 부담'),
+                bio: s2j(krScores.bio, '💊 바이오', '삼성바이오, 셀트리온', '방어적 성격, 침체기 상대적 아웃퍼폼'),
+                shipbuild: s2j(krScores.shipbuild, '🚢 조선', 'HD한국조선해양', '친환경 선박 교체 수요. 경기 확장기 수혜')
             };
 
-            // ==============================
-            // 3. 미국 섹터별 분석
-            // ==============================
-            let usScores = { tech: 0, health: 0, energy: 0, financial: 0, consumer: 0, staples: 0, utility: 0, industrial: 0 };
-
-            // 경기 사이클
-            if (isExpansion) {
-                usScores.tech += 1; usScores.consumer += 1; usScores.industrial += 1;
-                usScores.utility -= 1; usScores.staples -= 1; // 방어주 비선호
-            } else if (isRecession) {
-                usScores.health += 2; usScores.utility += 2; usScores.staples += 2; // 3대 방어 섹터
-                usScores.tech -= 1; usScores.consumer -= 2; usScores.industrial -= 1;
-                usScores.energy -= 1;
-            } else if (isLateCycle) {
-                usScores.health += 1; usScores.utility += 1; usScores.staples += 1;
-                usScores.energy += 1;
-                usScores.tech -= 1; usScores.consumer -= 1;
-            }
-
-            // 밸류에이션 (CAPE)
+            // === 3. 미국 섹터별 분석 ===
+            var usScores = { tech:0, health:0, energy:0, financial:0, consumer:0, staples:0, utility:0, industrial:0 };
+            if (isExpansion) { usScores.tech += 1; usScores.consumer += 1; usScores.industrial += 1; usScores.utility -= 1; }
+            else if (isRecession) { usScores.health += 2; usScores.utility += 2; usScores.staples += 2; usScores.tech -= 1; usScores.consumer -= 2; }
+            else if (isLateCycle) { usScores.health += 1; usScores.utility += 1; usScores.staples += 1; usScores.energy += 1; usScores.tech -= 1; }
             if (cape != null) {
-                if (cape > 35) {
-                    usScores.tech -= 1; // AI 고평가 집중
-                    usScores.health += 1; // 상대적 저평가
-                    usScores.energy += 1;
-                    usScores.staples += 1; // 가치주 회전
-                } else if (cape < 20) {
-                    usScores.tech += 1;
-                }
+                if (cape > 35) { usScores.tech -= 1; usScores.health += 1; usScores.energy += 1; }
+                else if (cape < 20) { usScores.tech += 1; }
             }
-
-            // 금리 영향
             if (y10 != null) {
-                if (y10 > 4.5) {
-                    usScores.tech -= 1;
-                    // BUG#5 FIX: 고금리→유틸 부채부담↑, 배당 상대매력↓ → 중립~부정
-                    // 전통 이론에 따라 유틸에 금리 보너스 제거
-                    usScores.financial += 1; // 은행 NIM
-                } else if (y10 < 3.5) {
-                    usScores.tech += 1; usScores.financial -= 1;
-                    usScores.utility += 1; // 저금리 → 배당주 상대매력↑
-                }
+                if (y10 > 4.5) { usScores.tech -= 1; usScores.financial += 1; }
+                else if (y10 < 3.5) { usScores.tech += 1; usScores.financial -= 1; usScores.utility += 1; }
             }
-
-            // AI 데이터센터 전력 수요 (구조적 팩터, 금리와 무관) — 2024~26 특수요인
-            usScores.utility += 1;
-            usScores.staples += 0; // 필수소비재는 AI 수혜 없음
-
-            // ISM
-            if (ism != null) {
-                if (ism > 55) { usScores.industrial += 1; usScores.energy += 1; }
-                else if (ism < 45) { usScores.industrial -= 1; }
-            }
-
-            // S&P500 모멘텀
-            if (sp1m != null) {
-                if (sp1m < -5) {
-                    usScores.health += 1; usScores.utility += 1; usScores.staples += 1; // 방어주 전환
-                    usScores.tech -= 1;
-                }
-            }
-
-            // F&G 극단 (BUG#6 FIX: 글로벌 위험선호 proxy → 미국+한국 모두 영향)
-            if (fng != null) {
-                if (fng >= 80) {
-                    usScores.tech -= 1; // 과열 시 기술주 최대 타격
-                }
-                else if (fng <= 20) {
-                    usScores.tech += 1; // 공포 시 역발상
-                }
-            }
-
-            // 유가
-            if (wti1y != null) {
-                if (wti1y > 20) { usScores.energy += 1; }
-                else if (wti1y < -15) { usScores.energy -= 1; usScores.consumer += 1; }
-            }
+            usScores.utility += 1; // AI 데이터센터 전력 수요 구조적 팩터
+            if (ism != null) { if (ism > 55) { usScores.industrial += 1; usScores.energy += 1; } else if (ism < 45) { usScores.industrial -= 1; } }
+            if (sp1m != null && sp1m < -5) { usScores.health += 1; usScores.utility += 1; usScores.staples += 1; usScores.tech -= 1; }
+            if (fng != null) { if (fng >= 80) { usScores.tech -= 1; } else if (fng <= 20) { usScores.tech += 1; } }
+            if (wti1y != null) { if (wti1y > 20) { usScores.energy += 1; } else if (wti1y < -15) { usScores.energy -= 1; usScores.consumer += 1; } }
 
             result.usSectors = {
-                tech: s2j(usScores.tech, '💻 기술', 'QQQ, XLK, VGT', 'AI capex 지속 but CAPE 39x 고평가. 금리 인하 시 최대 수혜주'),
-                health: s2j(usScores.health, '🏥 헬스케어', 'XLV, VHT', '경기 방어적+인구 고령화. 침체기 아웃퍼폼 기대'),
-                energy: s2j(usScores.energy, '⛽ 에너지', 'XLE, VDE', '유가 연동. 경기 후반·인플레 환경에서 유리'),
-                financial: s2j(usScores.financial, '🏛️ 금융', 'XLF, VFH', '금리 환경 수혜. 경기 침체 시 신용 손실 리스크'),
-                consumer: s2j(usScores.consumer, '🛍️ 임의소비재', 'XLY, VCR', '소비 강도 연동. 고용 악화 시 최대 피해'),
-                staples: s2j(usScores.staples, '🧴 필수소비재', 'XLP, VDC', '3대 방어섹터. 침체기 아웃퍼폼, 확장기 언더퍼폼. 배당 안정적'),
-                utility: s2j(usScores.utility, '⚡ 유틸리티', 'XLU, VPU', '방어주+AI 전력 수요. 금리 하락 시 배당매력↑'),
-                industrial: s2j(usScores.industrial, '🏗️ 산업재', 'XLI, VIS', '경기 순환주. ISM>50 시 매수, <45 시 회피')
+                tech: s2j(usScores.tech, '💻 기술', 'QQQ, VGT, SOXX', 'AI 성장 주도 but CAPE 고평가 주의'),
+                health: s2j(usScores.health, '🏥 헬스케어', 'XLV, VHT', '방어적+인구고령화 구조. 침체기 최적'),
+                energy: s2j(usScores.energy, '⛽ 에너지', 'XLE, VDE', '유가 연동. OPEC 감산과 글로벌 수요 핵심'),
+                financial: s2j(usScores.financial, '🏦 금융', 'XLF, VFH', '금리↑NIM↑, 규제 완화 기대'),
+                consumer: s2j(usScores.consumer, '🛍️ 경기소비', 'XLY, VCR', '경기 민감. 확장기 최대 수혜'),
+                staples: s2j(usScores.staples, '🧴 필수소비', 'XLP, VDC', '방어적 배당. 침체기 안전'),
+                utility: s2j(usScores.utility, '⚡ 유틸리티', 'XLU, VPU', 'AI 전력 수혜+배당. 금리 민감'),
+                industrial: s2j(usScores.industrial, '🏗️ 산업재', 'XLI, VIS', 'ISM 연동. 확장기·인프라 투자 수혜')
             };
 
-            // ==============================
-            // 4. 금·원자재 세분화
-            // ==============================
-            let goldScore = 0, silverScore = 0, copperScore = 0, oilScore = 0;
-            let altReasons = [];
-
-            // 금: 실질금리, 지정학, 달러, 중앙은행 매입
-            if (isRecession || isLateCycle) {
-                goldScore += 2; silverScore += 1;
-                altReasons.push('경기둔화: 안전자산 수요 → 금 유리');
-            }
-            if (vix != null && vix > 25) {
-                goldScore += 1;
-                altReasons.push('VIX ' + vix.toFixed(0) + ': 불확실성 → 금 수요↑');
-            }
-            if (usdkrw != null && usdkrw > 1350) {
-                goldScore += 1;
-                altReasons.push('원화 약세: 원화 기준 금 추가 수익');
-            }
-            if (gold1y != null) {
-                if (gold1y > 50) {
-                    goldScore -= 1; // 과열 경계
-                    altReasons.push('금 1Y +' + gold1y.toFixed(0) + '%: 단기 과열 주의, 신규 대량 매수 자제');
-                } else if (gold1y > 20) {
-                    goldScore += 1;
-                    altReasons.push('금 상승 추세 유지: 모멘텀 매수 유효');
-                }
-            }
-            // 중앙은행 매입 구조적 요인 (상수)
-            goldScore += 1;
-            altReasons.push('구조적 강세: 중앙은행 매입(연 800톤+), 탈달러화 추세');
-
-            // 은: 귀금속 + 산업 수요 이중 성격 (BUG#8 FIX: 독립 스코어링)
-            // 안전자산 팩터 (금의 ~60%)
-            if (isRecession || isLateCycle) {
-                silverScore += 1; // 금보다 안전자산 프리미엄 낮음
-            }
-            if (vix != null && vix > 30) { silverScore += 1; } // 극단 공포 시에만
-            // 산업수요 팩터 (태양광, 전자, 5G)
-            if (isExpansion) { silverScore += 1; } // 경기확장 → 산업수요↑
-            if (ism != null) {
-                if (ism > 50) { silverScore += 1; }
-                else if (ism < 45) { silverScore -= 1; } // 제조업 위축 → 산업수요↓
-            }
-            // 원화 약세 헤지 (금과 공유)
-            if (usdkrw != null && usdkrw > 1350) { silverScore += 1; }
-            // 금 대비 할인: 금/은 비율 80+ 이면 은이 상대적 저평가 (proxy 없으므로 생략)
-            altReasons.push('은: 산업수요(태양광·전자) 50% + 귀금속 50% 이중 성격. 금보다 변동성 1.5배');
-
-            // 구리: AI 인프라 + 경기 사이클
-            if (isExpansion) { copperScore += 2; }
-            else if (isRecession) { copperScore -= 1; }
-            copperScore += 1; // AI 데이터센터 전력 인프라 구조적 수요
-            altReasons.push('구리: AI 데이터센터 전력 인프라 구조적 수요. 공급 제약 지속');
-            if (ism != null) {
-                if (ism > 55) { copperScore += 1; }
-                else if (ism < 45) { copperScore -= 1; }
-            }
-
-            // 원유
-            if (wti1y != null) {
-                if (wti1y > 20) { oilScore += 1; }
-                else if (wti1y < -15) { oilScore -= 1; }
-            }
-            if (isExpansion) { oilScore += 1; }
-            else if (isRecession) { oilScore -= 1; }
+            // === 4. 금·원자재 ===
+            var goldScore = 0, silverScore = 0, copperScore = 0, oilScore = 0;
+            var altReasons = [];
+            if (isRecession || isLateCycle) { goldScore += 2; altReasons.push('경기둔화 → 안전자산 금 선호'); }
+            if (y10 != null && y10 < 4.0) { goldScore += 1; altReasons.push('금리↓ → 금 기회비용↓'); }
+            if (usdkrw != null && usdkrw > 1400) { goldScore += 1; altReasons.push('원화약세(' + Math.round(usdkrw) + '원) → KRX금 환헤지 효과'); }
+            if (vix != null && vix > 25) { goldScore += 1; altReasons.push('VIX ' + vix.toFixed(0) + ' → 안전자산 수요↑'); }
+            goldScore += 1; altReasons.push('중앙은행 구조적 매입 지속 (탈달러화)');
+            silverScore = Math.round(goldScore * 0.7);
+            if (ism != null && ism > 50) { copperScore += 1; altReasons.push('구리: 제조업 확장+AI 인프라 수요'); }
+            if (isRecession) { copperScore -= 1; }
+            if (wti1y != null) { if (wti1y > 20) { oilScore += 1; } else if (wti1y < -15) { oilScore -= 1; } }
+            if (isExpansion) { oilScore += 1; } else if (isRecession) { oilScore -= 1; }
 
             result.alternatives = {
-                gold: s2j(goldScore, '🥇 금', 'GLD, IAU, KRX금', altReasons.filter(r => r.includes('금') || r.includes('안전') || r.includes('원화') || r.includes('구조')).join(' | ')),
-                silver: s2j(silverScore, '🥈 은', 'SLV, SIVR', altReasons.filter(r => r.includes('은')).join(' | ')),
-                copper: s2j(copperScore, '🟤 구리', 'COPX, CPER', altReasons.filter(r => r.includes('구리')).join(' | ')),
-                oil: s2j(oilScore, '🛢️ 원유', 'USO, XLE', '경기 연동. OPEC 감산 여부와 글로벌 수요가 핵심'),
+                gold: s2j(goldScore, '🥇 금', 'GLD, IAU, KRX금', altReasons.filter(function(r) { return r.includes('금') || r.includes('안전') || r.includes('원화') || r.includes('구조'); }).join(' | ')),
+                silver: s2j(silverScore, '🥈 은', 'SLV, SIVR', '금 연동. 산업용 수요+인플레 헤지'),
+                copper: s2j(copperScore, '🟤 구리', 'COPX, CPER', altReasons.filter(function(r) { return r.includes('구리'); }).join(' | ')),
+                oil: s2j(oilScore, '🛢️ 원유', 'USO, XLE', '경기 연동. OPEC 감산과 글로벌 수요가 핵심'),
                 reasons: altReasons
             };
 
-            // ==============================
-            // 4.5 BUG#10 FIX: 상위 레이어 판단 오버레이 (valuation.state, sentiment)
-            // ==============================
-            // valuation.state = BUBBLE → 전체 주식 -1 경고
+            // === 5. 상위 레이어 오버레이 ===
             if (valuation && valuation.state === 'BUBBLE') {
-                ['tech','health','energy','financial','consumer','staples','utility','industrial'].forEach(k => {
-                    if (result.usSectors[k]) result.usSectors[k] = s2j(
-                        Math.max(-3, result.usSectors[k].score - 1),
-                        result.usSectors[k].name, result.usSectors[k].etf,
-                        result.usSectors[k].rationale + ' | ⚠️ 밸류에이션 버블 구간 — 전체 주식 비중 축소 권고'
-                    );
+                ['tech','health','energy','financial','consumer','staples','utility','industrial'].forEach(function(k) {
+                    if (result.usSectors[k]) result.usSectors[k] = s2j(Math.max(-3, result.usSectors[k].score - 1), result.usSectors[k].name, result.usSectors[k].etf, result.usSectors[k].rationale + ' | ⚠️ 밸류에이션 버블 구간');
                 });
-                ['semi','fin','defense','battery','bio','shipbuild'].forEach(k => {
-                    if (result.krSectors[k]) result.krSectors[k] = s2j(
-                        Math.max(-3, result.krSectors[k].score - 1),
-                        result.krSectors[k].name, result.krSectors[k].etf,
-                        result.krSectors[k].rationale + ' | ⚠️ 글로벌 밸류에이션 버블 — 한국 주식도 주의'
-                    );
-                });
-            } else if (valuation && valuation.state === 'CHEAP') {
-                ['tech','consumer','industrial'].forEach(k => {
-                    if (result.usSectors[k]) result.usSectors[k] = s2j(
-                        Math.min(3, result.usSectors[k].score + 1),
-                        result.usSectors[k].name, result.usSectors[k].etf,
-                        result.usSectors[k].rationale + ' | 💰 밸류에이션 저평가 — 적극 매수 구간'
-                    );
+                ['semi','fin','defense','battery','bio','shipbuild'].forEach(function(k) {
+                    if (result.krSectors[k]) result.krSectors[k] = s2j(Math.max(-3, result.krSectors[k].score - 1), result.krSectors[k].name, result.krSectors[k].etf, result.krSectors[k].rationale + ' | ⚠️ 글로벌 버블 경계');
                 });
             }
 
-            // ==============================
-            // 5. 전체 매트릭스 & 헤드라인 생성
-            // ==============================
-            const allAssets = [
-                { cat: '📜채권', ...result.bonds.short },
-                { cat: '📜채권', ...result.bonds.mid },
-                { cat: '📜채권', ...result.bonds.long },
-                { cat: '🇰🇷한국', ...result.krSectors.semi },
-                { cat: '🇰🇷한국', ...result.krSectors.fin },
-                { cat: '🇰🇷한국', ...result.krSectors.defense },
-                { cat: '🇰🇷한국', ...result.krSectors.battery },
-                { cat: '🇰🇷한국', ...result.krSectors.bio },
-                { cat: '🇰🇷한국', ...result.krSectors.shipbuild },
-                { cat: '🇺🇸미국', ...result.usSectors.tech },
-                { cat: '🇺🇸미국', ...result.usSectors.health },
-                { cat: '🇺🇸미국', ...result.usSectors.energy },
-                { cat: '🇺🇸미국', ...result.usSectors.financial },
-                { cat: '🇺🇸미국', ...result.usSectors.consumer },
-                { cat: '🇺🇸미국', ...result.usSectors.staples },
-                { cat: '🇺🇸미국', ...result.usSectors.utility },
-                { cat: '🇺🇸미국', ...result.usSectors.industrial },
-                { cat: '🥇대안', ...result.alternatives.gold },
-                { cat: '🥇대안', ...result.alternatives.silver },
-                { cat: '🥇대안', ...result.alternatives.copper },
-                { cat: '🥇대안', ...result.alternatives.oil },
+            // === 6. 전체 자산 목록 (매트릭스용) ===
+            result.allAssets = [
+                { cat: '📜채권', ...result.bonds.short }, { cat: '📜채권', ...result.bonds.mid }, { cat: '📜채권', ...result.bonds.long },
             ];
-            result.allAssets = allAssets;
+            Object.values(result.krSectors).forEach(function(s) { result.allAssets.push(Object.assign({ cat: '🇰🇷한국' }, s)); });
+            Object.values(result.usSectors).forEach(function(s) { result.allAssets.push(Object.assign({ cat: '🇺🇸미국' }, s)); });
+            [result.alternatives.gold, result.alternatives.silver, result.alternatives.copper, result.alternatives.oil].forEach(function(s) { result.allAssets.push(Object.assign({ cat: '🥇대안' }, s)); });
 
-            // Top 3 매수 & 매도
-            const sorted = [...allAssets].sort((a, b) => b.score - a.score);
-            const topBuy = sorted.filter(a => a.score >= 1).slice(0, 3);
-            const topSell = sorted.filter(a => a.score <= -1).sort((a, b) => a.score - b.score).slice(0, 3);
-
-            let headline = '📊 ';
-            if (topBuy.length > 0) {
-                headline += '매수 유리: ' + topBuy.map(a => a.name + '(' + a.judgment + ')').join(', ');
-            }
-            if (topSell.length > 0) {
-                headline += (topBuy.length > 0 ? ' | ' : '') + '축소 고려: ' + topSell.map(a => a.name).join(', ');
-            }
-            if (topBuy.length === 0 && topSell.length === 0) {
-                headline += '뚜렷한 방향성 없음 — 현 비중 유지, 분산투자 지속';
-            }
-            result.headline = headline;
+            // === 7. 헤드라인 ===
+            var sorted = result.allAssets.slice().sort(function(a, b) { return b.score - a.score; });
+            var bestAsset = sorted[0], worstAsset = sorted[sorted.length - 1];
+            result.headline = '📈 최선: <b style="color:' + bestAsset.color + '">' + bestAsset.name + '</b>(' + bestAsset.judgment + ') | 📉 최악: <b style="color:' + worstAsset.color + '">' + worstAsset.name + '</b>(' + worstAsset.judgment + ')';
 
             return result;
         }
 
-        // ★★★ v5.2: 상세 판단 렌더링 ★★★
+        // ★★★ v5.3: 상세 판단 렌더링 ★★★
         function renderDetailedAssets(detailed) {
-            const card = document.getElementById('dailyDetailedCard');
+            var card = document.getElementById('dailyDetailedCard');
+            if (!card) return;
             card.style.display = 'block';
-
-            // 날짜
             document.getElementById('dailyDecisionDate').textContent = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
 
-            // BUG#9 FIX: 데이터 부족 시 경고만 표시하고 리턴
             if (!detailed.dataLoaded) {
                 document.getElementById('dailyHeadline').innerHTML = detailed.headline;
-                document.getElementById('ddBondsGrid').innerHTML = '';
-                document.getElementById('ddKrGrid').innerHTML = '';
-                document.getElementById('ddUsGrid').innerHTML = '';
-                document.getElementById('ddAltGrid').innerHTML = '';
-                document.getElementById('ddFullMatrix').innerHTML = '';
+                ['ddBondsGrid','ddKrGrid','ddUsGrid','ddAltGrid','ddFullMatrix'].forEach(function(id) { var el = document.getElementById(id); if (el) el.innerHTML = ''; });
                 return;
             }
-
-            // 헤드라인
             document.getElementById('dailyHeadline').innerHTML = detailed.headline;
 
-            // 자산 카드 렌더링 헬퍼
             function renderAssetCard(asset, showEtf) {
-                const barPct = ((asset.score + 3) / 6) * 100;
-                const scoreTxt = asset.score > 0 ? '+' + asset.score : asset.score;
-                return `
-                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; border-left: 4px solid ${asset.color};">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                            <div>
-                                <div style="font-size: 0.85rem; font-weight: 700;">${asset.name}</div>
-                                ${showEtf ? '<div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; font-family: JetBrains Mono, monospace;">' + asset.etf + '</div>' : ''}
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="display: flex; align-items: center; gap: 4px;">
-                                    <span style="font-size: 0.9rem;">${asset.icon}</span>
-                                    <span style="font-size: 0.8rem; font-weight: 700; color: ${asset.color};">${asset.judgment}</span>
-                                </div>
-                                <div style="font-size: 0.65rem; color: var(--text-muted); font-family: JetBrains Mono, monospace;">Score: ${scoreTxt}</div>
-                            </div>
-                        </div>
-                        <div style="background: var(--bg-card); border-radius: 3px; height: 5px; overflow: hidden; margin-bottom: 6px;">
-                            <div style="height: 100%; width: ${barPct}%; background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981); border-radius: 3px; transition: width 0.5s;"></div>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 0.7rem; padding: 2px 8px; background: ${asset.color}20; color: ${asset.color}; border-radius: 4px; font-weight: 600;">${asset.action}</span>
-                        </div>
-                        ${asset.rationale ? '<div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 6px; line-height: 1.5; border-top: 1px solid var(--border-color); padding-top: 6px;">' + asset.rationale + '</div>' : ''}
-                    </div>
-                `;
+                var barPct = ((asset.score + 3) / 6) * 100;
+                var scoreTxt = asset.score > 0 ? '+' + asset.score : '' + asset.score;
+                return '<div style="background:var(--bg-secondary);border-radius:10px;padding:12px;border-left:4px solid ' + asset.color + ';">' +
+                    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">' +
+                    '<div><div style="font-size:0.85rem;font-weight:700;">' + asset.name + '</div>' +
+                    (showEtf ? '<div style="font-size:0.65rem;color:var(--text-muted);margin-top:2px;font-family:monospace;">' + asset.etf + '</div>' : '') +
+                    '</div><div style="text-align:right;"><div style="display:flex;align-items:center;gap:4px;">' +
+                    '<span style="font-size:0.9rem;">' + asset.icon + '</span>' +
+                    '<span style="font-size:0.8rem;font-weight:700;color:' + asset.color + ';">' + asset.judgment + '</span>' +
+                    '</div><div style="font-size:0.65rem;color:var(--text-muted);font-family:monospace;">Score: ' + scoreTxt + '</div></div></div>' +
+                    '<div style="background:var(--bg-card);border-radius:3px;height:5px;overflow:hidden;margin-bottom:6px;">' +
+                    '<div style="height:100%;width:' + barPct + '%;background:linear-gradient(90deg,#ef4444,#f59e0b,#10b981);border-radius:3px;"></div></div>' +
+                    '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+                    '<span style="font-size:0.7rem;padding:2px 8px;background:' + asset.color + '20;color:' + asset.color + ';border-radius:4px;font-weight:600;">' + asset.action + '</span></div>' +
+                    (asset.rationale ? '<div style="font-size:0.65rem;color:var(--text-muted);margin-top:6px;line-height:1.5;border-top:1px solid var(--border-color);padding-top:6px;">' + asset.rationale + '</div>' : '') +
+                    '</div>';
             }
 
-            // 채권 렌더링
-            const bondsGrid = document.getElementById('ddBondsGrid');
-            bondsGrid.innerHTML = [
-                renderAssetCard(detailed.bonds.short, true),
-                renderAssetCard(detailed.bonds.mid, true),
-                renderAssetCard(detailed.bonds.long, true),
-            ].join('');
+            // 채권
+            var bondsGrid = document.getElementById('ddBondsGrid');
+            bondsGrid.innerHTML = [renderAssetCard(detailed.bonds.short, true), renderAssetCard(detailed.bonds.mid, true), renderAssetCard(detailed.bonds.long, true)].join('');
             if (detailed.bonds.reasons.length > 0) {
-                bondsGrid.innerHTML += '<div style="padding: 8px; background: var(--bg-card); border-radius: 6px; font-size: 0.7rem; color: var(--text-secondary); line-height: 1.6;">' +
-                    '<b>📋 채권 판단 근거:</b><br>' + detailed.bonds.reasons.map(r => '• ' + r).join('<br>') + '</div>';
+                bondsGrid.innerHTML += '<div style="padding:8px;background:var(--bg-card);border-radius:6px;font-size:0.7rem;color:var(--text-secondary);line-height:1.6;">' +
+                    '<b>📋 채권 판단 근거:</b><br>' + detailed.bonds.reasons.map(function(r) { return '• ' + r; }).join('<br>') + '</div>';
             }
-
-            // 한국 섹터 렌더링
-            const krGrid = document.getElementById('ddKrGrid');
-            krGrid.innerHTML = Object.values(detailed.krSectors).map(s => renderAssetCard(s, true)).join('');
-
-            // 미국 섹터 렌더링
-            const usGrid = document.getElementById('ddUsGrid');
-            usGrid.innerHTML = Object.values(detailed.usSectors).map(s => renderAssetCard(s, true)).join('');
-
-            // 금·원자재 렌더링
-            const altGrid = document.getElementById('ddAltGrid');
-            const altItems = [detailed.alternatives.gold, detailed.alternatives.silver, detailed.alternatives.copper, detailed.alternatives.oil];
-            altGrid.innerHTML = altItems.map(s => renderAssetCard(s, true)).join('');
+            // 한국 섹터
+            document.getElementById('ddKrGrid').innerHTML = Object.values(detailed.krSectors).map(function(s) { return renderAssetCard(s, true); }).join('');
+            // 미국 섹터
+            document.getElementById('ddUsGrid').innerHTML = Object.values(detailed.usSectors).map(function(s) { return renderAssetCard(s, true); }).join('');
+            // 금·원자재
+            var altGrid = document.getElementById('ddAltGrid');
+            altGrid.innerHTML = [detailed.alternatives.gold, detailed.alternatives.silver, detailed.alternatives.copper, detailed.alternatives.oil].map(function(s) { return renderAssetCard(s, true); }).join('');
             if (detailed.alternatives.reasons.length > 0) {
-                altGrid.innerHTML += '<div style="padding: 8px; background: var(--bg-card); border-radius: 6px; font-size: 0.7rem; color: var(--text-secondary); line-height: 1.6;">' +
-                    '<b>📋 대안자산 판단 근거:</b><br>' + detailed.alternatives.reasons.map(r => '• ' + r).join('<br>') + '</div>';
+                altGrid.innerHTML += '<div style="padding:8px;background:var(--bg-card);border-radius:6px;font-size:0.7rem;color:var(--text-secondary);line-height:1.6;">' +
+                    '<b>📋 대안자산 판단 근거:</b><br>' + detailed.alternatives.reasons.map(function(r) { return '• ' + r; }).join('<br>') + '</div>';
             }
 
             // 전체 매트릭스 테이블
-            const matrix = document.getElementById('ddFullMatrix');
-            let matrixHtml = '<table style="width:100%; border-collapse:collapse; font-size:0.7rem; min-width:500px;">';
-            matrixHtml += '<thead><tr style="border-bottom:2px solid var(--border-accent);">';
-            matrixHtml += '<th style="text-align:left;padding:6px;color:var(--text-muted);">카테고리</th>';
-            matrixHtml += '<th style="text-align:left;padding:6px;color:var(--text-muted);">자산</th>';
-            matrixHtml += '<th style="text-align:center;padding:6px;color:var(--text-muted);">판단</th>';
-            matrixHtml += '<th style="text-align:center;padding:6px;color:var(--text-muted);">점수</th>';
-            matrixHtml += '<th style="text-align:center;padding:6px;color:var(--text-muted);">행동</th>';
-            matrixHtml += '<th style="text-align:left;padding:6px;color:var(--text-muted);">ETF</th>';
-            matrixHtml += '</tr></thead><tbody>';
-
-            const sortedAll = [...detailed.allAssets].sort((a, b) => b.score - a.score);
-            sortedAll.forEach(a => {
-                const scoreTxt = a.score > 0 ? '+' + a.score : a.score;
-                matrixHtml += `<tr style="border-bottom:1px solid var(--border-color);">
-                    <td style="padding:5px 6px;">${a.cat}</td>
-                    <td style="padding:5px 6px;font-weight:500;">${a.name}</td>
-                    <td style="padding:5px 6px;text-align:center;"><span style="color:${a.color};font-weight:600;">${a.icon} ${a.judgment}</span></td>
-                    <td style="padding:5px 6px;text-align:center;font-family:JetBrains Mono,monospace;font-weight:600;color:${a.color};">${scoreTxt}</td>
-                    <td style="padding:5px 6px;text-align:center;"><span style="padding:2px 6px;background:${a.color}15;color:${a.color};border-radius:3px;font-size:0.65rem;">${a.action}</span></td>
-                    <td style="padding:5px 6px;font-size:0.65rem;color:var(--text-muted);font-family:JetBrains Mono,monospace;">${a.etf}</td>
-                </tr>`;
+            var matrix = document.getElementById('ddFullMatrix');
+            var mHtml = '<table style="width:100%;border-collapse:collapse;font-size:0.7rem;min-width:500px;">' +
+                '<thead><tr style="border-bottom:2px solid var(--border-accent);">' +
+                '<th style="text-align:left;padding:6px;color:var(--text-muted);">카테고리</th>' +
+                '<th style="text-align:left;padding:6px;color:var(--text-muted);">자산</th>' +
+                '<th style="text-align:center;padding:6px;color:var(--text-muted);">판단</th>' +
+                '<th style="text-align:center;padding:6px;color:var(--text-muted);">점수</th>' +
+                '<th style="text-align:center;padding:6px;color:var(--text-muted);">행동</th>' +
+                '<th style="text-align:left;padding:6px;color:var(--text-muted);">ETF</th>' +
+                '</tr></thead><tbody>';
+            detailed.allAssets.slice().sort(function(a,b) { return b.score - a.score; }).forEach(function(a) {
+                var st = a.score > 0 ? '+' + a.score : '' + a.score;
+                mHtml += '<tr style="border-bottom:1px solid var(--border-color);">' +
+                    '<td style="padding:5px 6px;">' + a.cat + '</td>' +
+                    '<td style="padding:5px 6px;font-weight:500;">' + a.name + '</td>' +
+                    '<td style="padding:5px 6px;text-align:center;"><span style="color:' + a.color + ';font-weight:600;">' + a.icon + ' ' + a.judgment + '</span></td>' +
+                    '<td style="padding:5px 6px;text-align:center;font-family:monospace;font-weight:600;color:' + a.color + ';">' + st + '</td>' +
+                    '<td style="padding:5px 6px;text-align:center;"><span style="padding:2px 6px;background:' + a.color + '15;color:' + a.color + ';border-radius:3px;font-size:0.65rem;">' + a.action + '</span></td>' +
+                    '<td style="padding:5px 6px;font-size:0.65rem;color:var(--text-muted);font-family:monospace;">' + a.etf + '</td></tr>';
             });
-            matrixHtml += '</tbody></table>';
-            matrix.innerHTML = matrixHtml;
+            mHtml += '</tbody></table>';
+            matrix.innerHTML = mHtml;
+
+            // 채권 탭을 기본 활성화
+            switchDDTab('bonds', document.querySelector('#ddCatTabContainer .dd-cat-tab'));
         }
 
-        // 탭 전환 이벤트
-        document.querySelectorAll('.dd-cat-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.dd-cat-tab').forEach(t => {
-                    t.style.background = 'transparent';
-                    t.style.color = 'var(--text-secondary)';
-                    t.style.borderColor = 'var(--border-color)';
-                    t.classList.remove('active');
-                });
-                tab.classList.add('active');
-                tab.style.background = 'var(--accent-green)';
-                tab.style.color = '#000';
-                tab.style.borderColor = 'var(--accent-green)';
+        // ★ v5.3: 정적 투자근거 vs 동적 거시판단 충돌 감지
+        function checkRationaleConflicts(aj) {
+            var banner = document.getElementById('rationaleConflictBanner');
+            var details = document.getElementById('rationaleConflictDetails');
+            if (!banner || !details || !aj || !aj.assets) return;
 
-                document.querySelectorAll('.dd-cat-content').forEach(c => c.style.display = 'none');
-                document.getElementById('dd-' + tab.dataset.ddcat).style.display = 'block';
-            });
-        });
+            var viewMap = {
+                'krFinance-view': { key: 'krStock', label: '🇰🇷 한국 금융주' },
+                'gold-view': { key: 'gold', label: '🥇 금' },
+                'usDividend-view': { key: 'usStock', label: '🇺🇸 미국 주식' },
+                'bond-view': { key: 'bond', label: '📜 채권' }
+            };
+            function getDirection(text) {
+                var t = text.toLowerCase();
+                if (t.includes('확대') || t.includes('매수') || t.includes('적극')) return 'positive';
+                if (t.includes('축소') || t.includes('회피') || t.includes('매도') || t.includes('자제')) return 'negative';
+                return 'neutral';
+            }
+            var conflicts = [];
+            for (var attr in viewMap) {
+                var info = viewMap[attr];
+                var el = document.querySelector('[data-dynamic="' + attr + '"]');
+                if (!el) continue;
+                var dynamic = aj.assets[info.key];
+                if (!dynamic) continue;
+                var staticDir = getDirection(el.textContent.trim());
+                var dynamicDir = getDirection(dynamic.judgment);
+                if (staticDir !== dynamicDir && staticDir !== 'neutral' && dynamicDir !== 'neutral') {
+                    conflicts.push('<div style="display:flex;gap:8px;align-items:center;padding:4px 0;">' +
+                        '<b>' + info.label + '</b>: ' +
+                        '<span style="padding:2px 6px;border-radius:3px;background:rgba(139,92,246,0.15);font-size:0.65rem;">투자논리: ' + el.textContent.trim() + '</span> vs ' +
+                        '<span style="padding:2px 6px;border-radius:3px;background:' + dynamic.color + '20;color:' + dynamic.color + ';font-size:0.65rem;">시장판단: ' + dynamic.judgment + '</span></div>');
+                }
+            }
+            if (conflicts.length > 0) { banner.style.display = 'block'; details.innerHTML = conflicts.join(''); }
+            else { banner.style.display = 'none'; }
+        }
 
         function displayMarketResult(result) {
             document.getElementById('marketResultCard').style.display = 'block';
@@ -12971,6 +12732,10 @@
 
                 document.getElementById('sellTimingSummary').innerHTML = summaryHtml;
             }
+
+            // ★ v5.3: 탭 이동 안내 표시
+            var navGuide = document.getElementById('tabNavigationGuide');
+            if (navGuide) navGuide.style.display = 'block';
         }
 
         // 샘플 데이터 로드
@@ -12993,6 +12758,11 @@
             inputs.forEach(input => input.value = '');
             document.getElementById('marketResultCard').style.display = 'none';
             document.getElementById('signalDetailsCard').style.display = 'none';
+            // ★ v5.3: 다른 탭으로 이동한 카드들도 숨기기
+            ['dailyDetailedCard', 'sellTimingCard', 'assetJudgmentCard', 'tabNavigationGuide', 'rationaleConflictBanner'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
         }
         
         // ========== 🆕 엑셀/JSON 파일에서 지표 불러오기 ==========
@@ -13015,7 +12785,7 @@
             'ind_foreign20d': ['foreign20d', 'Foreign_20D', 'Foreign20D', '외국인20일'],
             'ind_kospiPer': ['kospiPer', 'KOSPI_PER', 'KospiPER', '코스피PER'],
             'ind_ism': ['ism', 'ISM', 'ISM_PMI', 'ISMPMI', 'ISM제조업'],
-            // ★ v5.2: 한국 채권/금리 + JGB
+            // ★ v5.3: 한국 채권/금리 + JGB
             'ind_kr3y': ['kr3y', 'KR_3Y', 'KR3Y', '국고3년', '국고채3년', 'KoreaGovt3Y'],
             'ind_kr10y': ['kr10y', 'KR_10Y', 'KR10Y', '국고10년', '국고채10년', 'KoreaGovt10Y'],
             'ind_kr1y': ['kr1y', 'KR_1Y', 'KR1Y', '국고1년', '국고채1년'],
