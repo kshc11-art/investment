@@ -6095,10 +6095,10 @@
                         }
                         
                         // Momentum (25%) - 백분위 방식 (D-4.3)
-                        const r3m = d['Return3M(%)'] || d['Return60D(%)'] || 0;
-                        const r6m = d['Return6M(%)'] || d['Return120D(%)'] || 0;
-                        const r1y = d['Return1Y(%)'] || d['Return250D(%)'] || 0;
-                        
+                        const r3m = d['Return3M(%)'] != null ? d['Return3M(%)'] : (d['Return60D(%)'] != null ? d['Return60D(%)'] : 0);
+                        const r6m = d['Return6M(%)'] != null ? d['Return6M(%)'] : (d['Return120D(%)'] != null ? d['Return120D(%)'] : 0);
+                        const r1y = d['Return1Y(%)'] != null ? d['Return1Y(%)'] : (d['Return250D(%)'] != null ? d['Return250D(%)'] : 0);
+
                         const r3mArr = cols['Return3M(%)'].length > 0 ? cols['Return3M(%)'] : cols['Return60D(%)'];
                         const r6mArr = cols['Return6M(%)'].length > 0 ? cols['Return6M(%)'] : cols['Return120D(%)'];
                         const r1yArr = cols['Return1Y(%)'].length > 0 ? cols['Return1Y(%)'] : cols['Return250D(%)'];
@@ -6247,9 +6247,9 @@
                         }
                         
                         // 백분위 모멘텀
-                        const r3m = d['Return3M(%)'] || d['Return60D(%)'] || 0;
-                        const r6m = d['Return6M(%)'] || d['Return120D(%)'] || 0;
-                        const r1y = d['Return1Y(%)'] || d['Return250D(%)'] || 0;
+                        const r3m = d['Return3M(%)'] != null ? d['Return3M(%)'] : (d['Return60D(%)'] != null ? d['Return60D(%)'] : 0);
+                        const r6m = d['Return6M(%)'] != null ? d['Return6M(%)'] : (d['Return120D(%)'] != null ? d['Return120D(%)'] : 0);
+                        const r1y = d['Return1Y(%)'] != null ? d['Return1Y(%)'] : (d['Return250D(%)'] != null ? d['Return250D(%)'] : 0);
                         
                         const r3mArr = cols['Return3M(%)'].length > 0 ? cols['Return3M(%)'] : cols['Return60D(%)'];
                         const r6mArr = cols['Return6M(%)'].length > 0 ? cols['Return6M(%)'] : cols['Return120D(%)'];
@@ -6329,15 +6329,25 @@
                  '52WeekHigh', '52wHigh',
                  // 배당 (명세서: DividendYield, 엑셀: DivYield)
                  'DividendYield(%)', 'DivYield(%)',
+                 'ForeignRatio(%)', 'InstOwn(%)',
                  'ExpenseRatio(%)'].forEach(col => {
                     cols[col] = subset.map(d => d[col]).filter(x => x != null && !isNaN(x));
                 });
                 
                 // MDD 배열 통합
                 const mddArr = cols['MaxDrawdown(%)'].length > 0 ? cols['MaxDrawdown(%)'] : cols['From52wHigh(%)'];
-                
+
+                // ETF 백분위 배열 사전 계산 (루프 밖에서 1회만)
+                let _etfSubset, _r3mArr, _r6mArr, _r1yArr;
+                if (sheet.includes('ETF')) {
+                    _etfSubset = data.filter(x => x._sheet && x._sheet.includes('ETF'));
+                    _r3mArr = _etfSubset.map(x => x['Return3M(%)'] != null ? x['Return3M(%)'] : x['Return60D(%)']).filter(x => x != null && !isNaN(x));
+                    _r6mArr = _etfSubset.map(x => x['Return6M(%)'] != null ? x['Return6M(%)'] : x['Return120D(%)']).filter(x => x != null && !isNaN(x));
+                    _r1yArr = _etfSubset.map(x => x['Return1Y(%)'] != null ? x['Return1Y(%)'] : x['Return250D(%)']).filter(x => x != null && !isNaN(x));
+                }
+
                 subset.forEach(d => {
-                    
+
                     // 컬럼값 통합 (엑셀/명세서 불일치 대응)
                     const mddVal = getVal(d, 'MaxDrawdown(%)', 'From52wHigh(%)');
                     const high52Val = getVal(d, '52WeekHigh', '52wHigh');
@@ -6653,19 +6663,14 @@
                         }
                         
                         // Momentum Score (25%) - 백분위 방식으로 수정 (D-4.3)
-                        const r3m = d['Return3M(%)'] || d['Return60D(%)'] || 0;
-                        const r6m = d['Return6M(%)'] || d['Return120D(%)'] || 0;
-                        const r1y = d['Return1Y(%)'] || d['Return250D(%)'] || 0;
-                        
-                        // ETF 전체에서 백분위 계산
-                        const etfSubset = data.filter(x => x._sheet && x._sheet.includes('ETF'));
-                        const r3mArr = etfSubset.map(x => x['Return3M(%)'] || x['Return60D(%)']).filter(x => x != null && !isNaN(x));
-                        const r6mArr = etfSubset.map(x => x['Return6M(%)'] || x['Return120D(%)']).filter(x => x != null && !isNaN(x));
-                        const r1yArr = etfSubset.map(x => x['Return1Y(%)'] || x['Return250D(%)']).filter(x => x != null && !isNaN(x));
-                        
-                        const r3mPct = percentileRank(r3mArr, r3m, false);
-                        const r6mPct = percentileRank(r6mArr, r6m, false);
-                        const r1yPct = percentileRank(r1yArr, r1y, false);
+                        const r3m = d['Return3M(%)'] != null ? d['Return3M(%)'] : (d['Return60D(%)'] != null ? d['Return60D(%)'] : 0);
+                        const r6m = d['Return6M(%)'] != null ? d['Return6M(%)'] : (d['Return120D(%)'] != null ? d['Return120D(%)'] : 0);
+                        const r1y = d['Return1Y(%)'] != null ? d['Return1Y(%)'] : (d['Return250D(%)'] != null ? d['Return250D(%)'] : 0);
+
+                        // ETF 전체에서 백분위 계산 (사전 계산된 배열 사용)
+                        const r3mPct = percentileRank(_r3mArr, r3m, false);
+                        const r6mPct = percentileRank(_r6mArr, r6m, false);
+                        const r1yPct = percentileRank(_r1yArr, r1y, false);
                         
                         // 가중치: 최근 > 과거 (0.4 / 0.35 / 0.25)
                         d.MomentumScore = r3mPct * 0.4 + r6mPct * 0.35 + r1yPct * 0.25;
@@ -6748,7 +6753,16 @@
                 });
                 
                 const mddArr = cols['MaxDrawdown(%)'].length > 0 ? cols['MaxDrawdown(%)'] : cols['From52wHigh(%)'];
-                
+
+                // ETF 백분위 배열 사전 계산 (루프 밖에서 1회만)
+                let _etfSubsetD, _r3mArrD, _r6mArrD, _r1yArrD;
+                if (sheet.includes('ETF')) {
+                    _etfSubsetD = data.filter(x => x._sheet && x._sheet.includes('ETF'));
+                    _r3mArrD = _etfSubsetD.map(x => getVal(x, 'Return3M(%)', 'Return60D(%)')).filter(x => x != null);
+                    _r6mArrD = _etfSubsetD.map(x => getVal(x, 'Return6M(%)', 'Return120D(%)')).filter(x => x != null);
+                    _r1yArrD = _etfSubsetD.map(x => getVal(x, 'Return1Y(%)', 'Return250D(%)')).filter(x => x != null);
+                }
+
                 subset.forEach(d => {
                     const mddVal = getVal(d, 'MaxDrawdown(%)', 'From52wHigh(%)');
                     const high52Val = getVal(d, '52WeekHigh', '52wHigh');
@@ -7103,19 +7117,14 @@
                             d.Cost_Score = 50;
                         }
                         
-                        // Momentum Score (다중 시계열)
+                        // Momentum Score (다중 시계열, 사전 계산된 배열 사용)
                         const r3m = getVal(d, 'Return3M(%)', 'Return60D(%)');
                         const r6m = getVal(d, 'Return6M(%)', 'Return120D(%)');
                         const r1y = getVal(d, 'Return1Y(%)', 'Return250D(%)');
-                        
-                        const etfSubset = data.filter(x => x._sheet && x._sheet.includes('ETF'));
-                        const r3mArr = etfSubset.map(x => getVal(x, 'Return3M(%)', 'Return60D(%)')).filter(x => x != null);
-                        const r6mArr = etfSubset.map(x => getVal(x, 'Return6M(%)', 'Return120D(%)')).filter(x => x != null);
-                        const r1yArr = etfSubset.map(x => getVal(x, 'Return1Y(%)', 'Return250D(%)')).filter(x => x != null);
-                        
-                        const r3mPct = r3m != null ? percentileRank(r3mArr, r3m) : 50;
-                        const r6mPct = r6m != null ? percentileRank(r6mArr, r6m) : 50;
-                        const r1yPct = r1y != null ? percentileRank(r1yArr, r1y) : 50;
+
+                        const r3mPct = r3m != null ? percentileRank(_r3mArrD, r3m) : 50;
+                        const r6mPct = r6m != null ? percentileRank(_r6mArrD, r6m) : 50;
+                        const r1yPct = r1y != null ? percentileRank(_r1yArrD, r1y) : 50;
                         
                         d.MomentumScore = r3mPct * 0.4 + r6mPct * 0.35 + r1yPct * 0.25;
                         
@@ -7181,7 +7190,16 @@
                 });
                 
                 const mddArr = cols['MaxDrawdown(%)'].length > 0 ? cols['MaxDrawdown(%)'] : cols['From52wHigh(%)'];
-                
+
+                // ETF 백분위 배열 사전 계산 (루프 밖에서 1회만)
+                let _etfSubsetE, _r3mArrE, _r6mArrE, _r1yArrE;
+                if (sheet.includes('ETF')) {
+                    _etfSubsetE = data.filter(x => x._sheet && x._sheet.includes('ETF'));
+                    _r3mArrE = _etfSubsetE.map(x => getVal(x, 'Return3M(%)', 'Return60D(%)')).filter(x => x != null);
+                    _r6mArrE = _etfSubsetE.map(x => getVal(x, 'Return6M(%)', 'Return120D(%)')).filter(x => x != null);
+                    _r1yArrE = _etfSubsetE.map(x => getVal(x, 'Return1Y(%)', 'Return250D(%)')).filter(x => x != null);
+                }
+
                 subset.forEach(d => {
                     const mddVal = getVal(d, 'MaxDrawdown(%)', 'From52wHigh(%)');
                     const divYieldVal = getVal(d, 'DividendYield(%)', 'DivYield(%)');
@@ -7451,19 +7469,14 @@
                             d.Cost_Score = 50;
                         }
                         
-                        // Momentum
+                        // Momentum (사전 계산된 배열 사용)
                         const r3m = getVal(d, 'Return3M(%)', 'Return60D(%)');
                         const r6m = getVal(d, 'Return6M(%)', 'Return120D(%)');
                         const r1y = getVal(d, 'Return1Y(%)', 'Return250D(%)');
-                        
-                        const etfSubset = data.filter(x => x._sheet && x._sheet.includes('ETF'));
-                        const r3mArr = etfSubset.map(x => getVal(x, 'Return3M(%)', 'Return60D(%)')).filter(x => x != null);
-                        const r6mArr = etfSubset.map(x => getVal(x, 'Return6M(%)', 'Return120D(%)')).filter(x => x != null);
-                        const r1yArr = etfSubset.map(x => getVal(x, 'Return1Y(%)', 'Return250D(%)')).filter(x => x != null);
-                        
-                        const r3mPct = r3m != null ? percentileRank(r3mArr, r3m) : 50;
-                        const r6mPct = r6m != null ? percentileRank(r6mArr, r6m) : 50;
-                        const r1yPct = r1y != null ? percentileRank(r1yArr, r1y) : 50;
+
+                        const r3mPct = r3m != null ? percentileRank(_r3mArrE, r3m) : 50;
+                        const r6mPct = r6m != null ? percentileRank(_r6mArrE, r6m) : 50;
+                        const r1yPct = r1y != null ? percentileRank(_r1yArrE, r1y) : 50;
                         
                         d.MomentumScore = r3mPct * 0.4 + r6mPct * 0.35 + r1yPct * 0.25;
                         
