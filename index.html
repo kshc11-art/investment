@@ -1725,18 +1725,18 @@
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 5px;">
                         <span style="font-size: 0.7rem; color: var(--text-muted); line-height: 1;">필터</span>
                         <div style="display: flex; flex-direction: column; gap: 2px;">
-                            <!-- 1줄: 기존 필터 (경고/제외) -->
+                            <!-- 1줄: 제외 필터 -->
                             <div style="display: flex; gap: 2px; background: var(--bg-card); padding: 2px; border-radius: 5px; height: 26px; align-items: center; overflow: hidden;">
                                 <button type="button" class="filter-toggle-btn" id="filterOverboughtBtn" data-target="filterOverbought" title="복합 과열 지표: RSI>70, BB상단>90, MA20괴리>20%, 모멘텀상위15% 중 2개 이상 충족 시 과매수 (Singh 2025)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">🔥제외</button>
                                 <button type="button" class="filter-toggle-btn" id="filterNearHighBtn" data-target="filterNearHigh" title="52주 고점 95% 이상 근접. BREAKOUT(신고가돌파), RESISTANCE(저항선), RISING(상승중) 구분 (George & Hwang 2004)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">⚠️제외</button>
                                 <button type="button" class="filter-toggle-btn" id="filterVolatilityBtn" data-target="filterVolatility" title="변동성 경고: 고변동성(상위20%) + 모멘텀 종목 = 크래시 위험. 시장 하락 후 반등 시 모멘텀 크래시 발생 (Daniel & Moskowitz 2016)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">⚡제외</button>
+                                <button type="button" class="filter-toggle-btn" id="filterIlliquidOnlyBtn" data-target="filterIlliquidOnly" title="비유동 종목 제외: 시총 1조 미만 + 거래량 10만주 미만인 비유동 종목을 목록에서 제외합니다" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">🌊비유동제외</button>
                             </div>
-                            <!-- 2줄: 신규 필터 (포함/Only) -->
+                            <!-- 2줄: 포함 필터 (Only) -->
                             <div style="display: flex; gap: 2px; background: var(--bg-card); padding: 2px; border-radius: 5px; height: 26px; align-items: center; overflow: hidden;">
                                 <button type="button" class="filter-toggle-btn" id="filterContrarianOnlyBtn" data-target="filterContrarianOnly" title="역발상 = 가치저평가(PBR<1) + 수익성(ROE상위) + 소외상태(60일<15%) + 비과열. 과매수/고점 종목 자동 제외 (De Bondt 1985)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">💎역발상</button>
                                 <button type="button" class="filter-toggle-btn" id="filterMomentumOnlyBtn" data-target="filterMomentumOnly" title="모멘텀 = 60일수익률 상위30% + 120일수익률 상위40%. 과거 승자가 미래 승자 (Jegadeesh & Titman 1993, 2023)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">🚀모멘텀</button>
                                 <button type="button" class="filter-toggle-btn" id="filterQualityOnlyBtn" data-target="filterQualityOnly" title="Quality = ROE상위30% + ROA>10% + 매출총이익률>30% + 순이익률>10% 중 3개 이상. 수익성이 가치만큼 수익률 예측 (Novy-Marx 2013)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">🏆Quality</button>
-                                <button type="button" class="filter-toggle-btn" id="filterIlliquidOnlyBtn" data-target="filterIlliquidOnly" title="비유동성 프리미엄 = 시총 1조 미만 + 거래량 10만주 미만. 비유동 종목이 초과수익 (Amihud 2002, Pastor & Stambaugh 2003)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">🌊비유동</button>
                                 <button type="button" class="filter-toggle-btn" id="filterValueGraduateBtn" data-target="filterValueGraduate" title="가치 졸업 = 역발상 조건 충족했으나 시장이 인식하여 과열 상태. 역발상→가치주 전환 (신규 개념)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: 0.55rem; font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">💰졸업</button>
                             </div>
                         </div>
@@ -5194,14 +5194,7 @@
         });
 
         // Filter Buttons (placeholder functionality)
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const group = btn.parentElement;
-                group.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                // TODO: Implement actual filtering logic
-            });
-        });
+        // filter-btn 이벤트는 아래 스크리닝 섹션에서 처리 (filters 업데이트 + renderTable 호출)
     
 
         // ========== 스크리닝 데이터 및 필터 ==========
@@ -5270,7 +5263,7 @@
                 filtered = filtered.filter(d => d._quality);
             }
             if (filterIlliquidOnly) {
-                filtered = filtered.filter(d => d._illiquid);
+                filtered = filtered.filter(d => !d._illiquid);
             }
             if (filterValueGraduate) {
                 filtered = filtered.filter(d => d._valueGraduate);
@@ -5302,8 +5295,8 @@
                 return (va - vb) * dir;
             });
             
-            // 상위 100개만 표시 (성능)
-            const display = sorted.slice(0, 150);
+            // 전체 종목 표시 (data에 있는 모든 종목)
+            const display = sorted;
             
             const tbody = document.getElementById('screening-tbody');
             if (!tbody) return;
@@ -5653,6 +5646,24 @@
         function applyPostScoringAdjustments(data) {
             applyRegimeWeights(data);
             applyDataCompletenessPenalty(data);
+            applyIlliquidityPenalty(data);
+            return data;
+        }
+
+        // 비유동 종목 점수 감점 - 거래가 어려운 종목은 실질적으로 투자하기 어려움
+        function applyIlliquidityPenalty(data) {
+            data.forEach(d => {
+                if (!d.TotalScore) return;
+                if (d._illiquid) {
+                    // 비유동 종목: 20% 감점 (거래 어려움으로 실현 불가능한 점수)
+                    d.TotalScore *= 0.80;
+                    d._illiquidPenalty = true;
+                } else if (d._liquidityLevel === 'LOW') {
+                    // 저유동성 종목: 10% 감점
+                    d.TotalScore *= 0.90;
+                    d._illiquidPenalty = true;
+                }
+            });
             return data;
         }
 
@@ -8781,9 +8792,23 @@
         (async function initialize() {
             // 1. market_config.json 먼저 로드 (작은 AI 설정)
             await loadMarketConfig();
-            
-            // 2. data.json 로드 (종목 데이터)
-            loadDataFromJson(false);
+
+            // 2. data.json 로드 (종목 데이터) - await하여 데이터 로드 완료 후 초기 렌더링
+            const loaded = await loadDataFromJson(false);
+
+            // 3. 데이터 로드 후 초기화 (데이터가 있을 때만 의미 있음)
+            if (loaded && screeningData.length > 0) {
+                initializeFlags();
+                const version = getSelectedVersion();
+                if (version === 'A') calcScoresVersionA(screeningData);
+                else if (version === 'B') calcScoresVersionB(screeningData);
+                else if (version === 'C') calcScoresVersionC(screeningData);
+                else if (version === 'D') calcScoresVersionD(screeningData);
+                else calcScoresVersionE(screeningData);
+                applyPostScoringAdjustments(screeningData);
+                renderTable();
+                console.log('초기 데이터 로드 및 렌더링 완료');
+            }
         })();
 
         // 🆕 초기 데이터에 플래그 계산 (엑셀 업로드 전에도 필터 작동하도록)
@@ -8841,28 +8866,7 @@
             console.log(`   ⚙️ config조정: ${adjusted}개`);
         }
         
-        initializeFlags();
-
-        // 초기 버전 점수 계산 (기본값: Version A)
-        var initialVersion = document.querySelector('input[name="scoringVersion"]:checked');
-        var version = initialVersion ? initialVersion.value : 'A';
-        console.log('초기 스코어링 버전:', version);
-        
-        if (version === 'A') {
-            calcScoresVersionA(screeningData);
-        } else if (version === 'B') {
-            calcScoresVersionB(screeningData);
-        } else if (version === 'C') {
-            calcScoresVersionC(screeningData);
-        } else if (version === 'D') {
-            calcScoresVersionD(screeningData);
-        } else {
-            calcScoresVersionE(screeningData);
-        }
-        applyPostScoringAdjustments(screeningData);
-
-        // 초기 렌더링
-        renderTable();
+        // 초기 렌더링은 위의 initialize() 에서 data.json 로드 완료 후 수행됨
 
         // ========== localStorage 및 보유종목 관리 ==========
         const STORAGE_KEY = 'investmentDashboard_v2';
