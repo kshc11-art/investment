@@ -36,7 +36,7 @@ jobs:
         env:
           TZ: Asia/Seoul
         run: |
-          echo "🚀 글로벌 스크리너 v4.0 시작"
+          echo "🚀 글로벌 스크리너 v4.1 시작"
           echo "현재 시간: $(date)"
           
           # JSON만 출력 (PWA용)
