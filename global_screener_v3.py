@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 """
-글로벌 주식/ETF 스크리닝 - GitHub Actions 버전 v4.0
+글로벌 주식/ETF 스크리닝 - GitHub Actions 버전 v4.1
+=============================================================================
+v4.1 주요 변경:
+  1. 한국 국고채 수익률 추가: 1Y, 3Y, 10Y (네이버금융 / FRED / FDR 멀티소스)
+  2. 한국은행 기준금리, CD 91일 금리 추가 (한국 금융 NIM 판단용)
+  3. 일본 JGB 10년 수익률 추가 (미국 장기채 환류 리스크 판단용)
+  4. 미국채 2년 수익률 추가 → 10Y-2Y 스프레드 계산
+  5. 한미 금리차 (US2Y-KR3Y) 추가 → 원화 환율 방향 판단
+  6. 한국 국고 10Y-1Y 스프레드 추가 → 한국 수익률 곡선
 =============================================================================
 v4.0 주요 변경:
   1. US Stocks: 하드코딩 제거 → S&P500 전체 동적 조회 (최대 500개)
@@ -2408,6 +2416,128 @@ def get_ism_pmi():
     
     return None
 
+# ★★★ v4.1 추가: 한국 국고채 금리 + 한국은행 기준금리 + JGB 수집 ★★★
+# ============================================================
+def get_korea_bond_yields():
+    """
+    한국 국고채 수익률 + 한국은행 기준금리 수집
+    v4.1: 투자 판단 시스템의 한국 금융 NIM 판단에 필요
+    
+    소스 우선순위:
+    1. 네이버 금융 국고채 페이지
+    2. FRED 한국 금리 시리즈
+    3. FinanceDataReader
+    """
+    results = {}
+    log("  한국 채권/금리 수집 중...")
+    
+    # ── 네이버 금융 채권 시세 (1순위) ──
+    naver_bonds = {
+        'IRR_GOVT01Y': ('kr_1y', '국고채 1년'),
+        'IRR_GOVT03Y': ('kr_3y', '국고채 3년'),
+        'IRR_GOVT10Y': ('kr_10y', '국고채 10년'),
+        'IRR_CD91':    ('kr_cd91', 'CD 91일'),
+    }
+    
+    for mkt_code, (key, label) in naver_bonds.items():
+        try:
+            url = f"https://finance.naver.com/marketindex/interestDailyQuote.naver?marketindexCd={mkt_code}"
+            resp = requests.get(url, headers=HEADERS, timeout=8)
+            if resp.status_code == 200:
+                soup = BeautifulSoup(resp.text, 'lxml')
+                tds = soup.select('table.tbl_exchange td')
+                if tds:
+                    val_text = tds[0].get_text().strip().replace(',', '')
+                    try:
+                        val = float(val_text)
+                        if 0.5 < val < 10:
+                            results[key] = val
+                    except:
+                        pass
+            time.sleep(0.3)
+        except:
+            pass
+    
+    # ── FRED 한국 금리 (네이버 실패 시 폴백) ──
+    fred_kr_map = {
+        'IRLTLT01KRM156N': 'kr_10y',  # Korea Long-Term Rate (~10Y)
+        'IRSTCI01KRM156N': 'bok_rate', # Korea Short-Term Interest Rate (기준금리 proxy)
+    }
+    for series_id, key in fred_kr_map.items():
+        if not results.get(key):
+            try:
+                val = fetch_fred_series(series_id)
+                if val and 0 < val < 10:
+                    results[key] = val
+            except:
+                pass
+            time.sleep(0.3)
+    
+    # ── FinanceDataReader 한국 국고채 (추가 폴백) ──
+    if FDR_AVAILABLE:
+        fdr_bond_map = {
+            'KR3YT=RR': 'kr_3y',
+            'KR10YT=RR': 'kr_10y',
+            'KR1YT=RR': 'kr_1y',
+        }
+        end_date = datetime.now().strftime('%Y-%m-%d')
+        start_date = (datetime.now() - timedelta(days=14)).strftime('%Y-%m-%d')
+        
+        for fdr_ticker, key in fdr_bond_map.items():
+            if not results.get(key):
+                try:
+                    df = fdr.DataReader(fdr_ticker, start_date, end_date)
+                    if df is not None and not df.empty:
+                        val = float(df['Close'].iloc[-1])
+                        if 0.5 < val < 10:
+                            results[key] = val
+                except:
+                    pass
+    
+    # ── 한국은행 기준금리 추정 (직접 수집 실패 시) ──
+    if not results.get('bok_rate') and results.get('kr_1y'):
+        # 국고채 1Y와 기준금리 차이는 보통 0.1~0.3%p
+        results['bok_rate'] = round(results['kr_1y'] - 0.15, 2)
+    
+    collected = len(results)
+    log(f"  ✅ 한국 채권/금리: {collected}개 수집"
+        f" (기준금리:{results.get('bok_rate','N/A')}"
+        f", 국고3Y:{results.get('kr_3y','N/A')}"
+        f", 국고10Y:{results.get('kr_10y','N/A')}"
+        f", CD91:{results.get('kr_cd91','N/A')})")
+    return results
+
+
+def get_jgb_yield():
+    """
+    일본 JGB 10년 수익률 (JGB 환류 리스크 판단용)
+    v4.1: JGB 10Y > 1.5%이면 미국 장기채 매도 압력 발생
+    """
+    # 1순위: FRED Japan Long-Term Rate
+    try:
+        val = fetch_fred_series('IRLTLT01JPM156N')
+        if val and 0 < val < 5:
+            log(f"  ✅ JGB 10Y: {val}% (FRED)")
+            return val
+    except:
+        pass
+    
+    # 2순위: yfinance (메인 루프에서 수집 실패 시)
+    try:
+        t = yf.Ticker('^JGBS')
+        hist = t.history(period='5d')
+        if not hist.empty:
+            val = float(hist['Close'].iloc[-1])
+            if 0 < val < 5:
+                log(f"  ✅ JGB 10Y: {val}% (yfinance ^JGBS)")
+                return val
+    except:
+        pass
+    
+    log("  ⚠️ JGB 10Y 수집 실패")
+    return None
+
+
 def get_korea_market_indicators():
     """한국 시장 지표 (pykrx + 네이버 대안)"""
     indicators = {}
@@ -2478,7 +2608,7 @@ def get_korea_market_indicators():
     return indicators
 
 def get_market_indicators():
-    """글로벌 시장 지표 - v4.0: 거시경제 지표 추가"""
+    """글로벌 시장 지표 - v4.1: 한국 국고채·JGB·스프레드 추가"""
     log("\n[5/6] 시장 지표 수집 중...")
 
     indicators = {
@@ -2510,6 +2640,9 @@ def get_market_indicators():
         '^FVX': ('미국채 5년', '채권'),
         '^TNX': ('미국채 10년', '채권'),
         '^TYX': ('미국채 30년', '채권'),
+
+        # ★ v4.1: 투자 판단 시스템 핵심 채권 지표
+        '2YY=F': ('미국채 2년', '채권'),         # 10Y-2Y 스프레드 계산용
 
         'BTC-USD': ('비트코인', '암호화폐'),
         'ETH-USD': ('이더리움', '암호화폐'),
@@ -2725,6 +2858,139 @@ def get_market_indicators():
 
     log("  추가 ETF 지표 수집 중...")
 
+    # ★★★ v4.1: 한국 국고채 금리 + 한국은행 기준금리 ★★★
+    log("  한국 채권/금리 수집 중...")
+    kr_bond_data = get_korea_bond_yields()
+    
+    if kr_bond_data.get('bok_rate') is not None:
+        results.append({
+            'Category': '금리',
+            'Ticker': 'BOK-RATE',
+            'Name': '한국은행 기준금리',
+            'Price': fmt(kr_bond_data['bok_rate'], 2),
+            'Unit': '%',
+            'Description': '한국은행 기준금리. 한국 은행 NIM의 핵심 결정 변수',
+        })
+    
+    if kr_bond_data.get('kr_1y') is not None:
+        results.append({
+            'Category': '채권',
+            'Ticker': 'KR-1Y',
+            'Name': '한국 국고채 1년',
+            'Price': fmt(kr_bond_data['kr_1y'], 3),
+            'Unit': '%',
+        })
+    
+    if kr_bond_data.get('kr_3y') is not None:
+        results.append({
+            'Category': '채권',
+            'Ticker': 'KR-3Y',
+            'Name': '한국 국고채 3년',
+            'Price': fmt(kr_bond_data['kr_3y'], 3),
+            'Unit': '%',
+            'Description': '한국 국고채 3년물. 한국 금리 환경의 핵심 지표',
+        })
+    
+    if kr_bond_data.get('kr_10y') is not None:
+        results.append({
+            'Category': '채권',
+            'Ticker': 'KR-10Y',
+            'Name': '한국 국고채 10년',
+            'Price': fmt(kr_bond_data['kr_10y'], 3),
+            'Unit': '%',
+        })
+    
+    if kr_bond_data.get('kr_cd91') is not None:
+        results.append({
+            'Category': '금리',
+            'Ticker': 'KR-CD91',
+            'Name': 'CD 91일 금리',
+            'Price': fmt(kr_bond_data['kr_cd91'], 3),
+            'Unit': '%',
+            'Description': 'CD 91일 금리. 은행 단기 조달비용 proxy',
+        })
+    
+    # 한국 수익률 곡선: 국고 10Y - 1Y 스프레드
+    if kr_bond_data.get('kr_10y') and kr_bond_data.get('kr_1y'):
+        kr_spread = kr_bond_data['kr_10y'] - kr_bond_data['kr_1y']
+        results.append({
+            'Category': '스프레드',
+            'Ticker': 'KR-10Y-1Y',
+            'Name': '한국 국고 10Y-1Y 스프레드',
+            'Price': fmt(kr_spread, 3),
+            'Signal': '역전' if kr_spread < 0 else '정상',
+            'Description': '한국 수익률 곡선 기울기',
+        })
+    
+    # ★★★ v4.1: JGB 10년 수익률 ★★★
+    log("  일본 JGB 수집 중...")
+    jgb_val = get_jgb_yield()
+    if jgb_val is not None:
+        results.append({
+            'Category': '채권',
+            'Ticker': 'JGB-10Y',
+            'Name': '일본 JGB 10년',
+            'Price': fmt(jgb_val, 3),
+            'Unit': '%',
+            'Description': '일본 국채 10년물. >1.5%이면 미국 장기채 환류 리스크',
+            'Signal': '환류위험' if jgb_val > 1.5 else '안정',
+        })
+    
+    # ★★★ v4.1: 미국 10Y-2Y 스프레드 (핵심 수익률 곡선 지표) ★★★
+    try:
+        tnx = next((r for r in results if r['Ticker'] == '^TNX'), None)
+        us2y = next((r for r in results if r['Ticker'] == '2YY=F'), None)
+        
+        us2y_val = None
+        if us2y and us2y.get('Price'):
+            us2y_val = float(us2y['Price'])
+        
+        # 2Y 수집 실패 시 FRED 대안 (DGS2)
+        if us2y_val is None:
+            try:
+                fred_2y = fetch_fred_series('DGS2')
+                if fred_2y and 0 < fred_2y < 8:
+                    us2y_val = fred_2y
+                    results.append({
+                        'Category': '채권',
+                        'Ticker': 'US-2Y',
+                        'Name': '미국채 2년 (FRED)',
+                        'Price': fmt(fred_2y, 3),
+                        'Unit': '%',
+                        'Source': 'FRED',
+                    })
+            except:
+                pass
+        
+        if tnx and tnx.get('Price') and us2y_val:
+            spread_10y_2y = float(tnx['Price']) - us2y_val
+            results.append({
+                'Category': '스프레드',
+                'Ticker': '10Y-2Y',
+                'Name': '미국 10Y-2Y 스프레드',
+                'Price': fmt(spread_10y_2y, 3),
+                'Signal': '역전' if spread_10y_2y < 0 else ('정상화' if spread_10y_2y > 0 else '플랫'),
+                'Description': '핵심 수익률 곡선 지표. 역전→정상화 전환 시 침체 경고',
+            })
+    except:
+        pass
+    
+    # ★★★ v4.1: 한미 금리차 (원화 환율 방향 판단용) ★★★
+    try:
+        kr_3y_val = kr_bond_data.get('kr_3y')
+        if us2y_val and kr_3y_val:
+            rate_diff = us2y_val - kr_3y_val
+            results.append({
+                'Category': '스프레드',
+                'Ticker': 'US2Y-KR3Y',
+                'Name': '한미 금리차 (US2Y-KR3Y)',
+                'Price': fmt(rate_diff, 3),
+                'Signal': '원화약세 압력' if rate_diff > 1.0 else ('원화강세' if rate_diff < -0.5 else '보통'),
+                'Description': '한미 금리차. >1%p이면 원화약세/외국인 이탈 압력',
+            })
+    except:
+        pass
+
     additional_etfs = {
         'IEF': ('미국채 7-10년 ETF', '채권'),
         'TIP': ('물가연동채 ETF', '채권'),
@@ -2839,7 +3105,7 @@ def save_to_json(data_dict, filename):
         'metadata': {
             'generated': datetime.now().isoformat(),
             'date': TODAY,
-            'version': 'v4.0-dynamic-screening'  # ★ v4.0 업데이트
+            'version': 'v4.1-bond-enhanced'  # ★ v4.0 업데이트
         },
         'data': {}
     }
@@ -2864,7 +3130,7 @@ def save_to_json(data_dict, filename):
 # 메인
 # ============================================================
 def main():
-    parser = argparse.ArgumentParser(description='글로벌 주식/ETF 스크리너 (GitHub Actions) v4.0')
+    parser = argparse.ArgumentParser(description='글로벌 주식/ETF 스크리너 (GitHub Actions) v4.1')
     parser.add_argument('--json-only', action='store_true', help='JSON만 출력')
     parser.add_argument('--output-dir', type=str, default='.', help='출력 디렉토리')
     parser.add_argument('--kr-stocks', type=int, default=500, help='한국 주식 수 (기본 500)')
@@ -2880,8 +3146,8 @@ def main():
     TOP_N_US_ETF = args.us_etfs
 
     log("=" * 60)
-    log("글로벌 주식/ETF 스크리닝 - GitHub Actions v4.0")
-    log("★ v4.0: 동적 종목 조회, 데이터 검증 강화, 거시경제 지표 추가")
+    log("글로벌 주식/ETF 스크리닝 - GitHub Actions v4.1")
+    log("★ v4.1: 한국 국고채·JGB·US2Y·한미금리차 추가")
     log(f"실행: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     log(f"한국 주식: 최대 {TOP_N_KR}개 (KOSPI+KOSDAQ) | 미국 주식: 최대 {TOP_N_US}개 (S&P500 동적)")
     log(f"한국 ETF: 최대 {TOP_N_KR_ETF}개 | 미국 ETF: 최대 {TOP_N_US_ETF}개 (동적)")
