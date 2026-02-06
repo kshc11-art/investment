@@ -5576,7 +5576,12 @@
         // BEAR/RECESSION → Quality/Risk↑, Momentum/Growth↓
         // BULL/EXPANSION → Growth/Momentum↑, Risk↓
         function getRegimeWeightAdjustment() {
-            if (typeof appData === 'undefined' || !appData || !appData.marketState) return null;
+            try {
+                if (typeof appData === 'undefined' || !appData || !appData.marketState) return null;
+            } catch (e) {
+                // appData가 let/const 선언 전(TDZ)에 접근 시 ReferenceError 방어
+                return null;
+            }
             var ms = appData.marketState;
             if (!ms.finalState) return null;
 
@@ -8809,6 +8814,21 @@
                 renderTable();
                 console.log('초기 데이터 로드 및 렌더링 완료');
             }
+
+            // 4. 시장 지표가 로드되었으면 포트폴리오 배분 자동 계산
+            // loadMarketIndicatorsFromExcel의 setTimeout에 의존하지 않고 직접 호출
+            try {
+                const vixInput = document.getElementById('ind_vix');
+                if (vixInput && vixInput.value && parseFloat(vixInput.value) > 0) {
+                    console.log('📊 초기화에서 evaluateMarket() 직접 호출');
+                    evaluateMarket();
+                    if (typeof updateCurrentJudgment === 'function') {
+                        updateCurrentJudgment();
+                    }
+                }
+            } catch (err) {
+                console.error('❌ 초기 evaluateMarket() 오류:', err);
+            }
         })();
 
         // 🆕 초기 데이터에 플래그 계산 (엑셀 업로드 전에도 필터 작동하도록)
@@ -10208,17 +10228,29 @@
                 indicators: ind
             };
             
-            // 결과 표시
-            console.log('🔍 displayMarketResult 호출...');
-            displayMarketResult(result);
-            
+            // 결과 표시 (각 탭 업데이트를 독립적으로 실행하여 한 곳의 오류가 다른 곳을 차단하지 않도록)
+            try {
+                console.log('🔍 displayMarketResult 호출...');
+                displayMarketResult(result);
+            } catch (err) {
+                console.error('❌ displayMarketResult 오류:', err);
+            }
+
             // 🆕 포트폴리오 탭 업데이트
-            console.log('🔍 updatePortfolioTab 호출...');
-            updatePortfolioTab(result);
+            try {
+                console.log('🔍 updatePortfolioTab 호출...');
+                updatePortfolioTab(result);
+            } catch (err) {
+                console.error('❌ updatePortfolioTab 오류:', err);
+            }
             
             // 🆕 시나리오 탭 업데이트
-            console.log('🔍 updateScenarioTab 호출...');
-            updateScenarioTab(result);
+            try {
+                console.log('🔍 updateScenarioTab 호출...');
+                updateScenarioTab(result);
+            } catch (err) {
+                console.error('❌ updateScenarioTab 오류:', err);
+            }
             console.log('🔍 탭 업데이트 완료!');
             
             // 🆕 히스토리 저장
