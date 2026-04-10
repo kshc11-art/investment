@@ -504,8 +504,9 @@
         th.sorted-desc::after { content: ' ▼'; color: var(--accent-gold); font-size: 0.7rem; }
         th.sorted-asc::after { content: ' ▲'; color: var(--accent-gold); font-size: 0.7rem; }
         
-        .stock-cell { display: flex; align-items: center; gap: var(--space-xs); }
-        .stock-cell .stock-name { font-weight: 500; font-size: 0.7rem; white-space: nowrap; }
+        .stock-cell { display: flex; align-items: center; gap: var(--space-xs); overflow: hidden; }
+        .stock-cell > div { overflow: hidden; min-width: 0; }
+        .stock-cell .stock-name { font-weight: 500; font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .stock-cell .stock-ticker { font-size: 0.7rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
         
         .positive { color: var(--accent-green); }
@@ -1503,7 +1504,7 @@
         .stock-table thead th:nth-child(1),
         .stock-table tbody td:nth-child(1) { left: 0; }
         .stock-table thead th:nth-child(2),
-        .stock-table tbody td:nth-child(2) { left: 32px; }
+        .stock-table tbody td:nth-child(2) { left: 28px; }
         
         @media (max-width: 768px) {
             /* 기본 레이아웃 */
@@ -1616,21 +1617,21 @@
         <!-- ==================== TAB 1: 종목 스크리닝 ==================== -->
         <div class="tab-content active" id="stocks">
             <div class="card">
-                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <h3 class="card-title">📈 글로벌 스크리닝</h3>
-                        <button onclick="document.getElementById('factorGuideModal').style.display='flex'" style="padding:2px 8px;border:none;border-radius:5px;font-size:0.7rem;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.15);color:#3b82f6;" title="팩터 & 지표 해석 가이드">ℹ️ 가이드</button>
-                        <span id="dataLoadTime" style="font-size: var(--fs-sm); color: var(--text-muted); background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px; display: none;"></span>
-                    </div>
+                <div class="card-header" style="display: flex; flex-direction: column; gap: 8px;">
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <label id="refreshDataBtn" style="cursor: pointer; background: var(--accent-gold); color: #000; padding: 6px 12px; border-radius: 6px; font-size: var(--fs-sm); font-weight: 600;">
+                        <h3 class="card-title" style="white-space: nowrap;">📈 글로벌 스크리닝</h3>
+                        <button onclick="document.getElementById('factorGuideModal').style.display='flex'" style="padding:2px 8px;border:none;border-radius:5px;font-size:0.7rem;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.15);color:#3b82f6;white-space:nowrap;" title="팩터 & 지표 해석 가이드">ℹ️ 가이드</button>
+                        <span id="dataLoadTime" style="font-size: 0.65rem; color: var(--text-muted); background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; display: none; white-space: nowrap;"></span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                        <label id="refreshDataBtn" style="cursor: pointer; background: var(--accent-gold); color: #000; padding: 6px 12px; border-radius: 6px; font-size: var(--fs-sm); font-weight: 600; white-space: nowrap;">
                             🔄 데이터 갱신
                         </label>
-                        <label for="excelUpload" style="cursor: pointer; background: var(--accent-gold); color: #000; padding: 6px 12px; border-radius: 6px; font-size: var(--fs-sm); font-weight: 600;">
+                        <label for="excelUpload" style="cursor: pointer; background: var(--accent-gold); color: #000; padding: 6px 12px; border-radius: 6px; font-size: var(--fs-sm); font-weight: 600; white-space: nowrap;">
                             📁 엑셀 업로드
                         </label>
                         <input type="file" id="excelUpload" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="display: none;">
-                        <label id="resetData" style="cursor: pointer; background: var(--bg-tertiary); color: var(--text-secondary); padding: 6px 12px; border-radius: 6px; font-size: var(--fs-sm);">
+                        <label id="resetData" style="cursor: pointer; background: var(--bg-tertiary); color: var(--text-secondary); padding: 6px 12px; border-radius: 6px; font-size: var(--fs-sm); white-space: nowrap;">
                             초기화
                         </label>
                     </div>
@@ -1678,11 +1679,12 @@
                 <!-- 필터 + 점수/추세 박스 -->
                 <div style="background: var(--bg-secondary); border-radius: 10px; padding: 8px 10px; margin-bottom: 16px;">
                     <!-- 스크리닝 필터 -->
-                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 5px;">
-                        <span style="font-size: 0.7rem; color: var(--text-muted); line-height: 1;">필터</span>
-                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <div style="display: flex; align-items: flex-start; gap: 6px; margin-bottom: 5px;">
+                        <span style="font-size: 0.7rem; color: var(--text-muted); line-height: 26px; flex-shrink: 0;">필터</span>
+                        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0;">
                             <!-- 1줄: 제외 필터 -->
                             <div style="display: flex; gap: 2px; background: var(--bg-card); padding: 2px; border-radius: 5px; height: 26px; align-items: center; overflow: hidden;">
+                                <button onclick="resetAllFilters()" style="padding: 0 6px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: var(--fs-xs); font-weight: 600; color: var(--accent-gold); cursor: pointer; background: rgba(245,158,11,0.15); box-sizing: border-box; flex-shrink: 0;" title="모든 필터 해제">전체</button>
                                 <button type="button" class="filter-toggle-btn" id="filterOverboughtBtn" data-target="filterOverbought" title="복합 과열 지표: RSI>70, BB상단>90, MA20괴리>20%, 모멘텀상위15% 중 2개 이상 충족 시 과매수 (Singh 2025)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: var(--fs-xs); font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">🔥제외</button>
                                 <button type="button" class="filter-toggle-btn" id="filterNearHighBtn" data-target="filterNearHigh" title="52주 고점 95% 이상 근접. BREAKOUT(신고가돌파), RESISTANCE(저항선), RISING(상승중) 구분 (George & Hwang 2004)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: var(--fs-xs); font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">⚠️제외</button>
                                 <button type="button" class="filter-toggle-btn" id="filterVolatilityBtn" data-target="filterVolatility" title="변동성 경고: 고변동성(상위20%) + 모멘텀 종목 = 크래시 위험. 시장 하락 후 반등 시 모멘텀 크래시 발생 (Daniel & Moskowitz 2016)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: var(--fs-xs); font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">⚡제외</button>
@@ -1706,7 +1708,6 @@
                         <input type="checkbox" id="filterIlliquidOnly" style="display: none;">
                         <input type="checkbox" id="filterValueGraduate" style="display: none;">
                         <input type="checkbox" id="filterDefensiveDiv" style="display: none;">
-                        <button onclick="resetAllFilters()" style="padding:2px 6px;height:22px;line-height:22px;border:none;border-radius:4px;font-size: var(--fs-xs);font-weight:600;color:var(--text-muted);cursor:pointer;background:rgba(239,68,68,0.1);margin-left:4px;" title="모든 필터 해제">✕초기화</button>
                     </div>
                     
                     <!-- 점수 필터 -->
@@ -1742,10 +1743,10 @@
                     <div class="stock-table-wrap"><table class="stock-table" id="screening-table">
                         <thead>
                             <tr>
-                                <th data-sort="rank" style="width:32px; cursor:pointer;">#</th>
-                                <th data-sort="name" style="width:100px; cursor:pointer;">종목</th>
-                                <th data-sort="sector" style="width:75px; cursor:pointer;">섹터</th>
-                                <th data-sort="total" title="Value+Quality+Growth+Momentum+Risk 가중 합산. 높을수록 종합 매력도 높음" style="width:42px; cursor:pointer;" class="sorted-desc">총점</th>
+                                <th data-sort="rank" style="width:28px; cursor:pointer;">#</th>
+                                <th data-sort="name" style="width:110px; cursor:pointer;">종목</th>
+                                <th data-sort="sector" style="width:70px; cursor:pointer;">섹터</th>
+                                <th data-sort="total" title="Value+Quality+Growth+Momentum+Risk 가중 합산. 높을수록 종합 매력도 높음" style="width:40px; cursor:pointer;" class="sorted-desc">총점</th>
                                 <th data-sort="value" title="PER·PBR·ForwardPE 역백분위. 높을수록 저평가 [Fama-French 1992]" style="width:42px; cursor:pointer;">Value</th>
                                 <th data-sort="quality" title="ROE·ROA·마진·부채 종합. 높을수록 재무 우수 [Novy-Marx 2013]" style="width:48px; cursor:pointer;">Quality</th>
                                 <th data-sort="growth" title="매출·이익 성장률. 높을수록 고성장" style="width:48px; cursor:pointer;">Growth</th>
@@ -7801,9 +7802,9 @@
                     const nowKST = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' });
                     const dataKST = genDate.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' });
                     const isSameDay = nowKST === dataKST;
-                    const prefix = isSameDay ? '✅ ' : '';
+                    const prefix = isSameDay ? '✅' : '⏳';
                     
-                    timeEl.textContent = `${prefix}${dateStr} (${timeAgo})`;
+                    timeEl.textContent = `${prefix} ${timeAgo}`;
                     timeEl.style.display = 'inline-block';
                 }
                 
@@ -16283,9 +16284,43 @@
     try { myHoldings = JSON.parse(localStorage.getItem('myHoldings_v5') || '[]'); } catch(e) { console.warn('localStorage 접근 불가:', e); }
     function saveMyHoldings() { try { localStorage.setItem('myHoldings_v5', JSON.stringify(myHoldings)); } catch(e) { console.warn('localStorage 저장 실패:', e); } }
     function findStockInData(name) {
-        if (typeof screeningData === 'undefined' || !screeningData) return null;
+        if (typeof screeningData === 'undefined' || !screeningData || !name) return null;
+        var q = name.trim();
+        var qLower = q.toLowerCase();
+        var qNum = q.replace(/[^0-9]/g, '');
+        
+        // 1차: 정확 매칭 (Name, Ticker, Code)
         for (var i = 0; i < screeningData.length; i++) {
-            if (screeningData[i].Name === name || screeningData[i].Ticker === name) return screeningData[i];
+            var d = screeningData[i];
+            if (d.Name === q || d.Ticker === q) return d;
+            if (d.Code != null && String(d.Code) === qNum && qNum.length >= 3) return d;
+        }
+        // 2차: 대소문자 무시 매칭
+        for (var i = 0; i < screeningData.length; i++) {
+            var d = screeningData[i];
+            if ((d.Name || '').toLowerCase() === qLower) return d;
+            if ((d.Ticker || '').toLowerCase() === qLower) return d;
+        }
+        // 3차: 포함 매칭 (입력값이 종목명에 포함되거나, 종목명이 입력값에 포함)
+        var candidates = [];
+        for (var i = 0; i < screeningData.length; i++) {
+            var d = screeningData[i];
+            var dName = (d.Name || '').toLowerCase();
+            if (dName && (dName.indexOf(qLower) >= 0 || qLower.indexOf(dName) >= 0)) {
+                candidates.push({ d: d, score: Math.abs(dName.length - qLower.length) });
+            }
+        }
+        if (candidates.length > 0) {
+            candidates.sort(function(a, b) { return a.score - b.score; });
+            return candidates[0].d;
+        }
+        // 4차: 종목코드 부분 매칭 (숫자만 추출하여 비교)
+        if (qNum.length >= 3) {
+            for (var i = 0; i < screeningData.length; i++) {
+                var d = screeningData[i];
+                if (d.Code != null && String(d.Code).indexOf(qNum) >= 0) return d;
+                if (d._ticker != null && String(d._ticker).indexOf(qNum) >= 0) return d;
+            }
         }
         return null;
     }
@@ -16345,28 +16380,30 @@
         var totalEval = results.reduce(function(s,r){return s+(r.a.evalAmt||0)},0);
         var counts = {}; results.forEach(function(r){ counts[r.a.action] = (counts[r.a.action]||0)+1; });
         if (badge) { badge.textContent = Object.keys(counts).map(function(k){return k+' '+counts[k]}).join(' · '); }
-        el.innerHTML = '<div style="font-size: var(--fs-xs);color:var(--text-muted);margin-bottom:8px;">평가총액 ' + (totalEval/10000).toFixed(0) + '만원 · ' + myHoldings.length + '종목</div>'
+        el.innerHTML = '<div style="font-size: var(--fs-sm);color:var(--text-muted);margin-bottom:8px;">평가총액 ' + (totalEval/10000).toFixed(0) + '만원 · ' + myHoldings.length + '종목</div>'
             + results.map(function(r) {
             var h=r.h, a=r.a, idx=r.i, pc = a.pnlPct >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
             var det = a.d ? 'FPE '+(a.d.ForwardPE||a.d.PER||'-')+' · PBR '+(a.d.PBR||'-')+' · ROE '+(a.d['ROE(%)']!=null?a.d['ROE(%)'].toFixed(1):'-')+'%'+(a.d.TotalScore?' · S'+Math.round(a.d.TotalScore):'') : '';
             return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;margin-bottom:4px;border:1px solid '+a.color+'33;background:'+a.color+'08">'
-                +'<div style="min-width:48px;text-align:center;padding:3px 0;border-radius:5px;background:'+a.color+'22;color:'+a.color+';font-size: var(--fs-xs);font-weight:800;">'+a.action+'</div>'
+                +'<div style="min-width:48px;text-align:center;padding:3px 0;border-radius:5px;background:'+a.color+'22;color:'+a.color+';font-size:var(--fs-sm);font-weight:800;">'+a.action+'</div>'
                 +'<div style="flex:1;min-width:0;">'
-                +'<div style="font-size:0.8rem;font-weight:700;color:var(--text-primary);">'+h.name+' <span style="font-size:0.6rem;color:var(--text-muted);">'+h.qty+'주</span></div>'
-                +'<div style="font-size:0.6rem;color:var(--text-muted);font-family:monospace;">'+det+'</div>'
-                +(a.reasons.length?'<div style="font-size:0.6rem;color:'+a.color+';margin-top:2px;">'+a.reasons.join(' · ')+'</div>':'')
+                +'<div style="font-size:var(--fs-sm);font-weight:700;color:var(--text-primary);">'+h.name+' <span style="font-size:var(--fs-xs);color:var(--text-muted);">'+h.qty+'주</span></div>'
+                +'<div style="font-size:var(--fs-xs);color:var(--text-muted);font-family:monospace;">'+det+'</div>'
+                +(a.reasons.length?'<div style="font-size:var(--fs-xs);color:'+a.color+';margin-top:2px;">'+a.reasons.join(' · ')+'</div>':'')
                 +'</div>'
                 +'<div style="text-align:right;">'
-                +'<div style="font-size:0.8rem;font-weight:700;font-family:monospace;color:'+pc+';">'+(a.pnlPct>=0?'+':'')+a.pnlPct.toFixed(1)+'%</div>'
-                +(a.evalAmt?'<div style="font-size:0.6rem;color:var(--text-muted);">'+(a.evalAmt/10000).toFixed(0)+'만</div>':'')
-                +'<button onclick="removeMyHolding('+idx+')" style="margin-top:3px;padding:2px 6px;border:none;border-radius:4px;font-size: var(--fs-xs);cursor:pointer;background:rgba(239,68,68,0.15);color:#ef4444;">삭제</button>'
+                +'<div style="font-size:var(--fs-sm);font-weight:700;font-family:monospace;color:'+pc+';">'+(a.pnlPct>=0?'+':'')+a.pnlPct.toFixed(1)+'%</div>'
+                +(a.evalAmt?'<div style="font-size:var(--fs-xs);color:var(--text-muted);">'+(a.evalAmt/10000).toFixed(0)+'만</div>':'')
+                +'<button onclick="removeMyHolding('+idx+')" style="margin-top:3px;padding:2px 6px;border:none;border-radius:4px;font-size:var(--fs-xs);cursor:pointer;background:rgba(239,68,68,0.15);color:#ef4444;">삭제</button>'
                 +'</div></div>';
         }).join('');
         analyzePortfolio(results);
         var dl = document.getElementById('holdingDatalist'); if(dl){dl.innerHTML='';
         var src = (typeof screeningData!=='undefined'&&screeningData)?screeningData:[];
-        src.forEach(function(d){if(d.Name){var o=document.createElement('option');o.value=d.Name;dl.appendChild(o);}});}
-    }
+        src.forEach(function(d){
+            if(d.Name){var o=document.createElement('option');o.value=d.Name;o.label=(d.Ticker||d.Code||'')+' '+d.Name;dl.appendChild(o);}
+            if(d.Ticker&&d.Ticker!==d.Name){var o2=document.createElement('option');o2.value=d.Ticker;o2.label=d.Ticker+' '+d.Name;dl.appendChild(o2);}
+        });}    }
     function saveInvestMemo() {
         try { localStorage.setItem('investMemo_v5', document.getElementById('investMemo').value); } catch(e) {}
         document.getElementById('memoStatus').textContent = '✅ 저장됨 (' + new Date().toLocaleString('ko-KR') + ')';
