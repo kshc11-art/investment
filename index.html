@@ -113,7 +113,7 @@
 
         .header-subtitle {
             color: var(--text-secondary);
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
             margin-bottom: var(--space-sm);
         }
 
@@ -194,7 +194,7 @@
         }
 
         .main-tab .label {
-            font-size: 0.7rem;
+            font-size: var(--fs-sm);
             line-height: 1.2;
         }
 
@@ -356,21 +356,21 @@
         .allocation-item .name {
             flex: 1;
             font-weight: 500;
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
         }
 
         .allocation-item .percent {
             font-family: 'JetBrains Mono', monospace;
             font-weight: 700;
             margin-right: var(--space-sm);
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
         }
 
         .allocation-item .amount {
             font-family: 'JetBrains Mono', monospace;
             color: var(--accent-gold);
             font-weight: 600;
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
         }
 
         /* Cash allocation notice */
@@ -453,7 +453,7 @@
         .stock-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
             min-width: 700px;
             table-layout: fixed;
         }
@@ -498,7 +498,7 @@
         .stock-ticker {
             font-family: 'JetBrains Mono', monospace;
             color: var(--text-muted);
-            font-size: 0.7rem;
+            font-size: var(--fs-sm);
         }
 
         .metric-positive { color: var(--accent-green); }
@@ -519,13 +519,13 @@
         .score-fair { background: #f59e0b; color: white; }
         .score-poor { background: #64748b; color: white; }
         
-        th.sorted-desc::after { content: ' ▼'; color: var(--accent-gold); font-size: 0.7rem; }
-        th.sorted-asc::after { content: ' ▲'; color: var(--accent-gold); font-size: 0.7rem; }
+        th.sorted-desc::after { content: ' ▼'; color: var(--accent-gold); font-size: var(--fs-sm); }
+        th.sorted-asc::after { content: ' ▲'; color: var(--accent-gold); font-size: var(--fs-sm); }
         
         .stock-cell { display: flex; align-items: center; gap: var(--space-xs); overflow: hidden; }
         .stock-cell > div { overflow: hidden; min-width: 0; }
-        .stock-cell .stock-name { font-weight: 500; font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .stock-cell .stock-ticker { font-size: 0.7rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+        .stock-cell .stock-name { font-weight: 500; font-size: var(--fs-sm); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .stock-cell .stock-ticker { font-size: var(--fs-sm); color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
         
         .positive { color: var(--accent-green); }
         .negative { color: var(--accent-red); }
@@ -638,7 +638,7 @@
         /* 테이블 내 섹터 chip */
         .stock-table .breakdown-chip {
             max-width: 70px;
-            font-size: 0.7rem;
+            font-size: var(--fs-sm);
             padding: 3px 6px;
         }
 
@@ -666,7 +666,7 @@
         }
 
         .rationale-card p {
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
             line-height: 1.7;
         }
 
@@ -704,7 +704,7 @@
             border: 1px solid var(--border-color);
             background: var(--bg-secondary);
             color: var(--text-secondary);
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
             cursor: pointer;
             border-radius: 10px;
             transition: all 0.2s;
@@ -751,7 +751,7 @@
         .probability-badge {
             padding: 8px 14px;
             border-radius: 20px;
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
             font-weight: 600;
             background: rgba(239,68,68,0.2);
             color: var(--accent-red);
@@ -763,7 +763,7 @@
             border-radius: 10px;
             padding: var(--space-md);
             margin-bottom: var(--space-md);
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
         }
 
         .trigger-label {
@@ -804,7 +804,7 @@
             text-align: center;
             font-family: 'JetBrains Mono', monospace;
             font-weight: 700;
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
         }
 
         .impact-change.positive { background: rgba(16,185,129,0.2); color: var(--accent-green); }
@@ -821,7 +821,7 @@
         .impact-action {
             flex: 1 1 100%;
             color: var(--text-secondary);
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
             padding-top: var(--space-xs);
             border-top: 1px solid var(--border-color);
             line-height: 1.5;
@@ -844,7 +844,7 @@
         }
 
         .strategy-box p {
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
             line-height: 1.8;
             color: var(--text-secondary);
         }
@@ -884,7 +884,7 @@
             padding: var(--space-sm) 0;
             border-bottom: 1px solid var(--border-color);
             color: var(--text-secondary);
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
             line-height: 1.5;
         }
 
@@ -912,7 +912,7 @@
             text-align: center;
             color: var(--text-muted);
             font-style: italic;
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
         }
 
         /* Footer */
@@ -1091,7 +1091,7 @@
             cursor: pointer;
             min-height: var(--touch-min);
             border-radius: 10px;
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
             transition: all 0.2s ease;
         }
 
@@ -1111,7 +1111,7 @@
         .checklist-item {
             padding: var(--space-sm) 0;
             border-bottom: 1px solid var(--border-color);
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
         }
 
         .checklist-item:last-child {
@@ -1160,7 +1160,7 @@
         }
 
         .action-trigger-section p {
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
             font-weight: 600;
             margin-bottom: var(--space-xs);
         }
@@ -1172,7 +1172,7 @@
 
         .action-trigger-section li {
             padding: var(--space-xs) 0;
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
             color: var(--text-secondary);
         }
 
@@ -1303,7 +1303,7 @@
         }
 
         .industry-card p {
-            font-size: var(--font-sm);
+            font-size: var(--fs-sm);
             color: var(--text-secondary);
             margin-bottom: var(--space-sm);
             line-height: 1.6;
@@ -1413,7 +1413,7 @@
             padding: 8px 12px;
             background: var(--bg-secondary);
             border-radius: 8px;
-            font-size: 0.8rem;
+            font-size: var(--fs-md);
         }
         .detail-item-label {
             color: var(--text-muted);
@@ -1423,7 +1423,7 @@
             cursor: help;
         }
         .detail-item-label .info-icon {
-            font-size: 0.7rem;
+            font-size: var(--fs-sm);
             opacity: 0.6;
         }
         .detail-item-value {
@@ -1471,7 +1471,7 @@
             color: var(--text-primary);
             padding: 8px 12px;
             border-radius: 6px;
-            font-size: 0.7rem;
+            font-size: var(--fs-sm);
             white-space: normal;
             z-index: 100;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
@@ -1564,8 +1564,8 @@
             
             /* 필터 영역 */
             .filter-toggle-btn { font-size: 0.5rem !important; padding: 0 4px !important; }
-            .filter-btn { font-size: 0.6rem !important; padding: 3px 6px !important; }
-            .score-pill { font-size: 0.6rem !important; padding: 0 6px !important; }
+            .filter-btn { font-size: var(--fs-xs) !important; padding: 3px 6px !important; }
+            .score-pill { font-size: var(--fs-xs) !important; padding: 0 6px !important; }
             
             /* 팩터 가이드 모달 */
             #factorGuideModal > div { max-width: 100%; margin: 10px; padding: 16px; max-height: 90vh; }
@@ -1573,13 +1573,13 @@
             
             /* 포트폴리오 분석 */
             #pfSummaryGrid { grid-template-columns: repeat(3, 1fr) !important; }
-            #pfSectorBars, #pfMarketBars { font-size: 0.6rem; }
+            #pfSectorBars, #pfMarketBars { font-size: var(--fs-xs); }
             
             /* 미니 차트 */
             #historyCharts { grid-template-columns: repeat(2, 1fr) !important; }
             
             /* Knowledge 서브탭 */
-            .knowledge-subtab { font-size: 0.6rem !important; padding: 5px 8px !important; }
+            .knowledge-subtab { font-size: var(--fs-xs) !important; padding: 5px 8px !important; }
             
             /* 종목 상세 모달 */
             .stock-detail-content { width: 100% !important; max-width: 100% !important; margin: 0; border-radius: 12px 12px 0 0; max-height: 85vh; }
@@ -1638,7 +1638,7 @@
                 <div class="card-header" style="display: flex; flex-direction: column; gap: 8px;">
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <h3 class="card-title" style="white-space: nowrap;">📈 글로벌 스크리닝</h3>
-                        <button onclick="document.getElementById('factorGuideModal').style.display='flex'" style="padding:2px 8px;border:none;border-radius:5px;font-size:0.7rem;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.15);color:#3b82f6;white-space:nowrap;" title="팩터 & 지표 해석 가이드">ℹ️ 가이드</button>
+                        <button onclick="document.getElementById('factorGuideModal').style.display='flex'" style="padding:2px 8px;border:none;border-radius:5px;font-size: var(--fs-sm);font-weight:700;cursor:pointer;background:rgba(59,130,246,0.15);color:#3b82f6;white-space:nowrap;" title="팩터 & 지표 해석 가이드">ℹ️ 가이드</button>
                         <span id="dataLoadTime" style="font-size: 0.65rem; color: var(--text-muted); background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; display: none; white-space: nowrap;"></span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
@@ -1698,7 +1698,7 @@
                 <div style="background: var(--bg-secondary); border-radius: 10px; padding: 8px 10px; margin-bottom: 16px;">
                     <!-- 스크리닝 필터 -->
                     <div style="display: flex; align-items: flex-start; gap: 6px; margin-bottom: 5px;">
-                        <span style="font-size: 0.7rem; color: var(--text-muted); line-height: 26px; flex-shrink: 0;">필터</span>
+                        <span style="font-size: var(--fs-sm); color: var(--text-muted); line-height: 26px; flex-shrink: 0;">필터</span>
                         <div style="display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0;">
                             <!-- 1줄: 제외 필터 -->
                             <div style="display: flex; gap: 2px; background: var(--bg-card); padding: 2px; border-radius: 5px; height: 26px; align-items: center; overflow: hidden;">
@@ -1730,28 +1730,28 @@
                     
                     <!-- 점수 필터 -->
                     <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 5px;">
-                        <span style="font-size: 0.7rem; color: var(--text-muted); line-height: 1;">점수</span>
+                        <span style="font-size: var(--fs-sm); color: var(--text-muted); line-height: 1;">점수</span>
                         <div style="display: flex; gap: 2px; background: var(--bg-card); padding: 2px; border-radius: 5px; height: 26px; align-items: center; overflow: hidden;">
-                            <button class="score-pill active" data-filter="score" data-value="all" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: rgba(245,158,11,0.2); color: var(--accent-gold); box-sizing: border-box;">전체</button>
-                            <button class="score-pill" data-filter="score" data-value="70" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">70+</button>
-                            <button class="score-pill" data-filter="score" data-value="60" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">60+</button>
-                            <button class="score-pill" data-filter="score" data-value="50" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">50+</button>
+                            <button class="score-pill active" data-filter="score" data-value="all" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; background: rgba(245,158,11,0.2); color: var(--accent-gold); box-sizing: border-box;">전체</button>
+                            <button class="score-pill" data-filter="score" data-value="70" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">70+</button>
+                            <button class="score-pill" data-filter="score" data-value="60" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">60+</button>
+                            <button class="score-pill" data-filter="score" data-value="50" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">50+</button>
                         </div>
                     </div>
                     
                     <!-- 추세 필터 -->
                     <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 0.7rem; color: var(--text-muted); line-height: 1;">추세</span>
+                        <span style="font-size: var(--fs-sm); color: var(--text-muted); line-height: 1;">추세</span>
                         <div style="display: flex; gap: 2px; background: var(--bg-card); padding: 2px; border-radius: 5px; height: 26px; align-items: center; overflow: hidden;">
-                            <button class="momentum-pill active" data-filter="momentum" data-value="all" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: rgba(245,158,11,0.2); color: var(--accent-gold); box-sizing: border-box;">전체</button>
-                            <button class="momentum-pill" data-filter="momentum" data-value="up" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">📈</button>
-                            <button class="momentum-pill" data-filter="momentum" data-value="down" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">📉</button>
+                            <button class="momentum-pill active" data-filter="momentum" data-value="all" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; background: rgba(245,158,11,0.2); color: var(--accent-gold); box-sizing: border-box;">전체</button>
+                            <button class="momentum-pill" data-filter="momentum" data-value="up" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">📈</button>
+                            <button class="momentum-pill" data-filter="momentum" data-value="down" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">📉</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Stats (한 줄) -->
-                <div style="display: flex; gap: 16px; margin-bottom: 16px; align-items: center; font-size: 0.8rem;">
+                <div style="display: flex; gap: 16px; margin-bottom: 16px; align-items: center; font-size: var(--fs-md);">
                     <span style="color: var(--text-muted);">필터 결과: <span id="filteredCount" style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-gold);">511</span></span>
                     <span style="color: var(--text-muted);">평균 점수: <span id="avgScore" style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-green);">-</span></span>
                 </div>
@@ -1803,9 +1803,11 @@
                     </div>
                 </div>
                 <!-- 리밸런싱 경고 -->
-                <div id="rebalanceAlert" style="display:none;padding:var(--space-sm) var(--space-md);background:rgba(245,158,11,0.1);border-radius:8px;font-size:0.8rem;margin-bottom:var(--space-sm);"></div>
+                <div id="rebalanceAlert" style="display:none;padding:var(--space-sm) var(--space-md);background:rgba(245,158,11,0.1);border-radius:8px;font-size: var(--fs-md);margin-bottom:var(--space-sm);"></div>
                 <!-- 처분효과 경고 -->
-                <div id="dispositionAlert" style="display:none;padding:var(--space-sm) var(--space-md);background:rgba(59,130,246,0.1);border-radius:8px;font-size:0.8rem;"></div>
+                <div id="dispositionAlert" style="display:none;padding:var(--space-sm) var(--space-md);background:rgba(59,130,246,0.1);border-radius:8px;font-size: var(--fs-md);"></div>
+                <!-- v5.5: 세금 손실 수확 알림 -->
+                <div id="taxHarvestAlert" style="display:none;padding:var(--space-sm) var(--space-md);background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:8px;font-size: var(--fs-md);margin-top:var(--space-sm);"></div>
             </div>
             
             <div class="card">
@@ -1813,7 +1815,7 @@
                     <h3 class="card-title">💼 내 포지션 판단</h3>
                     <span class="card-badge" id="positionBadge" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">보유종목 입력 필요</span>
                 </div>
-                <div style="font-size:0.8rem; color: var(--text-muted); margin-bottom: 12px;">
+                <div style="font-size: var(--fs-md); color: var(--text-muted); margin-bottom: 12px;">
                     보유 종목을 입력하면 스크리닝 데이터 기반으로 <b>처분/축소/유지/유보</b> 자동 판단합니다.
                 </div>
                 <div id="myAddHoldingForm" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 6px; margin-bottom: 14px; align-items: end;">
@@ -1830,7 +1832,7 @@
                         <label style="font-size:0.75rem; color: var(--text-muted);">평균단가</label>
                         <input id="holdingAvgPrice" type="number" placeholder="70000" style="width:100%;padding:8px 10px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-secondary);color:var(--text-primary);font-size:0.85rem;">
                     </div>
-                    <button onclick="addMyHolding()" style="padding:8px 16px;border:none;border-radius:6px;font-size:0.8rem;font-weight:700;cursor:pointer;background:rgba(245,158,11,0.2);color:var(--accent-gold);">추가</button>
+                    <button onclick="addMyHolding()" style="padding:8px 16px;border:none;border-radius:6px;font-size: var(--fs-md);font-weight:700;cursor:pointer;background:rgba(245,158,11,0.2);color:var(--accent-gold);">추가</button>
                 </div>
                 <div id="myHoldingsList"></div>
             </div>
@@ -1847,18 +1849,18 @@
                 <!-- 비중 분석 (섹터/시장) -->
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
                     <div>
-                        <div style="font-size:0.7rem; font-weight:700; color:var(--text-primary); margin-bottom:6px;">섹터 비중</div>
+                        <div style="font-size: var(--fs-sm); font-weight:700; color:var(--text-primary); margin-bottom:6px;">섹터 비중</div>
                         <div id="pfSectorBars" style="font-size: var(--fs-xs);"></div>
                     </div>
                     <div>
-                        <div style="font-size:0.7rem; font-weight:700; color:var(--text-primary); margin-bottom:6px;">시장 비중</div>
+                        <div style="font-size: var(--fs-sm); font-weight:700; color:var(--text-primary); margin-bottom:6px;">시장 비중</div>
                         <div id="pfMarketBars" style="font-size: var(--fs-xs);"></div>
                     </div>
                 </div>
                 
                 <!-- 팩터 노출 -->
                 <div style="margin-bottom:14px;">
-                    <div style="font-size:0.7rem; font-weight:700; color:var(--text-primary); margin-bottom:6px;">팩터 노출 (가중평균)</div>
+                    <div style="font-size: var(--fs-sm); font-weight:700; color:var(--text-primary); margin-bottom:6px;">팩터 노출 (가중평균)</div>
                     <div id="pfFactorBars" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(100px,1fr)); gap:4px;"></div>
                 </div>
                 
@@ -1877,13 +1879,33 @@
                 </div>
             </div>
 
+            <!-- v5.5: 환 리스크 분석 카드 -->
+            <div id="currencyRiskCard" class="card" style="display:none;">
+                <div class="card-header">
+                    <h3 class="card-title">💱 환 리스크 분석</h3>
+                    <span class="card-badge" id="fxBadge" style="background:rgba(100,116,139,0.3);color:var(--text-secondary);">-</span>
+                </div>
+                
+                <!-- 환 익스포저 요약 -->
+                <div id="fxExposureSummary" style="margin-bottom:var(--space-md);"></div>
+                
+                <!-- USDKRW 포지션 분석 -->
+                <div id="fxPositionAnalysis" style="margin-bottom:var(--space-md);"></div>
+                
+                <!-- 헤지 비용 분석 -->
+                <div id="fxHedgeCost" style="margin-bottom:var(--space-md);"></div>
+                
+                <!-- 헤지 권고 -->
+                <div id="fxHedgeRecommendation"></div>
+            </div>
+
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">📋 투자 메모</h3>
                     <button onclick="saveInvestMemo()" style="padding:4px 10px;border:none;border-radius:5px;font-size: var(--fs-xs);font-weight:700;cursor:pointer;background:rgba(16,185,129,0.2);color:var(--accent-green);">저장</button>
                 </div>
                 <textarea id="investMemo" placeholder="매매 근거, 시장 판단 메모 등을 기록하세요..." style="width:100%;min-height:120px;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);font-size: var(--fs-sm);font-family:inherit;line-height:1.6;resize:vertical;box-sizing:border-box;"></textarea>
-                <div id="memoStatus" style="font-size:0.6rem;color:var(--text-muted);margin-top:4px;"></div>
+                <div id="memoStatus" style="font-size: var(--fs-xs);color:var(--text-muted);margin-top:4px;"></div>
             </div>
         </div>
 
@@ -1894,9 +1916,9 @@
             <div id="rationaleConflictBanner" class="card" style="display:none; padding: 12px; background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(239,68,68,0.05)); border: 1px solid rgba(245,158,11,0.4);">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                     <span style="font-size: 1.1rem;">⚠️</span>
-                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-gold);">투자논리 vs 시장판단 충돌 감지</span>
+                    <span style="font-size: var(--fs-md); font-weight: 700; color: var(--accent-gold);">투자논리 vs 시장판단 충돌 감지</span>
                 </div>
-                <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.5;">
+                <p style="font-size: var(--fs-sm); color: var(--text-muted); margin-bottom: 8px; line-height: 1.5;">
                     아래 자산의 <b>정적 투자논리</b>(Config 기반)와 <b>동적 거시판단</b>(실시간 지표 기반)이 상충합니다.
                     실시간 시장 환경이 초기 투자 전제와 달라졌을 수 있으니 점검이 필요합니다.
                 </p>
@@ -1917,19 +1939,19 @@
                 </div>
                 
                 <!-- 최상단: 오늘의 핵심 한줄 -->
-                <div id="dailyHeadline" style="padding: 10px 12px; background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.04)); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; margin-bottom: 12px; font-size: 0.8rem; font-weight: 600; line-height: 1.5;"></div>
+                <div id="dailyHeadline" style="padding: 10px 12px; background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.04)); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; margin-bottom: 12px; font-size: var(--fs-md); font-weight: 600; line-height: 1.5;"></div>
                 
                 <!-- 카테고리 탭 — onclick 방식 (이벤트 위임 대신 직접 바인딩) -->
                 <div id="ddCatTabContainer" style="display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap;">
-                    <button class="dd-cat-tab active" onclick="switchDDTab('bonds', this)" style="padding: 6px 12px; border: 1px solid var(--accent-green); background: var(--accent-green); color: #000; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; font-family: inherit;">📜 채권</button>
-                    <button class="dd-cat-tab" onclick="switchDDTab('kr-sectors', this)" style="padding: 6px 12px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; font-family: inherit;">🇰🇷 한국섹터</button>
-                    <button class="dd-cat-tab" onclick="switchDDTab('us-sectors', this)" style="padding: 6px 12px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; font-family: inherit;">🇺🇸 미국섹터</button>
-                    <button class="dd-cat-tab" onclick="switchDDTab('alternatives', this)" style="padding: 6px 12px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; font-family: inherit;">🥇 금·원자재</button>
+                    <button class="dd-cat-tab active" onclick="switchDDTab('bonds', this)" style="padding: 6px 12px; border: 1px solid var(--accent-green); background: var(--accent-green); color: #000; border-radius: 6px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; font-family: inherit;">📜 채권</button>
+                    <button class="dd-cat-tab" onclick="switchDDTab('kr-sectors', this)" style="padding: 6px 12px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); border-radius: 6px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; font-family: inherit;">🇰🇷 한국섹터</button>
+                    <button class="dd-cat-tab" onclick="switchDDTab('us-sectors', this)" style="padding: 6px 12px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); border-radius: 6px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; font-family: inherit;">🇺🇸 미국섹터</button>
+                    <button class="dd-cat-tab" onclick="switchDDTab('alternatives', this)" style="padding: 6px 12px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); border-radius: 6px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; font-family: inherit;">🥇 금·원자재</button>
                 </div>
                 
                 <!-- 채권 듀레이션별 -->
                 <div class="dd-cat-content" data-ddpanel="bonds">
-                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-secondary); border-radius: 4px; line-height: 1.5;">
+                    <div style="font-size: var(--fs-sm); color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-secondary); border-radius: 4px; line-height: 1.5;">
                         💡 <b>핵심 변수</b>: Fed 금리 경로, 일본 JGB 환류, 인플레 기대, 수익률 곡선 기울기. 듀레이션이 길수록 금리 변동에 민감 (30Y 듀레이션 ~17배).
                     </div>
                     <div id="ddBondsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px;"></div>
@@ -1937,7 +1959,7 @@
                 
                 <!-- 한국 섹터별 -->
                 <div class="dd-cat-content" data-ddpanel="kr-sectors" style="display:none;">
-                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-secondary); border-radius: 4px; line-height: 1.5;">
+                    <div style="font-size: var(--fs-sm); color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-secondary); border-radius: 4px; line-height: 1.5;">
                         💡 <b>핵심 변수</b>: KOSPI PER·외국인 수급·환율·반도체 사이클·정책(밸류업). 섹터 순환 = 금리↓금융↑, AI↑반도체↑, 지정학→방산↑
                     </div>
                     <div id="ddKrGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px;"></div>
@@ -1945,7 +1967,7 @@
                 
                 <!-- 미국 섹터별 -->
                 <div class="dd-cat-content" data-ddpanel="us-sectors" style="display:none;">
-                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-secondary); border-radius: 4px; line-height: 1.5;">
+                    <div style="font-size: var(--fs-sm); color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-secondary); border-radius: 4px; line-height: 1.5;">
                         💡 <b>핵심 변수</b>: S&P500 PER(27~29x), CAPE(39x), 경기사이클, 금리, AI capex. 방어적 전환 시 Healthcare>Utility>Staples
                     </div>
                     <div id="ddUsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px;"></div>
@@ -1953,7 +1975,7 @@
                 
                 <!-- 금·원자재 -->
                 <div class="dd-cat-content" data-ddpanel="alternatives" style="display:none;">
-                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-secondary); border-radius: 4px; line-height: 1.5;">
+                    <div style="font-size: var(--fs-sm); color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-secondary); border-radius: 4px; line-height: 1.5;">
                         💡 <b>핵심 변수</b>: 실질금리, 중앙은행 매입, 지정학 리스크, 달러인덱스. 금은 인플레+불확실성 헤지, 구리는 AI 인프라 수혜.
                     </div>
                     <div id="ddAltGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px;"></div>
@@ -1987,9 +2009,9 @@
                         <span id="marketStateText" style="font-size: 1rem; font-weight: 700;">판단 대기</span>
                     </div>
                     <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                        <span id="riskLevelBadge" style="padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; background: rgba(239,68,68,0.2); color: #ef4444;">RISK: -</span>
-                        <span id="actionBiasBadge" style="padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; background: rgba(59,130,246,0.2); color: #3b82f6;">ACTION: -</span>
-                        <span id="marketConfidence" style="padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; background: var(--bg-secondary); color: var(--text-muted);">신뢰도: --%</span>
+                        <span id="riskLevelBadge" style="padding: 3px 8px; border-radius: 4px; font-size: var(--fs-sm); font-weight: 600; background: rgba(239,68,68,0.2); color: #ef4444;">RISK: -</span>
+                        <span id="actionBiasBadge" style="padding: 3px 8px; border-radius: 4px; font-size: var(--fs-sm); font-weight: 600; background: rgba(59,130,246,0.2); color: #3b82f6;">ACTION: -</span>
+                        <span id="marketConfidence" style="padding: 3px 8px; border-radius: 4px; font-size: var(--fs-sm); background: var(--bg-secondary); color: var(--text-muted);">신뢰도: --%</span>
                     </div>
                 </div>
                 
@@ -1997,7 +2019,7 @@
                 <div id="indicatorDashboard" style="background: var(--bg-secondary); border-radius: 8px; padding: 10px; margin-bottom: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <h4 style="font-size: var(--fs-sm); color: var(--accent-gold); margin: 0;">📊 핵심 지표 현황</h4>
-                        <span id="indicatorLoadTime" style="font-size: 0.7rem; color: var(--text-muted);"></span>
+                        <span id="indicatorLoadTime" style="font-size: var(--fs-sm); color: var(--text-muted);"></span>
                     </div>
                     <div id="indicatorGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 6px; font-size: var(--fs-sm);"></div>
                 </div>
@@ -2005,38 +2027,38 @@
                 <!-- 4개 레이어 + 판단근거 (2행) -->
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px;">
                     <div style="background: var(--bg-secondary); border-radius: 6px; padding: 6px; text-align: center;">
-                        <div style="font-size: 0.7rem; color: var(--accent-blue); margin-bottom: 2px;">🏛️ 경기</div>
-                        <div id="layerMacro" style="font-size: 0.7rem; font-weight: 600;">-</div>
+                        <div style="font-size: var(--fs-sm); color: var(--accent-blue); margin-bottom: 2px;">🏛️ 경기</div>
+                        <div id="layerMacro" style="font-size: var(--fs-sm); font-weight: 600;">-</div>
                     </div>
                     <div style="background: var(--bg-secondary); border-radius: 6px; padding: 6px; text-align: center;">
-                        <div style="font-size: 0.7rem; color: var(--accent-purple); margin-bottom: 2px;">💰 밸류</div>
-                        <div id="layerValuation" style="font-size: 0.7rem; font-weight: 600;">-</div>
+                        <div style="font-size: var(--fs-sm); color: var(--accent-purple); margin-bottom: 2px;">💰 밸류</div>
+                        <div id="layerValuation" style="font-size: var(--fs-sm); font-weight: 600;">-</div>
                     </div>
                     <div style="background: var(--bg-secondary); border-radius: 6px; padding: 6px; text-align: center;">
-                        <div style="font-size: 0.7rem; color: var(--accent-green); margin-bottom: 2px;">💭 심리</div>
-                        <div id="layerSentiment" style="font-size: 0.7rem; font-weight: 600;">-</div>
+                        <div style="font-size: var(--fs-sm); color: var(--accent-green); margin-bottom: 2px;">💭 심리</div>
+                        <div id="layerSentiment" style="font-size: var(--fs-sm); font-weight: 600;">-</div>
                     </div>
                     <div style="background: var(--bg-secondary); border-radius: 6px; padding: 6px; text-align: center;">
-                        <div style="font-size: 0.7rem; color: var(--accent-gold); margin-bottom: 2px;">🇰🇷 한국</div>
-                        <div id="layerKorea" style="font-size: 0.7rem; font-weight: 600;">-</div>
+                        <div style="font-size: var(--fs-sm); color: var(--accent-gold); margin-bottom: 2px;">🇰🇷 한국</div>
+                        <div id="layerKorea" style="font-size: var(--fs-sm); font-weight: 600;">-</div>
                     </div>
                 </div>
                 
                 <!-- 판단 근거 (접을 수 있음) -->
                 <details style="background: var(--bg-secondary); border-radius: 6px; padding: 6px 8px;">
-                    <summary style="font-size: 0.7rem; color: var(--accent-gold); cursor: pointer;">📋 판단 근거 (클릭하여 펼치기)</summary>
-                    <ul id="reasoningList" style="list-style: none; padding: 4px 0 0 0; margin: 0; font-size: 0.7rem; color: var(--text-secondary); line-height: 1.5;"></ul>
+                    <summary style="font-size: var(--fs-sm); color: var(--accent-gold); cursor: pointer;">📋 판단 근거 (클릭하여 펼치기)</summary>
+                    <ul id="reasoningList" style="list-style: none; padding: 4px 0 0 0; margin: 0; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.5;"></ul>
                 </details>
                 
                 <!-- 시나리오 & 포트폴리오 -->
                 <div style="margin-top: 8px; padding: 8px; background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.03)); border: 1px solid rgba(245,158,11,0.3); border-radius: 6px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
                         <div style="flex: 1; min-width: 150px;">
-                            <h4 style="color: var(--accent-gold); font-size: 0.7rem; margin-bottom: 4px;">⚡ 활성 시나리오</h4>
-                            <div id="activeScenarios" style="font-size: 0.7rem; color: var(--text-secondary);">-</div>
+                            <h4 style="color: var(--accent-gold); font-size: var(--fs-sm); margin-bottom: 4px;">⚡ 활성 시나리오</h4>
+                            <div id="activeScenarios" style="font-size: var(--fs-sm); color: var(--text-secondary);">-</div>
                         </div>
                         <div id="portfolioRecommendation" style="flex: 1; min-width: 200px; display: none;">
-                            <h4 style="font-size: 0.7rem; color: var(--text-primary); margin-bottom: 4px;">권장 배분</h4>
+                            <h4 style="font-size: var(--fs-sm); color: var(--text-primary); margin-bottom: 4px;">권장 배분</h4>
                             <div id="recommendedAllocation" style="display: flex; flex-wrap: wrap; gap: 4px;"></div>
                         </div>
                     </div>
@@ -2045,7 +2067,7 @@
             
             <!-- ★ v5.3: 탭 이동 안내 (시장 판단 후 표시) -->
             <div id="tabNavigationGuide" class="card" style="display:none; padding: 12px; background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.08)); border: 1px solid rgba(59,130,246,0.3);">
-                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">📌 상세 분석 결과가 다른 탭에 업데이트되었습니다</div>
+                <div style="font-size: var(--fs-md); font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">📌 상세 분석 결과가 다른 탭에 업데이트되었습니다</div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <button onclick="document.querySelector('[data-tab=knowledge]').click();" style="padding: 8px 16px; background: var(--accent-green); color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: var(--fs-sm); font-family: inherit;">
                         ⏰ 매수타이밍 → 일일 상세 판단 · 매도 신호
@@ -2075,8 +2097,8 @@
                 <div class="card-header">
                     <h3 class="card-title">📈 지표 추이 (최근 90일)</h3>
                     <div style="display:flex;gap:4px;">
-                        <button onclick="exportSnapshots()" style="padding:3px 8px;border:none;border-radius:4px;font-size:0.6rem;cursor:pointer;background:rgba(59,130,246,0.15);color:#3b82f6;">💾 내보내기</button>
-                        <label style="padding:3px 8px;border:none;border-radius:4px;font-size:0.6rem;cursor:pointer;background:rgba(16,185,129,0.15);color:#10b981;">
+                        <button onclick="exportSnapshots()" style="padding:3px 8px;border:none;border-radius:4px;font-size: var(--fs-xs);cursor:pointer;background:rgba(59,130,246,0.15);color:#3b82f6;">💾 내보내기</button>
+                        <label style="padding:3px 8px;border:none;border-radius:4px;font-size: var(--fs-xs);cursor:pointer;background:rgba(16,185,129,0.15);color:#10b981;">
                             📂 가져오기<input type="file" accept=".json" onchange="importSnapshots(event)" style="display:none;">
                         </label>
                         <span class="card-badge" id="snapshotCountBadge" style="background:rgba(100,116,139,0.2);color:var(--text-muted);">0일</span>
@@ -2096,7 +2118,7 @@
                     <h3 class="card-title">🔄 스코어 변동 감지</h3>
                     <span class="card-badge" id="scoreChangeBadge" style="background:rgba(245,158,11,0.2);color:var(--accent-gold);">-</span>
                 </div>
-                <div id="scoreChangeList" style="font-size:0.7rem;"></div>
+                <div id="scoreChangeList" style="font-size: var(--fs-sm);"></div>
             </div>
 
             <!-- Config 업로드 카드 -->
@@ -2135,13 +2157,13 @@
                     </label>
                     <input type="file" id="configUpload" accept=".json,application/json" style="display: none;" onchange="handleConfigUpload(event)">
                     
-                    <button onclick="copyPromptToClipboard(this)" style="padding: 6px 10px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 0.7rem;">
+                    <button onclick="copyPromptToClipboard(this)" style="padding: 6px 10px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: var(--fs-sm);">
                         📋 프롬프트
                     </button>
-                    <button onclick="togglePromptView()" style="padding: 6px 10px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 0.7rem;">
+                    <button onclick="togglePromptView()" style="padding: 6px 10px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: var(--fs-sm);">
                         👁️
                     </button>
-                    <button onclick="resetConfigData()" style="padding: 6px 10px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 0.7rem;">
+                    <button onclick="resetConfigData()" style="padding: 6px 10px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: var(--fs-sm);">
                         🗑️
                     </button>
                 </div>
@@ -2150,9 +2172,9 @@
                 <div id="promptViewBox" style="display: none; margin-top: 6px; padding: 10px; background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1)); border: 1px solid var(--accent-purple); border-radius: 6px;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
                         <strong style="color: var(--accent-purple); font-size: var(--fs-sm);">📋 AI 프롬프트</strong>
-                        <button onclick="togglePromptView()" style="background: none; border: none; cursor: pointer; font-size: 0.8rem;">✕</button>
+                        <button onclick="togglePromptView()" style="background: none; border: none; cursor: pointer; font-size: var(--fs-md);">✕</button>
                     </div>
-                    <textarea id="promptTextArea" readonly style="width: 100%; height: 150px; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: 0.7rem; box-sizing: border-box;"></textarea>
+                    <textarea id="promptTextArea" readonly style="width: 100%; height: 150px; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: var(--fs-sm); box-sizing: border-box;"></textarea>
                     <button onclick="copyFromTextArea()" style="margin-top: 6px; width: 100%; padding: 6px; background: var(--accent-purple); color: #fff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: var(--fs-sm);">📋 복사</button>
                 </div>
                 
@@ -2160,15 +2182,15 @@
                 <details style="margin-top: 6px;">
                     <summary style="padding: 6px 10px; background: var(--bg-secondary); border-radius: 6px; cursor: pointer; font-size: var(--fs-sm); font-weight: 600; display: flex; align-items: center;">
                         <span>📝 Config1 (시장분석)</span>
-                        <span style="font-size: 0.7rem; color: var(--text-muted); margin-left: auto;">▼</span>
+                        <span style="font-size: var(--fs-sm); color: var(--text-muted); margin-left: auto;">▼</span>
                     </summary>
                     <div style="margin-top: 6px; padding: 10px; background: var(--bg-secondary); border-radius: 6px; border: 1px solid var(--border-color);">
                         <textarea id="jsonInputArea" placeholder='AI JSON 붙여넣기 (시장분석, 시나리오, 자산추천)' style="width: 100%; height: 80px; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: var(--fs-sm); box-sizing: border-box;"></textarea>
                         <div style="display: flex; gap: 6px; margin-top: 6px;">
                             <button onclick="applyJsonInput()" style="flex: 1; padding: 6px; background: #10b981; color: #fff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: var(--fs-sm);">✅ 적용</button>
-                            <button onclick="document.getElementById('jsonInputArea').value=''; document.getElementById('jsonResultMsg').style.display='none';" style="padding: 6px 10px; background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; font-size: 0.7rem;">지우기</button>
+                            <button onclick="document.getElementById('jsonInputArea').value=''; document.getElementById('jsonResultMsg').style.display='none';" style="padding: 6px 10px; background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; font-size: var(--fs-sm);">지우기</button>
                         </div>
-                        <div id="jsonResultMsg" style="display: none; margin-top: 6px; padding: 6px; border-radius: 4px; font-size: 0.7rem;"></div>
+                        <div id="jsonResultMsg" style="display: none; margin-top: 6px; padding: 6px; border-radius: 4px; font-size: var(--fs-sm);"></div>
                     </div>
                 </details>
                 
@@ -2176,23 +2198,23 @@
                 <details style="margin-top: 6px;">
                     <summary style="padding: 6px 10px; background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(236,72,153,0.2)); border-radius: 6px; cursor: pointer; font-size: var(--fs-sm); font-weight: 600; display: flex; align-items: center;">
                         <span>📋 Config2 (체크리스트)</span>
-                        <span style="font-size: 0.7rem; color: var(--text-muted); margin-left: auto;">▼</span>
+                        <span style="font-size: var(--fs-sm); color: var(--text-muted); margin-left: auto;">▼</span>
                     </summary>
                     <div style="margin-top: 6px; padding: 10px; background: var(--bg-secondary); border-radius: 6px; border: 1px solid var(--accent-purple);">
                         <div style="display: flex; gap: 6px; margin-bottom: 6px;">
-                            <button onclick="copyConfig2Prompt(this)" style="flex: 1; padding: 6px; background: var(--accent-purple); color: #fff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.7rem;">📋 프롬프트 복사</button>
-                            <button onclick="toggleConfig2PromptView()" style="padding: 6px 10px; background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; font-size: 0.7rem;">👁️ 보기</button>
+                            <button onclick="copyConfig2Prompt(this)" style="flex: 1; padding: 6px; background: var(--accent-purple); color: #fff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: var(--fs-sm);">📋 프롬프트 복사</button>
+                            <button onclick="toggleConfig2PromptView()" style="padding: 6px 10px; background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; font-size: var(--fs-sm);">👁️ 보기</button>
                         </div>
                         <div id="config2PromptViewBox" style="display: none; margin-bottom: 6px;">
-                            <textarea id="config2PromptTextArea" readonly style="width: 100%; height: 100px; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: 0.7rem; box-sizing: border-box;"></textarea>
+                            <textarea id="config2PromptTextArea" readonly style="width: 100%; height: 100px; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: var(--fs-sm); box-sizing: border-box;"></textarea>
                         </div>
                         <textarea id="config2InputArea" placeholder='Config2 JSON 붙여넣기 (체크리스트, 행동 트리거, 환율 매트릭스 등)' style="width: 100%; height: 80px; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: var(--fs-sm); box-sizing: border-box;"></textarea>
                         <div style="display: flex; gap: 6px; margin-top: 6px;">
                             <button onclick="applyConfig2Input()" style="flex: 1; padding: 6px; background: #ec4899; color: #fff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: var(--fs-sm);">✅ 적용</button>
-                            <button onclick="document.getElementById('config2InputArea').value=''; document.getElementById('config2ResultMsg').style.display='none';" style="padding: 6px 10px; background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; font-size: 0.7rem;">지우기</button>
-                            <button onclick="resetConfig2()" style="padding: 6px 10px; background: var(--bg-primary); color: var(--accent-red); border: 1px solid var(--accent-red); border-radius: 4px; cursor: pointer; font-size: 0.7rem;">🔄 초기화</button>
+                            <button onclick="document.getElementById('config2InputArea').value=''; document.getElementById('config2ResultMsg').style.display='none';" style="padding: 6px 10px; background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; font-size: var(--fs-sm);">지우기</button>
+                            <button onclick="resetConfig2()" style="padding: 6px 10px; background: var(--bg-primary); color: var(--accent-red); border: 1px solid var(--accent-red); border-radius: 4px; cursor: pointer; font-size: var(--fs-sm);">🔄 초기화</button>
                         </div>
-                        <div id="config2ResultMsg" style="display: none; margin-top: 6px; padding: 6px; border-radius: 4px; font-size: 0.7rem;"></div>
+                        <div id="config2ResultMsg" style="display: none; margin-top: 6px; padding: 6px; border-radius: 4px; font-size: var(--fs-sm);"></div>
                     </div>
                 </details>
                 
@@ -2290,13 +2312,13 @@
                         </div>
                         <div style="padding: 0 16px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
                             <div style="padding: 16px; background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(59,130,246,0.05)); border-radius: 10px; border: 1px solid rgba(59,130,246,0.3);">
-                                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">💱 USD/KRW 목표</div>
+                                <div style="font-size: var(--fs-md); color: var(--text-muted); margin-bottom: 8px;">💱 USD/KRW 목표</div>
                                 <div id="tpFxRange" style="font-size: 1.3rem; font-weight: 700; color: var(--accent-blue);">-</div>
-                                <div id="tpFxRisk" style="font-size: 0.8rem; color: var(--accent-red); margin-top: 4px;">-</div>
+                                <div id="tpFxRisk" style="font-size: var(--fs-md); color: var(--accent-red); margin-top: 4px;">-</div>
                                 <div id="tpFxTimeline" style="font-size: var(--fs-sm); color: var(--text-muted); margin-top: 4px;">-</div>
                             </div>
                             <div style="padding: 16px; background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.05)); border-radius: 10px; border: 1px solid rgba(245,158,11,0.3);">
-                                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">🥇 금 목표</div>
+                                <div style="font-size: var(--fs-md); color: var(--text-muted); margin-bottom: 8px;">🥇 금 목표</div>
                                 <div id="tpGoldTarget" style="font-size: 1.3rem; font-weight: 700; color: var(--accent-gold);">-</div>
                                 <div id="tpGoldTimeline" style="font-size: var(--fs-sm); color: var(--text-muted); margin-top: 4px;">-</div>
                             </div>
@@ -2342,7 +2364,7 @@
                 <details open>
                     <summary style="cursor: pointer; padding: 16px; margin: -16px; display: flex; align-items: center;">
                         <h3 class="card-title" style="margin: 0;">📋 개별 신호 상세</h3>
-                        <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: auto;">▼</span>
+                        <span style="font-size: var(--fs-md); color: var(--text-muted); margin-left: auto;">▼</span>
                     </summary>
                     <div id="signalDetails" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 16px;"></div>
                 </details>
@@ -2353,7 +2375,7 @@
                 <details>
                     <summary style="cursor: pointer; padding: 16px; margin: -16px; display: flex; align-items: center;">
                         <h3 class="card-title" style="margin: 0;">📚 판단 로직 & 학술 근거</h3>
-                        <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: auto;">▼</span>
+                        <span style="font-size: var(--fs-md); color: var(--text-muted); margin-left: auto;">▼</span>
                     </summary>
                     
                     <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.8; margin-top: 16px;">
@@ -2493,10 +2515,10 @@
         </div>
         <template id="knowledge-template">
             <div style="display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; padding: 8px; background: var(--bg-secondary); border-radius: 10px;">
-                <button class="knowledge-subtab active" data-kpanel="principles" style="padding: 6px 12px; border: none; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: var(--accent-gold); color: #000;">📋 매매 원칙</button>
-                <button class="knowledge-subtab" data-kpanel="buylogic" style="padding: 6px 12px; border: none; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted);">⚡ 분할매수</button>
-                <button class="knowledge-subtab" data-kpanel="bonds" style="padding: 6px 12px; border: none; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted);">📜 채권/현금</button>
-                <button class="knowledge-subtab" data-kpanel="scenarios" style="padding: 6px 12px; border: none; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted);">🎭 시나리오</button>
+                <button class="knowledge-subtab active" data-kpanel="principles" style="padding: 6px 12px; border: none; border-radius: 6px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; background: var(--accent-gold); color: #000;">📋 매매 원칙</button>
+                <button class="knowledge-subtab" data-kpanel="buylogic" style="padding: 6px 12px; border: none; border-radius: 6px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted);">⚡ 분할매수</button>
+                <button class="knowledge-subtab" data-kpanel="bonds" style="padding: 6px 12px; border: none; border-radius: 6px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted);">📜 채권/현금</button>
+                <button class="knowledge-subtab" data-kpanel="scenarios" style="padding: 6px 12px; border: none; border-radius: 6px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted);">🎭 시나리오</button>
             </div>
 
             <div class="knowledge-panel" data-kpanel="principles" style="display: block;">
@@ -2591,12 +2613,12 @@
                     <span id="fxMatrixBadge" class="card-badge badge-warning">2026.1 기준</span>
                 </div>
                 
-                <p id="fxMatrixDesc" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">
+                <p id="fxMatrixDesc" style="font-size: var(--fs-md); color: var(--text-muted); margin-bottom: 16px;">
                     원/달러 환율에 따른 해외투자 전략. 시장 판단 탭에서 현재 환율 확인.
                 </p>
 
                 <div style="overflow-x: auto;">
-                    <table id="fxMatrixTable" style="width: 100%; border-collapse: collapse; font-size: 0.8rem; table-layout: fixed;">
+                    <table id="fxMatrixTable" style="width: 100%; border-collapse: collapse; font-size: var(--fs-md); table-layout: fixed;">
                         <thead>
                             <tr style="background: var(--bg-secondary);">
                                 <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color); width: 18%;">환율 구간</th>
@@ -2666,7 +2688,7 @@
                     <span class="card-badge badge-danger">리스크 관리</span>
                 </div>
                 
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">
+                <p style="font-size: var(--fs-md); color: var(--text-muted); margin-bottom: 16px;">
                     단순 % 기준이 아닌, <strong>상황별 조건</strong>을 고려한 매도 의사결정. 펀더멘탈 훼손 여부가 핵심.
                 </p>
 
@@ -2896,7 +2918,7 @@
                     <span class="card-badge badge-warning">동적 조정</span>
                 </div>
                 
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">
+                <p style="font-size: var(--fs-md); color: var(--text-muted); margin-bottom: 16px;">
                     기계적 분할매수가 아닌, <strong>시장 상황에 따라 속도를 조절</strong>하는 동적 전략
                 </p>
 
@@ -2914,7 +2936,7 @@
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
                     <div style="background: rgba(16,185,129,0.1); border-left: 3px solid var(--accent-green); padding: 12px; border-radius: 0 8px 8px 0;">
-                        <strong style="color: var(--accent-green); font-size: 0.8rem;">🟢 가속 트리거</strong>
+                        <strong style="color: var(--accent-green); font-size: var(--fs-md);">🟢 가속 트리거</strong>
                         <div style="font-size: var(--fs-sm); color: var(--text-secondary); margin-top: 6px; line-height: 1.5;">
                             • S&P -10% 이상<br>
                             • KOSPI 2,400 이하<br>
@@ -2922,7 +2944,7 @@
                         </div>
                     </div>
                     <div data-stoploss="cape-40" style="background: rgba(245,158,11,0.1); border-left: 3px solid var(--accent-gold); padding: 12px; border-radius: 0 8px 8px 0;">
-                        <strong style="color: var(--accent-gold); font-size: 0.8rem;">🟡 감속 트리거</strong>
+                        <strong style="color: var(--accent-gold); font-size: var(--fs-md);">🟡 감속 트리거</strong>
                         <div style="font-size: var(--fs-sm); color: var(--text-secondary); margin-top: 6px; line-height: 1.5;">
                             • S&P +15% 이상<br>
                             • CAPE <span data-dynamic="cape-value">40</span> 이상<br>
@@ -2930,7 +2952,7 @@
                         </div>
                     </div>
                     <div data-stoploss="vix-30" style="background: rgba(239,68,68,0.1); border-left: 3px solid var(--accent-red); padding: 12px; border-radius: 0 8px 8px 0;">
-                        <strong style="color: var(--accent-red); font-size: 0.8rem;">🔴 중단 트리거</strong>
+                        <strong style="color: var(--accent-red); font-size: var(--fs-md);">🔴 중단 트리거</strong>
                         <div style="font-size: var(--fs-sm); color: var(--text-secondary); margin-top: 6px; line-height: 1.5;">
                             • VIX 30 이상<br>
                             • 지정학 위기<br>
@@ -2956,22 +2978,22 @@
                     <!-- 기본값 (JS가 덮어씀) -->
                     <div class="checklist-card" style="border-left: 4px solid var(--accent-gold);">
                         <h4 style="color: var(--accent-gold); font-size: var(--font-base); margin-bottom: var(--space-sm);">🗓️ 이번 달 체크</h4>
-                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--font-sm);">인플레 3% 이상 유지?</span></div>
+                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">인플레 3% 이상 유지?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">Yes → 채권매수 보류</span>
                             <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">No → 채권 15M 매수</span>
                         </div>
-                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--font-sm);">원/달러 1,450원 이상?</span></div>
+                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">원/달러 1,450원 이상?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">Yes → 해외투자 30% 축소</span>
                             <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">No → 계획대로</span>
                         </div>
-                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--font-sm);">지정학 위기 발생?</span></div>
+                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">지정학 위기 발생?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">Yes → 금 비중 확대</span>
                             <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">No → 금 15M 매수</span>
                         </div>
-                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--font-sm);">VIX 25 이상?</span></div>
+                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">VIX 25 이상?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">Yes → 신규 매수 중단</span>
                             <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">No → 계획대로 진행</span>
@@ -2979,17 +3001,17 @@
                     </div>
                     <div class="checklist-card" style="border-left: 4px solid var(--accent-blue);">
                         <h4 style="color: var(--accent-blue); font-size: var(--font-base); margin-bottom: var(--space-sm);">🗓️ 2-3월 체크</h4>
-                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--font-sm);">유럽 성장률 1.5% 이상?</span></div>
+                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">유럽 성장률 1.5% 이상?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">Yes → 유럽 비중 확대</span>
                             <span class="checklist-option" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">No → 계획대로</span>
                         </div>
-                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--font-sm);">엔화 150엔 이상?</span></div>
+                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">엔화 150엔 이상?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(59,130,246,0.2); color: var(--accent-blue);">Yes → DXJ(환헤지) 우선</span>
                             <span class="checklist-option" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">No → EWJ 우선</span>
                         </div>
-                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--font-sm);">신흥국 자금유출 가속?</span></div>
+                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">신흥국 자금유출 가속?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">Yes → 매수 연기</span>
                             <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">No → VWO 매수</span>
@@ -2997,17 +3019,17 @@
                     </div>
                     <div class="checklist-card" style="border-left: 4px solid var(--accent-green);">
                         <h4 style="color: var(--accent-green); font-size: var(--font-base); margin-bottom: var(--space-sm);">🗓️ 4-5월 체크</h4>
-                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--font-sm);">S&P 500 -10% 이상 조정?</span></div>
+                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">S&P 500 -10% 이상 조정?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">Yes → 미국 비중 확대!</span>
                             <span class="checklist-option" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">No → 계획대로</span>
                         </div>
-                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--font-sm);">Fed 금리인하 확정?</span></div>
+                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">Fed 금리인하 확정?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(245,158,11,0.2); color: var(--accent-gold);">Yes → TLT +15%시 차익실현</span>
                             <span class="checklist-option" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">No → TLT 유지</span>
                         </div>
-                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--font-sm);">중국 경기부양 확대?</span></div>
+                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">중국 경기부양 확대?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">Yes → MCHI 확대</span>
                             <span class="checklist-option" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">No → VWO만 유지</span>
@@ -3015,17 +3037,17 @@
                     </div>
                     <div class="checklist-card" style="border-left: 4px solid #8b5cf6;">
                         <h4 style="color: #8b5cf6; font-size: var(--font-base); margin-bottom: var(--space-sm);">🗓️ 6월 리밸런싱 체크</h4>
-                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--font-sm);">목표비중 ±5% 이탈?</span></div>
+                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">목표비중 ±5% 이탈?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(245,158,11,0.2); color: var(--accent-gold);">Yes → 리밸런싱 실행</span>
                             <span class="checklist-option" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">No → 유지</span>
                         </div>
-                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--font-sm);">포트폴리오 +15% 이상?</span></div>
+                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">포트폴리오 +15% 이상?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">Yes → 일부 현금화 (10%)</span>
                             <span class="checklist-option" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">No → 유지</span>
                         </div>
-                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--font-sm);">포트폴리오 -15% 이상?</span></div>
+                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">포트폴리오 -15% 이상?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">Yes → 리스크자산 축소</span>
                             <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">No → 추가매수 고려</span>
@@ -3075,19 +3097,19 @@
                 <!-- 현재 시장 상황 (한 줄 요약) -->
                 <div id="bondMarketSummary" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px; background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(59,130,246,0.05)); border-radius: 10px; margin-bottom: 16px;">
                     <span style="font-size: var(--fs-sm); color: var(--text-muted);">📊</span>
-                    <span style="font-size: 0.8rem; padding: 4px 8px; background: var(--bg-card); border-radius: 6px;">
+                    <span style="font-size: var(--fs-md); padding: 4px 8px; background: var(--bg-card); border-radius: 6px;">
                         <span style="color: var(--text-muted);">10Y</span> <span id="bond-us10y" style="color: var(--accent-blue); font-weight: 600;">4.23%</span>
                     </span>
-                    <span style="font-size: 0.8rem; padding: 4px 8px; background: var(--bg-card); border-radius: 6px;">
+                    <span style="font-size: var(--fs-md); padding: 4px 8px; background: var(--bg-card); border-radius: 6px;">
                         <span style="color: var(--text-muted);">2Y</span> <span id="bond-us2y" style="color: var(--accent-blue); font-weight: 600;">4.36%</span>
                     </span>
-                    <span style="font-size: 0.8rem; padding: 4px 8px; background: var(--bg-card); border-radius: 6px;">
+                    <span style="font-size: var(--fs-md); padding: 4px 8px; background: var(--bg-card); border-radius: 6px;">
                         <span style="color: var(--text-muted);">스프레드</span> <span id="bond-spread" style="color: var(--accent-red); font-weight: 600;">-0.13%</span>
                     </span>
-                    <span style="font-size: 0.8rem; padding: 4px 8px; background: var(--bg-card); border-radius: 6px;">
+                    <span style="font-size: var(--fs-md); padding: 4px 8px; background: var(--bg-card); border-radius: 6px;">
                         <span style="color: var(--text-muted);">Fed</span> <span id="bond-fed" style="color: var(--accent-gold); font-weight: 600;">4.50%</span>
                     </span>
-                    <span style="font-size: 0.8rem; padding: 4px 8px; background: var(--bg-card); border-radius: 6px;">
+                    <span style="font-size: var(--fs-md); padding: 4px 8px; background: var(--bg-card); border-radius: 6px;">
                         <span style="color: var(--text-muted);">환율</span> <span id="bondFxRate" style="color: var(--accent-purple); font-weight: 600;">1,473원</span>
                     </span>
                     <span id="bondMarketJudgment" style="flex: 1; min-width: 200px; font-size: var(--fs-sm); color: var(--accent-gold); padding: 4px 8px;">
@@ -3097,7 +3119,7 @@
                 
                 <!-- 시나리오별 채권 전략 (학술 기반) -->
                 <div style="margin-bottom: 16px;">
-                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                    <div style="font-size: var(--fs-md); color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
                         <span>📚</span> <strong>시나리오별 채권 전략</strong>
                         <span style="font-size: var(--fs-sm); padding: 2px 6px; background: rgba(139,92,246,0.2); color: var(--accent-purple); border-radius: 4px;">Harvey 1988, Estrella 1996</span>
                     </div>
@@ -3107,15 +3129,15 @@
                         <div id="scenario-inverted" class="bond-scenario" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-secondary); border-radius: 8px; border-left: 3px solid var(--accent-red); cursor: pointer;" onclick="toggleScenarioDetail(this)">
                             <span style="font-size: 1rem;">📉</span>
                             <div style="flex: 1; min-width: 0;">
-                                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">역수익률 곡선 (10Y &lt; 2Y)</div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">침체 선행지표 • 현재 해당</div>
+                                <div style="font-size: var(--fs-md); font-weight: 600; color: var(--text-primary);">역수익률 곡선 (10Y &lt; 2Y)</div>
+                                <div style="font-size: var(--fs-sm); color: var(--text-muted);">침체 선행지표 • 현재 해당</div>
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-size: var(--fs-sm); color: var(--accent-green); font-weight: 600;">▶ 단기채</div>
                                 <div style="font-size: var(--fs-sm); color: var(--text-muted);">SHY, SGOV, BIL</div>
                             </div>
                         </div>
-                        <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(239,68,68,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: 0.7rem; color: var(--text-secondary);">
+                        <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(239,68,68,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: var(--fs-sm); color: var(--text-secondary);">
                             <strong>학술 근거:</strong> Harvey(1988) - 역수익률 곡선 후 12개월 내 침체 확률 70%+. 단기채가 높은 금리 + 낮은 듀레이션으로 유리.<br>
                             <strong>추천 ETF:</strong> SHY(1-3년), SGOV(0-3개월), BIL(T-Bills) | <strong>국내:</strong> KOSEF 단기채, 통안채 ETF
                         </div>
@@ -3124,15 +3146,15 @@
                         <div id="scenario-ratecut" class="bond-scenario" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-secondary); border-radius: 8px; border-left: 3px solid var(--accent-green); cursor: pointer;" onclick="toggleScenarioDetail(this)">
                             <span style="font-size: 1rem;">📈</span>
                             <div style="flex: 1; min-width: 0;">
-                                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">Fed 인하 사이클 진입</div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">금리 하락 시 듀레이션 익스포저</div>
+                                <div style="font-size: var(--fs-md); font-weight: 600; color: var(--text-primary);">Fed 인하 사이클 진입</div>
+                                <div style="font-size: var(--fs-sm); color: var(--text-muted);">금리 하락 시 듀레이션 익스포저</div>
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-size: var(--fs-sm); color: var(--accent-blue); font-weight: 600;">▶ 장기채</div>
                                 <div style="font-size: var(--fs-sm); color: var(--text-muted);">TLT, EDV, ZROZ</div>
                             </div>
                         </div>
-                        <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(16,185,129,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: 0.7rem; color: var(--text-secondary);">
+                        <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(16,185,129,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: var(--fs-sm); color: var(--text-secondary);">
                             <strong>학술 근거:</strong> Duration Risk - 금리 1% 하락 시 TLT(듀레이션 17년) 약 +17% 상승. 장기채가 금리 인하 수혜 극대화.<br>
                             <strong>추천 ETF:</strong> TLT(20년+), EDV(25년+), ZROZ(30년) | <strong>국내:</strong> TIGER 미국채30년, KODEX 미국채울트라
                         </div>
@@ -3141,15 +3163,15 @@
                         <div id="scenario-ratehike" class="bond-scenario" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-secondary); border-radius: 8px; border-left: 3px solid var(--accent-gold); cursor: pointer;" onclick="toggleScenarioDetail(this)">
                             <span style="font-size: 1rem;">⏸️</span>
                             <div style="flex: 1; min-width: 0;">
-                                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">Fed 인상/동결 지속</div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">금리 상승 헤지 필요</div>
+                                <div style="font-size: var(--fs-md); font-weight: 600; color: var(--text-primary);">Fed 인상/동결 지속</div>
+                                <div style="font-size: var(--fs-sm); color: var(--text-muted);">금리 상승 헤지 필요</div>
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-size: var(--fs-sm); color: var(--accent-gold); font-weight: 600;">▶ 초단기/MMF</div>
                                 <div style="font-size: var(--fs-sm); color: var(--text-muted);">SGOV, BIL, MMF</div>
                             </div>
                         </div>
-                        <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(245,158,11,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: 0.7rem; color: var(--text-secondary);">
+                        <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(245,158,11,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: var(--fs-sm); color: var(--text-secondary);">
                             <strong>학술 근거:</strong> 금리 상승기에는 듀레이션 0에 가까운 자산이 유리. 재투자 수익률 상승 효과.<br>
                             <strong>추천 ETF:</strong> SGOV(0-3개월), BIL(T-Bills) | <strong>국내:</strong> CMA, MMF, RP, 발행어음
                         </div>
@@ -3158,15 +3180,15 @@
                         <div id="scenario-inflation" class="bond-scenario" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-secondary); border-radius: 8px; border-left: 3px solid var(--accent-purple); cursor: pointer;" onclick="toggleScenarioDetail(this)">
                             <span style="font-size: 1rem;">🔥</span>
                             <div style="flex: 1; min-width: 0;">
-                                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">인플레이션 재발 우려</div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">실질 구매력 보존 필요</div>
+                                <div style="font-size: var(--fs-md); font-weight: 600; color: var(--text-primary);">인플레이션 재발 우려</div>
+                                <div style="font-size: var(--fs-sm); color: var(--text-muted);">실질 구매력 보존 필요</div>
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-size: var(--fs-sm); color: var(--accent-purple); font-weight: 600;">▶ TIPS</div>
                                 <div style="font-size: var(--fs-sm); color: var(--text-muted);">TIP, SCHP, VTIP</div>
                             </div>
                         </div>
-                        <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(139,92,246,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: 0.7rem; color: var(--text-secondary);">
+                        <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(139,92,246,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: var(--fs-sm); color: var(--text-secondary);">
                             <strong>학술 근거:</strong> Fisher Effect - 명목금리 = 실질금리 + 기대인플레. TIPS는 CPI 연동으로 인플레 헤지.<br>
                             <strong>추천 ETF:</strong> TIP(전구간), SCHP(중기), VTIP(단기) | <strong>국내:</strong> 물가연동국채 (한정 발행)
                         </div>
@@ -3175,15 +3197,15 @@
                         <div id="scenario-recession" class="bond-scenario" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-secondary); border-radius: 8px; border-left: 3px solid var(--accent-blue); cursor: pointer;" onclick="toggleScenarioDetail(this)">
                             <span style="font-size: 1rem;">🛡️</span>
                             <div style="flex: 1; min-width: 0;">
-                                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">경기침체/금융위기</div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">안전자산 수요 급증</div>
+                                <div style="font-size: var(--fs-md); font-weight: 600; color: var(--text-primary);">경기침체/금융위기</div>
+                                <div style="font-size: var(--fs-sm); color: var(--text-muted);">안전자산 수요 급증</div>
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-size: var(--fs-sm); color: var(--accent-blue); font-weight: 600;">▶ 미국 장기국채</div>
                                 <div style="font-size: var(--fs-sm); color: var(--text-muted);">TLT, EDV, Gold</div>
                             </div>
                         </div>
-                        <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(59,130,246,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: 0.7rem; color: var(--text-secondary);">
+                        <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(59,130,246,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: var(--fs-sm); color: var(--text-secondary);">
                             <strong>학술 근거:</strong> Flight to Quality - 위기 시 미국 국채로 자금 이동. 2008년 TLT +33%, 2020년 +20%.<br>
                             <strong>추천 ETF:</strong> TLT, EDV + GLD(금) 병행 | <strong>국내:</strong> TIGER 미국채30년, 금 ETF
                         </div>
@@ -3192,15 +3214,15 @@
                         <div id="scenario-fxhigh" class="bond-scenario" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-secondary); border-radius: 8px; border-left: 3px solid #f472b6; cursor: pointer;" onclick="toggleScenarioDetail(this)">
                             <span style="font-size: 1rem;">💱</span>
                             <div style="flex: 1; min-width: 0;">
-                                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">고환율 (1,400원+)</div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">환차손 리스크 회피</div>
+                                <div style="font-size: var(--fs-md); font-weight: 600; color: var(--text-primary);">고환율 (1,400원+)</div>
+                                <div style="font-size: var(--fs-sm); color: var(--text-muted);">환차손 리스크 회피</div>
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-size: var(--fs-sm); color: #f472b6; font-weight: 600;">▶ 국내채권</div>
                                 <div style="font-size: var(--fs-sm); color: var(--text-muted);">국고채, KOSEF</div>
                             </div>
                         </div>
-                        <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(244,114,182,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: 0.7rem; color: var(--text-secondary);">
+                        <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(244,114,182,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: var(--fs-sm); color: var(--text-secondary);">
                             <strong>학술 근거:</strong> 환율 평균회귀 - 1,400원+ 고환율 시 달러 자산 신규 매수 불리. 국내채권으로 환리스크 회피.<br>
                             <strong>추천:</strong> KOSEF 국고채, TIGER 국채3년, 개인국채 직접매수 | <strong>전략:</strong> 환율 1,300원대 복귀 시 해외채권 진입
                         </div>
@@ -3211,7 +3233,7 @@
                 <div id="aiBondRecommendation" style="background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(59,130,246,0.08)); border-radius: 10px; padding: 12px;">
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
                         <span style="font-size: var(--fs-md);">🤖</span>
-                        <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">AI 채권 배분 권고</span>
+                        <span style="font-size: var(--fs-md); font-weight: 600; color: var(--text-primary);">AI 채권 배분 권고</span>
                         <span id="bondScenarioTag" style="font-size: var(--fs-sm); padding: 2px 6px; background: rgba(239,68,68,0.2); color: var(--accent-red); border-radius: 4px;">역수익률 곡선</span>
                     </div>
                     <div id="aiBondAllocation" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
@@ -3228,7 +3250,7 @@
                             <span style="color: var(--accent-red); font-weight: 700;">10%</span> <span style="color: var(--text-muted);">장기채</span>
                         </span>
                     </div>
-                    <div id="aiBondRationale" style="font-size: 0.7rem; color: var(--text-secondary); padding: 8px; background: var(--bg-card); border-radius: 6px;">
+                    <div id="aiBondRationale" style="font-size: var(--fs-sm); color: var(--text-secondary); padding: 8px; background: var(--bg-card); border-radius: 6px;">
                         💡 역수익률 지속 + 고환율 → 국내 단기채 중심. Fed 인하 신호 확인 시 장기채 비중 확대.
                     </div>
                 </div>
@@ -3262,8 +3284,8 @@
                     </div>
                     <div id="scenarioConflictBox" style="display: none; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 12px; margin-bottom: 16px;">
                         <h4 style="font-size: var(--fs-md); color: var(--accent-red); margin-bottom: 8px;">⚠️ 시나리오 충돌 감지</h4>
-                        <p id="conflictDescription" style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;"></p>
-                        <div id="conflictResolution" style="font-size: 0.8rem; color: var(--text-primary); font-weight: 600;"></div>
+                        <p id="conflictDescription" style="font-size: var(--fs-md); color: var(--text-secondary); margin-bottom: 8px;"></p>
+                        <div id="conflictResolution" style="font-size: var(--fs-md); color: var(--text-primary); font-weight: 600;"></div>
                     </div>
                     <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 16px;">
                         <h4 style="font-size: var(--fs-lg); color: var(--accent-gold); margin-bottom: 10px;">⭐ 우선 적용 시나리오</h4>
@@ -3271,13 +3293,13 @@
                             <div id="primaryScenarioIcon" style="font-size: 2rem;">-</div>
                             <div>
                                 <div id="primaryScenarioName" style="font-size: 1.1rem; font-weight: 700;">-</div>
-                                <div id="primaryScenarioDesc" style="font-size: 0.8rem; color: var(--text-secondary);">-</div>
+                                <div id="primaryScenarioDesc" style="font-size: var(--fs-md); color: var(--text-secondary);">-</div>
                             </div>
                         </div>
                     </div>
                     <div style="margin-bottom: 16px;">
                         <h4 style="font-size: var(--fs-md); color: var(--text-primary); margin-bottom: 10px;">📋 트리거 상세</h4>
-                        <div id="triggerDetails" style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.8;"></div>
+                        <div id="triggerDetails" style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.8;"></div>
                     </div>
                     <div style="background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(245,158,11,0.1)); border-radius: 10px; padding: 12px;">
                         <h4 style="font-size: var(--fs-lg); color: var(--accent-gold); margin-bottom: 10px;">⚡ 즉시 행동 지침</h4>
@@ -3310,7 +3332,7 @@
                             <span style="color: var(--text-muted);">지정학/관세/AI버블</span>
                         </div>
                     </div>
-                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 8px; text-align: center;">
+                    <p style="font-size: var(--fs-sm); color: var(--text-muted); margin-top: 8px; text-align: center;">
                         🟢 긍정적 | 🟡 주의 필요 | 🔴 방어 필요 | 🟣 최악 (주식/채권 동반 하락)
                     </p>
                 </div>
@@ -3319,7 +3341,7 @@
                 <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 16px;">
                     <h4 style="font-size: var(--fs-lg); margin-bottom: 10px; color: var(--text-primary);">🔗 핵심 연쇄 반응 매트릭스</h4>
                     <div style="overflow-x: auto;">
-                        <table style="width: 100%; font-size: 0.7rem; border-collapse: collapse;">
+                        <table style="width: 100%; font-size: var(--fs-sm); border-collapse: collapse;">
                             <thead>
                                 <tr style="background: var(--bg-card);">
                                     <th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--border-color);">변수</th>
@@ -3375,7 +3397,7 @@
                         </table>
                     </div>
                     <!-- 한미 금리 조합 주석 -->
-                    <div style="margin-top: 12px; padding: 14px; background: var(--bg-card); border-radius: 8px; font-size: 0.7rem; color: var(--text-muted);">
+                    <div style="margin-top: 12px; padding: 14px; background: var(--bg-card); border-radius: 8px; font-size: var(--fs-sm); color: var(--text-muted);">
                         <strong style="color: var(--text-secondary);">📌 한미 금리 조합별 환율 영향:</strong><br>
                         <span style="color: var(--accent-green);">🇰🇷↓ 🇺🇸↓ (동조 완화)</span>: 환율 영향 상쇄 → 대체로 중립~약보합 | 
                         <span style="color: var(--accent-gold);">🇰🇷↔ 🇺🇸↓ (현재)</span>: 미국 요인 우세 → 원화 강세 압력 | 
@@ -4779,6 +4801,20 @@
             return Number.isFinite(result) ? result : fallback;
         }
         
+        // v5.5: 한국 원화 지능형 단위 포맷
+        function formatKRW(val) {
+            var abs = Math.abs(val);
+            if (abs >= 100000000) return (val / 100000000).toFixed(2) + '억원';
+            if (abs >= 10000) return Math.round(val / 10000).toLocaleString('ko-KR') + '만원';
+            return Math.round(val).toLocaleString('ko-KR') + '원';
+        }
+        function formatKRWShort(val) {
+            var abs = Math.abs(val);
+            if (abs >= 100000000) return (val / 100000000).toFixed(2) + '억';
+            if (abs >= 10000) return Math.round(val / 10000).toLocaleString('ko-KR') + '만';
+            return Math.round(val).toLocaleString('ko-KR') + '원';
+        }
+        
         // ========== Market Config 변수 ==========
         var _marketState = null; // 시장 상태 (evaluateMarket에서 설정)
         let marketConfig = null;
@@ -5279,7 +5315,7 @@
                 const sectorView = getSectorOutlookView(sector);
                 const sectorViewColor = sectorView ? (SECTOR_VIEW_COLORS[sectorView] || '#6b7280') : null;
                 const sectorViewBadge = sectorView ? 
-                    `<span style="font-size:0.6rem;padding:1px 4px;border-radius:4px;background:${sectorViewColor}22;color:${sectorViewColor};margin-left:4px;" title="AI 섹터전망">${sectorView.substring(0,3)}</span>` : '';
+                    `<span style="font-size: var(--fs-xs);padding:1px 4px;border-radius:4px;background:${sectorViewColor}22;color:${sectorViewColor};margin-left:4px;" title="AI 섹터전망">${sectorView.substring(0,3)}</span>` : '';
                 
                 return `<tr>
                     <td><span class="rank-badge ${rankClass}">${rank}</span></td>
@@ -7710,13 +7746,13 @@
                                        val.toFixed(1);
                     
                     html += `<div style="background: ${bg}; padding: 4px 6px; border-radius: 4px; text-align: center;">
-                        <div style="font-size: 0.7rem; color: var(--text-muted);">${ind.icon} ${ind.label}</div>
+                        <div style="font-size: var(--fs-sm); color: var(--text-muted);">${ind.icon} ${ind.label}</div>
                         <div style="font-size: var(--fs-sm); font-weight: 600; color: ${color};">${displayVal}</div>
                     </div>`;
                 }
             });
             
-            grid.innerHTML = html || '<div style="color: var(--text-muted); font-size: 0.7rem;">지표 데이터 없음</div>';
+            grid.innerHTML = html || '<div style="color: var(--text-muted); font-size: var(--fs-sm);">지표 데이터 없음</div>';
             
             // 로드 시간 표시
             const timeEl = document.getElementById('indicatorLoadTime');
@@ -8111,10 +8147,10 @@
                         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                             <div>
                                 <div style="font-weight: 700; color: ${style.color}; font-size: var(--fs-md); margin-bottom: 4px;">${style.icon} ${alert.title}</div>
-                                <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">${alert.message}</div>
-                                ${alert.affectedSectors ? `<div style="margin-top: 6px; font-size: 0.7rem; color: var(--text-muted);">관련 섹터: ${alert.affectedSectors.join(', ')}</div>` : ''}
+                                <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.5;">${alert.message}</div>
+                                ${alert.affectedSectors ? `<div style="margin-top: 6px; font-size: var(--fs-sm); color: var(--text-muted);">관련 섹터: ${alert.affectedSectors.join(', ')}</div>` : ''}
                             </div>
-                            <span style="font-size: 0.7rem; color: var(--text-muted); white-space: nowrap;">${alert.createdAt || ''}</span>
+                            <span style="font-size: var(--fs-sm); color: var(--text-muted); white-space: nowrap;">${alert.createdAt || ''}</span>
                         </div>
                     </div>
                 `;
@@ -8218,7 +8254,7 @@
                         if (!conditionEl) {
                             conditionEl = document.createElement('div');
                             conditionEl.className = 'config-condition';
-                            conditionEl.style.cssText = 'margin-top: 8px; padding: 6px 10px; background: rgba(245,158,11,0.1); border-radius: 6px; font-size: 0.7rem; color: var(--accent-gold);';
+                            conditionEl.style.cssText = 'margin-top: 8px; padding: 6px 10px; background: rgba(245,158,11,0.1); border-radius: 6px; font-size: var(--fs-sm); color: var(--accent-gold);';
                             item.appendChild(conditionEl);
                         }
                         conditionEl.textContent = `💡 ${condition}`;
@@ -8276,7 +8312,7 @@
                         </span>
                     </div>
                     ` : ''}
-                    ${summary ? `<div style="font-size: 0.8rem; color: var(--text-secondary);">💡 ${summary}</div>` : ''}
+                    ${summary ? `<div style="font-size: var(--fs-md); color: var(--text-secondary);">💡 ${summary}</div>` : ''}
                 `;
                 rationaleTab.insertBefore(banner, rationaleTab.firstChild);
             }
@@ -8507,9 +8543,9 @@
                 <div style="background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1)); border: 1px solid rgba(139,92,246,0.3); border-radius: 10px; padding: 12px; margin-bottom: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <span style="font-weight: 700; color: #8b5cf6; font-size: var(--fs-md);">🌐 현재 시장 상황</span>
-                        <span style="font-size: 0.7rem; color: var(--text-muted);">업데이트: ${ctx.updatedAt || '-'}</span>
+                        <span style="font-size: var(--fs-sm); color: var(--text-muted);">업데이트: ${ctx.updatedAt || '-'}</span>
                     </div>
-                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;">${ctx.summary}</div>
+                    <div style="font-size: var(--fs-md); color: var(--text-secondary); margin-bottom: 8px;">${ctx.summary}</div>
                     ${ctx.keyEvents ? `
                         <details style="font-size: var(--fs-sm);">
                             <summary style="cursor: pointer; color: var(--text-muted);">주요 이벤트 (${ctx.keyEvents.length}개)</summary>
@@ -9056,6 +9092,7 @@
             techBubble: { US: 10, KR: 15, EU: 10, EM: 8, Gold: 20, Bond: 20, Cash: 17 },
             inflation: { US: 15, KR: 10, EU: 8, EM: 5, Gold: 25, Bond: 7, Cash: 30 },
             tradeWar: { US: 15, KR: 10, EU: 10, EM: 0, Gold: 20, Bond: 20, Cash: 25 },
+            chinaHardLanding: { US: 15, KR: 3, EU: 8, EM: 0, Gold: 25, Bond: 22, Cash: 27 }, // v5.5: 한국 최소, 안전자산 확대
             bull: { US: 25, KR: 18, EU: 12, EM: 10, Gold: 12, Bond: 10, Cash: 13 },
             opportunity: { US: 28, KR: 20, EU: 12, EM: 10, Gold: 10, Bond: 10, Cash: 10 }
         };
@@ -9229,6 +9266,25 @@
                     { ticker: '현금', name: '현금 과다 보유', type: 'action', region: 'ALL', reason: '실질 가치 하락' }
                 ],
                 assetClass: { gold: 'OVERWEIGHT', bonds: 'UNDERWEIGHT', usEquity: 'NEUTRAL', koreanFinancials: 'NEUTRAL' }
+            },
+            
+            // 🇨🇳 v5.5: 중국 경착륙 시나리오
+            'china-hard-landing': {
+                name: '🇨🇳 중국 경착륙',
+                recommended: [
+                    { ticker: 'GLD', name: '금 ETF', type: 'etf', region: 'US', reason: '안전자산, 위기 시 급등' },
+                    { ticker: 'TLT', name: '미국 장기채', type: 'etf', region: 'US', reason: '금리 인하 기대 + 안전자산' },
+                    { ticker: 'SQQQ/SH', name: '인버스 ETF', type: 'etf', region: 'US', reason: '단기 헤지용 (장기 보유 비권장)' },
+                    { ticker: '한국전력/KT', name: '내수 방어주', type: 'stock', region: 'KR', reason: '중국 무관, 배당 방어' }
+                ],
+                avoid: [
+                    { ticker: '반도체주', name: 'SK하이닉스/삼성전자', type: 'stock', region: 'KR', reason: '중국 수출 25%+ 타격' },
+                    { ticker: 'EWY', name: '한국 ETF', type: 'etf', region: 'US', reason: '반도체 비중 과대' },
+                    { ticker: 'FXI/KWEB', name: '중국 ETF', type: 'etf', region: 'US', reason: '직접 타격' },
+                    { ticker: 'EEM/VWO', name: '신흥국 ETF', type: 'etf', region: 'US', reason: '중국 전이 효과' },
+                    { ticker: 'DBC/XLE', name: '원자재/에너지', type: 'etf', region: 'US', reason: '수요 파괴' }
+                ],
+                assetClass: { gold: 'OVERWEIGHT', bonds: 'OVERWEIGHT', usEquity: 'NEUTRAL', koreanFinancials: 'UNDERWEIGHT' }
             }
         };
         
@@ -10010,6 +10066,35 @@
             // 지표로 직접 감지 어려움 - 뉴스/정책 기반
             // 환율+원자재 동반 상승은 이미 인플레 헤지 시나리오에서 처리됨
             
+            // 🇨🇳 v5.5: 중국 경착륙(Hard Landing) 시나리오
+            // 한국 반도체 수출의 ~25%가 중국 향, SK Hynix/Samsung 중국 팹 보유
+            // 프록시 지표: WTI 급락(수요파괴) + KOSPI 급락 + 원화약세 + HY스프레드 확대
+            const chinaHLTriggers = [];
+            if (ind.wti1y != null && ind.wti1y < -20) chinaHLTriggers.push('WTI ' + ind.wti1y.toFixed(0) + '% (수요 파괴 징후)');
+            if (ind.kospi1m != null && ind.kospi1m < -8) chinaHLTriggers.push('KOSPI 1M ' + ind.kospi1m.toFixed(1) + '% (수출주 급락)');
+            if (ind.kospi3m != null && ind.kospi3m < -15) chinaHLTriggers.push('KOSPI 3M ' + ind.kospi3m.toFixed(1) + '% (추세적 하락)');
+            if (ind.usdkrw && ind.usdkrw > 1400) chinaHLTriggers.push('환율 ' + ind.usdkrw.toFixed(0) + '원 (위험 회피 강화)');
+            if (ind.hySpread && ind.hySpread > 5) chinaHLTriggers.push('HY스프레드 ' + ind.hySpread.toFixed(0) + 'bp (글로벌 신용 스트레스)');
+            // 원자재 + KOSPI 동반 하락 = 중국 수요 둔화 강력 신호
+            if (ind.wti1y != null && ind.wti1y < -10 && ind.kospi1m != null && ind.kospi1m < -5) {
+                chinaHLTriggers.push('원자재+KOSPI 동반 하락 (중국 수요 둔화 복합 신호)');
+            }
+            
+            if (chinaHLTriggers.length >= 3) {
+                triggered.push({
+                    id: 'china-hard-landing',
+                    name: '🇨🇳 중국 경착륙',
+                    icon: '🇨🇳',
+                    priority: 3,
+                    severity: 'danger',
+                    triggers: chinaHLTriggers,
+                    // 한국 최대 타격(-20): 반도체 수출 붕괴, EM 전이(-15)
+                    // 금(+15)+현금(+15) 안전자산, 채권(+10) 금리 인하 기대
+                    // 원자재(-15) 수요 파괴, 미국(-10) 상대적 양호
+                    portfolioImpact: { US: -10, KR: -20, EM: -15, Gold: 15, Bond: 10, Cash: 15, Commodity: -15 }
+                });
+            }
+            
             // v5.4: Bug17 수정 — 연착륙 판정을 모든 시나리오 평가 완료 후 수행
             // danger 시나리오 2개 미만이고 연착륙 조건 충족 시, warning 시나리오와 공존 허용
             // 이렇게 하면 "대체로 양호 + 일부 우려" 상태를 표현 가능
@@ -10121,6 +10206,7 @@
                 marketState = primary.id === 'recession' ? 'CRISIS' : 
                               primary.id === 'stagflation' ? 'STAGFLATION' :
                               primary.id === 'geopolitical' ? 'CRISIS' :
+                              primary.id === 'china-hard-landing' ? 'CHINA_CRISIS' :
                               primary.id === 'ai-bubble' ? 'BUBBLE_RISK' : 'HIGH_RISK';
                 riskLevel = 'VERY_HIGH';
                 actionBias = 'DEFENSIVE';
@@ -10886,7 +10972,7 @@
                     <td style="padding: 6px 8px; text-align: center; border-bottom: 1px solid var(--border-color); font-weight: 700;">${final}%</td>
                     <td style="padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--border-color); font-family: 'JetBrains Mono', monospace; color: var(--accent-gold);">${amount}M</td>
                     <td style="padding: 6px 8px; text-align: center; border-bottom: 1px solid var(--border-color);">${changeHtml}</td>
-                    <td style="padding: 6px 8px; border-bottom: 1px solid var(--border-color); font-size: 0.7rem; color: var(--text-muted);">${reasons.join(', ') || '-'}</td>
+                    <td style="padding: 6px 8px; border-bottom: 1px solid var(--border-color); font-size: var(--fs-sm); color: var(--text-muted);">${reasons.join(', ') || '-'}</td>
                 </tr>`;
             });
             (document.getElementById('allocationCompareBody')||{}).innerHTML = tableHtml;
@@ -10981,7 +11067,7 @@
             const history = loadIndicatorHistory();
             const historySummary = getHistorySummary(history);
             if (historySummary.totalDays > 0) {
-                indicatorHtml += `<div style="margin-top: 12px; padding: 8px; background: var(--bg-card); border-radius: 6px; font-size: 0.7rem; color: var(--text-muted);">
+                indicatorHtml += `<div style="margin-top: 12px; padding: 8px; background: var(--bg-card); border-radius: 6px; font-size: var(--fs-sm); color: var(--text-muted);">
                     📊 히스토리: ${historySummary.totalDays}일 저장 (${historySummary.oldestDate} ~ ${historySummary.latestDate})
                 </div>`;
             }
@@ -11001,7 +11087,7 @@
                 let scenarioHtml = `<div style="margin-top: 16px; padding: 14px; background: var(--bg-secondary); border-radius: 10px; border-left: 4px solid var(--accent-blue);">
                     <h4 style="font-size: var(--fs-lg); color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
                         <span>🔗</span> 시나리오 기반 자산 추천
-                        <span style="font-size: 0.7rem; padding: 2px 8px; background: var(--accent-blue); color: white; border-radius: 10px; font-weight: 600;">${scenarioAssetRec.scenarioName}</span>
+                        <span style="font-size: var(--fs-sm); padding: 2px 8px; background: var(--accent-blue); color: white; border-radius: 10px; font-weight: 600;">${scenarioAssetRec.scenarioName}</span>
                     </h4>`;
                 
                 // 권장 자산
@@ -11012,7 +11098,7 @@
                     scenarioAssetRec.recommended.slice(0, 5).forEach(asset => {
                         const typeColors = { etf: '#3b82f6', stock: '#8b5cf6', cash: '#10b981', commodity: '#f59e0b' };
                         const bgColor = typeColors[asset.type] || '#6b7280';
-                        scenarioHtml += `<div style="padding: 6px 10px; background: ${bgColor}15; border: 1px solid ${bgColor}40; border-radius: 6px; font-size: 0.7rem;">
+                        scenarioHtml += `<div style="padding: 6px 10px; background: ${bgColor}15; border: 1px solid ${bgColor}40; border-radius: 6px; font-size: var(--fs-sm);">
                             <strong style="color: ${bgColor};">${asset.ticker}</strong>
                             <span style="color: var(--text-muted); margin-left: 4px;">${asset.name}</span>
                             <div style="color: var(--text-muted); font-size: var(--fs-sm); margin-top: 2px;">${asset.reason}</div>
@@ -11027,7 +11113,7 @@
                         <div style="font-size: var(--fs-sm); color: var(--accent-red); font-weight: 600; margin-bottom: 6px;">⛔ 회피 권장</div>
                         <div style="display: flex; flex-wrap: wrap; gap: 6px;">`;
                     scenarioAssetRec.avoid.slice(0, 4).forEach(asset => {
-                        scenarioHtml += `<div style="padding: 6px 10px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; font-size: 0.7rem;">
+                        scenarioHtml += `<div style="padding: 6px 10px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; font-size: var(--fs-sm);">
                             <strong style="color: var(--accent-red);">${asset.ticker}</strong>
                             <span style="color: var(--text-muted); margin-left: 4px;">${asset.name}</span>
                             <div style="color: var(--text-muted); font-size: var(--fs-sm); margin-top: 2px;">${asset.reason}</div>
@@ -11234,13 +11320,13 @@
                 // 권장 자산
                 if (scenarioAssetRec.recommended && scenarioAssetRec.recommended.length > 0) {
                     assetHtml += `<div style="margin-bottom: 10px;">
-                        <div style="font-size: 0.7rem; color: var(--accent-green); font-weight: 600; margin-bottom: 6px;">✅ 시나리오 대응 자산</div>
+                        <div style="font-size: var(--fs-sm); color: var(--accent-green); font-weight: 600; margin-bottom: 6px;">✅ 시나리오 대응 자산</div>
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px;">`;
                     scenarioAssetRec.recommended.forEach(asset => {
-                        assetHtml += `<div style="padding: 8px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.7rem;">
+                        assetHtml += `<div style="padding: 8px; background: var(--bg-secondary); border-radius: 6px; font-size: var(--fs-sm);">
                             <div style="font-weight: 600; color: var(--text-primary);">${asset.ticker}</div>
                             <div style="color: var(--text-muted); font-size: var(--fs-sm);">${asset.name}</div>
-                            <div style="color: var(--accent-green); font-size: 0.7rem; margin-top: 2px;">${asset.reason}</div>
+                            <div style="color: var(--accent-green); font-size: var(--fs-sm); margin-top: 2px;">${asset.reason}</div>
                         </div>`;
                     });
                     assetHtml += `</div></div>`;
@@ -11249,7 +11335,7 @@
                 // 회피 자산
                 if (scenarioAssetRec.avoid && scenarioAssetRec.avoid.length > 0) {
                     assetHtml += `<div>
-                        <div style="font-size: 0.7rem; color: var(--accent-red); font-weight: 600; margin-bottom: 6px;">⛔ 회피 또는 축소</div>
+                        <div style="font-size: var(--fs-sm); color: var(--accent-red); font-weight: 600; margin-bottom: 6px;">⛔ 회피 또는 축소</div>
                         <div style="display: flex; flex-wrap: wrap; gap: 6px;">`;
                     scenarioAssetRec.avoid.forEach(asset => {
                         assetHtml += `<span style="padding: 4px 10px; background: rgba(239,68,68,0.1); border-radius: 4px; font-size: var(--fs-sm); color: var(--accent-red);">
@@ -12019,12 +12105,12 @@
                     (showEtf ? '<div style="font-size: var(--fs-xs);color:var(--text-muted);margin-top:2px;font-family:monospace;">' + asset.etf + '</div>' : '') +
                     '</div><div style="text-align:right;"><div style="display:flex;align-items:center;gap:4px;">' +
                     '<span style="font-size:var(--fs-lg);">' + asset.icon + '</span>' +
-                    '<span style="font-size:0.8rem;font-weight:700;color:' + asset.color + ';">' + asset.judgment + '</span>' +
+                    '<span style="font-size: var(--fs-md);font-weight:700;color:' + asset.color + ';">' + asset.judgment + '</span>' +
                     '</div><div style="font-size: var(--fs-xs);color:var(--text-muted);font-family:monospace;">Score: ' + scoreTxt + '</div></div></div>' +
                     '<div style="background:var(--bg-card);border-radius:3px;height:5px;overflow:hidden;margin-bottom:6px;">' +
                     '<div style="height:100%;width:' + barPct + '%;background:linear-gradient(90deg,#ef4444,#f59e0b,#10b981);border-radius:3px;"></div></div>' +
                     '<div style="display:flex;justify-content:space-between;align-items:center;">' +
-                    '<span style="font-size:0.7rem;padding:2px 8px;background:' + asset.color + '20;color:' + asset.color + ';border-radius:4px;font-weight:600;">' + asset.action + '</span></div>' +
+                    '<span style="font-size: var(--fs-sm);padding:2px 8px;background:' + asset.color + '20;color:' + asset.color + ';border-radius:4px;font-weight:600;">' + asset.action + '</span></div>' +
                     (asset.rationale ? '<div style="font-size: var(--fs-xs);color:var(--text-muted);margin-top:6px;line-height:1.5;border-top:1px solid var(--border-color);padding-top:6px;">' + asset.rationale + '</div>' : '') +
                     '</div>';
             }
@@ -12033,7 +12119,7 @@
             var bondsGrid = document.getElementById('ddBondsGrid');
             bondsGrid.innerHTML = [renderAssetCard(detailed.bonds.short, true), renderAssetCard(detailed.bonds.mid, true), renderAssetCard(detailed.bonds.long, true)].join('');
             if (detailed.bonds.reasons.length > 0) {
-                bondsGrid.innerHTML += '<div style="padding:8px;background:var(--bg-card);border-radius:6px;font-size:0.7rem;color:var(--text-secondary);line-height:1.6;">' +
+                bondsGrid.innerHTML += '<div style="padding:8px;background:var(--bg-card);border-radius:6px;font-size: var(--fs-sm);color:var(--text-secondary);line-height:1.6;">' +
                     '<b>📋 채권 판단 근거:</b><br>' + detailed.bonds.reasons.map(function(r) { return '• ' + r; }).join('<br>') + '</div>';
             }
             // 한국 섹터
@@ -12044,13 +12130,13 @@
             var altGrid = document.getElementById('ddAltGrid');
             altGrid.innerHTML = [detailed.alternatives.gold, detailed.alternatives.silver, detailed.alternatives.copper, detailed.alternatives.oil].map(function(s) { return renderAssetCard(s, true); }).join('');
             if (detailed.alternatives.reasons.length > 0) {
-                altGrid.innerHTML += '<div style="padding:8px;background:var(--bg-card);border-radius:6px;font-size:0.7rem;color:var(--text-secondary);line-height:1.6;">' +
+                altGrid.innerHTML += '<div style="padding:8px;background:var(--bg-card);border-radius:6px;font-size: var(--fs-sm);color:var(--text-secondary);line-height:1.6;">' +
                     '<b>📋 대안자산 판단 근거:</b><br>' + detailed.alternatives.reasons.map(function(r) { return '• ' + r; }).join('<br>') + '</div>';
             }
 
             // 전체 매트릭스 테이블
             var matrix = document.getElementById('ddFullMatrix');
-            var mHtml = '<table style="width:100%;border-collapse:collapse;font-size:0.7rem;min-width:500px;">' +
+            var mHtml = '<table style="width:100%;border-collapse:collapse;font-size: var(--fs-sm);min-width:500px;">' +
                 '<thead><tr style="border-bottom:2px solid var(--border-accent);">' +
                 '<th style="text-align:left;padding:6px;color:var(--text-muted);">카테고리</th>' +
                 '<th style="text-align:left;padding:6px;color:var(--text-muted);">자산</th>' +
@@ -12171,7 +12257,7 @@
             const activeScenarios = result.triggeredScenarios || [];
             if (activeScenarios.length > 0) {
                 // name에 이미 이모지가 포함되어 있으므로 icon 제거
-                document.getElementById('activeScenarios').innerHTML = activeScenarios.map(s => `<span style="display:inline-block; padding:3px 8px; background:var(--bg-card); border-radius:5px; margin:2px; font-size:0.7rem;">${s.name || s}</span>`).join('');
+                document.getElementById('activeScenarios').innerHTML = activeScenarios.map(s => `<span style="display:inline-block; padding:3px 8px; background:var(--bg-card); border-radius:5px; margin:2px; font-size: var(--fs-sm);">${s.name || s}</span>`).join('');
                 
                 // 포트폴리오 권고 - portfolioResult 사용
                 const pr = result.portfolioResult;
@@ -12205,15 +12291,15 @@
                 
                 let bannerHtml = '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">' +
                     '<span style="font-size:1rem;">⚠️</span>' +
-                    '<span style="font-size:0.8rem;font-weight:700;color:var(--accent-gold);">판단 시스템 충돌 감지 (' + result.dualSystemConflicts.length + '건)</span>' +
+                    '<span style="font-size: var(--fs-md);font-weight:700;color:var(--accent-gold);">판단 시스템 충돌 감지 (' + result.dualSystemConflicts.length + '건)</span>' +
                 '</div>' +
-                '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:6px;line-height:1.4;">' +
+                '<div style="font-size: var(--fs-sm);color:var(--text-muted);margin-bottom:6px;line-height:1.4;">' +
                     '지표 기반 자산 판단과 시나리오 기반 배분이 상충합니다. 시나리오 배분(보수적)을 우선 참고하되, 지표 판단도 교차 확인하세요.' +
                 '</div>';
                 
                 result.dualSystemConflicts.forEach(function(c) {
                     var icon = c.type === 'BUY_vs_REDUCE' ? '📈↔📉' : '📉↔📈';
-                    bannerHtml += '<div style="padding:4px 8px;background:var(--bg-card);border-radius:4px;font-size:0.7rem;margin-bottom:3px;color:var(--text-secondary);">' +
+                    bannerHtml += '<div style="padding:4px 8px;background:var(--bg-card);border-radius:4px;font-size: var(--fs-sm);margin-bottom:3px;color:var(--text-secondary);">' +
                         icon + ' ' + c.msg + '</div>';
                 });
                 
@@ -12233,7 +12319,7 @@
                 <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; border-left: 3px solid ${s.severity === 'high' ? 'var(--accent-red)' : s.severity === 'medium' ? 'var(--accent-gold)' : 'var(--accent-green)'};">
                     <div style="font-size: var(--fs-sm); color: var(--text-muted);">${s.indicator}</div>
                     <div style="font-size: 1rem; font-weight: 600; font-family: 'JetBrains Mono', monospace;">${s.value}</div>
-                    <div style="font-size: 0.8rem; margin-top: 4px;">${s.signal}</div>
+                    <div style="font-size: var(--fs-md); margin-top: 4px;">${s.signal}</div>
                 </div>
             `).join('');
 
@@ -12259,8 +12345,8 @@
                     const barPct = ((a.score + 3) / 6) * 100;
                     gridHtml += `
                         <div style="background: var(--bg-secondary); border-radius: 8px; padding: 10px; border-top: 3px solid ${a.color};">
-                            <div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 2px;">${info.name}</div>
-                            <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 6px;">${info.sub}</div>
+                            <div style="font-size: var(--fs-md); font-weight: 600; margin-bottom: 2px;">${info.name}</div>
+                            <div style="font-size: var(--fs-sm); color: var(--text-muted); margin-bottom: 6px;">${info.sub}</div>
                             <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
                                 <span style="font-size: 1rem;">${a.icon}</span>
                                 <span style="font-size: var(--fs-md); font-weight: 700; color: ${a.color};">${a.judgment}</span>
@@ -12268,7 +12354,7 @@
                             <div style="background: var(--bg-card); border-radius: 3px; height: 6px; overflow: hidden;">
                                 <div style="height: 100%; width: ${barPct}%; background: ${a.color}; border-radius: 3px; transition: width 0.5s;"></div>
                             </div>
-                            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 4px;">${a.desc}</div>
+                            <div style="font-size: var(--fs-sm); color: var(--text-muted); margin-top: 4px;">${a.desc}</div>
                         </div>
                     `;
                 }
@@ -12978,7 +13064,7 @@
                 if (rationaleContainer && rationaleContainer.parentNode) {
                     aiLinkEl = document.createElement('div');
                     aiLinkEl.id = 'bondAiLinkNote';
-                    aiLinkEl.style.cssText = 'margin-top: 8px; padding: 8px; border-radius: 6px; font-size: 0.7rem;';
+                    aiLinkEl.style.cssText = 'margin-top: 8px; padding: 8px; border-radius: 6px; font-size: var(--fs-sm);';
                     rationaleContainer.parentNode.insertBefore(aiLinkEl, rationaleContainer.nextSibling);
                 }
             }
@@ -13202,7 +13288,7 @@
                 html += '<span style="font-size: 1.1rem;">' + icon + '</span>';
                 html += '<div style="flex: 1;">';
                 html += '<div style="font-weight: 700; font-size: var(--fs-md);">' + policy.title + '</div>';
-                html += '<div style="font-size: 0.7rem; color: var(--text-muted);">' + (policy.status || '') + '</div>';
+                html += '<div style="font-size: var(--fs-sm); color: var(--text-muted);">' + (policy.status || '') + '</div>';
                 html += '</div>';
                 html += '<span style="padding: 2px 8px; background: ' + sc.bg + '; color: ' + sc.text + '; border-radius: 4px; font-size: var(--fs-sm); font-weight: 600;">' + sc.label + '</span>';
                 html += '<span style="color: var(--text-muted);">▼</span>';
@@ -13212,7 +13298,7 @@
                 if (policy.impactByAssetClass) {
                     html += '<div style="padding: 0 12px 12px; font-size: var(--fs-sm);">';
                     if (policy.details) {
-                        html += '<div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-card); border-radius: 4px;">💡 ' + policy.details + '</div>';
+                        html += '<div style="font-size: var(--fs-sm); color: var(--text-muted); margin-bottom: 8px; padding: 6px; background: var(--bg-card); border-radius: 4px;">💡 ' + policy.details + '</div>';
                     }
                     html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px;">';
                     
@@ -13229,7 +13315,7 @@
                             var arrow = item.direction === 'positive' ? '<span style="color: #10b981;">📈</span>' :
                                        item.direction === 'negative' ? '<span style="color: #ef4444;">📉</span>' :
                                        '<span style="color: #64748b;">➖</span>';
-                            html += '<div style="font-size: 0.7rem;">' + arrow + ' ' + item.name + '</div>';
+                            html += '<div style="font-size: var(--fs-sm);">' + arrow + ' ' + item.name + '</div>';
                         });
                         
                         html += '</div>';
@@ -13325,7 +13411,7 @@
                     html += '</div>';
                     
                     if (stock.name && stock.ticker) {
-                        html += '<div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 6px;">' + stock.name + '</div>';
+                        html += '<div style="font-size: var(--fs-sm); color: var(--text-muted); margin-bottom: 6px;">' + stock.name + '</div>';
                     }
                     
                     html += '<div style="font-size: var(--fs-sm); color: var(--text-secondary);">';
@@ -13333,7 +13419,7 @@
                     html += '부정: <span style="color: #ef4444; font-weight: 600;">' + stock.negativeCount + '</span>';
                     html += '</div>';
                     
-                    html += '<div style="margin-top: 6px; font-size: 0.7rem; color: var(--text-muted);">';
+                    html += '<div style="margin-top: 6px; font-size: var(--fs-sm); color: var(--text-muted);">';
                     stock.impacts.slice(0, 3).forEach(function(imp) {
                         var arrow = imp.direction === 'positive' ? '📈' : imp.direction === 'negative' ? '📉' : '➖';
                         html += arrow + ' ' + imp.policy + '<br>';
@@ -13353,7 +13439,7 @@
                 var mostNegative = duplicateStocks.filter(function(s) { return s.overallDirection === 'negative'; });
                 
                 if (mostPositive.length > 0 || mostNegative.length > 0) {
-                    html += '<div style="margin-top: 10px; padding: 8px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.7rem; color: var(--text-muted);">';
+                    html += '<div style="margin-top: 10px; padding: 8px; background: var(--bg-secondary); border-radius: 6px; font-size: var(--fs-sm); color: var(--text-muted);">';
                     html += '💡 <strong>종합 판단:</strong> ';
                     if (mostPositive.length > 0) {
                         html += '<span style="color: #10b981;">' + mostPositive.map(function(s) { return s.ticker || s.name; }).slice(0, 3).join(', ') + '</span>은 복수 정책에서 긍정적. ';
@@ -13406,13 +13492,13 @@
                 html += '<span style="font-size: var(--fs-sm); padding: 1px 6px; background: ' + ts.bg + '; color: ' + ts.text + '; border-radius: 3px;">' + ts.label + '</span>';
                 if (item.assetType) {
                     var typeLabel = item.assetType === 'stock' ? '주식' : item.assetType === 'bond' ? '채권' : item.assetType === 'etf' ? 'ETF' : item.assetType === 'commodity' ? '원자재' : item.assetType;
-                    html += '<span style="font-size: 0.7rem; padding: 1px 4px; background: var(--bg-card); color: var(--text-muted); border-radius: 2px;">' + typeLabel + '</span>';
+                    html += '<span style="font-size: var(--fs-sm); padding: 1px 4px; background: var(--bg-card); color: var(--text-muted); border-radius: 2px;">' + typeLabel + '</span>';
                 }
                 html += '<span style="font-size: var(--fs-sm); color: var(--text-muted);">' + (item.date || '') + '</span>';
                 html += '</div>';
-                html += '<div style="font-weight: 700; font-size: 0.8rem;">' + (item.ticker ? item.ticker + ' ' : '') + item.headline + '</div>';
+                html += '<div style="font-weight: 700; font-size: var(--fs-md);">' + (item.ticker ? item.ticker + ' ' : '') + item.headline + '</div>';
                 if (item.details || item.priceImpact) {
-                    html += '<div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">';
+                    html += '<div style="font-size: var(--fs-sm); color: var(--text-muted); margin-top: 2px;">';
                     if (item.details) html += item.details;
                     if (item.priceImpact) html += ' → 예상 영향: ' + item.priceImpact;
                     html += '</div>';
@@ -13426,7 +13512,7 @@
                         var relColor = related.direction === 'positive' ? '#10b981' : related.direction === 'negative' ? '#ef4444' : '#64748b';
                         var relBg = related.direction === 'positive' ? 'rgba(16,185,129,0.15)' : related.direction === 'negative' ? 'rgba(239,68,68,0.15)' : 'rgba(100,116,139,0.15)';
                         var relArrow = related.direction === 'positive' ? '📈' : related.direction === 'negative' ? '📉' : '➖';
-                        html += '<span style="font-size: 0.7rem; padding: 2px 6px; background: ' + relBg + '; color: ' + relColor + '; border-radius: 4px;">' + relArrow + ' ' + related.name + '</span>';
+                        html += '<span style="font-size: var(--fs-sm); padding: 2px 6px; background: ' + relBg + '; color: ' + relColor + '; border-radius: 4px;">' + relArrow + ' ' + related.name + '</span>';
                     });
                     html += '</div>';
                 }
@@ -13499,7 +13585,7 @@
             
             // 🔗 10번 이슈: 포트폴리오 연동 안내 표시
             var linkNote = document.createElement('div');
-            linkNote.style.cssText = 'margin-top: 12px; padding: 8px 12px; background: rgba(59, 130, 246, 0.1); border-radius: 6px; font-size: 0.7rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;';
+            linkNote.style.cssText = 'margin-top: 12px; padding: 8px 12px; background: rgba(59, 130, 246, 0.1); border-radius: 6px; font-size: var(--fs-sm); color: var(--text-secondary); display: flex; align-items: center; gap: 6px;';
             linkNote.innerHTML = '🔗 <span>이 조정값은 <strong>포트폴리오 파이차트</strong>에 자동 반영됩니다</span>';
             if (grid && grid.parentNode) {
                 // 기존 안내 제거 후 추가
@@ -13571,19 +13657,19 @@
                         gray: { bg: 'rgba(100,116,139,0.2)', text: '#64748b' }
                     };
                     var c = colorMap[tagColor] || colorMap.gray;
-                    tagsHtml += '<span style="background: ' + c.bg + '; color: ' + c.text + '; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem;">' + tag.text + '</span>';
+                    tagsHtml += '<span style="background: ' + c.bg + '; color: ' + c.text + '; padding: 4px 8px; border-radius: 4px; font-size: var(--fs-sm);">' + tag.text + '</span>';
                 });
             }
             
             card.innerHTML = 
                 '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">' +
                     '<h4 style="color: ' + meta.color + '; display: flex; align-items: center; gap: 8px; margin: 0;">' + meta.icon + ' ' + (sector.name || meta.name) + '</h4>' +
-                    '<span class="sector-view" style="padding: 4px 10px; background: ' + viewStyle.bg + '; color: ' + viewStyle.text + '; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">' + (sector.view || '중립') + '</span>' +
+                    '<span class="sector-view" style="padding: 4px 10px; background: ' + viewStyle.bg + '; color: ' + viewStyle.text + '; border-radius: 12px; font-size: var(--fs-sm); font-weight: 600;">' + (sector.view || '중립') + '</span>' +
                 '</div>' +
-                '<p class="sector-status" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 8px;">' +
+                '<p class="sector-status" style="color: var(--text-secondary); font-size: var(--fs-md); margin-bottom: 8px;">' +
                     '<strong>현황:</strong> ' + (sector.status || '-') +
                 '</p>' +
-                '<p class="sector-risk" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 12px;">' +
+                '<p class="sector-risk" style="color: var(--text-secondary); font-size: var(--fs-md); margin-bottom: 12px;">' +
                     '<strong>' + (sector.riskLabel || '리스크') + ':</strong> ' + (sector.risk || '-') +
                 '</p>' +
                 '<div class="sector-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">' + tagsHtml + '</div>';
@@ -13631,7 +13717,7 @@
                         gray: { bg: 'rgba(100,116,139,0.2)', text: '#64748b' }
                     };
                     var c = colorMap[tagColor] || colorMap.gray;
-                    tagsHtml += '<span style="background: ' + c.bg + '; color: ' + c.text + '; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem;">' + tag.text + '</span>';
+                    tagsHtml += '<span style="background: ' + c.bg + '; color: ' + c.text + '; padding: 4px 8px; border-radius: 4px; font-size: var(--fs-sm);">' + tag.text + '</span>';
                 });
                 tagsEl.innerHTML = tagsHtml;
             }
@@ -13728,7 +13814,7 @@
                 }
                 html += ' - ' + item.subtitle + '</h4>';
                 
-                html += '<div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">';
+                html += '<div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.6;">';
                 item.items.forEach(function(stock, idx) {
                     html += '<strong>' + stock.ticker + '</strong>';
                     if (stock.weight) {
@@ -13742,7 +13828,7 @@
                 // 하단 노트
                 if (item.note) {
                     var noteColor = noteColors[item.noteType] || 'var(--text-muted)';
-                    html += '<div style="font-size: 0.7rem; color: ' + noteColor + '; margin-top: 6px;">' + item.note + '</div>';
+                    html += '<div style="font-size: var(--fs-sm); color: ' + noteColor + '; margin-top: 6px;">' + item.note + '</div>';
                 }
                 
                 html += '</div>';
@@ -15346,7 +15432,7 @@
                     var noStyle = typeColors[item.noType] || typeColors.neutral;
                     
                     html += '<div class="checklist-item">';
-                    html += '<span style="color: var(--text-secondary); font-size: var(--font-sm);">' + item.question + '</span>';
+                    html += '<span style="color: var(--text-secondary); font-size: var(--fs-sm);">' + item.question + '</span>';
                     html += '</div>';
                     html += '<div class="checklist-options">';
                     html += '<span class="checklist-option" style="background: ' + yesStyle.bg + '; color: ' + yesStyle.color + ';">Yes → ' + item.yesAction + '</span>';
@@ -15713,9 +15799,9 @@
             if (badgeEl) { badgeEl.textContent = oj.statusLabel || oj.status; badgeEl.style.background = color + '33'; badgeEl.style.color = color; }
             
             if (actionsEl && oj.actionItems && oj.actionItems.length > 0) {
-                actionsEl.innerHTML = '<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;">핵심 행동:</div>' +
+                actionsEl.innerHTML = '<div style="font-size: var(--fs-md);color:var(--text-muted);margin-bottom:8px;">핵심 행동:</div>' +
                     oj.actionItems.map(function(item, i) {
-                        return '<span style="display:inline-block;margin:4px 8px 4px 0;padding:6px 12px;background:var(--bg-secondary);border-radius:20px;font-size:0.8rem;">' + (i+1) + '. ' + item + '</span>';
+                        return '<span style="display:inline-block;margin:4px 8px 4px 0;padding:6px 12px;background:var(--bg-secondary);border-radius:20px;font-size: var(--fs-md);">' + (i+1) + '. ' + item + '</span>';
                     }).join('');
             }
         }
@@ -15975,14 +16061,14 @@
                 html += '<div style="padding:16px;background:var(--bg-secondary);border-radius:10px;border-top:4px solid ' + color + ';">';
                 html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
                 html += '<span style="font-weight:700;font-size:var(--fs-lg);">' + name + '</span>';
-                html += '<span style="padding:6px 12px;background:' + color + '22;color:' + color + ';border-radius:16px;font-size:0.8rem;font-weight:700;">' + (a.viewLabel || a.view) + '</span>';
+                html += '<span style="padding:6px 12px;background:' + color + '22;color:' + color + ';border-radius:16px;font-size: var(--fs-md);font-weight:700;">' + (a.viewLabel || a.view) + '</span>';
                 html += '</div>';
                 if (a.expectedReturn) {
                     var normalizedReturn = normalizeExpectedReturn(a.expectedReturn);
                     html += '<div style="font-size: var(--fs-md);margin-bottom:6px;">📈 예상 수익률: <strong>' + normalizedReturn + '</strong></div>';
                 }
                 if (a.rationale) {
-                    html += '<div style="font-size:0.8rem;color:var(--text-muted);line-height:1.5;">' + a.rationale + '</div>';
+                    html += '<div style="font-size: var(--fs-md);color:var(--text-muted);line-height:1.5;">' + a.rationale + '</div>';
                 }
                 html += '</div>';
             }
@@ -16952,11 +17038,44 @@
         if (!confirm(myHoldings[idx].name + ' 삭제?')) return;
         myHoldings.splice(idx, 1); saveMyHoldings(); renderMyHoldings();
     }
+    // v5.5: 보유종목 수정 — 입력폼에 기존 값 채우고, 기존 항목 삭제
+    function editMyHolding(idx) {
+        var h = myHoldings[idx];
+        document.getElementById('holdingName').value = h.name;
+        document.getElementById('holdingQty').value = h.qty;
+        document.getElementById('holdingAvgPrice').value = h.avgPrice;
+        myHoldings.splice(idx, 1); saveMyHoldings(); renderMyHoldings();
+        // 입력폼으로 스크롤
+        document.getElementById('holdingName').focus();
+    }
+    // v5.5: 실시간 자동완성 (datalist보다 반응성 개선 — input 이벤트로 필터링)
+    (function() {
+        var nameInput = document.getElementById('holdingName');
+        if (!nameInput) return;
+        nameInput.addEventListener('input', function() {
+            var dl = document.getElementById('holdingDatalist');
+            if (!dl || typeof screeningData === 'undefined') return;
+            var q = this.value.trim().toLowerCase();
+            if (q.length < 1) { dl.innerHTML = ''; return; }
+            dl.innerHTML = '';
+            var matches = screeningData.filter(function(d) {
+                var name = (d.Name || '').toLowerCase();
+                var ticker = String(d.Ticker || d.Code || '').toLowerCase();
+                return name.indexOf(q) >= 0 || ticker.indexOf(q) >= 0;
+            }).slice(0, 20);
+            matches.forEach(function(d) {
+                var o = document.createElement('option');
+                o.value = d.Name;
+                o.label = (d.Ticker || d.Code || '') + ' ' + d.Name + (d._flag ? ' ' + d._flag : '');
+                dl.appendChild(o);
+            });
+        });
+    })();
     function renderMyHoldings() {
         var el = document.getElementById('myHoldingsList'), badge = document.getElementById('positionBadge');
         if (!el) return;
         if (myHoldings.length === 0) {
-            el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:0.8rem;">보유종목을 추가하세요</div>';
+            el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size: var(--fs-md);">보유종목을 추가하세요</div>';
             if (badge) badge.textContent = '보유종목 입력 필요'; return;
         }
         var results = myHoldings.map(function(h, i) { return { h: h, i: i, a: assessMyHolding(h) }; });
@@ -16964,24 +17083,28 @@
         var totalEval = results.reduce(function(s,r){return s+(r.a.evalAmt||0)},0);
         var counts = {}; results.forEach(function(r){ counts[r.a.action] = (counts[r.a.action]||0)+1; });
         if (badge) { badge.textContent = Object.keys(counts).map(function(k){return k+' '+counts[k]}).join(' · '); }
-        el.innerHTML = '<div style="font-size: var(--fs-sm);color:var(--text-muted);margin-bottom:8px;">평가총액 ' + (totalEval/10000).toFixed(0) + '만원 · ' + myHoldings.length + '종목</div>'
+        el.innerHTML = '<div style="font-size: var(--fs-sm);color:var(--text-muted);margin-bottom:8px;">평가총액 ' + formatKRW(totalEval) + ' · ' + myHoldings.length + '종목</div>'
             + results.map(function(r) {
-            var h=r.h, a=r.a, idx=r.i, pc = a.pnlPct >= 0 ? 'var(--color-gain)' : 'var(--color-loss)'; // v5.5: 한국 색상 규약
+            var h=r.h, a=r.a, idx=r.i, pc = a.pnlPct >= 0 ? 'var(--color-gain)' : 'var(--color-loss)';
             var det = a.d ? 'FPE '+(a.d.ForwardPE||a.d.PER||'-')+' · PBR '+(a.d.PBR||'-')+' · ROE '+(a.d['ROE(%)']!=null?a.d['ROE(%)'].toFixed(1):'-')+'%'+(a.d.TotalScore?' · S'+Math.round(a.d.TotalScore):'') : '';
             return '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:8px;margin-bottom:4px;border:1px solid '+a.color+'33;background:'+a.color+'08">'
                 +'<div style="min-width:48px;text-align:center;padding:3px 0;border-radius:5px;background:'+a.color+'22;color:'+a.color+';font-size:var(--fs-sm);font-weight:800;">'+a.action+'</div>'
                 +'<div style="flex:1;min-width:0;">'
-                +'<div style="font-size:var(--fs-md);font-weight:700;color:var(--text-primary);">'+h.name+' <span style="font-size:var(--fs-xs);color:var(--text-muted);">'+h.qty+'주</span></div>'
+                +'<div style="font-size:var(--fs-md);font-weight:700;color:var(--text-primary);">'+h.name+' <span style="font-size:var(--fs-xs);color:var(--text-muted);">'+h.qty+'주 · @'+Number(h.avgPrice).toLocaleString('ko-KR')+'원</span></div>'
                 +'<div style="font-size:var(--fs-xs);color:var(--text-muted);font-family:monospace;font-variant-numeric:tabular-nums;">'+det+'</div>'
                 +(a.reasons.length?'<div style="font-size:var(--fs-xs);color:'+a.color+';margin-top:2px;">'+a.reasons.join(' · ')+'</div>':'')
                 +'</div>'
                 +'<div style="text-align:right;">'
                 +'<div style="font-size:var(--fs-md);font-weight:700;font-family:monospace;font-variant-numeric:tabular-nums;color:'+pc+';">'+(a.pnlPct>=0?'▲':'▼')+' '+(a.pnlPct>=0?'+':'')+a.pnlPct.toFixed(1)+'%</div>'
-                +(a.evalAmt?'<div style="font-size:var(--fs-xs);color:var(--text-muted);">'+(a.evalAmt/10000).toFixed(0)+'만</div>':'')
-                +'<button onclick="removeMyHolding('+idx+')" style="margin-top:3px;padding:2px 6px;border:none;border-radius:4px;font-size:var(--fs-xs);cursor:pointer;background:rgba(239,68,68,0.15);color:#ef4444;">삭제</button>'
-                +'</div></div>';
+                +(a.evalAmt?'<div style="font-size:var(--fs-xs);color:var(--text-muted);">'+formatKRWShort(a.evalAmt)+'</div>':'')
+                +'<div style="display:flex;gap:3px;justify-content:flex-end;margin-top:3px;">'
+                +'<button onclick="editMyHolding('+idx+')" style="padding:2px 6px;border:none;border-radius:4px;font-size:var(--fs-xs);cursor:pointer;background:rgba(59,130,246,0.15);color:var(--accent-blue);">수정</button>'
+                +'<button onclick="removeMyHolding('+idx+')" style="padding:2px 6px;border:none;border-radius:4px;font-size:var(--fs-xs);cursor:pointer;background:rgba(239,68,68,0.15);color:#ef4444;">삭제</button>'
+                +'</div></div></div>';
         }).join('');
         analyzePortfolio(results);
+        analyzeTaxHarvesting(results); // v5.5: 세금 손실 수확
+        analyzeCurrencyExposure(results); // v5.5: 환 리스크 분석
         var dl = document.getElementById('holdingDatalist'); if(dl){dl.innerHTML='';
         var src = (typeof screeningData!=='undefined'&&screeningData)?screeningData:[];
         src.forEach(function(d){
@@ -17184,7 +17307,7 @@
         ];
         document.getElementById('pfSummaryGrid').innerHTML = metrics.map(function(m){
             return '<div style="padding:8px;background:var(--bg-secondary);border-radius:8px;text-align:center;">'
-                +'<div style="font-size:0.6rem;color:var(--text-muted);">'+m.label+'</div>'
+                +'<div style="font-size: var(--fs-xs);color:var(--text-muted);">'+m.label+'</div>'
                 +'<div style="font-size:1rem;font-weight:800;color:var(--text-primary);font-family:monospace;">'+m.value+'</div>'
                 +'<div style="font-size: var(--fs-xs);color:var(--text-muted);">'+m.sub+'</div>'
                 +'</div>';
@@ -17218,7 +17341,7 @@
             var sc = Math.round(f.score);
             var bg = sc>=70?'var(--accent-green)':sc>=50?'var(--accent-gold)':'var(--accent-red)';
             return '<div style="padding:6px;background:var(--bg-secondary);border-radius:6px;text-align:center;">'
-                +'<div style="font-size:0.6rem;color:var(--text-muted);">'+f.name+'</div>'
+                +'<div style="font-size: var(--fs-xs);color:var(--text-muted);">'+f.name+'</div>'
                 +'<div style="height:6px;background:var(--bg-primary);border-radius:3px;margin:4px 0;overflow:hidden;">'
                 +'<div style="height:100%;width:'+sc+'%;background:'+bg+';border-radius:3px;"></div>'
                 +'</div>'
@@ -17246,18 +17369,18 @@
             var volImprovement = ((currentPortfVol - rpPortfVol) / currentPortfVol * 100);
             
             rpEl.style.display = 'block';
-            var rpHtml = '<div style="font-size:0.7rem;font-weight:700;color:var(--text-primary);margin-bottom:6px;">⚖️ 리스크 패리티 비교</div>';
+            var rpHtml = '<div style="font-size: var(--fs-sm);font-weight:700;color:var(--text-primary);margin-bottom:6px;">⚖️ 리스크 패리티 비교</div>';
             rpHtml += '<div style="font-size:0.65rem;color:var(--text-muted);margin-bottom:8px;">역변동성 가중 기준 최적 비중 vs 현재 비중 (리스크 기여도 균등화)</div>';
             
             if (volImprovement > 1) {
-                rpHtml += '<div style="font-size:0.7rem;color:var(--accent-green);margin-bottom:6px;">💡 RP 적용 시 변동성 약 ' + volImprovement.toFixed(1) + '% 개선 가능</div>';
+                rpHtml += '<div style="font-size: var(--fs-sm);color:var(--accent-green);margin-bottom:6px;">💡 RP 적용 시 변동성 약 ' + volImprovement.toFixed(1) + '% 개선 가능</div>';
             }
             
             rpHtml += '<div style="display:grid;gap:3px;">';
             rpDiffs.slice(0, 5).forEach(function(d) {
                 var arrow = d.diff > 0.02 ? '📈 확대' : d.diff < -0.02 ? '📉 축소' : '✅ 적정';
                 var diffColor = d.diff > 0.02 ? 'var(--accent-green)' : d.diff < -0.02 ? 'var(--accent-red)' : 'var(--text-muted)';
-                rpHtml += '<div style="display:flex;align-items:center;gap:6px;font-size:0.7rem;padding:4px 6px;background:var(--bg-secondary);border-radius:4px;">'
+                rpHtml += '<div style="display:flex;align-items:center;gap:6px;font-size: var(--fs-sm);padding:4px 6px;background:var(--bg-secondary);border-radius:4px;">'
                     + '<div style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + d.name + '</div>'
                     + '<div style="width:50px;text-align:right;font-family:monospace;">' + (d.current*100).toFixed(0) + '%</div>'
                     + '<div style="width:16px;text-align:center;">→</div>'
@@ -17296,7 +17419,7 @@
         var warnEl = document.getElementById('pfWarnings');
         if (warnings.length > 0) {
             warnEl.style.display = 'block';
-            warnEl.innerHTML = '<div style="font-size:0.7rem;font-weight:700;color:var(--text-primary);margin-bottom:6px;">⚠️ 포트폴리오 경고</div>'
+            warnEl.innerHTML = '<div style="font-size: var(--fs-sm);font-weight:700;color:var(--text-primary);margin-bottom:6px;">⚠️ 포트폴리오 경고</div>'
                 + warnings.map(function(w){
                     return '<div style="padding:6px 8px;margin-bottom:3px;border-radius:6px;font-size:var(--fs-sm);line-height:1.5;background:rgba(239,68,68,0.06);border-left:3px solid rgba(239,68,68,0.3);color:var(--text-secondary);">'
                         + w.icon + ' ' + w.text + '</div>';
@@ -17316,7 +17439,7 @@
         var sugEl = document.getElementById('pfSuggestions');
         if (suggestions.length > 0) {
             sugEl.style.display = 'block';
-            sugEl.innerHTML = '<div style="font-size:0.7rem;font-weight:700;color:var(--text-primary);margin-bottom:6px;">💡 개선 제안</div>'
+            sugEl.innerHTML = '<div style="font-size: var(--fs-sm);font-weight:700;color:var(--text-primary);margin-bottom:6px;">💡 개선 제안</div>'
                 + suggestions.map(function(s){
                     return '<div style="padding:6px 8px;margin-bottom:3px;border-radius:6px;font-size:var(--fs-sm);line-height:1.5;background:rgba(59,130,246,0.06);border-left:3px solid rgba(59,130,246,0.3);color:var(--text-secondary);">'+s+'</div>';
                 }).join('');
@@ -17326,14 +17449,14 @@
         var heroEl = document.getElementById('portfolioSummaryHero');
         if (heroEl) {
             heroEl.style.display = 'block';
-            var totalValue = totalCost; // 매입가 기준 (시가 미제공)
-            document.getElementById('heroTotalValue').textContent = (totalValue/10000).toFixed(1) + '억원';
+            var totalValue = totalCost; // 매입가 기준
+            document.getElementById('heroTotalValue').textContent = formatKRW(totalValue);
             
             // 총 손익 (60일 수익률 기반 추정)
             var totalPL = items.reduce(function(s,x){ return s + x.cost * (x.ret60/100); }, 0);
             var plEl = document.getElementById('heroTotalPL');
             var plPct = safeDivide(totalPL, totalCost, 0) * 100;
-            plEl.textContent = (totalPL >= 0 ? '+' : '') + (totalPL/10000).toFixed(2) + '억 (' + (plPct >= 0 ? '+' : '') + plPct.toFixed(1) + '%)';
+            plEl.textContent = (totalPL >= 0 ? '+' : '') + formatKRWShort(totalPL) + ' (' + (plPct >= 0 ? '▲' : '▼') + Math.abs(plPct).toFixed(1) + '%)';
             plEl.style.color = totalPL >= 0 ? 'var(--color-gain)' : 'var(--color-loss)';
         }
         
@@ -17395,6 +17518,315 @@
         a.download = '포트폴리오_' + new Date().toISOString().slice(0,10) + '.csv';
         a.click();
         URL.revokeObjectURL(a.href);
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // 💰 v5.5: 세금 손실 수확 (Tax-loss Harvesting) — 한국 해외주식 양도소득세
+    // ═══════════════════════════════════════════════════════════
+    // 한국 세법: 해외주식 양도소득세 22% (지방세 포함), 연간 공제 ₩2,500,000
+    // 한국에는 wash-sale rule 없음 → 매도 후 즉시 재매수 가능
+    // 대상: _sheet === 'US_Stocks' (또는 해외 ETF) 보유종목
+    function analyzeTaxHarvesting(results) {
+        var taxEl = document.getElementById('taxHarvestAlert');
+        if (!taxEl) return;
+        
+        var EXEMPTION = 2500000; // 연간 공제
+        var TAX_RATE = 0.22;     // 22% (소득세 20% + 지방세 2%)
+        
+        // 해외주식만 필터
+        var overseasHoldings = results.filter(function(r) {
+            return r.a.d && (r.a.d._sheet === 'US_Stocks' || (r.a.d._flag && r.a.d._flag !== '🇰🇷'));
+        });
+        
+        if (overseasHoldings.length < 2) {
+            taxEl.style.display = 'none';
+            return;
+        }
+        
+        // 미실현 손익 계산 (매입가 기반)
+        var gainPositions = [], lossPositions = [];
+        var totalGain = 0, totalLoss = 0;
+        
+        overseasHoldings.forEach(function(r) {
+            var h = r.h, a = r.a;
+            var unrealizedPL = a.evalAmt * (a.pnlPct / 100); // 미실현 손익 (원화)
+            if (unrealizedPL > 0) {
+                gainPositions.push({ name: h.name, pl: unrealizedPL, pct: a.pnlPct });
+                totalGain += unrealizedPL;
+            } else if (unrealizedPL < 0) {
+                lossPositions.push({ name: h.name, pl: unrealizedPL, pct: a.pnlPct });
+                totalLoss += Math.abs(unrealizedPL);
+            }
+        });
+        
+        // 수익이 공제 이상이고 손실 종목이 있을 때만 알림
+        if (totalGain <= EXEMPTION || lossPositions.length === 0) {
+            taxEl.style.display = 'none';
+            return;
+        }
+        
+        // 세금 계산
+        var taxWithout = Math.max(0, totalGain - EXEMPTION) * TAX_RATE;
+        var taxWith = Math.max(0, totalGain - totalLoss - EXEMPTION) * TAX_RATE;
+        var savings = taxWithout - taxWith;
+        
+        if (savings < 10000) { // 1만원 미만이면 표시 불필요
+            taxEl.style.display = 'none';
+            return;
+        }
+        
+        taxEl.style.display = 'block';
+        var html = '<div style="font-weight:700;margin-bottom:6px;">💰 세금 손실 수확 기회</div>';
+        html += '<div style="font-size:var(--fs-sm);color:var(--text-secondary);margin-bottom:8px;">';
+        html += '해외주식 미실현 이익 ' + formatKRW(totalGain) + ' (공제 ' + formatKRW(EXEMPTION) + ' 초과)';
+        html += '</div>';
+        
+        // 손실 종목별 절세 효과
+        html += '<div style="margin-bottom:8px;">';
+        lossPositions.sort(function(a,b) { return a.pl - b.pl; }); // 큰 손실 우선
+        lossPositions.slice(0, 3).forEach(function(p) {
+            var positionSaving = Math.min(Math.abs(p.pl), totalGain - EXEMPTION) * TAX_RATE;
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--bg-secondary);border-radius:4px;margin-bottom:3px;font-size:var(--fs-sm);">';
+            html += '<span>' + p.name + ' <span style="color:var(--color-loss);">(' + p.pct.toFixed(1) + '%)</span></span>';
+            html += '<span style="color:var(--accent-green);font-weight:700;">매도 시 ~' + formatKRWShort(positionSaving) + ' 절세</span>';
+            html += '</div>';
+        });
+        html += '</div>';
+        
+        html += '<div style="display:flex;justify-content:space-between;font-size:var(--fs-sm);padding:6px 8px;background:rgba(16,185,129,0.08);border-radius:4px;">';
+        html += '<span>현행 예상 세금: ' + formatKRW(taxWithout) + '</span>';
+        html += '<span style="font-weight:700;color:var(--accent-green);">절감 가능: ~' + formatKRW(savings) + '</span>';
+        html += '</div>';
+        
+        html += '<div style="font-size:var(--fs-xs);color:var(--text-muted);margin-top:6px;">⚠️ 한국은 wash-sale rule이 없어 매도 후 즉시 재매수 가능. 연말(12월) 전 실행 권장.</div>';
+        
+        taxEl.innerHTML = html;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 💱 v5.5: 환 리스크 분석 (Currency Hedging Framework)
+    // ═══════════════════════════════════════════════════════════
+    // 한국 투자자를 위한 FX 익스포저 분석 + 헤지 권고
+    // 학술 근거: 채권 ~100% 헤지, 주식 30~50% 헤지 (Campbell et al. 2010)
+    // 헤지 비용 ≈ 한국 금리 - 미국 금리 (covered interest parity)
+    function analyzeCurrencyExposure(results) {
+        var card = document.getElementById('currencyRiskCard');
+        if (!card) return;
+        
+        // 해외주식 식별
+        var overseasHoldings = results.filter(function(r) {
+            return r.a.d && r.a.d._sheet === 'US_Stocks';
+        });
+        var domesticHoldings = results.filter(function(r) {
+            return r.a.d && r.a.d._sheet === 'KR_Stocks';
+        });
+        
+        if (overseasHoldings.length === 0) {
+            card.style.display = 'none';
+            return;
+        }
+        card.style.display = 'block';
+        
+        // ── 1. 익스포저 계산 ──
+        var totalPortfolio = results.reduce(function(s,r) { return s + (r.a.evalAmt||0); }, 0);
+        var usdExposure = overseasHoldings.reduce(function(s,r) { return s + (r.a.evalAmt||0); }, 0);
+        var krwExposure = domesticHoldings.reduce(function(s,r) { return s + (r.a.evalAmt||0); }, 0);
+        var usdPct = totalPortfolio > 0 ? safeDivide(usdExposure, totalPortfolio, 0) * 100 : 0;
+        
+        // ── 2. USDKRW 분석 ──
+        // 시장지표에서 환율 가져오기
+        var usdkrw = null;
+        var usdkrwEl = document.getElementById('ind_usdkrw');
+        if (usdkrwEl && usdkrwEl.value) usdkrw = parseFloat(usdkrwEl.value);
+        
+        var bokRate = null;
+        var bokEl = document.getElementById('ind_bokRate');
+        if (bokEl && bokEl.value) bokRate = parseFloat(bokEl.value);
+        
+        var usRate = null;
+        var usRateEl = document.getElementById('ind_yield2Y');
+        if (usRateEl && usRateEl.value) usRate = parseFloat(usRateEl.value);
+        
+        // USDKRW 구간 분석 (10년 데이터 기반)
+        var FX_RANGES = {
+            strongKRW: { max: 1100, label: '원화 초강세', color: 'var(--accent-green)', hedgeAdj: -15 },
+            fairKRW:   { max: 1200, label: '원화 강세', color: 'var(--accent-green)', hedgeAdj: -10 },
+            neutral:   { max: 1300, label: '중립', color: 'var(--text-muted)', hedgeAdj: 0 },
+            weakKRW:   { max: 1400, label: '원화 약세', color: 'var(--accent-gold)', hedgeAdj: +10 },
+            veryWeak:  { max: 9999, label: '원화 초약세', color: 'var(--color-loss)', hedgeAdj: +15 }
+        };
+        
+        var fxRegime = FX_RANGES.neutral;
+        if (usdkrw != null) {
+            if (usdkrw < 1100) fxRegime = FX_RANGES.strongKRW;
+            else if (usdkrw < 1200) fxRegime = FX_RANGES.fairKRW;
+            else if (usdkrw < 1300) fxRegime = FX_RANGES.neutral;
+            else if (usdkrw < 1400) fxRegime = FX_RANGES.weakKRW;
+            else fxRegime = FX_RANGES.veryWeak;
+        }
+        
+        // ── 3. 헤지 비용 추정 ──
+        // Covered Interest Parity: 헤지 비용 ≈ 한국 금리 - 미국 금리
+        // 양수 = 헤지 시 캐리 수익, 음수 = 헤지 비용 발생
+        var hedgeCost = null;
+        if (bokRate != null && usRate != null) {
+            hedgeCost = bokRate - usRate; // 연율 %
+        }
+        
+        // ── 4. 헤지 비율 권고 ──
+        // 기본: 주식 40%, 채권 100% (Campbell et al. 2010)
+        // 환율 레짐에 따라 ±10~15% 조정
+        var baseEquityHedge = 40; // 주식 기본 헤지 비율
+        var adjustedHedge = Math.min(80, Math.max(10, baseEquityHedge + fxRegime.hedgeAdj));
+        // 헤지 비용이 높으면(>2%) 헤지 비율 하향
+        if (hedgeCost != null && hedgeCost < -2.0) adjustedHedge = Math.max(10, adjustedHedge - 10);
+        // 헤지 비용이 수익적이면(>1%) 헤지 비율 상향
+        if (hedgeCost != null && hedgeCost > 1.0) adjustedHedge = Math.min(80, adjustedHedge + 10);
+        
+        // ── 5. 환 리스크 영향 추정 ──
+        // 연간 USDKRW 변동성 ~10%, 포트폴리오 기여도 = usdPct% × 10%
+        var fxVolContribution = usdPct * 0.10; // 환 변동성의 포트폴리오 기여 (%)
+        var hedgedFxVol = fxVolContribution * (1 - adjustedHedge/100);
+        
+        // ── 6. 환율 10% 변동 시 포트폴리오 영향 ──
+        var fxImpact10pct = usdExposure * 0.10; // 원화 기준
+        
+        // ══════ 렌더링 ══════
+        
+        // 배지
+        var badge = document.getElementById('fxBadge');
+        if (badge) {
+            badge.textContent = 'USD ' + usdPct.toFixed(0) + '%';
+            badge.style.color = usdPct > 60 ? 'var(--color-loss)' : usdPct > 30 ? 'var(--accent-gold)' : 'var(--accent-green)';
+            badge.style.background = usdPct > 60 ? 'rgba(59,130,246,0.15)' : 'rgba(100,116,139,0.15)';
+        }
+        
+        // 1. 익스포저 요약
+        var summaryHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-sm);margin-bottom:var(--space-sm);">';
+        summaryHtml += '<div style="padding:var(--space-sm);background:var(--bg-secondary);border-radius:8px;text-align:center;">';
+        summaryHtml += '<div style="font-size:var(--fs-xs);color:var(--text-muted);">USD 익스포저</div>';
+        summaryHtml += '<div style="font-size:1.1rem;font-weight:800;color:var(--text-primary);font-variant-numeric:tabular-nums;">' + usdPct.toFixed(0) + '%</div>';
+        summaryHtml += '<div style="font-size:var(--fs-xs);color:var(--text-muted);">' + formatKRW(usdExposure) + '</div>';
+        summaryHtml += '</div>';
+        summaryHtml += '<div style="padding:var(--space-sm);background:var(--bg-secondary);border-radius:8px;text-align:center;">';
+        summaryHtml += '<div style="font-size:var(--fs-xs);color:var(--text-muted);">KRW 익스포저</div>';
+        summaryHtml += '<div style="font-size:1.1rem;font-weight:800;color:var(--text-primary);font-variant-numeric:tabular-nums;">' + (100-usdPct).toFixed(0) + '%</div>';
+        summaryHtml += '<div style="font-size:var(--fs-xs);color:var(--text-muted);">' + formatKRW(krwExposure) + '</div>';
+        summaryHtml += '</div></div>';
+        
+        // 비중 바
+        summaryHtml += '<div style="height:8px;border-radius:4px;overflow:hidden;display:flex;margin-bottom:var(--space-xs);">';
+        summaryHtml += '<div style="width:' + usdPct + '%;background:#3b82f6;" title="USD"></div>';
+        summaryHtml += '<div style="width:' + (100-usdPct) + '%;background:#8b5cf6;" title="KRW"></div>';
+        summaryHtml += '</div>';
+        summaryHtml += '<div style="display:flex;justify-content:space-between;font-size:var(--fs-xs);color:var(--text-muted);">';
+        summaryHtml += '<span>🇺🇸 USD ' + usdPct.toFixed(0) + '%</span><span>🇰🇷 KRW ' + (100-usdPct).toFixed(0) + '%</span></div>';
+        document.getElementById('fxExposureSummary').innerHTML = summaryHtml;
+        
+        // 2. USDKRW 포지션 분석
+        var posHtml = '';
+        if (usdkrw != null) {
+            // 환율 게이지
+            var gaugeMin = 1050, gaugeMax = 1500;
+            var gaugePct = Math.min(100, Math.max(0, (usdkrw - gaugeMin) / (gaugeMax - gaugeMin) * 100));
+            
+            posHtml += '<div style="font-size:var(--fs-sm);font-weight:700;color:var(--text-primary);margin-bottom:var(--space-xs);">USD/KRW 포지션</div>';
+            posHtml += '<div style="display:flex;align-items:center;gap:var(--space-sm);margin-bottom:var(--space-xs);">';
+            posHtml += '<div style="font-size:1.1rem;font-weight:800;font-variant-numeric:tabular-nums;color:' + fxRegime.color + ';">' + usdkrw.toFixed(0) + '원</div>';
+            posHtml += '<span style="font-size:var(--fs-xs);padding:2px 6px;border-radius:4px;background:' + fxRegime.color + '22;color:' + fxRegime.color + ';">' + fxRegime.label + '</span>';
+            posHtml += '</div>';
+            
+            // 게이지 바
+            posHtml += '<div style="position:relative;height:6px;background:linear-gradient(to right, #10b981, #f59e0b, #ef4444);border-radius:3px;margin-bottom:2px;">';
+            posHtml += '<div style="position:absolute;left:' + gaugePct + '%;top:-3px;width:12px;height:12px;background:var(--text-primary);border-radius:50%;transform:translateX(-50%);border:2px solid var(--bg-primary);"></div>';
+            posHtml += '</div>';
+            posHtml += '<div style="display:flex;justify-content:space-between;font-size:var(--fs-xs);color:var(--text-muted);">';
+            posHtml += '<span>₩1,050</span><span>₩1,200</span><span>₩1,350</span><span>₩1,500</span></div>';
+            
+            // 환율 변동 시 포트폴리오 영향
+            posHtml += '<div style="margin-top:var(--space-sm);padding:var(--space-sm);background:var(--bg-secondary);border-radius:6px;font-size:var(--fs-sm);">';
+            posHtml += '<div style="font-weight:600;margin-bottom:4px;">환율 ±10% 변동 시 포트폴리오 영향</div>';
+            posHtml += '<div style="display:flex;justify-content:space-between;">';
+            posHtml += '<span>원화 강세 10%: <span style="color:var(--color-loss);">-' + formatKRWShort(fxImpact10pct) + '</span></span>';
+            posHtml += '<span>원화 약세 10%: <span style="color:var(--color-gain);">+' + formatKRWShort(fxImpact10pct) + '</span></span>';
+            posHtml += '</div></div>';
+        } else {
+            posHtml += '<div style="font-size:var(--fs-sm);color:var(--text-muted);padding:var(--space-sm);text-align:center;">시장 판단 탭에서 USD/KRW 환율을 입력하면 상세 분석이 표시됩니다.</div>';
+        }
+        document.getElementById('fxPositionAnalysis').innerHTML = posHtml;
+        
+        // 3. 헤지 비용 분석
+        var costHtml = '';
+        if (hedgeCost != null) {
+            var costColor = hedgeCost >= 0 ? 'var(--accent-green)' : 'var(--color-loss)';
+            var costLabel = hedgeCost >= 0 ? '헤지 캐리 수익' : '헤지 비용';
+            
+            costHtml += '<div style="font-size:var(--fs-sm);font-weight:700;color:var(--text-primary);margin-bottom:var(--space-xs);">환헤지 비용 추정</div>';
+            costHtml += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-xs);font-size:var(--fs-xs);">';
+            costHtml += '<div style="padding:6px;background:var(--bg-secondary);border-radius:6px;text-align:center;">';
+            costHtml += '<div style="color:var(--text-muted);">한국 기준금리</div>';
+            costHtml += '<div style="font-weight:700;font-variant-numeric:tabular-nums;">' + bokRate.toFixed(2) + '%</div></div>';
+            costHtml += '<div style="padding:6px;background:var(--bg-secondary);border-radius:6px;text-align:center;">';
+            costHtml += '<div style="color:var(--text-muted);">미국 2Y 금리</div>';
+            costHtml += '<div style="font-weight:700;font-variant-numeric:tabular-nums;">' + usRate.toFixed(2) + '%</div></div>';
+            costHtml += '<div style="padding:6px;background:var(--bg-secondary);border-radius:6px;text-align:center;">';
+            costHtml += '<div style="color:var(--text-muted);">' + costLabel + '</div>';
+            costHtml += '<div style="font-weight:700;color:' + costColor + ';font-variant-numeric:tabular-nums;">' + (hedgeCost >= 0 ? '+' : '') + hedgeCost.toFixed(2) + '%/yr</div></div>';
+            costHtml += '</div>';
+            
+            // 헤지 시 연간 비용/수익
+            var annualHedgeCostAmt = usdExposure * (adjustedHedge/100) * (hedgeCost/100);
+            if (Math.abs(annualHedgeCostAmt) > 1000) {
+                costHtml += '<div style="font-size:var(--fs-xs);color:var(--text-muted);margin-top:4px;">';
+                costHtml += '→ ' + adjustedHedge + '% 헤지 시 연간 ' + (annualHedgeCostAmt >= 0 ? '수익' : '비용') + ': ';
+                costHtml += '<span style="color:' + costColor + ';font-weight:600;">' + formatKRWShort(Math.abs(annualHedgeCostAmt)) + '</span>';
+                costHtml += '</div>';
+            }
+        }
+        document.getElementById('fxHedgeCost').innerHTML = costHtml;
+        
+        // 4. 헤지 권고
+        var recHtml = '<div style="font-size:var(--fs-sm);font-weight:700;color:var(--text-primary);margin-bottom:var(--space-xs);">💡 헤지 권고</div>';
+        
+        // 권고 헤지 비율 시각화
+        recHtml += '<div style="display:flex;align-items:center;gap:var(--space-sm);margin-bottom:var(--space-sm);">';
+        recHtml += '<div style="flex:1;">';
+        recHtml += '<div style="font-size:var(--fs-xs);color:var(--text-muted);margin-bottom:2px;">해외주식 권고 헤지 비율</div>';
+        recHtml += '<div style="height:20px;background:var(--bg-secondary);border-radius:10px;overflow:hidden;position:relative;">';
+        recHtml += '<div style="height:100%;width:' + adjustedHedge + '%;background:linear-gradient(90deg,#3b82f6,#06b6d4);border-radius:10px;"></div>';
+        recHtml += '<div style="position:absolute;top:50%;left:' + adjustedHedge + '%;transform:translate(-50%,-50%);font-size:var(--fs-xs);font-weight:800;color:var(--text-primary);">' + adjustedHedge + '%</div>';
+        recHtml += '</div></div></div>';
+        
+        // 구체적 행동 지침
+        recHtml += '<div style="font-size:var(--fs-xs);color:var(--text-secondary);line-height:1.6;">';
+        
+        if (usdPct > 60) {
+            recHtml += '⚠️ <b>USD 과다 노출(' + usdPct.toFixed(0) + '%)</b> — 포트폴리오 변동성의 상당 부분이 환율에서 발생합니다.<br>';
+        }
+        
+        if (usdkrw != null) {
+            if (usdkrw > 1350) {
+                recHtml += '📈 원화 약세 구간(₩' + usdkrw.toFixed(0) + ') — 환헤지 ETF(예: TIGER 미국S&P500선물(H))로 전환 고려. 환차손 리스크 높음.<br>';
+            } else if (usdkrw < 1150) {
+                recHtml += '📉 원화 강세 구간(₩' + usdkrw.toFixed(0) + ') — 비헤지 유지가 유리. 환차익 기대.<br>';
+            } else {
+                recHtml += '↔️ 중립 구간(₩' + usdkrw.toFixed(0) + ') — 기본 헤지 비율(' + adjustedHedge + '%) 유지.<br>';
+            }
+        }
+        
+        recHtml += '📋 <b>자산별 기본 원칙</b>: 채권/현금성 = 100% 헤지, 주식 = 30~50% 헤지 (Campbell et al. 2010)<br>';
+        recHtml += '💡 환헤지 ETF 선택 시 "(H)" 표기 확인. 비용은 연 0.1~0.5% 추가 (보수에 포함)';
+        recHtml += '</div>';
+        
+        // 환 변동성 기여도
+        if (fxVolContribution > 1) {
+            recHtml += '<div style="margin-top:var(--space-sm);padding:6px var(--space-sm);background:rgba(245,158,11,0.08);border-radius:6px;font-size:var(--fs-xs);">';
+            recHtml += '📊 현재 환 변동성 기여도: 포트폴리오 변동성의 ~' + fxVolContribution.toFixed(1) + 'pp';
+            recHtml += ' → 헤지 시 ~' + hedgedFxVol.toFixed(1) + 'pp로 감소';
+            recHtml += '</div>';
+        }
+        
+        document.getElementById('fxHedgeRecommendation').innerHTML = recHtml;
     }
 
 
@@ -17489,7 +17921,7 @@
         var timeline = document.getElementById('stateTimeline');
         if (timeline && snaps.length >= 2) {
             var stateColors = {DEFENSIVE:'#ef4444',CAUTIOUS:'#f59e0b',HOLD:'#64748b',ACCUMULATE:'#10b981',SELECTIVE:'#3b82f6',HOLD_REDUCE:'#f97316'};
-            timeline.innerHTML = '<div style="font-size:0.6rem;color:var(--text-muted);margin-bottom:4px;">시장 상태</div>'
+            timeline.innerHTML = '<div style="font-size: var(--fs-xs);color:var(--text-muted);margin-bottom:4px;">시장 상태</div>'
                 + '<div style="display:flex;height:16px;border-radius:4px;overflow:hidden;gap:1px;">'
                 + snaps.map(function(s){
                     var color = stateColors[s.state] || '#64748b';
@@ -17542,8 +17974,8 @@
             return '<div style="padding:8px;background:var(--bg-secondary);border-radius:8px;">'
                 +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">'
                 +'<span style="font-size: var(--fs-xs);color:var(--text-muted);">'+cfg.label+'</span>'
-                +'<span style="font-size:0.8rem;font-weight:700;font-family:monospace;color:var(--text-primary);">'+latest
-                +'<span style="font-size:0.6rem;color:'+(change>=0?'var(--accent-green)':'var(--accent-red)')+';">'+changeStr+'</span></span>'
+                +'<span style="font-size: var(--fs-md);font-weight:700;font-family:monospace;color:var(--text-primary);">'+latest
+                +'<span style="font-size: var(--fs-xs);color:'+(change>=0?'var(--accent-green)':'var(--accent-red)')+';">'+changeStr+'</span></span>'
                 +'</div>'
                 +'<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:40px;">'
                 +warnLine
@@ -17586,7 +18018,7 @@
             +'<div style="display:flex;justify-content:space-between;margin-bottom:4px;">'
             +'<span style="font-size: var(--fs-xs);color:var(--text-muted);">포트폴리오 (매수금액 기준)</span>'
             +'<span style="font-size: var(--fs-sm);font-weight:700;font-family:monospace;color:var(--text-primary);">'
-            +(latest/10000).toFixed(0)+'만원 <span style="font-size:0.6rem;color:'+(change>=0?'var(--accent-green)':'var(--accent-red)')+';">'
+            +(latest/10000).toFixed(0)+'만원 <span style="font-size: var(--fs-xs);color:'+(change>=0?'var(--accent-green)':'var(--accent-red)')+';">'
             +(change>=0?'+':'')+change.toFixed(1)+'%</span></span></div>'
             +'<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:50px;">'
             +'<polyline points="'+points+'" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linejoin="round"/>'
@@ -17632,7 +18064,7 @@
         if (badge) badge.textContent = changes.length + '종목 변동';
         
         document.getElementById('scoreChangeList').innerHTML = 
-            '<div style="font-size:0.6rem;color:var(--text-muted);margin-bottom:6px;">전일('
+            '<div style="font-size: var(--fs-xs);color:var(--text-muted);margin-bottom:6px;">전일('
             +prev.date.slice(5)+') 대비 TotalScore ±3 이상 변동</div>'
             + changes.slice(0,10).map(function(c){
                 var color = c.diff > 0 ? 'var(--accent-green)' : 'var(--accent-red)';
@@ -17852,7 +18284,7 @@
             html += '<div style="font-size: var(--fs-xs);color:var(--text-muted);margin-bottom:4px;">📊 추세 감지</div>';
             analysis.trends.forEach(function(t) {
                 var color = t.severity === 'warning' ? 'var(--accent-red)' : 'var(--accent-green)';
-                html += '<div style="padding:4px 8px;margin-bottom:2px;border-radius:4px;background:var(--bg-secondary);font-size:0.7rem;">'
+                html += '<div style="padding:4px 8px;margin-bottom:2px;border-radius:4px;background:var(--bg-secondary);font-size: var(--fs-sm);">'
                     + '<span style="color:'+color+';font-weight:700;">' + t.name + ' ' + t.days + '일 연속 ' + t.direction + '</span>'
                     + ' (현재 ' + t.value + ', ' + (t.changePct||'') + '%)</div>';
             });
@@ -17899,7 +18331,7 @@
             <div class="stock-detail-header">
                 <h2>
                     <span id="modalStockName">종목명</span>
-                    <span id="modalStockTicker" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+                    <span id="modalStockTicker" style="font-size: var(--fs-md); color: var(--text-muted);"></span>
                     <span id="modalStockFlags"></span>
                 </h2>
                 <button class="close-btn" onclick="closeStockDetail()">✕</button>
@@ -18371,7 +18803,7 @@ console.log('📋 종목 상세 모달 시스템 로드됨');
         <div style="background:var(--bg-card); border-radius:16px; max-width:680px; width:100%; max-height:85vh; overflow-y:auto; padding:24px; box-shadow:0 20px 60px rgba(0,0,0,0.4);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                 <h3 style="margin:0; color:var(--text-primary);">📖 팩터 & 지표 해석 가이드</h3>
-                <button onclick="document.getElementById('factorGuideModal').style.display='none'" style="padding:4px 10px; border:none; border-radius:6px; cursor:pointer; background:rgba(239,68,68,0.15); color:#ef4444; font-size:0.8rem;">✕</button>
+                <button onclick="document.getElementById('factorGuideModal').style.display='none'" style="padding:4px 10px; border:none; border-radius:6px; cursor:pointer; background:rgba(239,68,68,0.15); color:#ef4444; font-size: var(--fs-md);">✕</button>
             </div>
             
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:10px; font-size:var(--fs-sm); line-height:1.7; color:var(--text-secondary);">
@@ -18379,28 +18811,28 @@ console.log('📋 종목 상세 모달 시스템 로드됨');
                     <b style="color:var(--accent-gold);">Value (밸류에이션)</b><br>
                     PER·PBR·ForwardPE 역백분위 평균<br>
                     <span style="color:var(--accent-green);">75+: 최상위 저평가</span> · <span style="color:var(--accent-red);">25↓: 고평가</span><br>
-                    <span style="font-size:0.6rem;color:var(--text-muted);">[확립됨] Fama & French (1992)</span>
+                    <span style="font-size: var(--fs-xs);color:var(--text-muted);">[확립됨] Fama & French (1992)</span>
                 </div>
                 <div style="padding:10px; background:var(--bg-secondary); border-radius:8px; border-left:3px solid var(--accent-green);">
                     <b style="color:var(--accent-green);">Quality (수익성+재무)</b><br>
                     ROE·ROA·마진(60%) + 부채·유동비율(40%)<br>
                     <span style="color:var(--accent-green);">70+: 우수</span> · <span style="color:var(--accent-red);">30↓: 위험</span><br>
-                    <span style="font-size:0.6rem;color:var(--text-muted);">[확립됨] Novy-Marx (2013)</span>
+                    <span style="font-size: var(--fs-xs);color:var(--text-muted);">[확립됨] Novy-Marx (2013)</span>
                 </div>
                 <div style="padding:10px; background:var(--bg-secondary); border-radius:8px; border-left:3px solid #3b82f6;">
                     <b style="color:#3b82f6;">Growth (성장성)</b><br>
                     매출+이익 성장률 백분위 평균<br>
-                    <span style="font-size:0.6rem;color:var(--text-muted);">기저효과 왜곡 가능. 단독 사용 주의</span>
+                    <span style="font-size: var(--fs-xs);color:var(--text-muted);">기저효과 왜곡 가능. 단독 사용 주의</span>
                 </div>
                 <div style="padding:10px; background:var(--bg-secondary); border-radius:8px; border-left:3px solid #8b5cf6;">
                     <b style="color:#8b5cf6;">Momentum (추세)</b><br>
                     60일·120일 수익률 + Sharpe 비율<br>
-                    <span style="font-size:0.6rem;color:var(--text-muted);">[확립됨] Jegadeesh & Titman (1993). ⚠️ 크래시 위험</span>
+                    <span style="font-size: var(--fs-xs);color:var(--text-muted);">[확립됨] Jegadeesh & Titman (1993). ⚠️ 크래시 위험</span>
                 </div>
                 <div style="padding:10px; background:var(--bg-secondary); border-radius:8px; border-left:3px solid #ec4899;">
                     <b style="color:#ec4899;">Risk (높을수록 안전)</b><br>
                     변동성역·MDD역·Beta — 낙폭 작을수록 고점수<br>
-                    <span style="font-size:0.6rem;color:var(--text-muted);">[확립됨] Low Volatility Anomaly (Ang 2006)</span>
+                    <span style="font-size: var(--fs-xs);color:var(--text-muted);">[확립됨] Low Volatility Anomaly (Ang 2006)</span>
                 </div>
                 <div style="padding:10px; background:var(--bg-secondary); border-radius:8px; border-left:3px solid var(--text-muted);">
                     <b>보조 지표</b><br>
