@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-title" content="Investment">
     <meta name="theme-color" content="#0a0a0f">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>투자 의사결정 시스템 v3.0</title>
+    <title>투자 의사결정 시스템 v5.4</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
@@ -18,9 +18,9 @@
     <style>
         :root {
             /* v5.1: 글씨 크기 통일 */
-            --fs-xs: 0.6rem;    /* 보조 텍스트, 배지 */
-            --fs-sm: 0.7rem;    /* 본문 소 */
-            --fs-md: 0.8rem;    /* 본문 */
+            --fs-xs: 0.65rem;   /* 보조 텍스트, 배지 — v5.5: 0.6→0.65 가독성 개선 */
+            --fs-sm: 0.75rem;   /* 본문 소 — v5.5: 0.7→0.75 */
+            --fs-md: 0.85rem;   /* 본문 — v5.5: 0.8→0.85 */
             --fs-lg: 0.9rem;    /* 제목 소 */
             --bg-primary: #0a0a0f;
             --bg-secondary: #14141c;
@@ -32,6 +32,15 @@
             --accent-green: #10b981;
             --accent-red: #ef4444;
             --accent-blue: #3b82f6;
+            /* v5.5: 한국 증시 색상 규약 (빨강=상승, 파랑=하락) */
+            --color-gain: #ef4444;
+            --color-loss: #3b82f6;
+            --color-neutral: #64748b;
+            /* 디자인 시스템 스페이싱 토큰 */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
             --accent-purple: #8b5cf6;
             --text-primary: #f8fafc;
             --text-secondary: #a1a1aa;
@@ -197,6 +206,15 @@
 
         .tab-content.active {
             display: block;
+        }
+        
+        /* v5.4: P3-4 — content-visibility로 비가시 영역 렌더링 스킵 */
+        /* 브라우저가 뷰포트 밖 콘텐츠의 레이아웃/페인트를 건너뜀 */
+        #knowledge > div,
+        #market details,
+        .scenario-flow-container {
+            content-visibility: auto;
+            contain-intrinsic-size: auto 500px;
         }
 
         @keyframes fadeIn {
@@ -1595,27 +1613,27 @@
     <div class="container">
         <!-- Main Navigation Tabs -->
 
-        <nav class="main-tabs">
-            <button class="main-tab active" data-tab="stocks">
+        <nav class="main-tabs" role="tablist" aria-label="메인 내비게이션">
+            <button class="main-tab active" data-tab="stocks" role="tab" aria-selected="true" aria-controls="stocks">
                 <span class="icon">📊</span>
                 <span class="label">종목 스크리닝</span>
             </button>
-            <button class="main-tab" data-tab="myposition">
+            <button class="main-tab" data-tab="myposition" role="tab" aria-selected="false" aria-controls="myposition">
                 <span class="icon">💼</span>
                 <span class="label">내 포지션</span>
             </button>
-            <button class="main-tab" data-tab="market">
+            <button class="main-tab" data-tab="market" role="tab" aria-selected="false" aria-controls="market">
                 <span class="icon">📈</span>
                 <span class="label">시장 판단</span>
             </button>
-            <button class="main-tab" data-tab="knowledge">
+            <button class="main-tab" data-tab="knowledge" role="tab" aria-selected="false" aria-controls="knowledge">
                 <span class="icon">📖</span>
                 <span class="label">투자 지식</span>
             </button>
         </nav>
 
         <!-- ==================== TAB 1: 종목 스크리닝 ==================== -->
-        <div class="tab-content active" id="stocks">
+        <div class="tab-content active" id="stocks" role="tabpanel" aria-labelledby="stocks">
             <div class="card">
                 <div class="card-header" style="display: flex; flex-direction: column; gap: 8px;">
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -1772,29 +1790,47 @@
 
         <!-- ==================== TAB 2: 내 포지션 ==================== -->
         <div class="tab-content" id="myposition">
-            <div class="card" style="border: 2px solid var(--accent-gold); background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.02));">
+            <!-- v5.5: 포트폴리오 요약 헤더 (Above the fold) -->
+            <div id="portfolioSummaryHero" class="card" style="display:none; border: 2px solid var(--accent-gold); background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.02));">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--space-md);">
+                    <div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:2px;">포트폴리오 총 가치</div>
+                        <div id="heroTotalValue" style="font-size:1.75rem;font-weight:800;color:var(--text-primary);font-variant-numeric:tabular-nums lining-nums;">-</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:2px;">총 손익</div>
+                        <div id="heroTotalPL" style="font-size:1.2rem;font-weight:700;font-variant-numeric:tabular-nums lining-nums;">-</div>
+                    </div>
+                </div>
+                <!-- 리밸런싱 경고 -->
+                <div id="rebalanceAlert" style="display:none;padding:var(--space-sm) var(--space-md);background:rgba(245,158,11,0.1);border-radius:8px;font-size:0.8rem;margin-bottom:var(--space-sm);"></div>
+                <!-- 처분효과 경고 -->
+                <div id="dispositionAlert" style="display:none;padding:var(--space-sm) var(--space-md);background:rgba(59,130,246,0.1);border-radius:8px;font-size:0.8rem;"></div>
+            </div>
+            
+            <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">💼 내 포지션 판단</h3>
                     <span class="card-badge" id="positionBadge" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">보유종목 입력 필요</span>
                 </div>
-                <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 12px;">
-                    보유 종목을 입력하면 스크리닝 데이터 기반으로 <b>처분/축소/유지/유보</b> 자동 판단합니다. (localStorage 저장)
+                <div style="font-size:0.8rem; color: var(--text-muted); margin-bottom: 12px;">
+                    보유 종목을 입력하면 스크리닝 데이터 기반으로 <b>처분/축소/유지/유보</b> 자동 판단합니다.
                 </div>
                 <div id="myAddHoldingForm" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 6px; margin-bottom: 14px; align-items: end;">
                     <div>
-                        <label style="font-size: 0.6rem; color: var(--text-muted);">종목명</label>
-                        <input id="holdingName" placeholder="삼성전자" list="holdingDatalist" style="width:100%;padding:6px 8px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-secondary);color:var(--text-primary);font-size: var(--fs-sm);">
+                        <label style="font-size:0.75rem; color: var(--text-muted);">종목명</label>
+                        <input id="holdingName" placeholder="삼성전자" list="holdingDatalist" style="width:100%;padding:8px 10px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-secondary);color:var(--text-primary);font-size:0.85rem;">
                         <datalist id="holdingDatalist"></datalist>
                     </div>
                     <div>
-                        <label style="font-size: 0.6rem; color: var(--text-muted);">수량</label>
-                        <input id="holdingQty" type="number" placeholder="100" style="width:100%;padding:6px 8px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-secondary);color:var(--text-primary);font-size: var(--fs-sm);">
+                        <label style="font-size:0.75rem; color: var(--text-muted);">수량</label>
+                        <input id="holdingQty" type="number" placeholder="100" style="width:100%;padding:8px 10px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-secondary);color:var(--text-primary);font-size:0.85rem;">
                     </div>
                     <div>
-                        <label style="font-size: 0.6rem; color: var(--text-muted);">평균단가</label>
-                        <input id="holdingAvgPrice" type="number" placeholder="70000" style="width:100%;padding:6px 8px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-secondary);color:var(--text-primary);font-size: var(--fs-sm);">
+                        <label style="font-size:0.75rem; color: var(--text-muted);">평균단가</label>
+                        <input id="holdingAvgPrice" type="number" placeholder="70000" style="width:100%;padding:8px 10px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-secondary);color:var(--text-primary);font-size:0.85rem;">
                     </div>
-                    <button onclick="addMyHolding()" style="padding:6px 14px;border:none;border-radius:6px;font-size:0.7rem;font-weight:700;cursor:pointer;background:rgba(245,158,11,0.2);color:var(--accent-gold);">추가</button>
+                    <button onclick="addMyHolding()" style="padding:8px 16px;border:none;border-radius:6px;font-size:0.8rem;font-weight:700;cursor:pointer;background:rgba(245,158,11,0.2);color:var(--accent-gold);">추가</button>
                 </div>
                 <div id="myHoldingsList"></div>
             </div>
@@ -1826,11 +1862,19 @@
                     <div id="pfFactorBars" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(100px,1fr)); gap:4px;"></div>
                 </div>
                 
+                <!-- v5.4: P3-5 리스크 패리티 비교 -->
+                <div id="pfRiskParity" style="display:none; margin-bottom:14px;"></div>
+                
                 <!-- 경고 -->
                 <div id="pfWarnings" style="display:none; margin-bottom:14px;"></div>
                 
                 <!-- 개선 제안 -->
                 <div id="pfSuggestions" style="display:none;"></div>
+                
+                <!-- v5.5: 내보내기 -->
+                <div style="text-align:right;margin-top:var(--space-sm);">
+                    <button onclick="exportPortfolioCSV()" style="padding:6px 14px;border:none;border-radius:6px;font-size:var(--fs-sm);font-weight:600;cursor:pointer;background:rgba(59,130,246,0.15);color:var(--accent-blue);">📥 CSV 내보내기</button>
+                </div>
             </div>
 
             <div class="card">
@@ -2441,6 +2485,13 @@
 
         <!-- ==================== TAB 4: 투자 지식 ==================== -->
         <div class="tab-content" id="knowledge">
+            <!-- v5.4: P3-1 — 지연 렌더링. 탭 첫 클릭 시 template에서 콘텐츠 주입 -->
+            <div id="knowledge-placeholder" style="text-align:center;padding:40px;color:var(--text-muted);">
+                <div style="font-size:2rem;margin-bottom:8px;">📚</div>
+                <div>투자 지식 베이스 로딩 중...</div>
+            </div>
+        </div>
+        <template id="knowledge-template">
             <div style="display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; padding: 8px; background: var(--bg-secondary); border-radius: 10px;">
                 <button class="knowledge-subtab active" data-kpanel="principles" style="padding: 6px 12px; border: none; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: var(--accent-gold); color: #000;">📋 매매 원칙</button>
                 <button class="knowledge-subtab" data-kpanel="buylogic" style="padding: 6px 12px; border: none; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted);">⚡ 분할매수</button>
@@ -4619,11 +4670,115 @@
             </div>
 
             </div>
-        </div>
+        </template>
 
     </div>
 
     <script>
+        // ========== v5.4: P3-3 — IndexedDB 스토리지 추상화 ==========
+        // localStorage 대비 장점: 용량 제한 완화, 비동기 I/O, 구조화 데이터
+        // 인메모리 캐시로 동기 읽기 지원, IndexedDB 미지원 시 localStorage 폴백
+        var AppStorage = (function() {
+            var DB_NAME = 'InvestDashboard';
+            var STORE_NAME = 'kv';
+            var DB_VERSION = 1;
+            var _cache = {};
+            var _db = null;
+            var _ready = false;
+            var _useIDB = false;
+            
+            function openDB() {
+                return new Promise(function(resolve, reject) {
+                    try {
+                        var req = indexedDB.open(DB_NAME, DB_VERSION);
+                        req.onupgradeneeded = function(e) {
+                            var db = e.target.result;
+                            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                                db.createObjectStore(STORE_NAME);
+                            }
+                        };
+                        req.onsuccess = function(e) { _db = e.target.result; _useIDB = true; resolve(); };
+                        req.onerror = function() { console.warn('IndexedDB 사용 불가, localStorage 폴백'); resolve(); };
+                    } catch(e) { console.warn('IndexedDB 미지원:', e); resolve(); }
+                });
+            }
+            
+            function idbGet(key) {
+                return new Promise(function(resolve) {
+                    if (!_db) { resolve(null); return; }
+                    try {
+                        var tx = _db.transaction(STORE_NAME, 'readonly');
+                        var req = tx.objectStore(STORE_NAME).get(key);
+                        req.onsuccess = function() { resolve(req.result !== undefined ? req.result : null); };
+                        req.onerror = function() { resolve(null); };
+                    } catch(e) { resolve(null); }
+                });
+            }
+            
+            function idbSet(key, value) {
+                if (!_db) return;
+                try {
+                    var tx = _db.transaction(STORE_NAME, 'readwrite');
+                    tx.objectStore(STORE_NAME).put(value, key);
+                } catch(e) { console.warn('IDB write failed:', key, e); }
+            }
+            
+            // localStorage에서 기존 데이터 마이그레이션
+            function migrate() {
+                var keys = ['investmentDashboard_indicatorHistory', 'checklistConfig', 'marketConfig', 
+                            'myHoldings_v5', 'investMemo_v5', 'dailySnapshots_v5'];
+                keys.forEach(function(k) {
+                    try {
+                        var val = localStorage.getItem(k);
+                        if (val != null) {
+                            _cache[k] = val;
+                            if (_useIDB) idbSet(k, val);
+                        }
+                    } catch(e) {}
+                });
+            }
+            
+            return {
+                init: function() {
+                    return openDB().then(function() {
+                        migrate();
+                        _ready = true;
+                    });
+                },
+                get: function(key, fallback) {
+                    if (_cache[key] !== undefined) return _cache[key];
+                    // 캐시 미스 시 localStorage 폴백 (동기)
+                    try { var v = localStorage.getItem(key); if (v != null) { _cache[key] = v; return v; } } catch(e) {}
+                    return fallback || null;
+                },
+                set: function(key, value) {
+                    _cache[key] = value;
+                    if (_useIDB) idbSet(key, value);
+                    // localStorage에도 백업 (폴백 + 호환성)
+                    try { localStorage.setItem(key, value); } catch(e) {}
+                },
+                remove: function(key) {
+                    delete _cache[key];
+                    if (_useIDB && _db) {
+                        try { _db.transaction(STORE_NAME, 'readwrite').objectStore(STORE_NAME).delete(key); } catch(e) {}
+                    }
+                    try { localStorage.removeItem(key); } catch(e) {}
+                }
+            };
+        })();
+        // 초기화 (비동기, UI 블로킹 없음)
+        // v5.5: P0 — 초기화 시퀀싱: AppStorage 완료 후 데이터 로드 보장
+        var _storageReady = AppStorage.init().catch(function(e){ console.warn('AppStorage init failed:', e); });
+        
+        // v5.5: P0 — safeDivide 유틸리티 (NaN/Infinity 전파 방지)
+        // IEEE 754: 0/0=NaN, x/0=Infinity → 스코어링 오염 차단
+        function safeDivide(numerator, denominator, fallback) {
+            if (fallback === undefined) fallback = null;
+            if (!Number.isFinite(numerator) || !Number.isFinite(denominator) || denominator === 0) return fallback;
+            var result = numerator / denominator;
+            return Number.isFinite(result) ? result : fallback;
+        }
+        
         // ========== Market Config 변수 ==========
         var _marketState = null; // 시장 상태 (evaluateMarket에서 설정)
         let marketConfig = null;
@@ -4870,12 +5025,22 @@
         document.querySelectorAll('.main-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 // Remove active from all tabs
-                document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.main-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // v5.4: P3-1 — 지연 렌더링: template에서 콘텐츠 주입
+                const tabId = tab.dataset.tab;
+                const tmpl = document.getElementById(tabId + '-template');
+                const placeholder = document.getElementById(tabId + '-placeholder');
+                if (tmpl && placeholder) {
+                    placeholder.replaceWith(tmpl.content.cloneNode(true));
+                    tmpl.remove();
+                }
                 
                 // Add active to clicked tab
                 tab.classList.add('active');
-                document.getElementById(tab.dataset.tab).classList.add('active');
+                tab.setAttribute('aria-selected', 'true'); // v5.5: ARIA
+                document.getElementById(tabId).classList.add('active');
             });
         });
 
@@ -5391,9 +5556,37 @@
         // 데이터 완성도 + 레짐 가중치를 일괄 적용하는 후처리 함수
         function applyPostScoringAdjustments(data) {
             applyRegimeWeights(data);
+            applyMomentumVolScaling(data); // v5.4: P2-2
             applyDataCompletenessPenalty(data);
             applyIlliquidityPenalty(data);
             return data;
+        }
+        
+        // v5.4: P2-2 — 모멘텀 변동성 스케일링 (Barroso & Santa-Clara, 2015)
+        // 고변동성 구간에서 모멘텀 노출을 축소하여 모멘텀 크래시 위험 완화
+        // scale = targetVol / realizedVol (0.5~2.0 범위 제한)
+        function applyMomentumVolScaling(data) {
+            var sheets = ['KR_Stocks', 'US_Stocks'];
+            sheets.forEach(function(sheet) {
+                var subset = data.filter(function(d) { return d._sheet === sheet && d.Volatility20D != null && d.MomentumScore != null; });
+                if (subset.length < 5) return;
+                
+                // 중앙값 변동성 = targetVol
+                var vols = subset.map(function(d) { return d.Volatility20D; }).sort(function(a,b) { return a-b; });
+                var targetVol = vols[Math.floor(vols.length / 2)];
+                
+                subset.forEach(function(d) {
+                    var realVol = d.Volatility20D;
+                    if (realVol <= 0) return;
+                    var scale = Math.min(2.0, Math.max(0.5, targetVol / realVol));
+                    if (Math.abs(scale - 1.0) > 0.05) {
+                        d._momVolScale = scale;
+                        d.MomentumScore = d.MomentumScore * scale;
+                        // TotalScore는 applyRegimeWeights에서 이미 재계산되므로 여기서 직접 반영
+                        // MomentumScore 가중치는 시트별로 다르지만 약 15%
+                    }
+                });
+            });
         }
 
         // 비유동 종목 점수 감점 - 거래가 어려운 종목은 실질적으로 투자하기 어려움
@@ -5736,12 +5929,18 @@
                         const roeS = d['ROE(%)'] != null ? percentileRank(cols['ROE(%)'], d['ROE(%)']) : 50;
                         const roaS = d['ROA(%)'] != null ? percentileRank(cols['ROA(%)'], d['ROA(%)']) : 50;
                         // [개선] GrossMargin 추가 (Novy-Marx 2013: "best predictor")
-                        const gmS = d['GrossMargin(%)'] != null ? percentileRank(cols['GrossMargin(%)'], d['GrossMargin(%)']) * 1.2 : null;
+                        const gmRaw = d['GrossMargin(%)'] != null ? percentileRank(cols['GrossMargin(%)'], d['GrossMargin(%)']) : null;
                         const opmS = d['OpMargin(%)'] != null ? percentileRank(cols['OpMargin(%)'], d['OpMargin(%)']) : 50;
-                        // Profitability: GrossMargin 가중치 적용
-                        const profitComponents = [roeS, roaS, opmS];
-                        if (gmS != null) profitComponents.push(gmS);
-                        const profit = profitComponents.reduce((a, b) => a + b, 0) / profitComponents.length;
+                        // v5.4: Bug21 수정 — 가중평균으로 변경. GM 가중치 1.2, 나머지 1.0
+                        // 기존: GM*1.2를 push → 단순평균 → GM 120점 가능 → 불공정
+                        // 변경: 가중합/가중치합으로 정규화
+                        let profitWeightSum = 3.0; // roeS(1) + roaS(1) + opmS(1)
+                        let profitScoreSum = roeS + roaS + opmS;
+                        if (gmRaw != null) {
+                            profitScoreSum += gmRaw * 1.2;
+                            profitWeightSum += 1.2;
+                        }
+                        const profit = profitScoreSum / profitWeightSum;
                         
                         // Stability: InterestCoverage 추가 (Altman Z-Score)
                         const crS = crScoreByPercentile(d.CurrentRatio, crArr);
@@ -5794,9 +5993,10 @@
                         const roeS = d['ROE(%)'] != null ? percentileRank(cols['ROE(%)'], d['ROE(%)']) : 50;
                         const roaS = d['ROA(%)'] != null ? percentileRank(cols['ROA(%)'], d['ROA(%)']) : 50;
                         // [개선] GrossMargin에 가중치 적용 (Novy-Marx 2013)
-                        const gmS = d['GrossMargin(%)'] != null ? percentileRank(cols['GrossMargin(%)'], d['GrossMargin(%)']) * 1.2 : 50;
+                        // v5.4: Bug21 수정 — 가중평균 적용
+                        const gmRawB = d['GrossMargin(%)'] != null ? percentileRank(cols['GrossMargin(%)'], d['GrossMargin(%)']) : 50;
                         const opmS = d['OpMargin(%)'] != null ? percentileRank(cols['OpMargin(%)'], d['OpMargin(%)']) : 50;
-                        const profit = (roeS + roaS + gmS + opmS) / 4;
+                        const profit = (roeS * 1.0 + roaS * 1.0 + gmRawB * 1.2 + opmS * 1.0) / 4.2;
                         // Debt/Equity 배열 준비 (미국 주식용)
                         const deColName = d['Debt/Equity'] != null ? 'Debt/Equity' : 'DebtRatio(%)';
                         const deArrUS = subset.map(x => x[deColName]).filter(x => x != null && !isNaN(x));
@@ -6138,13 +6338,18 @@
                         const roeS = d['ROE(%)'] != null ? percentileRank(cols['ROE(%)'], d['ROE(%)']) : 50;
                         const roaS = d['ROA(%)'] != null ? percentileRank(cols['ROA(%)'], d['ROA(%)']) : 50;
                         // [개선] GrossMargin 추가 (Novy-Marx 2013)
-                        const gmS_C = d['GrossMargin(%)'] != null ? percentileRank(cols['GrossMargin(%)'], d['GrossMargin(%)']) * 1.2 : null;
+                        // v5.4: Bug21 수정 — 가중평균 적용
+                        const gmRaw_C = d['GrossMargin(%)'] != null ? percentileRank(cols['GrossMargin(%)'], d['GrossMargin(%)']) : null;
                         const opmS = d['OpMargin(%)'] != null ? percentileRank(cols['OpMargin(%)'], d['OpMargin(%)']) : 50;
                         const crS = d.CurrentRatio != null ? percentileRank(cols['CurrentRatio'], d.CurrentRatio) : 50;
                         const deS = d['DebtRatio(%)'] != null ? percentileRank(cols['DebtRatio(%)'], d['DebtRatio(%)'], true) : 50;
-                        const qualComponents_C = [roeS, roaS, opmS, crS, deS];
-                        if (gmS_C != null) qualComponents_C.push(gmS_C);
-                        d.QualityScore = qualComponents_C.reduce((a, b) => a + b, 0) / qualComponents_C.length;
+                        let qualWeightSum_C = 5.0; // roeS + roaS + opmS + crS + deS (각 1.0)
+                        let qualScoreSum_C = roeS + roaS + opmS + crS + deS;
+                        if (gmRaw_C != null) {
+                            qualScoreSum_C += gmRaw_C * 1.2;
+                            qualWeightSum_C += 1.2;
+                        }
+                        d.QualityScore = qualScoreSum_C / qualWeightSum_C;
                         
                         // 1-3. Growth Score (D-4.3: 적자전환 패널티)
                         const revG = d['RevenueGrowth(%)'] != null ? percentileRank(cols['RevenueGrowth(%)'], d['RevenueGrowth(%)']) : 50;
@@ -6291,12 +6496,13 @@
                         const roeS = d['ROE(%)'] != null ? percentileRank(cols['ROE(%)'], d['ROE(%)']) : 50;
                         const roaS = d['ROA(%)'] != null ? percentileRank(cols['ROA(%)'], d['ROA(%)']) : 50;
                         // [개선] GrossMargin에 가중치 적용 (Novy-Marx 2013)
-                        const gmS = d['GrossMargin(%)'] != null ? percentileRank(cols['GrossMargin(%)'], d['GrossMargin(%)']) * 1.2 : 50;
+                        // v5.4: Bug21 수정 — 가중평균 적용
+                        const gmRawD = d['GrossMargin(%)'] != null ? percentileRank(cols['GrossMargin(%)'], d['GrossMargin(%)']) : 50;
                         const opmS = d['OpMargin(%)'] != null ? percentileRank(cols['OpMargin(%)'], d['OpMargin(%)']) : 50;
                         const crS = d.CurrentRatio != null ? percentileRank(cols['CurrentRatio'], d.CurrentRatio) : 50;
                         const deCol = d['Debt/Equity'] != null ? 'Debt/Equity' : 'DebtRatio(%)';
                         const deS = d[deCol] != null ? percentileRank(cols[deCol] || cols['DebtRatio(%)'], d[deCol], true) : 50;
-                        d.QualityScore = (roeS + roaS + gmS + opmS + crS + deS) / 6;
+                        d.QualityScore = (roeS * 1.0 + roaS * 1.0 + gmRawD * 1.2 + opmS * 1.0 + crS * 1.0 + deS * 1.0) / 6.2;
                         
                         // 1-3. Growth Score (D-4.3: 적자전환 패널티)
                         const revG = d['RevenueGrowth(%)'] != null ? percentileRank(cols['RevenueGrowth(%)'], d['RevenueGrowth(%)']) : 50;
@@ -7564,9 +7770,9 @@
                     </div>
                     <div style="font-size: var(--fs-lg); font-weight: 700; color: ${style.color}; margin-bottom: 4px;">${price}</div>
                     <div style="display: flex; gap: 8px; font-size: var(--fs-sm);">
-                        ${ret1m !== null ? `<span style="color: ${parseFloat(ret1m) >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'};">1M: ${ret1m}%</span>` : ''}
-                        ${ret3m !== null ? `<span style="color: ${parseFloat(ret3m) >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'};">3M: ${ret3m}%</span>` : ''}
-                        ${ret1y !== null ? `<span style="color: ${parseFloat(ret1y) >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'};">1Y: ${ret1y}%</span>` : ''}
+                        ${ret1m !== null ? `<span style="color: ${parseFloat(ret1m) >= 0 ? 'var(--color-gain)' : 'var(--color-loss)'};">1M: ${parseFloat(ret1m) >= 0 ? '▲' : '▼'}${ret1m}%</span>` : ''}
+                        ${ret3m !== null ? `<span style="color: ${parseFloat(ret3m) >= 0 ? 'var(--color-gain)' : 'var(--color-loss)'};">3M: ${parseFloat(ret3m) >= 0 ? '▲' : '▼'}${ret3m}%</span>` : ''}
+                        ${ret1y !== null ? `<span style="color: ${parseFloat(ret1y) >= 0 ? 'var(--color-gain)' : 'var(--color-loss)'};">1Y: ${parseFloat(ret1y) >= 0 ? '▲' : '▼'}${ret1y}%</span>` : ''}
                     </div>
                 </div>`;
             });
@@ -8564,6 +8770,9 @@
 
         // 페이지 로드 시 초기화 (순서 중요!)
         (async function initialize() {
+            // v5.5: P0 — 스토리지 초기화 완료 대기 (IndexedDB 마이그레이션 보장)
+            await _storageReady;
+            
             // 1. market_config.json 먼저 로드 (작은 AI 설정)
             await loadMarketConfig();
 
@@ -8572,7 +8781,7 @@
 
             // 3. 데이터 로드 후 초기화 (데이터가 있을 때만 의미 있음)
             if (loaded && screeningData.length > 0) {
-                initializeFlags();
+                await initializeFlagsAsync(); // v5.4: P3-2 Worker 비동기
                 const version = getSelectedVersion();
                 if (version === 'A') calcScoresVersionA(screeningData);
                 else if (version === 'B') calcScoresVersionB(screeningData);
@@ -8586,7 +8795,7 @@
             } else if (screeningData.length > 0) {
                 // v5.0: data.json 없어도 임베디드 데이터로 초기 렌더링
                 console.log('📋 임베디드 데이터로 초기화 (' + screeningData.length + '종목)');
-                initializeFlags();
+                await initializeFlagsAsync(); // v5.4: P3-2 Worker 비동기
                 renderTable();
                 renderMyHoldings();
             }
@@ -8609,6 +8818,85 @@
         })();
 
         // 🆕 초기 데이터에 플래그 계산 (엑셀 업로드 전에도 필터 작동하도록)
+        // ========== v5.4: P3-2 — Web Worker 기반 스코어링 ==========
+        // calcFilterFlags(269줄)를 Blob Worker로 이관하여 메인 스레드 블로킹 방지
+        // Function.toString()으로 함수 직렬화 → Worker 내부에서 실행
+        var ScoringWorker = (function() {
+            var _worker = null;
+            var _pending = null;
+            
+            function createWorker() {
+                try {
+                    var fnStr = calcFilterFlags.toString();
+                    var code = 'var calcFilterFlags = ' + fnStr + ';\n' +
+                        'self.onmessage = function(e) {\n' +
+                        '  calcFilterFlags(e.data);\n' +
+                        '  self.postMessage(e.data);\n' +
+                        '};\n';
+                    var blob = new Blob([code], {type: 'application/javascript'});
+                    var blobUrl = URL.createObjectURL(blob);
+                    _worker = new Worker(blobUrl);
+                    URL.revokeObjectURL(blobUrl); // v5.5: 메모리 누수 방지
+                    console.log('✅ ScoringWorker: Blob Worker 생성 완료');
+                } catch(e) {
+                    console.warn('ScoringWorker: Worker 생성 실패, 동기 폴백 사용', e.message);
+                    _worker = null;
+                }
+            }
+            
+            return {
+                run: function(data) {
+                    return new Promise(function(resolve) {
+                        if (!_worker) {
+                            // 첫 호출 시 Worker 생성 시도
+                            createWorker();
+                        }
+                        if (!_worker) {
+                            // Worker 미지원: 동기 실행
+                            calcFilterFlags(data);
+                            resolve(data);
+                            return;
+                        }
+                        // Worker 비동기 실행
+                        // 이전 pending 취소
+                        _worker.onmessage = function(e) {
+                            // Worker 결과를 원본 data에 반영 (플래그 필드만 복사)
+                            var result = e.data;
+                            var flagKeys = ['_overbought','_overboughtLevel','_nearHigh','_nearHighType',
+                                '_contrarian','_contrarianScore','_momentum','_momentumStrength',
+                                '_volatilityWarning','_crashRisk','_overValued'];
+                            for (var i = 0; i < data.length && i < result.length; i++) {
+                                flagKeys.forEach(function(k) {
+                                    if (result[i][k] !== undefined) data[i][k] = result[i][k];
+                                });
+                            }
+                            resolve(data);
+                        };
+                        _worker.onerror = function(e) {
+                            console.warn('ScoringWorker error, 동기 폴백:', e.message);
+                            calcFilterFlags(data);
+                            resolve(data);
+                        };
+                        // structuredClone으로 전송 (전송 가능 필드만)
+                        try {
+                            var transferData = data.map(function(d) {
+                                var obj = {};
+                                for (var k in d) {
+                                    if (typeof d[k] !== 'function') obj[k] = d[k];
+                                }
+                                return obj;
+                            });
+                            _worker.postMessage(transferData);
+                        } catch(e2) {
+                            console.warn('Worker postMessage 실패, 동기 폴백');
+                            calcFilterFlags(data);
+                            resolve(data);
+                        }
+                    });
+                }
+            };
+        })();
+        
         function initializeFlags() {
             // 공통 플래그 계산 함수 사용
             calcFilterFlags(screeningData);
@@ -8661,6 +8949,26 @@
             console.log(`   🏆 Quality: ${quality}개 (고품질 ${qualityHigh}개)`);
             console.log(`   🌊 비유동: ${illiquid}개 (💎숨겨진보석 ${hiddenGem}개)`);
             console.log(`   ⚙️ config조정: ${adjusted}개`);
+        }
+        
+        // v5.4: P3-2 — Worker 기반 비동기 initializeFlags
+        // async 컨텍스트에서 호출 가능. Worker 이용 시 메인 스레드 블로킹 없이 플래그 계산
+        async function initializeFlagsAsync() {
+            // 1. Worker에서 calcFilterFlags 실행
+            await ScoringWorker.run(screeningData);
+            
+            // 2. 나머지 후처리 (섹터 가중치, 종목 조정, 통계 등)는 메인 스레드
+            screeningData.forEach(d => {
+                const sector = d.Sector || '';
+                const sectorWeight = getSectorWeight(sector);
+                const ticker = d.Ticker || d.Code || '';
+                const tickerAdj = getTickerAdjustment(ticker);
+                if (tickerAdj !== 0 && d.TotalScore) {
+                    d.TotalScore = Math.min(100, Math.max(0, d.TotalScore + tickerAdj));
+                    d._configAdjusted = true;
+                    d._adjustmentReason = marketConfig?.tickerOverrides?.[ticker]?.reason || '';
+                }
+            });
         }
         
         // 초기 렌더링은 위의 initialize() 에서 data.json 로드 완료 후 수행됨
@@ -8895,8 +9203,8 @@
                 assetClass: { gold: 'UNDERWEIGHT', bonds: 'UNDERWEIGHT', usEquity: 'OVERWEIGHT', koreanFinancials: 'OVERWEIGHT' }
             },
             
-            // 📉 연착륙 (기본)
-            'rate-down': {
+            // 📉 연착륙 (기본) — v5.4: ID 변경 rate-down → soft-landing
+            'soft-landing': {
                 name: '📉 연착륙',
                 recommended: [
                     { ticker: 'SPY', name: 'S&P500 ETF', type: 'etf', region: 'US', reason: '안정적 성장' },
@@ -9267,6 +9575,58 @@
             return result;
         }
         
+        // ★ v5.4: Bug30 수정 — 자산 판단(evaluateAssetClass) vs 배분(calculateDynamicAllocation) 충돌 감지
+        // 동일 시장에서 "적극 매수" + "비중 축소"가 동시 발생하는 모순을 탐지
+        function detectDualSystemConflicts(assetJudgment, portfolioResult) {
+            const conflicts = [];
+            if (!assetJudgment || !assetJudgment.assets || !portfolioResult || !portfolioResult.allocation) return conflicts;
+            
+            const BASE = { US: 25, KR: 15, Gold: 12, Bond: 20, Cash: 10, Commodity: 0 };
+            // 자산 키 매핑: assetJudgment key → portfolioResult key
+            const keyMap = {
+                usStock: 'US',
+                krStock: 'KR',
+                bond: 'Bond',
+                gold: 'Gold',
+                cash: 'Cash',
+                commodity: 'Commodity'
+            };
+            
+            for (const [ajKey, prKey] of Object.entries(keyMap)) {
+                const asset = assetJudgment.assets[ajKey];
+                const allocPct = portfolioResult.allocation[prKey];
+                const basePct = BASE[prKey];
+                if (!asset || allocPct == null || basePct == null) continue;
+                
+                const allocDelta = allocPct - basePct; // 양수 = 확대, 음수 = 축소
+                const score = asset.score; // 양수 = 매수, 음수 = 회피
+                
+                // 충돌 조건: 점수와 배분 방향이 반대이고, 두 값 모두 유의미한 크기
+                if (score >= 1 && allocDelta <= -5) {
+                    conflicts.push({
+                        asset: asset.judgment,
+                        assetKey: prKey,
+                        ajScore: score,
+                        ajJudgment: asset.judgment,
+                        allocDelta: allocDelta,
+                        type: 'BUY_vs_REDUCE',
+                        msg: `${prKey}: 지표 판단 "${asset.judgment}"(+${score}) ↔ 시나리오 배분 ${allocDelta > 0 ? '+' : ''}${allocDelta.toFixed(0)}%p (축소)`
+                    });
+                } else if (score <= -1 && allocDelta >= 5) {
+                    conflicts.push({
+                        asset: asset.judgment,
+                        assetKey: prKey,
+                        ajScore: score,
+                        ajJudgment: asset.judgment,
+                        allocDelta: allocDelta,
+                        type: 'AVOID_vs_INCREASE',
+                        msg: `${prKey}: 지표 판단 "${asset.judgment}"(${score}) ↔ 시나리오 배분 +${allocDelta.toFixed(0)}%p (확대)`
+                    });
+                }
+            }
+            return conflicts;
+        }
+
         // 종합 시장 판단
         function evaluateMarket() {
             console.log('🔍 evaluateMarket 함수 진입');
@@ -9367,6 +9727,12 @@
             const detailedAssets = evaluateDetailedAssets(ind, macro, valuation, sentiment, korea);
             console.log('🔍 detailedAssets:', detailedAssets);
 
+            // ★ v5.4: Bug30 수정 — 자산 판단(점수 기반) vs 배분(시나리오 기반) 충돌 감지
+            const dualSystemConflicts = detectDualSystemConflicts(assetJudgment, portfolioResult);
+            if (dualSystemConflicts.length > 0) {
+                console.warn('⚠️ 자산판단↔배분 충돌 감지:', dualSystemConflicts);
+            }
+
             // 종합 상태 결정
             let finalState = resolvedScenario.marketState;
             let riskLevel = resolvedScenario.riskLevel;
@@ -9386,6 +9752,7 @@
                 assetJudgment,
                 sellSignals,
                 detailedAssets,
+                dualSystemConflicts,
                 layers: { macro, valuation, sentiment, korea },
                 indicators: ind
             };
@@ -9481,24 +9848,11 @@
                 });
             }
             
-            // 📉 연착륙 (기본 케이스)
-            // 경기 확장 + VIX 안정 + 금리 적정 범위
+            // 📉 연착륙 트리거 수집 (판정은 모든 시나리오 평가 후 수행)
             const softLandingTriggers = [];
             if (macro.regime === 'EXPANSION') softLandingTriggers.push('경기 확장 국면');
             if (ind.vix && ind.vix < 20) softLandingTriggers.push('VIX 안정적 (<20)');
             if (ind.yield10Y && ind.yield10Y >= 3.0 && ind.yield10Y <= 4.7) softLandingTriggers.push('금리 적정 범위 (3.0-4.7%)');
-            
-            if (softLandingTriggers.length >= 2 && triggered.length === 0) {
-                triggered.push({
-                    id: 'rate-down',
-                    name: '📉 연착륙 (기본)',
-                    icon: '📉',
-                    priority: 8,
-                    severity: 'positive',
-                    triggers: softLandingTriggers,
-                    portfolioImpact: { US: 0, KR: 0, Bond: 0, Cash: 0 }
-                });
-            }
             
             // 💱 환율 급등 시나리오
             // 역사적 기준: 2022년 10월 위기 시 1,440원
@@ -9526,8 +9880,9 @@
             // VIX 급등 OR (VIX 상승 + 금 급등) = 지정학 위기
             // 금만 급등 (VIX 낮음) = 인플레 헤지 or 달러 약세
             const geopoliticalTriggers = [];
+            // v5.4: Bug18 수정 — else if로 VIX 중복 트리거 방지
             if (ind.vix && ind.vix > 35) geopoliticalTriggers.push(`VIX ${ind.vix.toFixed(1)} (극단적 공포)`);
-            if (ind.vix && ind.vix > 25) geopoliticalTriggers.push(`VIX ${ind.vix.toFixed(1)} (공포 구간)`);
+            else if (ind.vix && ind.vix > 25) geopoliticalTriggers.push(`VIX ${ind.vix.toFixed(1)} (공포 구간)`);
             if (ind.gold1y && ind.gold1y > 20 && ind.vix && ind.vix > 20) geopoliticalTriggers.push('금+VIX 동반 상승 (위기 신호)');
             
             // VIX 35+ 단독으로도 트리거, 또는 복합 조건 2개 이상
@@ -9556,7 +9911,7 @@
                     priority: 6,
                     severity: 'warning',
                     triggers: inflationHedgeTriggers,
-                    portfolioImpact: { US: -3, KR: -3, Gold: 8, Bond: -5, Cash: -3 }
+                    portfolioImpact: { US: -3, KR: -3, Gold: 8, Bond: -5, Cash: -3, Commodity: 5 }
                 });
             }
             
@@ -9599,7 +9954,7 @@
                     priority: 1, // 최우선
                     severity: 'danger',
                     triggers: recessionTriggers,
-                    portfolioImpact: { US: -15, KR: -15, EM: -10, Gold: 5, Bond: 15, Cash: 20 }
+                    portfolioImpact: { US: -15, KR: -15, EM: -10, Gold: 5, Bond: 15, Cash: 20, Commodity: -5 }
                 });
             }
             
@@ -9610,7 +9965,11 @@
             if (valuation.state === 'FAIR' || valuation.state === 'CHEAP') boomTriggers.push('밸류에이션 적정/저평가');
             if (sentiment.state === 'FEAR') boomTriggers.push('심리 위축 = 역발상 기회');
             
-            if (boomTriggers.length >= 2 && !triggered.some(t => t.severity === 'danger')) {
+            // v5.4: P2-6 — 호황 도달성 개선. danger 1개까지 공존 허용
+            // 기존: danger 하나라도 있으면 호황 배제 → "위험 2 + 기회 3" 상황에서 항상 위험만 표시
+            // 변경: danger 2개 이상일 때만 호황 배제. severity 'positive'로 danger와 동시 표시 가능
+            const dangerCountForBoom = triggered.filter(t => t.severity === 'danger').length;
+            if (boomTriggers.length >= 2 && dangerCountForBoom < 2) {
                 triggered.push({
                     id: 'boom',
                     name: '🚀 경기 호황',
@@ -9628,7 +9987,10 @@
             const stagflationTriggers = [];
             if (ind.wti1y && ind.wti1y > 25) stagflationTriggers.push(`원유 1Y +${ind.wti1y.toFixed(0)}% (인플레 압력)`);
             if (ind.yield10Y && ind.yield10Y > 4.5 && macro.regime === 'LATE_CYCLE') stagflationTriggers.push('고금리 + 경기둔화');
-            if (recessionTriggers.length >= 1 && ind.wti1y && ind.wti1y > 15) stagflationTriggers.push('침체 신호 + 원자재 상승');
+            // v5.4: Bug19 수정 — 스태그플레이션 과민성 완화
+            // 기존: recessionTriggers >= 1 && WTI > 15% → 수익률 곡선 역전 하나로 충족 가능
+            // 변경: recessionTriggers >= 2 && WTI > 20% → 복수 침체 신호 + 유의미한 원자재 상승 필요
+            if (recessionTriggers.length >= 2 && ind.wti1y && ind.wti1y > 20) stagflationTriggers.push('복수 침체 신호 + 원자재 상승');
             
             if (stagflationTriggers.length >= 2) {
                 triggered.push({
@@ -9640,7 +10002,7 @@
                     triggers: stagflationTriggers,
                     // 스태그플레이션: 인플레 헤지(금, 원자재) 확대, 현금 축소
                     // 채권도 인플레로 불리하므로 축소
-                    portfolioImpact: { US: -15, KR: -15, EM: -10, Gold: 25, Bond: -10, Cash: 0 }
+                    portfolioImpact: { US: -15, KR: -15, EM: -10, Gold: 20, Bond: -10, Cash: 0, Commodity: 10 }
                 });
             }
             
@@ -9648,10 +10010,26 @@
             // 지표로 직접 감지 어려움 - 뉴스/정책 기반
             // 환율+원자재 동반 상승은 이미 인플레 헤지 시나리오에서 처리됨
             
-            // 기본값: 트리거된 게 없으면 연착륙
+            // v5.4: Bug17 수정 — 연착륙 판정을 모든 시나리오 평가 완료 후 수행
+            // danger 시나리오 2개 미만이고 연착륙 조건 충족 시, warning 시나리오와 공존 허용
+            // 이렇게 하면 "대체로 양호 + 일부 우려" 상태를 표현 가능
+            const dangerCountForSL = triggered.filter(function(s) { return s.severity === 'danger'; }).length;
+            if (softLandingTriggers.length >= 2 && dangerCountForSL < 2) {
+                triggered.push({
+                    id: 'soft-landing',
+                    name: '📉 연착륙 (기본)',
+                    icon: '📉',
+                    priority: 8,
+                    severity: 'positive',
+                    triggers: softLandingTriggers,
+                    portfolioImpact: { US: 0, KR: 0, Bond: 0, Cash: 0 }
+                });
+            }
+
+            // 기본값: 아무것도 트리거되지 않으면 연착륙 폴백
             if (triggered.length === 0) {
                 triggered.push({
-                    id: 'rate-down',
+                    id: 'soft-landing',
                     name: '📉 연착륙 (기본)',
                     icon: '📉',
                     priority: 10,
@@ -9715,11 +10093,11 @@
                 conflictResolution = '탐욕 경계: 신규 매수 자제, 기존 포지션 일부 차익실현 고려';
             }
             
-            // 충돌 감지: 연착륙 + 환율급등 = 방어적 연착륙
-            const hasRateDown = triggeredScenarios.some(s => s.id === 'rate-down');
+            // 충돌 감지: 연착륙 + 환율급등 = 방어적 연착륙 — v5.4: ID 변경
+            const hasSoftLanding = triggeredScenarios.some(s => s.id === 'soft-landing');
             const hasFxUp = triggeredScenarios.some(s => s.id === 'fx-up');
             
-            if (hasRateDown && hasFxUp) {
+            if (hasSoftLanding && hasFxUp) {
                 hasConflict = true;
                 conflictDescription = '연착륙 기대 + 환율 급등 충돌';
                 conflictResolution = '방어적 연착륙: 미국 자산 유지, 한국 비중 축소, 환헤지 고려';
@@ -9950,7 +10328,8 @@
             // 대안 22%: 금(인플레헤지) + 현금(유동성)
             const baseAllocation = {
                 US: 25, KR: 15, EU: 10, EM: 8,  // 주식 58%
-                Gold: 12, Bond: 20, Cash: 10    // 안전자산 42%
+                Gold: 12, Bond: 20, Cash: 10,    // 안전자산 42% → v5.4: Commodity 추가로 비중 조정 필요 없음 (0% 시작)
+                Commodity: 0                      // v5.4: Bug29 수정 — 원자재 자산군 추가 (시나리오에 따라 동적 할당)
             };
             
             // INDICATOR_ASSET_MATRIX 초기화 체크
@@ -9970,7 +10349,7 @@
             }
             
             // 시나리오별 조정값 합산
-            const adjustment = { US: 0, KR: 0, EU: 0, EM: 0, Gold: 0, Bond: 0, Cash: 0 };
+            const adjustment = { US: 0, KR: 0, EU: 0, EM: 0, Gold: 0, Bond: 0, Cash: 0, Commodity: 0 };
             const adjustmentReasons = {};
             const indicatorImpacts = [];  // 지표별 영향 기록
             
@@ -10025,6 +10404,59 @@
                 adjustment['Cash'] += cappedBonus;
                 adjustment['US'] -= Math.round(cappedBonus * 0.4);  // 정수로 반올림
                 adjustment['KR'] -= Math.round(cappedBonus * 0.3);  // 정수로 반올림
+            }
+            
+            // v5.4: P1-5 — 충돌 해결 결과를 실제 배분에 반영
+            // 기존: conflictResolution 메시지만 생성, 배분은 시나리오별 단순 합산
+            // 변경: 충돌 유형별 배분 보정 적용
+            if (resolvedScenario.hasConflict) {
+                const cDesc = resolvedScenario.conflictDescription || '';
+                
+                if (cDesc.includes('침체') && cDesc.includes('인플레')) {
+                    // 침체+인플레 → 스태그플레이션: 채권도 불리, 금 강화
+                    adjustment['Bond'] = Math.min(adjustment['Bond'], -5);
+                    adjustment['Gold'] = Math.max(adjustment['Gold'], 15);
+                    adjustmentReasons['Bond'] = adjustmentReasons['Bond'] || [];
+                    adjustmentReasons['Bond'].push('충돌해결: 스태그플레이션 → 채권 제한');
+                    adjustmentReasons['Gold'] = adjustmentReasons['Gold'] || [];
+                    adjustmentReasons['Gold'].push('충돌해결: 스태그플레이션 → 금 강화');
+                }
+                
+                if (cDesc.includes('금리') && cDesc.includes('채권')) {
+                    // 금리↑+침체 채권매수 → 단기채 전환 (Bond 축소, Cash 확대)
+                    adjustment['Bond'] -= 5;
+                    adjustment['Cash'] += 5;
+                    adjustmentReasons['Bond'] = adjustmentReasons['Bond'] || [];
+                    adjustmentReasons['Bond'].push('충돌해결: 단기채 전환 → 장기채 -5%');
+                    adjustmentReasons['Cash'] = adjustmentReasons['Cash'] || [];
+                    adjustmentReasons['Cash'].push('충돌해결: 단기채 전환 → 현금/단기채 +5%');
+                }
+                
+                if (cDesc.includes('호황') && cDesc.includes('버블')) {
+                    // 호황+AI버블 → 차익실현
+                    adjustment['US'] -= 5;
+                    adjustment['Cash'] += 5;
+                    adjustmentReasons['US'] = adjustmentReasons['US'] || [];
+                    adjustmentReasons['US'].push('충돌해결: 차익실현 → 미국 -5%');
+                }
+                
+                if (cDesc.includes('연착륙') && cDesc.includes('환율')) {
+                    // 연착륙+환율급등 → 한국 추가 축소
+                    adjustment['KR'] -= 5;
+                    adjustment['Cash'] += 3;
+                    adjustment['US'] += 2;
+                    adjustmentReasons['KR'] = adjustmentReasons['KR'] || [];
+                    adjustmentReasons['KR'].push('충돌해결: 방어적 연착륙 → 한국 -5%');
+                }
+                
+                if (cDesc.includes('금 중복')) {
+                    // 지정학+인플레헤지 → 금 상한 25%p 제한
+                    if (adjustment['Gold'] > 13) {
+                        adjustment['Gold'] = 13; // base 12 + 13 = 25% 상한
+                        adjustmentReasons['Gold'] = adjustmentReasons['Gold'] || [];
+                        adjustmentReasons['Gold'].push('충돌해결: 금 중복신호 → 상한 25% 제한');
+                    }
+                }
             }
             
             // ========== 지표-자산 매트릭스 적용 ==========
@@ -10224,7 +10656,7 @@
             // 기존 히스토리 로드
             let history = {};
             try {
-                history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
+                history = JSON.parse(AppStorage.get(HISTORY_KEY) || '{}');
             } catch (e) {
                 history = {};
             }
@@ -10253,7 +10685,7 @@
             
             // 저장
             try {
-                localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+                AppStorage.set(HISTORY_KEY, JSON.stringify(history));
                 console.log(`📊 히스토리 저장: ${today} (총 ${Object.keys(history).length}일)`);
             } catch (e) {
                 console.error('히스토리 저장 실패:', e);
@@ -10264,7 +10696,7 @@
         
         function loadIndicatorHistory() {
             try {
-                return JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
+                return JSON.parse(AppStorage.get(HISTORY_KEY) || '{}');
             } catch (e) {
                 return {};
             }
@@ -10420,6 +10852,7 @@
                 { key: 'EU', name: '🇪🇺 유럽', color: '#06b6d4' },
                 { key: 'EM', name: '🌏 신흥국', color: '#ec4899' },
                 { key: 'Gold', name: '🥇 금', color: '#f59e0b' },
+                { key: 'Commodity', name: '🛢️ 원자재', color: '#d97706' },
                 { key: 'Bond', name: '📜 채권', color: '#10b981' },
                 { key: 'Cash', name: '💵 현금', color: '#64748b' }
             ];
@@ -10838,7 +11271,7 @@
                 const isTriggered = result.triggeredScenarios.some(s => {
                     // 시나리오 ID 매핑
                     const mapping = {
-                        'rate-up': 'rate-up', 'rate-down': 'rate-down', 'fx-up': 'fx-up',
+                        'rate-up': 'rate-up', 'soft-landing': 'soft-landing', 'fx-up': 'fx-up',
                         'geopolitical': 'geopolitical', 'ai-bubble': 'ai-bubble',
                         'recession': 'recession', 'boom': 'boom', 'stagflation': 'stagflation'
                     };
@@ -10897,8 +11330,12 @@
             }
 
             // 3. 하이일드 스프레드 (신용 리스크)
+            // v5.4: P2-5 — 700bp 이상 금융위기 수준 경고 추가
             if (ind.hySpread != null) {
-                if (ind.hySpread > 5.0) {
+                if (ind.hySpread > 7.0) {
+                    signals.push({ id: 'hy-crisis', name: '하이일드 스프레드 극단', icon: '💀',
+                        status: 'danger', detail: 'HY 스프레드 ' + ind.hySpread.toFixed(2) + '% — 금융위기 수준, 즉시 방어 전환' });
+                } else if (ind.hySpread > 5.0) {
                     signals.push({ id: 'hy-wide', name: '하이일드 스프레드 확대', icon: '🚨',
                         status: 'danger', detail: 'HY 스프레드 ' + ind.hySpread.toFixed(2) + '% — 신용경색 우려' });
                 } else if (ind.hySpread > 4.0) {
@@ -10907,6 +11344,22 @@
                 } else {
                     signals.push({ id: 'hy-ok', name: '하이일드 스프레드 안정', icon: '✅',
                         status: 'ok', detail: 'HY 스프레드 ' + ind.hySpread.toFixed(2) + '%' });
+                }
+            }
+            
+            // v5.4: P2-5 — 팩터 혼잡도 모니터링 (밸류에이션 스프레드)
+            // 밸류 팩터 혼잡도 = 상위 PBR / 하위 PBR 비율이 극단적으로 높으면 밸류 팩터 과밀
+            if (typeof screeningData !== 'undefined' && screeningData.length > 0) {
+                var krStocks = screeningData.filter(function(d) { return d._sheet === 'KR_Stocks' && d.PBR != null && d.PBR > 0; });
+                if (krStocks.length >= 10) {
+                    var pbrs = krStocks.map(function(d) { return d.PBR; }).sort(function(a,b) { return a-b; });
+                    var q1 = pbrs[Math.floor(pbrs.length * 0.25)];
+                    var q3 = pbrs[Math.floor(pbrs.length * 0.75)];
+                    var valSpread = q3 / Math.max(q1, 0.1);
+                    if (valSpread > 15) {
+                        signals.push({ id: 'crowding-extreme', name: '밸류 팩터 극단적 분산', icon: '📊',
+                            status: 'warning', detail: 'PBR 스프레드 Q3/Q1=' + valSpread.toFixed(1) + 'x — 밸류 팩터 혼잡도 높음, 가치주 쏠림 주의' });
+                    }
                 }
             }
 
@@ -10927,17 +11380,24 @@
                 }
             }
 
-            // 5. CAPE 고평가 (장기 밸류에이션)
+            // 5. CAPE 밸류에이션 (v5.5: 이진 트리거 → 기대수익률 조정기)
+            // 보고서: CAPE>35는 역사적으로 매도 신호보다 기대수익률 하향 조정에 적합
+            // CAPE 25 초과가 2017년 이후 거의 상시 → 이진 danger 판정은 과잉 경보
             if (ind.cape != null) {
-                if (ind.cape > 35) {
+                // 10년 기대수익률 ≈ 1/CAPE (Shiller, Campbell & Thompson 2008)
+                var expectedReturn10Y = safeDivide(1, ind.cape, 0.05) * 100;
+                if (ind.cape > 38) {
                     signals.push({ id: 'cape-extreme', name: 'CAPE 극단적 고평가', icon: '🚨',
-                        status: 'danger', detail: 'CAPE ' + ind.cape.toFixed(1) + ' — 역사적 상위 5%, 10년 기대수익률 저조' });
-                } else if (ind.cape > 28) {
+                        status: 'danger', detail: 'CAPE ' + ind.cape.toFixed(1) + ' — 10년 기대수익률 ' + expectedReturn10Y.toFixed(1) + '%/yr, 역사적 상위 3%' });
+                } else if (ind.cape > 30) {
                     signals.push({ id: 'cape-high', name: 'CAPE 고평가 구간', icon: '⚠️',
-                        status: 'warning', detail: 'CAPE ' + ind.cape.toFixed(1) + ' — 장기 평균(16~18) 크게 상회' });
+                        status: 'warning', detail: 'CAPE ' + ind.cape.toFixed(1) + ' — 10년 기대수익률 ' + expectedReturn10Y.toFixed(1) + '%/yr, 점진적 비중 축소 고려' });
+                } else if (ind.cape > 20) {
+                    signals.push({ id: 'cape-ok', name: 'CAPE 적정', icon: '✅',
+                        status: 'ok', detail: 'CAPE ' + ind.cape.toFixed(1) + ' — 10년 기대수익률 ' + expectedReturn10Y.toFixed(1) + '%/yr' });
                 } else {
-                    signals.push({ id: 'cape-ok', name: 'CAPE 적정/저평가', icon: '✅',
-                        status: 'ok', detail: 'CAPE ' + ind.cape.toFixed(1) });
+                    signals.push({ id: 'cape-cheap', name: 'CAPE 저평가', icon: '💎',
+                        status: 'opportunity', detail: 'CAPE ' + ind.cape.toFixed(1) + ' — 10년 기대수익률 ' + expectedReturn10Y.toFixed(1) + '%/yr, 장기 매수 적기' });
                 }
             }
 
@@ -11011,17 +11471,77 @@
                 }
             }
 
-            // 집계
+            // v5.5: 11. VRP (Variance Risk Premium) — 가장 강력한 전방위 신호
+            // VRP = VIX - 실현변동성. 양수가 정상. >8%=과도한 공포(역발상 매수), <2%=안일(방어 전환)
+            if (ind.vix != null && ind.sp5001m != null) {
+                // 실현변동성 근사: |월간수익률| × √12 (연율화)
+                var approxRealVol = Math.abs(ind.sp5001m) * Math.sqrt(12);
+                var vrp = ind.vix - approxRealVol;
+                if (vrp < 2) {
+                    signals.push({ id: 'vrp-low', name: 'VRP 과소 (안일)', icon: '⚠️',
+                        status: 'warning', detail: 'VRP ' + vrp.toFixed(1) + '% — 시장 안일감, 방어적 전환 고려' });
+                } else if (vrp > 12) {
+                    signals.push({ id: 'vrp-high', name: 'VRP 극단 (공포)', icon: '💎',
+                        status: 'opportunity', detail: 'VRP ' + vrp.toFixed(1) + '% — 과도한 공포 프리미엄, 역발상 매수 구간' });
+                }
+            }
+            
+            // v5.5: 12. 인플레이션 레짐 분류 (Neville et al. 2021)
+            // 추정 CPI: 기저 2.0% + 원자재/금리 기반 보정 (범위 2.0~5.0%)
+            if (ind.wti1y != null && ind.yield10Y != null) {
+                var estimatedCPI = 2.0;
+                if (ind.wti1y > 15) estimatedCPI += 0.5;
+                if (ind.wti1y > 30) estimatedCPI += 0.5;
+                if (ind.wti1y > 50) estimatedCPI += 0.5;
+                if (ind.yield10Y > 4.5) estimatedCPI += 0.5; // 긴축적 금리 = 인플레 반영
+                if (ind.yield10Y > 5.0) estimatedCPI += 0.5;
+                // 골드 급등도 인플레 시그널
+                if (ind.gold1y != null && ind.gold1y > 25) estimatedCPI += 0.5;
+                
+                if (estimatedCPI > 4.0) {
+                    signals.push({ id: 'inflation-high', name: '고인플레 레짐', icon: '🔥',
+                        status: 'warning', detail: '추정 CPI ' + estimatedCPI.toFixed(1) + '% — 실물자산(금/원자재/TIPS) 비중 확대, 성장주/명목채권 축소' });
+                } else if (estimatedCPI > 3.5) {
+                    signals.push({ id: 'inflation-elevated', name: '인플레 경계', icon: '📈',
+                        status: 'warning', detail: '추정 CPI ' + estimatedCPI.toFixed(1) + '% — 인플레 상승 추세, 물가연동 자산 비중 점검' });
+                }
+            }
+
+            // 집계 — v5.4: Bug24 수정, opportunity 신호 반영
             var dangerCount = signals.filter(function(s) { return s.status === 'danger'; }).length;
             var warningCount = signals.filter(function(s) { return s.status === 'warning'; }).length;
-            var totalWarning = dangerCount + warningCount;
+            var opportunityCount = signals.filter(function(s) { return s.status === 'opportunity'; }).length;
+            
+            // v5.4: P2-4 — 상관성 보정. 동일 그룹 내 danger 2개 이상이면 1.5로 제한
+            // 보고서 2 근거: "VIX 급등 + S&P 급락 + ISM 수축 = 1개 위험의 3개 반영"
+            var correlationGroups = {
+                sentiment: ['vix-spike', 'fng-fear', 'fng-greed', 'sp-crash'],
+                macro: ['regime-recession', 'hy-wide', 'hy-crisis', 'ism-contract'],
+                korea: ['krw-weak', 'foreign-sell']
+            };
+            var correlationAdj = 0;
+            var dangerSignals = signals.filter(function(s) { return s.status === 'danger'; });
+            Object.keys(correlationGroups).forEach(function(group) {
+                var groupDangers = dangerSignals.filter(function(s) {
+                    return correlationGroups[group].indexOf(s.id) >= 0;
+                }).length;
+                if (groupDangers >= 2) {
+                    // 그룹 내 2개 이상 danger → (groupDangers - 1.5) 만큼 차감
+                    correlationAdj += (groupDangers - 1.5);
+                }
+            });
+            var adjustedDanger = Math.max(0, dangerCount - correlationAdj);
+            
+            // opportunity 상쇄 적용 (P0-2)
+            var effectiveDanger = Math.max(0, adjustedDanger - opportunityCount);
+            var totalWarning = effectiveDanger + warningCount;
 
             var overallLevel, overallDesc, overallColor;
-            if (dangerCount >= 3 || totalWarning >= 5) {
+            if (effectiveDanger >= 3 || totalWarning >= 5) {
                 overallLevel = 'SELL_STRONG';
                 overallDesc = '적극 방어 전환 — 위험자산 비중 대폭 축소, 현금/단기채 확대';
                 overallColor = 'var(--accent-red)';
-            } else if (dangerCount >= 2 || totalWarning >= 3) {
+            } else if (effectiveDanger >= 2 || totalWarning >= 3) {
                 overallLevel = 'SELL_PARTIAL';
                 overallDesc = '부분 이익 실현 — 수익 종목 비중 줄이기, 트레일링 스탑 설정';
                 overallColor = '#f97316';
@@ -11029,6 +11549,10 @@
                 overallLevel = 'CAUTION';
                 overallDesc = '경계 유지 — 신규 매수 자제, 기존 포지션 모니터링 강화';
                 overallColor = 'var(--accent-gold)';
+            } else if (opportunityCount >= 1 && effectiveDanger === 0) {
+                overallLevel = 'OPPORTUNITY';
+                overallDesc = '역발상 기회 감지 — 극단적 공포 구간, 분할매수 검토';
+                overallColor = 'var(--accent-blue)';
             } else {
                 overallLevel = 'HOLD';
                 overallDesc = '유지 가능 — 현재 매도 압력 낮음, 기존 전략 유지';
@@ -11039,6 +11563,8 @@
                 signals: signals,
                 dangerCount: dangerCount,
                 warningCount: warningCount,
+                opportunityCount: opportunityCount,
+                effectiveDanger: effectiveDanger,
                 overallLevel: overallLevel,
                 overallDesc: overallDesc,
                 overallColor: overallColor
@@ -11171,7 +11697,23 @@
             }
 
             // 6. 금 특수 요인 (실질금리, 인플레이션)
-            if (ind.yield10Y != null && ind.gold1y != null) {
+            // v5.4: P2-3 — 실질금리 추정 도입 (보고서 1 근거: 실질금리가 금 가격의 핵심 결정요인)
+            // 실질금리 ≈ 명목10Y - 기대인플레(Fed 목표 2.5% + WTI 보정)
+            if (ind.yield10Y != null) {
+                let expectedInflation = 2.5; // Fed 장기 목표
+                if (ind.wti1y != null && ind.wti1y > 20) expectedInflation += 0.5;
+                if (ind.wti1y != null && ind.wti1y > 40) expectedInflation += 0.5;
+                const realRate = ind.yield10Y - expectedInflation;
+                
+                if (realRate < 0) {
+                    goldScore += 1;
+                    reasons.push('🥇 실질금리 ' + realRate.toFixed(1) + '% (음수): 금 보유 매력 상승');
+                } else if (realRate > 2.5) {
+                    goldScore -= 1;
+                    reasons.push('🥇 실질금리 ' + realRate.toFixed(1) + '% (고수준): 금 보유 매력 하락');
+                }
+            }
+            if (ind.gold1y != null) {
                 if (ind.gold1y > 30) {
                     goldScore += 1;
                     reasons.push('🥇 금 1Y +' + ind.gold1y.toFixed(0) + '%: 강한 상승 모멘텀');
@@ -11247,6 +11789,19 @@
                 summary = worst.name + '은(는) 현재 비중 축소가 권고됩니다.';
             } else {
                 summary = '뚜렷한 방향성 없음 — 분산투자 유지, 급격한 비중 변동 자제.';
+            }
+
+            // v5.5: 섹터 로테이션 가이드 (Fidelity 비즈니스 사이클 모델)
+            // macro.regime 실제 값: RECESSION, LATE_CYCLE, CAUTION, EXPANSION
+            var sectorRotation = {
+                'CAUTION': { favor: '경기소비재, 금융, 부동산', avoid: '유틸리티, 에너지', note: '초기 회복/경계 — 금리 인하 수혜 섹터' },
+                'EXPANSION': { favor: 'IT, 산업재, 소재', avoid: '필수소비재, 유틸리티', note: '확장기 — 성장 섹터 주도' },
+                'LATE_CYCLE': { favor: '에너지, 소재, 헬스케어', avoid: 'IT, 경기소비재', note: '후반기 — 인플레 수혜 + 방어적 섹터' },
+                'RECESSION': { favor: '필수소비재, 헬스케어, 유틸리티', avoid: '금융, 산업재, 경기소비재', note: '침체기 — 방어주 중심' }
+            };
+            var sr = sectorRotation[macro.regime];
+            if (sr) {
+                reasons.push('🔄 섹터 로테이션(' + macro.regime + '): 유리 [' + sr.favor + '] / 불리 [' + sr.avoid + '] — ' + sr.note);
             }
 
             return { assets, reasons, summary };
@@ -11637,6 +12192,35 @@
                 var _pr2 = document.getElementById('portfolioRecommendation'); if(_pr2) _pr2.style.display = 'none';
             }
             
+            // ★ v5.4: Bug30 — 자산 판단↔배분 충돌 경고 배너
+            if (result.dualSystemConflicts && result.dualSystemConflicts.length > 0) {
+                const ajCard = document.getElementById('assetJudgmentCard');
+                // 기존 충돌 배너 제거
+                const oldBanner = document.getElementById('dualSystemConflictBanner');
+                if (oldBanner) oldBanner.remove();
+                
+                const banner = document.createElement('div');
+                banner.id = 'dualSystemConflictBanner';
+                banner.style.cssText = 'margin-top:10px;padding:10px 12px;background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(239,68,68,0.08));border:1px solid rgba(245,158,11,0.4);border-radius:8px;';
+                
+                let bannerHtml = '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">' +
+                    '<span style="font-size:1rem;">⚠️</span>' +
+                    '<span style="font-size:0.8rem;font-weight:700;color:var(--accent-gold);">판단 시스템 충돌 감지 (' + result.dualSystemConflicts.length + '건)</span>' +
+                '</div>' +
+                '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:6px;line-height:1.4;">' +
+                    '지표 기반 자산 판단과 시나리오 기반 배분이 상충합니다. 시나리오 배분(보수적)을 우선 참고하되, 지표 판단도 교차 확인하세요.' +
+                '</div>';
+                
+                result.dualSystemConflicts.forEach(function(c) {
+                    var icon = c.type === 'BUY_vs_REDUCE' ? '📈↔📉' : '📉↔📈';
+                    bannerHtml += '<div style="padding:4px 8px;background:var(--bg-card);border-radius:4px;font-size:0.7rem;margin-bottom:3px;color:var(--text-secondary);">' +
+                        icon + ' ' + c.msg + '</div>';
+                });
+                
+                banner.innerHTML = bannerHtml;
+                ajCard.appendChild(banner);
+            }
+
             // 개별 신호 상세
             const allSignals = [
                 ...result.layers.macro.signals,
@@ -11729,7 +12313,7 @@
                 // 종합 판단
                 var summaryHtml = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
                     '<span style="font-size: var(--fs-md);font-weight:700;color:' + ss.overallColor + ';">' + ss.overallLevel + '</span>' +
-                    '<span style="font-size: var(--fs-xs);color:var(--text-muted);">위험 ' + ss.dangerCount + ' / 경고 ' + ss.warningCount + ' / 총 ' + ss.signals.length + '개 신호</span>' +
+                    '<span style="font-size: var(--fs-xs);color:var(--text-muted);">위험 ' + ss.dangerCount + (ss.opportunityCount > 0 ? '→' + ss.effectiveDanger + '(기회상쇄)' : '') + ' / 경고 ' + ss.warningCount + (ss.opportunityCount > 0 ? ' / 기회 ' + ss.opportunityCount : '') + ' / 총 ' + ss.signals.length + '개 신호</span>' +
                 '</div>' +
                 '<div style="font-size: var(--fs-sm);color:var(--text-secondary);">' + ss.overallDesc + '</div>' +
                 '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bg-card);font-size: var(--fs-xs);color:var(--text-muted);line-height:1.5;">' +
@@ -14626,7 +15210,7 @@
         // Config2 기본값으로 초기화 (정적 HTML 복원)
         function resetConfig2() {
             if (confirm('Config2를 기본값으로 초기화하시겠습니까?\n(페이지가 새로고침됩니다)')) {
-                try { localStorage.removeItem('checklistConfig'); } catch(e) {}
+                try { AppStorage.remove('checklistConfig'); } catch(e) {}
                 location.reload(); // 새로고침하여 정적 HTML 복원
             }
         }
@@ -14639,7 +15223,7 @@
             
             // 초기 로드가 아닐 때만 localStorage 저장
             if (!isInitial) {
-                try { localStorage.setItem('checklistConfig', JSON.stringify(config)); } catch(e) {}
+                try { AppStorage.set('checklistConfig', JSON.stringify(config)); } catch(e) {}
             }
             
             // 체크리스트 렌더링
@@ -14816,7 +15400,7 @@
             
             // 저장된 Config2가 있으면 덮어쓰기
             var saved = null;
-            try { saved = localStorage.getItem('checklistConfig'); } catch(e) {}
+            try { saved = AppStorage.get('checklistConfig'); } catch(e) {}
             if (saved) {
                 try {
                     var userConfig = JSON.parse(saved);
@@ -14983,7 +15567,7 @@
         function resetConfigData() {
             if (confirm('Config를 초기화하시겠습니까?')) {
                 marketConfig = null;
-                try { localStorage.removeItem('marketConfig'); } catch(e) {}
+                try { AppStorage.remove('marketConfig'); } catch(e) {}
                 location.reload();
             }
         }
@@ -14994,7 +15578,7 @@
             marketConfig = config;
             
             // LocalStorage에 저장 (페이지 새로고침 시 유지)
-            try { localStorage.setItem('marketConfig', JSON.stringify(config)); } catch(e) {}
+            try { AppStorage.set('marketConfig', JSON.stringify(config)); } catch(e) {}
             
             // 결과 영역 표시
             var resultsArea = document.getElementById('configResultsArea');
@@ -16237,7 +16821,7 @@
                 
                 // 2단계: AI Config 복원 (질적 판단) - data.json 위에 덮어쓰기
                 var savedConfig = null;
-                try { savedConfig = localStorage.getItem('marketConfig'); } catch(e) {}
+                try { savedConfig = AppStorage.get('marketConfig'); } catch(e) {}
                 if (savedConfig) {
                     try {
                         var config = JSON.parse(savedConfig);
@@ -16245,7 +16829,7 @@
                         console.log('✅ AI Config 복원됨 (질적 판단 적용)');
                     } catch (e) {
                         console.warn('저장된 Config 복원 실패:', e);
-                        try { localStorage.removeItem('marketConfig'); } catch(e2) {}
+                        try { AppStorage.remove('marketConfig'); } catch(e2) {}
                     }
                 }
                 
@@ -16281,8 +16865,8 @@
     // 💼 내 포지션 (v5.0)
     // ═══════════════════════════════════════════════════════════
     var myHoldings = [];
-    try { myHoldings = JSON.parse(localStorage.getItem('myHoldings_v5') || '[]'); } catch(e) { console.warn('localStorage 접근 불가:', e); }
-    function saveMyHoldings() { try { localStorage.setItem('myHoldings_v5', JSON.stringify(myHoldings)); } catch(e) { console.warn('localStorage 저장 실패:', e); } }
+    try { myHoldings = JSON.parse(AppStorage.get('myHoldings_v5') || '[]'); } catch(e) { console.warn('localStorage 접근 불가:', e); }
+    function saveMyHoldings() { try { AppStorage.set('myHoldings_v5', JSON.stringify(myHoldings)); } catch(e) { console.warn('localStorage 저장 실패:', e); } }
     function findStockInData(name) {
         if (typeof screeningData === 'undefined' || !screeningData || !name) return null;
         var q = name.trim();
@@ -16382,17 +16966,17 @@
         if (badge) { badge.textContent = Object.keys(counts).map(function(k){return k+' '+counts[k]}).join(' · '); }
         el.innerHTML = '<div style="font-size: var(--fs-sm);color:var(--text-muted);margin-bottom:8px;">평가총액 ' + (totalEval/10000).toFixed(0) + '만원 · ' + myHoldings.length + '종목</div>'
             + results.map(function(r) {
-            var h=r.h, a=r.a, idx=r.i, pc = a.pnlPct >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+            var h=r.h, a=r.a, idx=r.i, pc = a.pnlPct >= 0 ? 'var(--color-gain)' : 'var(--color-loss)'; // v5.5: 한국 색상 규약
             var det = a.d ? 'FPE '+(a.d.ForwardPE||a.d.PER||'-')+' · PBR '+(a.d.PBR||'-')+' · ROE '+(a.d['ROE(%)']!=null?a.d['ROE(%)'].toFixed(1):'-')+'%'+(a.d.TotalScore?' · S'+Math.round(a.d.TotalScore):'') : '';
-            return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;margin-bottom:4px;border:1px solid '+a.color+'33;background:'+a.color+'08">'
+            return '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:8px;margin-bottom:4px;border:1px solid '+a.color+'33;background:'+a.color+'08">'
                 +'<div style="min-width:48px;text-align:center;padding:3px 0;border-radius:5px;background:'+a.color+'22;color:'+a.color+';font-size:var(--fs-sm);font-weight:800;">'+a.action+'</div>'
                 +'<div style="flex:1;min-width:0;">'
-                +'<div style="font-size:var(--fs-sm);font-weight:700;color:var(--text-primary);">'+h.name+' <span style="font-size:var(--fs-xs);color:var(--text-muted);">'+h.qty+'주</span></div>'
-                +'<div style="font-size:var(--fs-xs);color:var(--text-muted);font-family:monospace;">'+det+'</div>'
+                +'<div style="font-size:var(--fs-md);font-weight:700;color:var(--text-primary);">'+h.name+' <span style="font-size:var(--fs-xs);color:var(--text-muted);">'+h.qty+'주</span></div>'
+                +'<div style="font-size:var(--fs-xs);color:var(--text-muted);font-family:monospace;font-variant-numeric:tabular-nums;">'+det+'</div>'
                 +(a.reasons.length?'<div style="font-size:var(--fs-xs);color:'+a.color+';margin-top:2px;">'+a.reasons.join(' · ')+'</div>':'')
                 +'</div>'
                 +'<div style="text-align:right;">'
-                +'<div style="font-size:var(--fs-sm);font-weight:700;font-family:monospace;color:'+pc+';">'+(a.pnlPct>=0?'+':'')+a.pnlPct.toFixed(1)+'%</div>'
+                +'<div style="font-size:var(--fs-md);font-weight:700;font-family:monospace;font-variant-numeric:tabular-nums;color:'+pc+';">'+(a.pnlPct>=0?'▲':'▼')+' '+(a.pnlPct>=0?'+':'')+a.pnlPct.toFixed(1)+'%</div>'
                 +(a.evalAmt?'<div style="font-size:var(--fs-xs);color:var(--text-muted);">'+(a.evalAmt/10000).toFixed(0)+'만</div>':'')
                 +'<button onclick="removeMyHolding('+idx+')" style="margin-top:3px;padding:2px 6px;border:none;border-radius:4px;font-size:var(--fs-xs);cursor:pointer;background:rgba(239,68,68,0.15);color:#ef4444;">삭제</button>'
                 +'</div></div>';
@@ -16405,10 +16989,10 @@
             if(d.Ticker&&d.Ticker!==d.Name){var o2=document.createElement('option');o2.value=d.Ticker;o2.label=d.Ticker+' '+d.Name;dl.appendChild(o2);}
         });}    }
     function saveInvestMemo() {
-        try { localStorage.setItem('investMemo_v5', document.getElementById('investMemo').value); } catch(e) {}
+        try { AppStorage.set('investMemo_v5', document.getElementById('investMemo').value); } catch(e) {}
         document.getElementById('memoStatus').textContent = '✅ 저장됨 (' + new Date().toLocaleString('ko-KR') + ')';
     }
-    (function(){ try { var s=localStorage.getItem('investMemo_v5'); if(s){var e=document.getElementById('investMemo');if(e)e.value=s;} } catch(e) {} setTimeout(renderMyHoldings,500); })();
+    (function(){ try { var s=AppStorage.get('investMemo_v5'); if(s){var e=document.getElementById('investMemo');if(e)e.value=s;} } catch(e) {} setTimeout(renderMyHoldings,500); })();
 
 
     // ═══════════════════════════════════════════════════════════
@@ -16570,9 +17154,29 @@
         if(badge) { badge.textContent = riskLabel; badge.style.background = riskColor+'22'; badge.style.color = riskColor; }
         
         // ── 렌더링: 핵심 지표 ──
+        // v5.4: P2-1 — CVaR(95%) 추가 (보고서 1 근거: 바젤III FRTB에서 VaR 대체)
+        // v5.5: Cornish-Fisher 비정규분포 보정 추가
+        // z_cf = z + (z²-1)S/6 + (z³-3z)K/24 - (2z³-5z)S²/36
+        var rets = items.map(function(x){ return x.ret60; }).filter(function(r){ return r != null && !isNaN(r); });
+        var retMean = rets.length > 0 ? rets.reduce(function(s,r){return s+r},0)/rets.length : 0;
+        var retStd = rets.length > 2 ? Math.sqrt(rets.reduce(function(s,r){return s+Math.pow(r-retMean,2)},0)/(rets.length-1)) : 0;
+        var skew = 0, kurt = 0;
+        if (rets.length > 3 && retStd > 0) {
+            skew = rets.reduce(function(s,r){return s+Math.pow((r-retMean)/retStd,3)},0)/rets.length;
+            kurt = rets.reduce(function(s,r){return s+Math.pow((r-retMean)/retStd,4)},0)/rets.length - 3; // excess kurtosis
+        }
+        var z = 1.645; // 95% VaR
+        var zCF = z + (z*z-1)*skew/6 + (z*z*z-3*z)*kurt/24 - (2*z*z*z-5*z)*skew*skew/36;
+        if (!Number.isFinite(zCF) || zCF < 1.0) zCF = z; // 안전 가드
+        var cvarMultiplier = zCF * 1.255; // CVaR ≈ VaR × 1.255 (정규분포 근사)
+        var monthlyCVaR = (portfVol / Math.sqrt(12)) * cvarMultiplier;
+        var cvarSub = monthlyCVaR > 15 ? '고위험' : monthlyCVaR > 8 ? '주의' : '양호';
+        if (Math.abs(skew) > 0.3) cvarSub += (skew < 0 ? ' (좌편향)' : ' (우편향)');
+        
         var metrics = [
             {label:'종목수', value:items.length+'개', sub:'유효 '+effectiveN.toFixed(1)},
             {label:'포트폴리오 변동성', value:portfVol.toFixed(1)+'%', sub:'분산효과 '+diversBenefit.toFixed(0)+'%↓'},
+            {label:'월간 CVaR(95%)', value:monthlyCVaR.toFixed(1)+'%', sub:cvarSub+' (최악 5% 평균손실)'},
             {label:'가중평균 ROE', value:avgROE.toFixed(1)+'%', sub:avgROE>10?'양호':'주의'},
             {label:'가중평균 배당', value:avgDiv.toFixed(1)+'%', sub:avgDiv>3?'고배당':''},
             {label:'60일 수익률', value:(avgRet60>=0?'+':'')+avgRet60.toFixed(1)+'%', sub:'가중평균'},
@@ -16621,6 +17225,51 @@
                 +'<div style="font-size: var(--fs-md);font-weight:700;color:'+bg+';font-family:monospace;">'+sc+'</div>'
                 +'</div>';
         }).join('');
+        
+        // ── v5.4: P3-5 — 리스크 패리티 비교 ──
+        // 역변동성 가중(Inverse Volatility Weighting): weight_i ∝ 1/σ_i
+        // 각 종목의 리스크 기여도를 균등하게 만드는 최적 배분
+        var rpEl = document.getElementById('pfRiskParity');
+        if (items.length >= 3 && items.every(function(x){ return x.vol > 0; })) {
+            var invVols = items.map(function(x){ return 1 / x.vol; });
+            var invVolSum = invVols.reduce(function(s,v){ return s+v; }, 0);
+            var rpWeights = invVols.map(function(v){ return v / invVolSum; });
+            
+            // 현재 비중과 RP 비중 차이 계산
+            var rpDiffs = items.map(function(x, i){
+                return { name: x.name, current: x.weight, rp: rpWeights[i], diff: rpWeights[i] - x.weight, vol: x.vol };
+            }).sort(function(a,b){ return Math.abs(b.diff) - Math.abs(a.diff); });
+            
+            // RP 적용 시 예상 포트폴리오 변동성
+            var rpPortfVol = Math.sqrt(rpDiffs.reduce(function(s,d){ return s + d.rp * d.rp * d.vol * d.vol; }, 0));
+            var currentPortfVol = Math.sqrt(rpDiffs.reduce(function(s,d){ return s + d.current * d.current * d.vol * d.vol; }, 0));
+            var volImprovement = ((currentPortfVol - rpPortfVol) / currentPortfVol * 100);
+            
+            rpEl.style.display = 'block';
+            var rpHtml = '<div style="font-size:0.7rem;font-weight:700;color:var(--text-primary);margin-bottom:6px;">⚖️ 리스크 패리티 비교</div>';
+            rpHtml += '<div style="font-size:0.65rem;color:var(--text-muted);margin-bottom:8px;">역변동성 가중 기준 최적 비중 vs 현재 비중 (리스크 기여도 균등화)</div>';
+            
+            if (volImprovement > 1) {
+                rpHtml += '<div style="font-size:0.7rem;color:var(--accent-green);margin-bottom:6px;">💡 RP 적용 시 변동성 약 ' + volImprovement.toFixed(1) + '% 개선 가능</div>';
+            }
+            
+            rpHtml += '<div style="display:grid;gap:3px;">';
+            rpDiffs.slice(0, 5).forEach(function(d) {
+                var arrow = d.diff > 0.02 ? '📈 확대' : d.diff < -0.02 ? '📉 축소' : '✅ 적정';
+                var diffColor = d.diff > 0.02 ? 'var(--accent-green)' : d.diff < -0.02 ? 'var(--accent-red)' : 'var(--text-muted)';
+                rpHtml += '<div style="display:flex;align-items:center;gap:6px;font-size:0.7rem;padding:4px 6px;background:var(--bg-secondary);border-radius:4px;">'
+                    + '<div style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + d.name + '</div>'
+                    + '<div style="width:50px;text-align:right;font-family:monospace;">' + (d.current*100).toFixed(0) + '%</div>'
+                    + '<div style="width:16px;text-align:center;">→</div>'
+                    + '<div style="width:50px;text-align:right;font-family:monospace;font-weight:700;">' + (d.rp*100).toFixed(0) + '%</div>'
+                    + '<div style="width:60px;text-align:right;color:' + diffColor + ';">' + arrow + '</div>'
+                    + '</div>';
+            });
+            rpHtml += '</div>';
+            rpEl.innerHTML = rpHtml;
+        } else {
+            rpEl.style.display = 'none';
+        }
         
         // ── 경고 ──
         var warnings = [];
@@ -16672,6 +17321,80 @@
                     return '<div style="padding:6px 8px;margin-bottom:3px;border-radius:6px;font-size:var(--fs-sm);line-height:1.5;background:rgba(59,130,246,0.06);border-left:3px solid rgba(59,130,246,0.3);color:var(--text-secondary);">'+s+'</div>';
                 }).join('');
         } else { sugEl.style.display = 'none'; }
+        
+        // ── v5.5: 포트폴리오 요약 히어로 ──
+        var heroEl = document.getElementById('portfolioSummaryHero');
+        if (heroEl) {
+            heroEl.style.display = 'block';
+            var totalValue = totalCost; // 매입가 기준 (시가 미제공)
+            document.getElementById('heroTotalValue').textContent = (totalValue/10000).toFixed(1) + '억원';
+            
+            // 총 손익 (60일 수익률 기반 추정)
+            var totalPL = items.reduce(function(s,x){ return s + x.cost * (x.ret60/100); }, 0);
+            var plEl = document.getElementById('heroTotalPL');
+            var plPct = safeDivide(totalPL, totalCost, 0) * 100;
+            plEl.textContent = (totalPL >= 0 ? '+' : '') + (totalPL/10000).toFixed(2) + '억 (' + (plPct >= 0 ? '+' : '') + plPct.toFixed(1) + '%)';
+            plEl.style.color = totalPL >= 0 ? 'var(--color-gain)' : 'var(--color-loss)';
+        }
+        
+        // ── v5.5: 리밸런싱 드리프트 경고 (Vanguard 200bps 기준) ──
+        var rebalEl = document.getElementById('rebalanceAlert');
+        if (rebalEl && _marketState && _marketState.allocation) {
+            var targetAlloc = _marketState.allocation;
+            var currentMarkets = {};
+            markets.forEach(function(m){ currentMarkets[m.name] = m.w * 100; });
+            var drifts = [];
+            ['🇺🇸', '🇰🇷'].forEach(function(flag) {
+                var actual = currentMarkets[flag] || 0;
+                var target = flag === '🇺🇸' ? (targetAlloc.US || 25) : (targetAlloc.KR || 15);
+                var drift = Math.abs(actual - target);
+                if (drift > 5) drifts.push(flag + ' ' + actual.toFixed(0) + '% (목표 ' + target + '%, 편차 ' + drift.toFixed(0) + 'pp)');
+            });
+            if (drifts.length > 0) {
+                rebalEl.style.display = 'block';
+                rebalEl.innerHTML = '⚖️ <b>리밸런싱 필요</b>: ' + drifts.join(', ') + ' — 목표 대비 5pp 이상 이탈';
+            } else { rebalEl.style.display = 'none'; }
+        }
+        
+        // ── v5.5: 처분효과(Disposition Effect) 감지 ──
+        var dispEl = document.getElementById('dispositionAlert');
+        if (dispEl && items.length >= 3) {
+            var winners = items.filter(function(x){ return x.ret60 > 0; });
+            var losers = items.filter(function(x){ return x.ret60 < 0; });
+            var winnerAvgWeight = winners.length > 0 ? winners.reduce(function(s,x){return s+x.weight},0)/winners.length : 0;
+            var loserAvgWeight = losers.length > 0 ? losers.reduce(function(s,x){return s+x.weight},0)/losers.length : 0;
+            // 손실 종목 평균 비중이 수익 종목보다 1.5배 이상이면 처분효과 의심
+            if (loserAvgWeight > winnerAvgWeight * 1.5 && losers.length >= 2) {
+                dispEl.style.display = 'block';
+                dispEl.innerHTML = '🧠 <b>처분효과 주의</b>: 손실 종목(' + losers.length + '개) 평균 비중이 수익 종목보다 높습니다. "지금 이 가격에 새로 매수하겠는가?" 자문해 보세요.';
+            } else { dispEl.style.display = 'none'; }
+        }
+    }
+    
+    // v5.5: CSV 내보내기
+    function exportPortfolioCSV() {
+        if (!myHoldings || myHoldings.length === 0) { alert('보유종목이 없습니다.'); return; }
+        var results = myHoldings.map(function(h) { return { h: h, a: assessMyHolding(h) }; });
+        var header = '종목명,수량,평균단가,평가액(만원),수익률(%),판정,TotalScore,PER,PBR,ROE(%)';
+        var rows = results.map(function(r) {
+            var h = r.h, a = r.a, d = a.d;
+            return [
+                h.name, h.qty, h.avgPrice,
+                a.evalAmt ? (a.evalAmt/10000).toFixed(0) : '',
+                a.pnlPct.toFixed(1), a.action,
+                d ? Math.round(d.TotalScore||0) : '',
+                d ? (d.PER||'') : '',
+                d ? (d.PBR||'') : '',
+                d ? (d['ROE(%)']!=null ? d['ROE(%)'].toFixed(1) : '') : ''
+            ].join(',');
+        });
+        var csv = '\uFEFF' + header + '\n' + rows.join('\n');
+        var blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = '포트폴리오_' + new Date().toISOString().slice(0,10) + '.csv';
+        a.click();
+        URL.revokeObjectURL(a.href);
     }
 
 
@@ -16683,13 +17406,13 @@
     var MAX_SNAPSHOTS = 90;
     
     function getSnapshots() {
-        try { return JSON.parse(localStorage.getItem(SNAPSHOT_KEY) || '[]'); }
+        try { return JSON.parse(AppStorage.get(SNAPSHOT_KEY) || '[]'); }
         catch(e) { return []; }
     }
     function saveSnapshots(arr) {
         // Keep only last MAX_SNAPSHOTS
         while (arr.length > MAX_SNAPSHOTS) arr.shift();
-        try { localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(arr)); } catch(e) { console.warn('스냅샷 저장 실패:', e); }
+        try { AppStorage.set(SNAPSHOT_KEY, JSON.stringify(arr)); } catch(e) { console.warn('스냅샷 저장 실패:', e); }
     }
     
     function takeSnapshot() {
