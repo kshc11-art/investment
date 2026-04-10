@@ -14625,7 +14625,7 @@
         // Config2 기본값으로 초기화 (정적 HTML 복원)
         function resetConfig2() {
             if (confirm('Config2를 기본값으로 초기화하시겠습니까?\n(페이지가 새로고침됩니다)')) {
-                localStorage.removeItem('checklistConfig');
+                try { localStorage.removeItem('checklistConfig'); } catch(e) {}
                 location.reload(); // 새로고침하여 정적 HTML 복원
             }
         }
@@ -14638,7 +14638,7 @@
             
             // 초기 로드가 아닐 때만 localStorage 저장
             if (!isInitial) {
-                localStorage.setItem('checklistConfig', JSON.stringify(config));
+                try { localStorage.setItem('checklistConfig', JSON.stringify(config)); } catch(e) {}
             }
             
             // 체크리스트 렌더링
@@ -14814,7 +14814,8 @@
             applyConfig2(defaultChecklistConfig, true);  // 기본값으로 렌더링
             
             // 저장된 Config2가 있으면 덮어쓰기
-            var saved = localStorage.getItem('checklistConfig');
+            var saved = null;
+            try { saved = localStorage.getItem('checklistConfig'); } catch(e) {}
             if (saved) {
                 try {
                     var userConfig = JSON.parse(saved);
@@ -14981,7 +14982,7 @@
         function resetConfigData() {
             if (confirm('Config를 초기화하시겠습니까?')) {
                 marketConfig = null;
-                localStorage.removeItem('marketConfig');
+                try { localStorage.removeItem('marketConfig'); } catch(e) {}
                 location.reload();
             }
         }
@@ -14992,7 +14993,7 @@
             marketConfig = config;
             
             // LocalStorage에 저장 (페이지 새로고침 시 유지)
-            localStorage.setItem('marketConfig', JSON.stringify(config));
+            try { localStorage.setItem('marketConfig', JSON.stringify(config)); } catch(e) {}
             
             // 결과 영역 표시
             var resultsArea = document.getElementById('configResultsArea');
@@ -16234,7 +16235,8 @@
             loadDataJson().then(function(data) {
                 
                 // 2단계: AI Config 복원 (질적 판단) - data.json 위에 덮어쓰기
-                var savedConfig = localStorage.getItem('marketConfig');
+                var savedConfig = null;
+                try { savedConfig = localStorage.getItem('marketConfig'); } catch(e) {}
                 if (savedConfig) {
                     try {
                         var config = JSON.parse(savedConfig);
@@ -16242,7 +16244,7 @@
                         console.log('✅ AI Config 복원됨 (질적 판단 적용)');
                     } catch (e) {
                         console.warn('저장된 Config 복원 실패:', e);
-                        localStorage.removeItem('marketConfig');
+                        try { localStorage.removeItem('marketConfig'); } catch(e2) {}
                     }
                 }
                 
@@ -16277,8 +16279,9 @@
     // ═══════════════════════════════════════════════════════════
     // 💼 내 포지션 (v5.0)
     // ═══════════════════════════════════════════════════════════
-    var myHoldings = JSON.parse(localStorage.getItem('myHoldings_v5') || '[]');
-    function saveMyHoldings() { localStorage.setItem('myHoldings_v5', JSON.stringify(myHoldings)); }
+    var myHoldings = [];
+    try { myHoldings = JSON.parse(localStorage.getItem('myHoldings_v5') || '[]'); } catch(e) { console.warn('localStorage 접근 불가:', e); }
+    function saveMyHoldings() { try { localStorage.setItem('myHoldings_v5', JSON.stringify(myHoldings)); } catch(e) { console.warn('localStorage 저장 실패:', e); } }
     function findStockInData(name) {
         if (typeof screeningData === 'undefined' || !screeningData) return null;
         for (var i = 0; i < screeningData.length; i++) {
@@ -16365,10 +16368,10 @@
         src.forEach(function(d){if(d.Name){var o=document.createElement('option');o.value=d.Name;dl.appendChild(o);}});}
     }
     function saveInvestMemo() {
-        localStorage.setItem('investMemo_v5', document.getElementById('investMemo').value);
+        try { localStorage.setItem('investMemo_v5', document.getElementById('investMemo').value); } catch(e) {}
         document.getElementById('memoStatus').textContent = '✅ 저장됨 (' + new Date().toLocaleString('ko-KR') + ')';
     }
-    (function(){ var s=localStorage.getItem('investMemo_v5'); if(s){var e=document.getElementById('investMemo');if(e)e.value=s;} setTimeout(renderMyHoldings,500); })();
+    (function(){ try { var s=localStorage.getItem('investMemo_v5'); if(s){var e=document.getElementById('investMemo');if(e)e.value=s;} } catch(e) {} setTimeout(renderMyHoldings,500); })();
 
 
     // ═══════════════════════════════════════════════════════════
@@ -16649,7 +16652,7 @@
     function saveSnapshots(arr) {
         // Keep only last MAX_SNAPSHOTS
         while (arr.length > MAX_SNAPSHOTS) arr.shift();
-        localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(arr));
+        try { localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(arr)); } catch(e) { console.warn('스냅샷 저장 실패:', e); }
     }
     
     function takeSnapshot() {
@@ -17537,7 +17540,7 @@
                 return `
                     <div class="detail-item">
                         <span class="detail-item-label detail-tooltip" data-tooltip="${INDICATOR_DESCRIPTIONS[key] || key}">
-                            ${key.replace(/[(%)]/, '').substring(0, 15)}
+                            ${key.replace(/[%()\[\]]/g, '').substring(0, 15)}
                             <span class="info-icon">ⓘ</span>
                         </span>
                         <span class="detail-item-value neutral">-</span>
@@ -17577,7 +17580,7 @@
             return `
                 <div class="detail-item">
                     <span class="detail-item-label detail-tooltip" data-tooltip="${INDICATOR_DESCRIPTIONS[key] || key}">
-                        ${key.replace(/[(%)]/, '').substring(0, 15)}
+                        ${key.replace(/[%()\[\]]/g, '').substring(0, 15)}
                         <span class="info-icon">ⓘ</span>
                     </span>
                     <span class="detail-item-value ${valueClass}">${displayValue}</span>
