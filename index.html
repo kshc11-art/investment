@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-title" content="Investment">
     <meta name="theme-color" content="#0a0a0f">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>투자 의사결정 시스템 v5.5</title>
+    <title>투자 의사결정 시스템 v5.9</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
@@ -4335,7 +4335,7 @@
                 <div class="scenario-category-content" id="category-event" style="display: none;">
                     <div class="scenario-tabs">
                         <button class="scenario-tab active" data-scenario="geopolitical">🌍 지정학</button>
-                        <button class="scenario-tab" data-scenario="tariff-war">🏛️ 관세</button>
+                        <button class="scenario-tab" data-scenario="tariff-war" title="v5.9: 지표 기반 프록시로 구현됨 (환율·수출주·원자재·외국인수급 복합 신호)">🏛️ 관세</button>
                         <button class="scenario-tab" data-scenario="ai-bubble">🤖 AI버블</button>
                     </div>
 
@@ -4445,6 +4445,11 @@
                         <div class="scenario-header">
                             <h4 class="scenario-title">🏛️ 관세 전면전 시나리오</h4>
                             <span class="probability-badge" data-scenario-prob="tariffWar" style="background: rgba(245,158,11,0.2); color: var(--accent-gold);">🟡 40% 경계</span>
+                        </div>
+                        
+                        <!-- v5.9-fix (C4): 지표 기반 프록시 구현 안내 -->
+                        <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: var(--fs-sm); color: var(--accent-green);">
+                            ℹ️ <strong>v5.9 업데이트:</strong> 관세 시나리오가 <strong>지표 기반 프록시로 구현</strong>되었습니다. 환율(>1420원), KOSPI 1M(<-5%), WTI 1Y(<-15%), 외국인 20일 순매도(<-1.5조) 중 <strong>3개 이상 충족 시 자동 발동</strong>됩니다. 뉴스·정책 팩트는 아래 수동 체크리스트에서 교차 확인 권장.
                         </div>
                         
                         <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
@@ -4817,7 +4822,10 @@
         }
         
         // ========== Market Config 변수 ==========
-        var _marketState = null; // 시장 상태 (evaluateMarket에서 설정)
+        // v5.8-fix (C6): null 대신 NEUTRAL 기본값 초기화 → 탭 3(시장 판단)를 열지 않아도
+        //                스크리닝 탭에서 applyRegimeWeights 호출 시 정상 동작 (조정은 0)
+        //                탭 3에서 evaluateMarket 실행 시 실제 레짐으로 교체됨
+        var _marketState = { finalState: 'NEUTRAL', _isDefault: true };
         let marketConfig = null;
         
         // ========== Checklist Config 변수 (Config2) ==========
@@ -5306,6 +5314,26 @@
                 
                 // 점수들
                 const totalScore = d.TotalScore ? Math.round(d.TotalScore) : '-';
+                // v5.8-fix (I3): 레짐 조정 전/후, 데이터 완성도를 툴팁으로 노출
+                let totalTooltip = '총점: ' + totalScore;
+                if (d._originalScore != null && Math.abs(d._originalScore - d.TotalScore) > 0.1) {
+                    totalTooltip += '\n원점수: ' + d._originalScore.toFixed(1);
+                }
+                if (d._preRegimeScore != null && Math.abs(d._preRegimeScore - d.TotalScore) > 0.1) {
+                    totalTooltip += '\n레짐 조정 전: ' + d._preRegimeScore.toFixed(1);
+                }
+                if (d._regimeTilt != null) {
+                    totalTooltip += '\n레짐 틸트: ×' + d._regimeTilt.toFixed(3) + ' (v_D/E)';
+                }
+                if (d._dataCompleteness != null) {
+                    totalTooltip += '\n데이터 완성도: ' + (d._dataCompleteness * 100).toFixed(0) + '%';
+                }
+                if (d._momVolScale != null) {
+                    totalTooltip += '\n모멘텀 Vol스케일: ×' + d._momVolScale.toFixed(3);
+                }
+                if (d._illiquidPenalty) {
+                    totalTooltip += '\n⚠️ 비유동 페널티 적용';
+                }
                 const valueScore = d.ValueScore != null ? Math.round(d.ValueScore) : (d.Cost_Score != null ? Math.round(d.Cost_Score) : '-');
                 const qualityScore = d.QualityScore != null ? Math.round(d.QualityScore) : '-';
                 const growthScore = d.GrowthScore != null ? Math.round(d.GrowthScore) : '-';
@@ -5339,7 +5367,7 @@
                     <td><span class="rank-badge ${rankClass}">${rank}</span></td>
                     <td><div class="stock-cell"><div><div class="stock-name" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted;" onclick="showStockDetail('${stockDataId}')" title="클릭하여 상세 정보 보기">${displayName}</div><div class="stock-ticker">${ticker}</div></div></div></td>
                     <td><span class="breakdown-chip" title="${String(sector)}">${String(sector).substring(0,12)}</span>${sectorViewBadge}</td>
-                    <td class="score-cell"><div class="score-bar" style="width:${Math.min(totalScore,100)}%;background:${totalScore>=70?'var(--accent-green)':totalScore>=50?'var(--accent-gold)':'var(--accent-red)'}"></div><span class="score-val" style="color:${totalScore>=70?'var(--accent-green)':totalScore>=50?'var(--text-primary)':'var(--accent-red)'}">${totalScore}</span></td>
+                    <td class="score-cell" title="${totalTooltip}"><div class="score-bar" style="width:${Math.min(totalScore,100)}%;background:${totalScore>=70?'var(--accent-green)':totalScore>=50?'var(--accent-gold)':'var(--accent-red)'}"></div><span class="score-val" style="color:${totalScore>=70?'var(--accent-green)':totalScore>=50?'var(--text-primary)':'var(--accent-red)'}">${totalScore}</span></td>
                     <td class="score-cell"><div class="score-bar" style="width:${Math.min(valueScore,100)}%;background:${valueScore>=70?'var(--accent-green)':valueScore>=50?'var(--accent-gold)':'var(--accent-red)'}"></div><span class="score-val">${valueScore}</span></td>
                     <td class="score-cell"><div class="score-bar" style="width:${Math.min(qualityScore,100)}%;background:${qualityScore>=70?'var(--accent-green)':qualityScore>=50?'var(--accent-gold)':'var(--accent-red)'}"></div><span class="score-val">${qualityScore}</span></td>
                     <td class="score-cell"><div class="score-bar" style="width:${Math.min(growthScore,100)}%;background:${growthScore>=70?'var(--accent-green)':growthScore>=50?'var(--accent-gold)':'var(--accent-red)'}"></div><span class="score-val">${growthScore}</span></td>
@@ -5495,10 +5523,35 @@
         // 데이터 부족 종목이 "무난하게 중간"에 위치하는 문제 해결
         // 방법: 데이터 완성도(0~1)를 계산하고, TotalScore에 패널티 적용
         function applyDataCompletenessPenalty(data) {
-            const stockKeys = ['PER', 'PBR', 'ForwardPE', 'FCFYield(%)', 'ROE(%)', 'ROA(%)',
-                'GrossMargin(%)', 'OpMargin(%)', 'CurrentRatio', 'DebtRatio(%)',
+            // v5.8-fix (C3/I2): 버전별 실제 사용 필드로 데이터 완성도 측정
+            //                   기존엔 모든 버전에 v_A 18개 키만 사용 → D/E 입장에선 근거 부족 감점 발생
+            var currentVersion = 'A';
+            try {
+                if (typeof getSelectedVersion === 'function') {
+                    currentVersion = getSelectedVersion();
+                }
+            } catch (e) { currentVersion = 'A'; }
+            
+            // v_A, v_B, v_C 공통 (5-6 팩터 기반)
+            const stockKeysABC = ['PER', 'PBR', 'ForwardPE', 'FCFYield(%)', 'ROE(%)', 'ROA(%)',
+                'GrossMargin(%)', 'OpMargin(%)', 'CurrentRatio', 'DebtRatio(%)', 'Debt/Equity',
                 'RevenueGrowth(%)', 'EarningsGrowth(%)', 'Return60D(%)', 'Return120D(%)',
                 'Volatility20D', 'MaxDrawdown(%)', 'RSI14', 'Beta'];
+            
+            // v_D (학술 8팩터): 미활용 필드 최대 동원 → 완성도 기준 확장
+            const stockKeysD = stockKeysABC.concat(['PSR','EV/EBITDA','ROIC(%)','NetMargin(%)',
+                'Return3M(%)','Return6M(%)','Return1Y(%)','SharpeRatio','EPSGrowth(%)',
+                'BB_Position','vs_MA20(%)','ADX','ForeignRatio(%)','InstOwn(%)']);
+            
+            // v_E (AQR QMJ): ROIC/FCFYield/SharpeRatio 중요
+            const stockKeysE = stockKeysABC.concat(['ROIC(%)','NetMargin(%)','EPSGrowth(%)',
+                'SharpeRatio','InterestCoverage']);
+            
+            let stockKeys;
+            if (currentVersion === 'D') stockKeys = stockKeysD;
+            else if (currentVersion === 'E') stockKeys = stockKeysE;
+            else stockKeys = stockKeysABC;  // A, B, C 공통
+            
             const etfKeys = ['ExpenseRatio(%)', 'Return3M(%)', 'Return6M(%)', 'Return1Y(%)',
                 'Return60D(%)', 'Return120D(%)', 'Volatility20D', 'DivYield(%)'];
 
@@ -5513,14 +5566,11 @@
 
                 const completeness = available / keys.length; // 0~1
                 d._dataCompleteness = completeness;
+                d._dataCompletenessVersion = currentVersion; // 디버그용
 
                 // 패널티 적용: score * (0.6 + 0.4 * completeness)
-                // 100% 데이터 → 1.0배 (변화 없음)
-                // 50% 데이터 → 0.8배
-                // 0% 데이터 → 0.6배 (최대 40% 감점)
                 if (d.TotalScore != null) {
                     const penalty = 0.6 + 0.4 * completeness;
-                    // 원본 점수 보존 (regime 적용 전 점수가 있으면 그것을 원본으로)
                     if (d._originalScore == null) {
                         d._originalScore = d._preRegimeScore || d.TotalScore;
                     }
@@ -5559,48 +5609,97 @@
             return adjustments[state] || null;
         }
 
-        // 레짐 가중치를 적용하여 TotalScore 재계산 (주식만, ETF는 팩터 구조 다름)
+        // 레짐 가중치를 적용하여 TotalScore 재계산
+        // v5.7-fix (C1): 버전별 기본 가중치를 인식하여 v_A/B/C는 정확한 재계산,
+        //                v_D/E는 비표준 팩터 구조라 곱셈식 틸트로 처리 (버전 철학 보존)
+        function getVersionBaseWeights(version, sheet) {
+            // v5.7-fix: 각 버전의 원본 가중치를 반환. null이면 레짐 재계산 불가 (D/E)
+            if (sheet === 'KR_Stocks') {
+                if (version === 'A') return { Value: 0.25, Quality: 0.20, Growth: 0.15, Momentum: 0.15, Risk: 0.20, Flow: 0.05 };
+                if (version === 'B') return { Value: 0.20, Quality: 0.20, Growth: 0.20, Momentum: 0.20, Risk: 0.20, Flow: 0.00 };
+                if (version === 'C') return { Value: 0.25, Quality: 0.20, Growth: 0.15, Momentum: 0.20, Risk: 0.15, Flow: 0.05 };
+                return null; // D, E는 비표준 구조
+            }
+            if (sheet === 'US_Stocks') {
+                if (version === 'A') return { Value: 0.25, Quality: 0.20, Growth: 0.15, Momentum: 0.15, Risk: 0.15, Flow: 0.10 };
+                if (version === 'B') return { Value: 0.20, Quality: 0.20, Growth: 0.20, Momentum: 0.20, Risk: 0.20, Flow: 0.00 };
+                if (version === 'C') return { Value: 0.25, Quality: 0.20, Growth: 0.15, Momentum: 0.20, Risk: 0.15, Flow: 0.05 };
+                return null; // D, E는 비표준 구조
+            }
+            return null;
+        }
+        
         function applyRegimeWeights(data) {
             var adj = getRegimeWeightAdjustment();
             if (!adj) return data;
+            
+            // v5.7-fix (C1): 현재 선택된 버전을 획득 (getSelectedVersion은 line 7521+ 정의)
+            var currentVersion = 'A';
+            try {
+                if (typeof getSelectedVersion === 'function') {
+                    currentVersion = getSelectedVersion();
+                }
+            } catch (e) { currentVersion = 'A'; }
 
             data.forEach(d => {
                 var sh = d._sheet || '';
                 if (sh.includes('ETF')) return; // ETF는 Cost/Momentum/Risk/Income 구조라 별도 처리 불필요
 
-                // 기본 가중치 (Version A 기준, 다른 버전도 비슷한 비율)
-                var baseW;
-                if (sh === 'KR_Stocks') {
-                    baseW = { Value: 0.25, Quality: 0.20, Growth: 0.15, Momentum: 0.15, Risk: 0.20, Flow: 0.05 };
-                } else if (sh === 'US_Stocks') {
-                    baseW = { Value: 0.25, Quality: 0.20, Growth: 0.15, Momentum: 0.15, Risk: 0.15, Flow: 0.10 };
+                // v5.7-fix (C1): 버전별 기본 가중치 조회
+                var baseW = getVersionBaseWeights(currentVersion, sh);
+
+                if (baseW) {
+                    // v_A, v_B, v_C: 버전별 정확한 가중치로 재계산
+                    var newW = {};
+                    var sum = 0;
+                    Object.keys(baseW).forEach(k => {
+                        newW[k] = Math.max(0.01, baseW[k] + (adj[k] || 0));
+                        sum += newW[k];
+                    });
+                    Object.keys(newW).forEach(k => { newW[k] /= sum; });
+
+                    if (d.ValueScore != null && d.QualityScore != null) {
+                        var regimeScore =
+                            (d.ValueScore || 0) * newW.Value +
+                            (d.QualityScore || 0) * newW.Quality +
+                            (d.GrowthScore || 0) * newW.Growth +
+                            (d.MomentumScore || 0) * newW.Momentum +
+                            (d.RiskScore || 0) * newW.Risk +
+                            (d.FlowScore || 0) * newW.Flow;
+
+                        d._regimeAdjusted = true;
+                        d._preRegimeScore = d.TotalScore;
+                        d.TotalScore = regimeScore;
+                    }
                 } else {
-                    return;
-                }
-
-                // 조정된 가중치 적용
-                var newW = {};
-                var sum = 0;
-                Object.keys(baseW).forEach(k => {
-                    newW[k] = Math.max(0.01, baseW[k] + (adj[k] || 0));
-                    sum += newW[k];
-                });
-                // 합계 1.0으로 정규화
-                Object.keys(newW).forEach(k => { newW[k] /= sum; });
-
-                // 점수 재계산
-                if (d.ValueScore != null && d.QualityScore != null) {
-                    var regimeScore =
-                        (d.ValueScore || 0) * newW.Value +
-                        (d.QualityScore || 0) * newW.Quality +
-                        (d.GrowthScore || 0) * newW.Growth +
-                        (d.MomentumScore || 0) * newW.Momentum +
-                        (d.RiskScore || 0) * newW.Risk +
-                        (d.FlowScore || 0) * newW.Flow;
-
+                    // v5.7-fix (C1): v_D, v_E는 곱셈식 틸트만 적용 (버전 내부 로직/보너스 보존)
+                    // 레짐 조정 델타를 합산하여 ±5% 범위 내 multiplier 산출
+                    // BEAR/CAUTION → Quality↑Risk↑이면 보수적 → 가치주·방어주에 소폭 가점
+                    //               Momentum↓Growth↓이면 공격적 자산에 소폭 감점
+                    if (d.TotalScore == null) return;
+                    
+                    var tilt = 1.0;
+                    // Value가 높을수록 Value 조정의 영향이 크다 (백분위 기반이므로 50 기준 편차)
+                    var factors = [
+                        { score: d.ValueScore, delta: adj.Value || 0 },
+                        { score: d.QualityScore, delta: adj.Quality || 0 },
+                        { score: d.GrowthScore, delta: adj.Growth || 0 },
+                        { score: d.MomentumScore, delta: adj.Momentum || 0 },
+                        { score: d.RiskScore, delta: adj.Risk || 0 }
+                    ];
+                    factors.forEach(f => {
+                        if (f.score == null || isNaN(f.score)) return;
+                        // 편차 = (점수 - 50) / 50 → -1 ~ +1
+                        var deviation = (f.score - 50) / 50;
+                        tilt += f.delta * deviation;
+                    });
+                    // 안전장치: 틸트는 0.9~1.1 범위로 제한 (±10%)
+                    tilt = Math.max(0.9, Math.min(1.1, tilt));
+                    
                     d._regimeAdjusted = true;
+                    d._regimeTilt = tilt;
                     d._preRegimeScore = d.TotalScore;
-                    d.TotalScore = regimeScore;
+                    d.TotalScore = d.TotalScore * tilt;
                 }
             });
 
@@ -5608,9 +5707,11 @@
         }
 
         // 데이터 완성도 + 레짐 가중치를 일괄 적용하는 후처리 함수
+        // v5.7-fix (C2): applyMomentumVolScaling을 applyRegimeWeights 앞으로 이동
+        //               → 스케일된 MomentumScore가 레짐 재계산에 반영되도록 순서 보정
         function applyPostScoringAdjustments(data) {
-            applyRegimeWeights(data);
-            applyMomentumVolScaling(data); // v5.4: P2-2
+            applyMomentumVolScaling(data); // v5.7-fix: 먼저 스케일 적용
+            applyRegimeWeights(data);       // 그 뒤 레짐 재계산 (스케일된 MomentumScore 사용)
             applyDataCompletenessPenalty(data);
             applyIlliquidityPenalty(data);
             return data;
@@ -5619,6 +5720,7 @@
         // v5.4: P2-2 — 모멘텀 변동성 스케일링 (Barroso & Santa-Clara, 2015)
         // 고변동성 구간에서 모멘텀 노출을 축소하여 모멘텀 크래시 위험 완화
         // scale = targetVol / realizedVol (0.5~2.0 범위 제한)
+        // v5.9-fix (I1): safeDivide 적용 — realVol이 부동소수점 미세값(1e-10 등)일 때 Infinity 차단
         function applyMomentumVolScaling(data) {
             var sheets = ['KR_Stocks', 'US_Stocks'];
             sheets.forEach(function(sheet) {
@@ -5631,29 +5733,42 @@
                 
                 subset.forEach(function(d) {
                     var realVol = d.Volatility20D;
-                    if (realVol <= 0) return;
-                    var scale = Math.min(2.0, Math.max(0.5, targetVol / realVol));
+                    if (realVol == null || realVol <= 0.01) return; // v5.9-fix: 0.01 이하는 스킵(부동소수점 오류 방지)
+                    // v5.9-fix (I1): safeDivide로 NaN/Infinity 차단, 실패 시 scale=1.0 (변경 없음)
+                    var rawScale = safeDivide(targetVol, realVol, 1.0);
+                    var scale = Math.min(2.0, Math.max(0.5, rawScale));
                     if (Math.abs(scale - 1.0) > 0.05) {
                         d._momVolScale = scale;
                         d.MomentumScore = d.MomentumScore * scale;
-                        // TotalScore는 applyRegimeWeights에서 이미 재계산되므로 여기서 직접 반영
-                        // MomentumScore 가중치는 시트별로 다르지만 약 15%
+                        // TotalScore는 applyRegimeWeights에서 재계산되므로 여기서 반영 (v5.7-fix: 순서 조정 완료)
                     }
                 });
             });
         }
 
         // 비유동 종목 점수 감점 - 거래가 어려운 종목은 실질적으로 투자하기 어려움
+        // v5.7-fix (C7): v_D(Flow에 Amihud 소형주 가점), v_E(LiquidityScore 10% 내장)는
+        //                이미 유동성이 점수에 반영되어 있으므로 이중 감점 방지 위해 절반 적용
         function applyIlliquidityPenalty(data) {
+            // v5.7-fix: 현재 버전 획득
+            var currentVersion = 'A';
+            try {
+                if (typeof getSelectedVersion === 'function') {
+                    currentVersion = getSelectedVersion();
+                }
+            } catch (e) { currentVersion = 'A'; }
+            // D, E는 유동성 내장 처리 → 페널티 강도 절반
+            var isInternalLiquidityVersion = (currentVersion === 'D' || currentVersion === 'E');
+            
             data.forEach(d => {
                 if (!d.TotalScore) return;
                 if (d._illiquid) {
-                    // 비유동 종목: 20% 감점 (거래 어려움으로 실현 불가능한 점수)
-                    d.TotalScore *= 0.80;
+                    // 비유동 종목: 기본 20% 감점 → D/E는 10%만 감점
+                    d.TotalScore *= isInternalLiquidityVersion ? 0.90 : 0.80;
                     d._illiquidPenalty = true;
                 } else if (d._liquidityLevel === 'LOW') {
-                    // 저유동성 종목: 10% 감점
-                    d.TotalScore *= 0.90;
+                    // 저유동성 종목: 기본 10% 감점 → D/E는 5%만 감점
+                    d.TotalScore *= isInternalLiquidityVersion ? 0.95 : 0.90;
                     d._illiquidPenalty = true;
                 }
             });
@@ -6000,18 +6115,46 @@
                         const crS = crScoreByPercentile(d.CurrentRatio, crArr);
                         const deS = deScoreByPercentile(d['DebtRatio(%)'], deArr);
                         // [개선] InterestCoverage 추가 (Altman 1968: 핵심 파산 예측 지표)
+                        // v5.9-fix (I4): InterestCoverage 없을 때 2단계 프록시 체인
+                        //   1차: OpMargin / (DebtRatio/100 × 4) - 가장 이론적
+                        //   2차: ROE × 10 / DebtRatio - KR 주식 등 OpMargin 결측 시 사용
+                        //   (ROE 15%, Debt 30% → 5.0 건전; ROE 5%, Debt 150% → 0.33 위험)
+                        //   스케일 차이가 있으나 상대순위는 유지됨
                         let icS = 50;
-                        if (d.InterestCoverage != null && cols['InterestCoverage'].length > 0) {
-                            icS = percentileRank(cols['InterestCoverage'], d.InterestCoverage);
-                            // IC < 2: 디폴트 위험 (Altman Z-Score 기준)
-                            if (d.InterestCoverage < 2) icS *= 0.5;
-                            else if (d.InterestCoverage < 3) icS *= 0.7;
+                        let icValue = d.InterestCoverage;
+                        let icProxyType = 'original';
+                        if (icValue == null && d['OpMargin(%)'] != null && d['DebtRatio(%)'] != null && d['DebtRatio(%)'] > 5) {
+                            // 1차 Fallback: OpMargin과 DebtRatio 기반 프록시
+                            icValue = d['OpMargin(%)'] / (d['DebtRatio(%)'] / 100 * 4);
+                            if (!isFinite(icValue) || icValue < 0) icValue = null;
+                            else icProxyType = 'opmargin';
+                        }
+                        if (icValue == null && d['ROE(%)'] != null && d['DebtRatio(%)'] != null && d['DebtRatio(%)'] > 5) {
+                            // 2차 Fallback: ROE와 DebtRatio 기반 프록시 (KR 주식용)
+                            // ROE 15%, Debt 30% → 5.0 (건전); ROE 5%, Debt 150% → 0.33 (위험)
+                            icValue = (d['ROE(%)'] * 10) / d['DebtRatio(%)'];
+                            if (!isFinite(icValue) || icValue < 0) icValue = null;
+                            else icProxyType = 'roe';
+                        }
+                        if (icValue != null && cols['InterestCoverage'] && cols['InterestCoverage'].length > 0) {
+                            icS = percentileRank(cols['InterestCoverage'], icValue);
+                            if (icValue < 2) icS *= 0.5;
+                            else if (icValue < 3) icS *= 0.7;
                             icS *= 1.3; // 가중치
+                        } else if (icValue != null) {
+                            // 원본 InterestCoverage 배열이 없으면 프록시 절대값 기반 스코어링
+                            if (icValue >= 10) icS = 80;
+                            else if (icValue >= 5) icS = 65;
+                            else if (icValue >= 3) icS = 50;
+                            else if (icValue >= 2) icS = 35;
+                            else icS = 20;
                         }
                         const stabComponents = [crS, deS];
-                        if (d.InterestCoverage != null) stabComponents.push(icS);
+                        if (icValue != null) stabComponents.push(icS);
                         const stab = stabComponents.reduce((a, b) => a + b, 0) / stabComponents.length;
                         d.QualityScore = profit * 0.6 + stab * 0.4;
+                        d._icFallback = (d.InterestCoverage == null && icValue != null);
+                        d._icProxyType = icProxyType;
                         
                         // Growth (15%) - 학술 기준에 맞게 비중 조정
                         const revG = d['RevenueGrowth(%)'] != null ? percentileRank(cols['RevenueGrowth(%)'], d['RevenueGrowth(%)']) : 50;
@@ -6127,6 +6270,12 @@
                         // Total (D-4.3: 30/25/25/20)
                         d.TotalScore = d.Cost_Score * 0.30 + d.MomentumScore * 0.25 + d.RiskScore * 0.25 + d.IncomeScore * 0.20;
                         d.ValueScore = d.Cost_Score;
+                        // v5.6-fix: ETF에서 누락된 필드 명시 null 설정 (D/E와 일관성 + undefined 전파 방지)
+                        d.QualityScore = null;
+                        d.GrowthScore = null;
+                        d.FlowScore = null;
+                        d.Stability = null;
+                        d.Profitability = null;
                     }
                 });
             });
@@ -6276,6 +6425,12 @@
                         // ETF 등가중
                         d.TotalScore = (d.Cost_Score + d.MomentumScore + d.RiskScore + d.IncomeScore) / 4;
                         d.ValueScore = d.Cost_Score;
+                        // v5.6-fix: ETF에서 누락된 필드 명시 null 설정 (D/E와 일관성 + undefined 전파 방지)
+                        d.QualityScore = null;
+                        d.GrowthScore = null;
+                        d.FlowScore = null;
+                        d.Stability = null;
+                        d.Profitability = null;
                     }
                 });
             });
@@ -6705,6 +6860,10 @@
                         d.ValueScore = d.Cost_Score;
                         d.GrowthScore = null;
                         d.QualityScore = null;
+                        // v5.6-fix: 일관성을 위해 나머지 필드도 명시 null
+                        d.FlowScore = null;
+                        d.Stability = null;
+                        d.Profitability = null;
                     }
                 });
             });
@@ -6784,7 +6943,7 @@
                     const divYieldVal = getVal(d, 'DividendYield(%)', 'DivYield(%)');
                     
                     if (sheet === 'KR_Stocks' || sheet === 'US_Stocks') {
-                        const isUS = sheet === 'US_Stocks';
+                        // v5.6-fix: 미사용 변수 isUS 제거 (정의만 되고 참조 없음)
                         const sectorCount = getSectorCount(subset, d.Sector);
                         
                         // ===== 1. VALUE SCORE (18%) - Fama-French Value Factor 확장 =====
@@ -6864,13 +7023,38 @@
                             stabilityComponents.push(percentileRank(cols['Debt/Equity'], d['Debt/Equity'], true));
                         }
                         // Interest Coverage (핵심! 높을수록 좋음)
-                        if (d.InterestCoverage != null) {
-                            let icScore = percentileRank(cols['InterestCoverage'], d.InterestCoverage);
-                            // <2이면 디폴트 위험 페널티
-                            if (d.InterestCoverage < 2) icScore *= 0.5;
-                            else if (d.InterestCoverage < 3) icScore *= 0.7;
+                        // v5.9-fix (I4): 2단계 프록시 체인 추가 (원본 없을 때)
+                        //   1차: OpMargin/DebtRatio 기반, 2차: ROE/DebtRatio 기반
+                        let icValueD = d.InterestCoverage;
+                        let icProxyTypeD = 'original';
+                        if (icValueD == null && d['OpMargin(%)'] != null && d['DebtRatio(%)'] != null && d['DebtRatio(%)'] > 5) {
+                            icValueD = d['OpMargin(%)'] / (d['DebtRatio(%)'] / 100 * 4);
+                            if (!isFinite(icValueD) || icValueD < 0) icValueD = null;
+                            else icProxyTypeD = 'opmargin';
+                        }
+                        if (icValueD == null && d['ROE(%)'] != null && d['DebtRatio(%)'] != null && d['DebtRatio(%)'] > 5) {
+                            icValueD = (d['ROE(%)'] * 10) / d['DebtRatio(%)'];
+                            if (!isFinite(icValueD) || icValueD < 0) icValueD = null;
+                            else icProxyTypeD = 'roe';
+                        }
+                        if (icValueD != null) {
+                            let icScore;
+                            if (cols['InterestCoverage'] && cols['InterestCoverage'].length > 0) {
+                                icScore = percentileRank(cols['InterestCoverage'], icValueD);
+                            } else {
+                                // 원본 배열 없을 때 절대값 기반 등급
+                                if (icValueD >= 10) icScore = 80;
+                                else if (icValueD >= 5) icScore = 65;
+                                else if (icValueD >= 3) icScore = 50;
+                                else if (icValueD >= 2) icScore = 35;
+                                else icScore = 20;
+                            }
+                            if (icValueD < 2) icScore *= 0.5;
+                            else if (icValueD < 3) icScore *= 0.7;
                             stabilityComponents.push(icScore * 1.3); // 가중
                         }
+                        d._icProxyType = icProxyTypeD; // 디버깅/툴팁용
+                        d._icFallback = (d.InterestCoverage == null && icValueD != null);
                         
                         d.StabilityScore = stabilityComponents.length > 0 ?
                             clamp(stabilityComponents.reduce((a, b) => a + b, 0) / stabilityComponents.length, 0, 100) : 50;
@@ -7053,9 +7237,13 @@
                         }
                         
                         // Illiquidity Premium (Amihud 2002) - 소형주/저거래량 가점
-                        const marketCap = d['MarketCap(억)'];
-                        if (marketCap != null && marketCap < 10000) { // 1조 미만
+                        // v5.6-fix: US_Stocks는 'MarketCap(B)' 사용. KR은 '억'. 임계값도 단위에 맞춰 분기
+                        const marketCapKR = d['MarketCap(억)'];
+                        const marketCapUS = d['MarketCap(B)'];
+                        if (marketCapKR != null && marketCapKR < 10000) { // KR: 1조원 미만
                             flowComponents.push(55); // 소형주 프리미엄
+                        } else if (marketCapUS != null && marketCapUS < 2) { // US: 20억 달러 미만 (Russell 소형주 기준)
+                            flowComponents.push(55);
                         }
                         
                         d.FlowScore = flowComponents.length > 0 ?
@@ -7125,11 +7313,15 @@
                     } else {
                         // ===== ETF 처리 =====
                         // Cost Score (보수율)
+                        // v5.6-fix: A/B와 동일한 로그 스케일로 통일 (버전 간 비교 가능성 확보)
+                        // 기존 선형식 (100 - 비용%*100)은 0.5% → 50점으로 저비용 ETF 차별화 약함
                         const expenseRatio = d['ExpenseRatio(%)'];
-                        if (expenseRatio != null && !isNaN(expenseRatio)) {
-                            d.Cost_Score = clamp(100 - expenseRatio * 100, 0, 100);
-                        } else {
+                        if (expenseRatio == null || isNaN(expenseRatio)) {
                             d.Cost_Score = 50;
+                        } else if (expenseRatio <= 0) {
+                            d.Cost_Score = 100;
+                        } else {
+                            d.Cost_Score = Math.max(0, 100 - 50 * Math.log10(1 + expenseRatio * 100));
                         }
                         
                         // Momentum Score (다중 시계열, 사전 계산된 배열 사용)
@@ -7294,13 +7486,37 @@
                         if (d['Debt/Equity'] != null) {
                             safetyComponents.push(percentileRank(cols['Debt/Equity'], d['Debt/Equity'], true));
                         }
-                        if (d.InterestCoverage != null) {
-                            let icScore = percentileRank(cols['InterestCoverage'], d.InterestCoverage);
-                            // <2 = Junk 특성 (디폴트 위험)
-                            if (d.InterestCoverage < 2) icScore *= 0.3;
-                            else if (d.InterestCoverage < 3) icScore *= 0.5;
+                        // v5.9-fix (I4): InterestCoverage 2단계 프록시 체인 (원본 없을 때)
+                        let icValueE = d.InterestCoverage;
+                        let icProxyTypeE = 'original';
+                        if (icValueE == null && d['OpMargin(%)'] != null && d['DebtRatio(%)'] != null && d['DebtRatio(%)'] > 5) {
+                            icValueE = d['OpMargin(%)'] / (d['DebtRatio(%)'] / 100 * 4);
+                            if (!isFinite(icValueE) || icValueE < 0) icValueE = null;
+                            else icProxyTypeE = 'opmargin';
+                        }
+                        if (icValueE == null && d['ROE(%)'] != null && d['DebtRatio(%)'] != null && d['DebtRatio(%)'] > 5) {
+                            icValueE = (d['ROE(%)'] * 10) / d['DebtRatio(%)'];
+                            if (!isFinite(icValueE) || icValueE < 0) icValueE = null;
+                            else icProxyTypeE = 'roe';
+                        }
+                        if (icValueE != null) {
+                            let icScore;
+                            if (cols['InterestCoverage'] && cols['InterestCoverage'].length > 0) {
+                                icScore = percentileRank(cols['InterestCoverage'], icValueE);
+                            } else {
+                                if (icValueE >= 10) icScore = 80;
+                                else if (icValueE >= 5) icScore = 65;
+                                else if (icValueE >= 3) icScore = 50;
+                                else if (icValueE >= 2) icScore = 35;
+                                else icScore = 20;
+                            }
+                            // QMJ Junk 특성 페널티 (v_E는 v_D보다 엄격)
+                            if (icValueE < 2) icScore *= 0.3;
+                            else if (icValueE < 3) icScore *= 0.5;
                             safetyComponents.push(icScore * 1.3);
                         }
+                        d._icProxyType = icProxyTypeE;
+                        d._icFallback = (d.InterestCoverage == null && icValueE != null);
                         
                         // Low MDD
                         if (mddVal != null) {
@@ -7477,11 +7693,14 @@
                         
                     } else {
                         // ===== ETF 처리 =====
+                        // v5.6-fix: A/B/D와 동일한 로그 스케일 통일 (버전 간 비교 가능성)
                         const expenseRatio = d['ExpenseRatio(%)'];
-                        if (expenseRatio != null && !isNaN(expenseRatio)) {
-                            d.Cost_Score = clamp(100 - expenseRatio * 100, 0, 100);
-                        } else {
+                        if (expenseRatio == null || isNaN(expenseRatio)) {
                             d.Cost_Score = 50;
+                        } else if (expenseRatio <= 0) {
+                            d.Cost_Score = 100;
+                        } else {
+                            d.Cost_Score = Math.max(0, 100 - 50 * Math.log10(1 + expenseRatio * 100));
                         }
                         
                         // Momentum (사전 계산된 배열 사용)
@@ -7511,6 +7730,11 @@
                         d.GrowthScore = null;
                         d.LiquidityScore = null;
                         d.DividendScore = null;
+                        // v5.6-fix: 나머지 필드도 명시 null (5개 버전 간 ETF 필드 세팅 일관화)
+                        d.FlowScore = null;
+                        d.StabilityScore = null;
+                        d.Stability = null;
+                        d.Profitability = null;
                     }
                 });
             });
@@ -7530,7 +7754,7 @@
             const descs = { 
                 A: 'V25 Q20 G15 M15 R20 F5 (개선)', 
                 B: 'V20 Q20 G20 M20 R20 (등가중)', 
-                C: 'V25 Q20 G15 M20 R15 +패널티',
+                C: 'V25 Q20 G15 M20 R15 F5 +패널티',
                 D: 'V20 Q18 S11 G11 M16 T4 R12 F8 +학술',
                 E: 'QMJ30 V22 M18 R10 Liq10 Div10 (AQR)' 
             };
@@ -10080,9 +10304,37 @@
                 });
             }
             
-            // 🏛️ 관세 전쟁 시나리오 (미구현)
-            // 지표로 직접 감지 어려움 - 뉴스/정책 기반
-            // 환율+원자재 동반 상승은 이미 인플레 헤지 시나리오에서 처리됨
+            // 🏛️ v5.9-fix (C4): 관세 전쟁 시나리오 구현 (이전엔 미구현)
+            // 지표 기반 프록시: 관세 충격은 직접 감지 어려우나, 다음 4가지 복합 신호로 포착
+            //   1. 달러 강세 (관세 → 수입 인플레 기대 → 연준 긴축 → 달러↑)
+            //   2. 한국 수출주 약세 (한국은 대미·대중 중간재 수출 구조, 관세 직격)
+            //   3. 신흥국 약세 (글로벌 무역량 감소 전이)
+            //   4. 원자재 하락 (글로벌 성장 둔화 우려)
+            // 주의: 이 시나리오는 프록시 지표이며, 뉴스/정책 팩트는 카드(탭 3)에서 수동 확인 필요
+            const tariffWarTriggers = [];
+            if (ind.usdkrw && ind.usdkrw > 1420) tariffWarTriggers.push('환율 ' + ind.usdkrw.toFixed(0) + '원 (달러 강세, 관세 기대 반영)');
+            if (ind.kospi1m != null && ind.kospi1m < -5) tariffWarTriggers.push('KOSPI 1M ' + ind.kospi1m.toFixed(1) + '% (수출주 압박)');
+            if (ind.wti1y != null && ind.wti1y < -15) tariffWarTriggers.push('WTI ' + ind.wti1y.toFixed(0) + '% (무역 둔화 징후)');
+            if (ind.foreign20d != null && ind.foreign20d < -15000) tariffWarTriggers.push('외국인 20일 순매도 ' + (ind.foreign20d/10000).toFixed(1) + '조원 (리스크오프)');
+            // 한국·신흥국·원자재 동반 하락 = 관세 충격 복합 신호
+            if (ind.kospi1m != null && ind.kospi1m < -3 && ind.wti1y != null && ind.wti1y < -10) {
+                tariffWarTriggers.push('KOSPI+원자재 동반 하락 (수출 경제 복합 타격)');
+            }
+            
+            // 3개 이상 복합 신호 시 발동 (중국 경착륙과 구분: 환율·외국인 수급 강조)
+            if (tariffWarTriggers.length >= 3) {
+                triggered.push({
+                    id: 'tradeWar', // SCENARIO_PRIORITY·ALLOCATIONS에 이미 존재 (priority 6)
+                    name: '🏛️ 관세 전쟁',
+                    icon: '🏛️',
+                    priority: 6,
+                    severity: 'warning',
+                    triggers: tariffWarTriggers,
+                    // 관세: KR/EM 수출국 직격(-12/-10), 금/채권 안전자산(+8/+5), 미국 내수 상대적 양호(-5)
+                    // Cash 확대(+10): 정책 불확실성 대응
+                    portfolioImpact: { US: -5, KR: -12, EM: -10, Gold: 8, Bond: 5, Cash: 10, Commodity: -5 }
+                });
+            }
             
             // 🇨🇳 v5.5: 중국 경착륙(Hard Landing) 시나리오
             // 한국 반도체 수출의 ~25%가 중국 향, SK Hynix/Samsung 중국 팹 보유
