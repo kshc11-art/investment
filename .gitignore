@@ -1,1 +1,21 @@
+# v4.3: 로컬 캐시 디렉토리 (1시간 TTL, 재실행 시 재생성됨)
+_cache/
+
+# Python 기본
 __pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+
+# Excel 출력 (GitHub Pages는 JSON만 사용)
+global_screening_*.xlsx
+
+# 로그
+*.log
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
