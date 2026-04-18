@@ -2,13 +2,15 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="HandheldFriendly" content="true">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Investment">
     <meta name="theme-color" content="#0a0a0f">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>투자 의사결정 시스템 v5.23</title>
+    <title>투자 의사결정 시스템 v5.24</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
@@ -89,8 +91,7 @@
         .container {
             max-width: 100%;
             margin: 0 auto;
-            padding: var(--space-md);
-            padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
+            padding: calc(var(--space-md) + env(safe-area-inset-top, 0px)) calc(var(--space-md) + env(safe-area-inset-right, 0px)) calc(var(--space-lg) + env(safe-area-inset-bottom, 0px)) calc(var(--space-md) + env(safe-area-inset-left, 0px));
         }
 
         /* Header */
@@ -1485,22 +1486,31 @@
         .detail-tooltip {
             position: relative;
         }
-        .detail-tooltip:hover::after {
+        /* v5.24-fix (E3): 모바일 탭 + 데스크톱 hover 둘 다 지원 */
+        .detail-tooltip:hover::after,
+        .detail-tooltip.tooltip-active::after {
             content: attr(data-tooltip);
             position: absolute;
             bottom: 100%;
             left: 0;
-            min-width: 280px;
-            max-width: calc(100vw - 60px);
+            min-width: 240px;
+            max-width: calc(100vw - 40px);
             background: var(--bg-primary);
             color: var(--text-primary);
             padding: 8px 12px;
             border-radius: 6px;
-            font-size: var(--fs-sm);
+            font-size: 12px;
+            line-height: 1.4;
             white-space: normal;
             z-index: 100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
             border: 1px solid var(--border-color);
+        }
+        .detail-tooltip.tooltip-active::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 99;
         }
 
         /* v5.0: 스코어 셀 시각 바 */
@@ -2004,7 +2014,7 @@
         
         /* iPhone 13 mini 전용 미세 조정 */
         @media (max-width: 400px) {
-            .container { padding: 6px 4px calc(72px + env(safe-area-inset-bottom, 0px)); }
+            .container { padding: calc(6px + env(safe-area-inset-top, 0px)) max(4px, env(safe-area-inset-right, 0px)) calc(72px + env(safe-area-inset-bottom, 0px)) max(4px, env(safe-area-inset-left, 0px)); }
             .card { padding: 8px; margin-bottom: 8px; }
             
             /* 더 작은 화면에서 총점 숫자 살짝 축소 */
@@ -2220,6 +2230,15 @@
                 margin-bottom: 6px !important;
                 line-height: 1.4;
             }
+            /* v5.24-fix (E5): 내 포지션 안내문 더 강력한 선택자 + 다른 fs-md 텍스트 포괄 */
+            #positions .card > div:not([class]):not([id]) {
+                font-size: 11px !important;
+                line-height: 1.45 !important;
+            }
+            #positions .card p,
+            #positions .card > div[style*="color: var(--text-muted)"] {
+                font-size: 11px !important;
+            }
             #myAddHoldingForm label {
                 font-size: 10px !important;
             }
@@ -2232,6 +2251,19 @@
                 padding: 6px 10px !important;
                 font-size: 12px !important;
                 min-height: 32px !important;
+            }
+            /* v5.24-fix (E5): 내 포지션 보유종목 카드 내부 글씨 축소 */
+            #myHoldingsList [style*="font-size:var(--fs-md);font-weight:700;color:var(--text-primary)"] {
+                font-size: 12px !important;
+            }
+            #myHoldingsList [style*="font-size:var(--fs-md);font-weight:700;font-family:monospace"] {
+                font-size: 13px !important;
+            }
+            #myHoldingsList [style*="font-size:var(--fs-sm);font-weight:800"] {
+                font-size: 11px !important;
+            }
+            #myHoldingsList [style*="font-size: var(--fs-sm);color:var(--text-muted)"] {
+                font-size: 10px !important;
             }
             /* 고급 옵션 details */
             #myAddHoldingForm + details {
@@ -20537,10 +20569,16 @@
     }
     function assessMyHolding(h) {
         var d = findStockInData(h.name);
-        if (!d) return { action: '매칭불가', color: '#64748b', reasons: ['데이터에 없음'], d: null, pnlPct: 0, evalAmt: 0, alerts: [], alertLevel: 0 };
-        var curPrice = d.Price || d.Close || 0;
-        var evalAmt = curPrice > 0 ? curPrice * h.qty : h.avgPrice * h.qty;
-        var pnlPct = (h.avgPrice > 0 && curPrice > 0) ? ((curPrice - h.avgPrice) / h.avgPrice * 100) : 0;
+        if (!d) return { action: '매칭불가', color: '#64748b', reasons: ['데이터에 없음'], d: null, pnlPct: null, evalAmt: 0, costAmt: (h.avgPrice||0)*(h.qty||0), hasCurrentPrice: false, alerts: [], alertLevel: 0 };
+        // v5.24-fix (E4a): 현재가 유무 명시적 구분
+        // NOTE: Python 파이프라인(global_screener_v4_2.py)에 Price/Close 필드 미포함 → 현재가 0
+        //       fallback으로 매입금액을 사용하면 PnL이 0%로 표시되어 사용자 혼란 발생
+        //       → 평가금액은 현재가 없을 때 0으로 두고, UI에서 "매입금액" 또는 "현재가 데이터 없음"으로 명시
+        var curPrice = d.Price || d.Close || d.CurrentPrice || 0;
+        var hasCurrentPrice = curPrice > 0;
+        var costAmt = (h.avgPrice||0) * (h.qty||0);
+        var evalAmt = hasCurrentPrice ? curPrice * h.qty : 0;
+        var pnlPct = hasCurrentPrice && h.avgPrice > 0 ? ((curPrice - h.avgPrice) / h.avgPrice * 100) : null;
         var reasons = [], sellScore = 0;
         var roe = d['ROE(%)'], fpe = d.ForwardPE || d.PER, opm = d['OpMargin(%)'], pbr = d.PBR, divY = d['DivYield(%)'] || 0;
         if (roe != null && roe < 0) { sellScore += 3; reasons.push('ROE 음수'); }
@@ -20664,6 +20702,8 @@
             d: d,
             pnlPct: pnlPct,
             evalAmt: evalAmt,
+            costAmt: costAmt,           // v5.24-fix (E4b): 매입금액 별도
+            hasCurrentPrice: hasCurrentPrice,  // v5.24-fix (E4b): 현재가 유무 플래그
             curPrice: curPrice,
             // v5.15-fix (N15-c/d): 신규 필드
             stopLossPrice: stopLossPrice,
@@ -20808,7 +20848,11 @@
             return (o[a.a.action]||5) - (o[b.a.action]||5);
         });
         
+        // v5.24-fix (E4c): 매입금액과 평가금액 정확히 구분
+        // totalCost = 매입원가 합, totalEval = 현재평가 합 (현재가 있는 종목만), hasAnyCurPrice = 하나라도 현재가 있는지
+        var totalCost = results.reduce(function(s,r){return s+(r.a.costAmt||0)},0);
         var totalEval = results.reduce(function(s,r){return s+(r.a.evalAmt||0)},0);
+        var hasAnyCurPrice = results.some(function(r) { return r.a.hasCurrentPrice; });
         var counts = {}; results.forEach(function(r){ counts[r.a.action] = (counts[r.a.action]||0)+1; });
         
         // v5.15-fix (N15-d): 경보 카운트
@@ -20823,9 +20867,13 @@
             badge.textContent = badgeText;
         }
         
-        // 상단 요약 + 경보 배너
-        var headerHtml = '<div style="font-size: var(--fs-sm);color:var(--text-muted);margin-bottom:8px;">'
-            + '평가총액 ' + formatKRW(totalEval) + ' · ' + myHoldings.length + '종목';
+        // 상단 요약 + 경보 배너 (v5.24: 매입금액/평가금액 정직 표시)
+        var headerHtml = '<div style="font-size: var(--fs-sm);color:var(--text-muted);margin-bottom:8px;">';
+        if (hasAnyCurPrice) {
+            headerHtml += '평가총액 ' + formatKRW(totalEval) + ' (매입 ' + formatKRW(totalCost) + ') · ' + myHoldings.length + '종목';
+        } else {
+            headerHtml += '매입총액 ' + formatKRW(totalCost) + ' · ' + myHoldings.length + '종목';
+        }
         if (alertCounts[3] + alertCounts[2] > 0) {
             headerHtml += ' · ';
             if (alertCounts[3] > 0) headerHtml += '<span style="color:#ef4444;font-weight:700;">🚨 ' + alertCounts[3] + '건 긴급</span>';
@@ -20833,10 +20881,15 @@
             if (alertCounts[2] > 0) headerHtml += '<span style="color:#f59e0b;font-weight:700;">⚠️ ' + alertCounts[2] + '건 주의</span>';
         }
         headerHtml += '</div>';
+        // v5.24: 현재가 데이터 없음 안내 배너 (한번만 표시)
+        if (!hasAnyCurPrice) {
+            headerHtml += '<div style="font-size:10px;color:#f59e0b;background:rgba(245,158,11,0.08);border-left:3px solid #f59e0b;padding:4px 8px;margin-bottom:6px;border-radius:3px;line-height:1.4;">ℹ️ 현재가 데이터 없음 — 매입금액 기준으로 표시 중. 평가손익은 데이터 갱신(Python 파이프라인 v4.3+) 후 계산됩니다.</div>';
+        }
         
         el.innerHTML = headerHtml + results.map(function(r) {
             var h = r.h, a = r.a, idx = r.i;
-            var pc = a.pnlPct >= 0 ? 'var(--color-gain)' : 'var(--color-loss)';
+            // v5.24-fix (E4d): pnlPct가 null(현재가 없음)인 경우 색상 처리
+            var pc = a.pnlPct == null ? 'var(--text-muted)' : (a.pnlPct >= 0 ? 'var(--color-gain)' : 'var(--color-loss)');
             
             // 매칭불가 종목은 간단 표시
             if (a.action === '매칭불가') {
@@ -20932,8 +20985,14 @@
                 + (a.reasons.length ? '<div style="font-size:var(--fs-xs);color:' + a.color + ';margin-top:2px;">' + a.reasons.join(' · ') + '</div>' : '')
                 + '</div>'
                 + '<div style="text-align:right;min-width:80px;">'
-                + '<div style="font-size:var(--fs-md);font-weight:700;font-family:monospace;font-variant-numeric:tabular-nums;color:' + pc + ';">' + (a.pnlPct >= 0 ? '▲' : '▼') + ' ' + (a.pnlPct >= 0 ? '+' : '') + a.pnlPct.toFixed(1) + '%</div>'
-                + (a.evalAmt ? '<div style="font-size:var(--fs-xs);color:var(--text-muted);">' + formatKRWShort(a.evalAmt) + '</div>' : '')
+                + '<div style="font-size:var(--fs-md);font-weight:700;font-family:monospace;font-variant-numeric:tabular-nums;color:' + pc + ';">'
+                + (a.pnlPct == null
+                    ? '<span style="font-size:10px;color:var(--text-muted);">손익 N/A</span>'
+                    : ((a.pnlPct >= 0 ? '▲' : '▼') + ' ' + (a.pnlPct >= 0 ? '+' : '') + a.pnlPct.toFixed(1) + '%'))
+                + '</div>'
+                + (a.hasCurrentPrice && a.evalAmt
+                    ? '<div style="font-size:var(--fs-xs);color:var(--text-muted);">평가 ' + formatKRWShort(a.evalAmt) + '</div>'
+                    : (a.costAmt ? '<div style="font-size:var(--fs-xs);color:var(--text-muted);">매입 ' + formatKRWShort(a.costAmt) + '</div>' : ''))
                 + '<div style="display:flex;gap:3px;justify-content:flex-end;margin-top:3px;">'
                 + '<button onclick="editMyHolding(' + idx + ')" style="padding:2px 6px;border:none;border-radius:4px;font-size:var(--fs-xs);cursor:pointer;background:rgba(59,130,246,0.15);color:var(--accent-blue);">수정</button>'
                 + '<button onclick="removeMyHolding(' + idx + ')" style="padding:2px 6px;border:none;border-radius:4px;font-size:var(--fs-xs);cursor:pointer;background:rgba(239,68,68,0.15);color:#ef4444;">삭제</button>'
@@ -22023,7 +22082,7 @@
             return [
                 h.name, h.qty, h.avgPrice,
                 a.evalAmt ? (a.evalAmt/10000).toFixed(0) : '',
-                a.pnlPct.toFixed(1), a.action,
+                (a.pnlPct == null ? '' : a.pnlPct.toFixed(1)), a.action,
                 d ? Math.round(d.TotalScore||0) : '',
                 d ? (d.PER||'') : '',
                 d ? (d.PBR||'') : '',
@@ -22068,6 +22127,8 @@
         
         overseasHoldings.forEach(function(r) {
             var h = r.h, a = r.a;
+            // v5.24-fix (E4g): pnlPct null(현재가 없음) 시 계산 불가로 건너뜀
+            if (a.pnlPct == null || !a.evalAmt) return;
             var unrealizedPL = a.evalAmt * (a.pnlPct / 100); // 미실현 손익 (원화)
             if (unrealizedPL > 0) {
                 gainPositions.push({ name: h.name, pl: unrealizedPL, pct: a.pnlPct });
@@ -22147,9 +22208,11 @@
         card.style.display = 'block';
         
         // ── 1. 익스포저 계산 ──
-        var totalPortfolio = results.reduce(function(s,r) { return s + (r.a.evalAmt||0); }, 0);
-        var usdExposure = overseasHoldings.reduce(function(s,r) { return s + (r.a.evalAmt||0); }, 0);
-        var krwExposure = domesticHoldings.reduce(function(s,r) { return s + (r.a.evalAmt||0); }, 0);
+        // v5.24-fix (E4f): 현재가 없으면 매입금액(costAmt) 기반으로 계산
+        var getAmt = function(r) { return r.a.evalAmt || r.a.costAmt || 0; };
+        var totalPortfolio = results.reduce(function(s,r) { return s + getAmt(r); }, 0);
+        var usdExposure = overseasHoldings.reduce(function(s,r) { return s + getAmt(r); }, 0);
+        var krwExposure = domesticHoldings.reduce(function(s,r) { return s + getAmt(r); }, 0);
         var usdPct = totalPortfolio > 0 ? safeDivide(usdExposure, totalPortfolio, 0) * 100 : 0;
         
         // ── 2. USDKRW 분석 ──
@@ -22406,7 +22469,7 @@
             myHoldings.forEach(function(h) {
                 var a = assessMyHolding(h);
                 totalCost += h.qty * h.avgPrice;
-                holdings.push({name:h.name, pnl:a.pnlPct.toFixed(1)});
+                holdings.push({name:h.name, pnl:(a.pnlPct == null ? null : a.pnlPct.toFixed(1))});
             });
             snap.portfolio = {totalCost:totalCost, holdings:holdings};
         }
@@ -23458,8 +23521,30 @@
         EventListeners.track(document, 'keydown', function(e) {
             if (e.key === 'Escape') {
                 closeStockDetail();
+                // 툴팁도 닫기
+                document.querySelectorAll('.detail-tooltip.tooltip-active').forEach(function(el) {
+                    el.classList.remove('tooltip-active');
+                });
             }
         }, 'modal_global');
+        
+        // v5.24-fix (E3b): 툴팁 탭/클릭 이벤트 위임 (모바일에서 ⓘ 설명 보기)
+        EventListeners.track(document, 'click', function(e) {
+            var tooltipEl = e.target.closest('.detail-tooltip');
+            if (tooltipEl) {
+                // 다른 툴팁 닫기
+                document.querySelectorAll('.detail-tooltip.tooltip-active').forEach(function(el) {
+                    if (el !== tooltipEl) el.classList.remove('tooltip-active');
+                });
+                tooltipEl.classList.toggle('tooltip-active');
+                e.stopPropagation();
+            } else {
+                // 툴팁 영역 밖 클릭 시 모두 닫기
+                document.querySelectorAll('.detail-tooltip.tooltip-active').forEach(function(el) {
+                    el.classList.remove('tooltip-active');
+                });
+            }
+        }, 'tooltip_delegate');
         
         // 종목명 클릭 이벤트를 위한 전역 함수
 console.log('📋 종목 상세 모달 시스템 로드됨');
