@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-title" content="Investment">
     <meta name="theme-color" content="#0a0a0f">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>투자 의사결정 시스템 v5.20</title>
+    <title>투자 의사결정 시스템 v5.23</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
@@ -1639,169 +1639,297 @@
         }
         
         /* ════════════════════════════════════════════════════════════
-           v5.19-fix: iPhone 13 mini 최적화 (≤640px)
-           콘텐츠 영역: 약 342px (375pt - 패딩)
+           v5.21-fix (M7/M8): 모바일 뷰 모드 시스템
+           - 기본: 컴팩트 리스트 (한 줄 60px, 한 화면 10개+)
+           - 옵션: 카드 뷰 (body.view-card일 때만)
            ════════════════════════════════════════════════════════════ */
         @media (max-width: 640px) {
-            /* M6: 모든 입력 폰트 16px (iOS 자동 확대 방지) */
-            input, select, textarea, button {
-                font-size: 16px !important;
+            /* M10: 버튼/배지 적정 폰트 크기 (입력은 별도 규칙으로) */
+            input, select, textarea {
+                font-size: 16px !important;  /* iOS 자동 확대 방지 */
             }
-            /* 단, 작은 버튼/칩/배지는 예외 */
-            .filter-toggle-btn, .filter-btn, .score-pill, .main-tab .label,
-            .rank-badge, .stock-ticker, .breakdown-chip, .card-badge {
-                font-size: inherit !important;
+            /* 나머지 버튼/pill/배지는 별도 설정 */
+            .filter-btn { font-size: 12px !important; padding: 4px 10px !important; }
+            .score-pill { font-size: 12px !important; padding: 2px 8px !important; }
+            .version-pill { font-size: 12px !important; padding: 4px 12px !important; }
+            .filter-toggle-btn { font-size: 11px !important; padding: 4px 8px !important; }
+            .main-tab .label { font-size: 10px !important; }
+            
+            /* M7: 필터 접기 시스템 */
+            .filter-section[data-collapsed="true"] .filter-body {
+                display: none !important;
+            }
+            .filter-section .filter-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                padding: 6px 0;
+            }
+            .filter-section .filter-header-btn {
+                padding: 6px 12px;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--text-secondary);
+                cursor: pointer;
+                white-space: nowrap;
+            }
+            .filter-section .filter-active-badge {
+                display: inline-block;
+                padding: 2px 6px;
+                background: var(--accent-gold);
+                color: #000;
+                border-radius: 10px;
+                font-size: 10px;
+                font-weight: 700;
+                margin-left: 4px;
             }
             
-            /* M2-a: 스크리닝 테이블을 카드 리스트로 전환 */
+            /* ═══════ M8-a: 컴팩트 리스트 뷰 (기본값) ═══════ */
+            /* 테이블 기본 카드 변환 제거 → 한 줄 리스트로 */
+            .stock-table {
+                font-size: 13px;
+                min-width: 0 !important;
+                width: 100%;
+            }
             .stock-table thead { display: none; }
-            .stock-table, .stock-table tbody, .stock-table tr, .stock-table td {
+            .stock-table, .stock-table tbody {
                 display: block;
                 width: 100%;
-                box-sizing: border-box;
             }
-            .stock-table { font-size: 13px; min-width: 0 !important; }
             .stock-table tbody tr {
-                border: 1px solid var(--border-color);
-                border-radius: 10px;
-                margin-bottom: 8px;
-                padding: 10px;
-                background: var(--bg-card);
                 display: grid;
-                grid-template-columns: auto 1fr auto;
-                grid-template-areas:
-                    "rank name score"
-                    "rank meta score"
-                    "sector sector sector"
-                    "metrics metrics metrics";
-                grid-row-gap: 4px;
-                grid-column-gap: 8px;
+                grid-template-columns: 28px 1fr auto;
+                grid-column-gap: 6px;
                 align-items: center;
+                padding: 8px 6px;
+                border-bottom: 1px solid var(--border-color);
+                background: transparent;
+                min-height: 52px;
             }
-            /* 모든 td 기본 리셋 */
+            /* 각 td를 인라인으로 재배치 */
             .stock-table tbody td {
                 padding: 0 !important;
                 border: none !important;
-                display: none;  /* 기본 숨김, 아래서 개별 area 지정 */
+                display: none;  /* 기본 숨김, 필요한 것만 표시 */
             }
-            /* 랭크 (1번째 td) */
+            /* 1열: 순위 */
             .stock-table tbody td:nth-child(1) {
                 display: flex;
-                grid-area: rank;
                 align-items: center;
                 justify-content: center;
-                min-width: 32px;
             }
             .stock-table tbody td:nth-child(1) .rank-badge {
-                font-size: 14px;
-                font-weight: 800;
-                min-width: 28px;
-                text-align: center;
-                padding: 4px 6px;
+                font-size: 11px;
+                font-weight: 700;
+                min-width: 22px;
+                padding: 2px 5px;
             }
-            /* 종목명 (2번째 td) */
+            /* 2열: 종목명 (배지 포함) */
             .stock-table tbody td:nth-child(2) {
                 display: block;
-                grid-area: name;
                 min-width: 0;
                 overflow: hidden;
             }
             .stock-table tbody td:nth-child(2) .stock-cell {
+                display: block;
                 min-width: 0;
             }
             .stock-table tbody td:nth-child(2) .stock-name {
-                font-size: 15px !important;
-                font-weight: 700;
-                max-width: none !important;
-                overflow: visible !important;
-                text-overflow: clip !important;
-                white-space: normal;
+                font-size: 14px !important;
+                font-weight: 600;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 100%;
             }
             .stock-table tbody td:nth-child(2) .stock-ticker {
-                font-size: 11px !important;
-                margin-top: 2px;
-            }
-            /* 배지를 meta 영역으로 (name 하단에 이미 있음, 작게 유지) */
-            
-            /* 섹터 (3번째 td) */
-            .stock-table tbody td:nth-child(3) {
+                font-size: 10px !important;
+                margin-top: 1px;
                 display: flex;
-                grid-area: sector;
                 align-items: center;
-                gap: 6px;
-                padding-top: 4px !important;
-                border-top: 1px dashed var(--border-color) !important;
-                margin-top: 4px;
+                gap: 4px;
                 flex-wrap: wrap;
             }
-            .stock-table tbody td:nth-child(3) .breakdown-chip {
-                font-size: 11px !important;
-                padding: 2px 6px;
+            /* 종목명 아래 배지는 한 줄로 축소 */
+            .stock-table tbody td:nth-child(2) > .stock-cell > div > div:last-child {
+                margin-top: 2px !important;
+                line-height: 1.3 !important;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
-            /* 총점 (4번째) - 오른쪽 큰 숫자 */
+            /* 3열: 섹터 (인라인) → 숨김 (공간 부족) */
+            .stock-table tbody td:nth-child(3) {
+                display: none;
+            }
+            /* 4열: 총점 (오른쪽 숫자) */
             .stock-table tbody td:nth-child(4) {
                 display: flex;
-                grid-area: score;
-                flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                min-width: 52px;
-                padding: 4px 0 !important;
-                background: var(--bg-secondary);
-                border-radius: 8px;
+                min-width: 44px;
+                padding: 2px 0 !important;
             }
             .stock-table tbody td:nth-child(4) .score-val {
-                font-size: 20px !important;
+                font-size: 18px !important;
                 font-weight: 800;
             }
             .stock-table tbody td:nth-child(4) .score-bar {
                 display: none;
             }
-            .stock-table tbody td:nth-child(4)::before {
-                content: '총점';
-                font-size: 9px;
-                color: var(--text-muted);
-                display: block;
-                margin-bottom: 2px;
-            }
-            
-            /* 나머지 점수/지표들 (5~14번째) - metrics 영역에 2줄로 압축 */
+            /* 5~14열: 팩터 점수, 지표들 → 기본 숨김 */
             .stock-table tbody td:nth-child(n+5) {
-                display: inline-flex;
-                grid-area: metrics;
-                align-items: center;
-                justify-content: space-between;
-                padding: 2px 6px !important;
-                font-size: 11px;
-                background: var(--bg-secondary);
-                border-radius: 4px;
-                margin: 2px;
-                min-width: 60px;
+                display: none;
             }
-            /* 각 지표 셀 앞에 라벨 */
-            .stock-table tbody td:nth-child(5)::before { content: 'Val '; color: var(--text-muted); font-size: 9px; }
-            .stock-table tbody td:nth-child(6)::before { content: 'Qty '; color: var(--text-muted); font-size: 9px; }
-            .stock-table tbody td:nth-child(7)::before { content: 'Grw '; color: var(--text-muted); font-size: 9px; }
-            .stock-table tbody td:nth-child(8)::before { content: 'Mom '; color: var(--text-muted); font-size: 9px; }
-            .stock-table tbody td:nth-child(9)::before { content: 'Rsk '; color: var(--text-muted); font-size: 9px; }
-            .stock-table tbody td:nth-child(10)::before { content: 'PER '; color: var(--text-muted); font-size: 9px; }
-            .stock-table tbody td:nth-child(11)::before { content: 'PBR '; color: var(--text-muted); font-size: 9px; }
-            .stock-table tbody td:nth-child(12)::before { content: '3M '; color: var(--text-muted); font-size: 9px; }
-            .stock-table tbody td:nth-child(13)::before { content: 'RSI '; color: var(--text-muted); font-size: 9px; }
-            .stock-table tbody td:nth-child(14)::before { content: 'Vol '; color: var(--text-muted); font-size: 9px; }
-            .stock-table tbody td:nth-child(n+5) .score-bar { display: none !important; }
-            .stock-table tbody td:nth-child(n+5) .score-val { font-size: 11px !important; font-weight: 600; }
             
-            /* 카드 뷰일 때 가로 스크롤 힌트 숨김 */
+            /* 가로 스크롤 힌트 숨김 */
             .stock-table-wrap { overflow-x: visible !important; }
             .stock-table-wrap::after { display: none !important; }
             
-            /* M3: 모든 모달을 bottom sheet로 */
-            #paModal, #factorGuideModal {
+            /* 북마크/비교 아이콘 터치 영역 확대 */
+            .stock-cell span[onclick*="toggleWatchlist"] {
+                font-size: 16px !important;
+                padding: 6px !important;
+                min-width: 32px;
+                min-height: 32px;
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                touch-action: manipulation;
+            }
+            .stock-cell span.compare-toggle {
+                font-size: 15px !important;
+                padding: 6px !important;
+                min-width: 32px;
+                min-height: 32px;
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                touch-action: manipulation;
+            }
+            /* 💰 액션 버튼 터치 영역 */
+            .stock-ticker span[onclick*="showPositionActionCard"] {
+                padding: 4px 10px !important;
+                font-size: 11px !important;
+                min-height: 28px;
+                display: inline-flex !important;
+                align-items: center;
+            }
+            
+            /* ═══════ M8-b (v5.22): 표 뷰 (body.view-table일 때 활성화) ═══════ */
+            /*  컴팩트 리스트 → 전체 테이블 가로 스크롤 모드로 전환  */
+            body.view-table .stock-table-wrap {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+            }
+            body.view-table .stock-table {
+                min-width: 900px !important;
+                width: auto !important;
+                display: table !important;
+                font-size: 11px !important;
+            }
+            body.view-table .stock-table thead {
+                display: table-header-group !important;
+            }
+            body.view-table .stock-table thead th {
+                font-size: 10px !important;
+                padding: 4px 3px !important;
+                white-space: nowrap;
+                background: var(--bg-card);
+                position: sticky;
+                top: 0;
+                z-index: 5;
+            }
+            body.view-table .stock-table tbody {
+                display: table-row-group !important;
+            }
+            body.view-table .stock-table tbody tr {
+                display: table-row !important;
+                grid-template-columns: none !important;
+                padding: 0 !important;
+                border: none !important;
+                border-bottom: 1px solid var(--border-color) !important;
+                background: transparent !important;
+                min-height: auto !important;
+                grid-row-gap: 0 !important;
+                grid-column-gap: 0 !important;
+            }
+            body.view-table .stock-table tbody td {
+                display: table-cell !important;
+                padding: 4px 3px !important;
+                border: none !important;
+                vertical-align: middle !important;
+                font-size: 11px !important;
+                white-space: nowrap;
+            }
+            body.view-table .stock-table tbody td::before { content: none !important; }
+            body.view-table .stock-table tbody td:nth-child(1) .rank-badge { font-size: 10px; padding: 2px 4px; min-width: 18px; }
+            body.view-table .stock-table tbody td:nth-child(2) { min-width: 120px; max-width: 140px; }
+            body.view-table .stock-table tbody td:nth-child(2) .stock-name { font-size: 11px !important; font-weight: 600; }
+            body.view-table .stock-table tbody td:nth-child(2) .stock-ticker { font-size: 9px !important; }
+            body.view-table .stock-table tbody td:nth-child(2) > .stock-cell > div > div:last-child {
+                display: none !important;  /* 표 뷰에서는 배지 숨김 (공간 절약) */
+            }
+            body.view-table .stock-table tbody td:nth-child(3) {
+                display: table-cell !important;
+            }
+            body.view-table .stock-table tbody td:nth-child(3) .breakdown-chip {
+                font-size: 9px !important;
+                padding: 1px 4px;
+            }
+            body.view-table .stock-table tbody td:nth-child(4) {
+                background: transparent !important;
+                border-radius: 0 !important;
+                min-width: auto !important;
+                padding: 4px 3px !important;
+                display: table-cell !important;
+            }
+            body.view-table .stock-table tbody td:nth-child(4) .score-val { font-size: 12px !important; }
+            body.view-table .stock-table tbody td:nth-child(4) .score-bar { display: block !important; }
+            body.view-table .stock-table tbody td:nth-child(4)::before { content: none !important; }
+            body.view-table .stock-table tbody td:nth-child(n+5) {
+                display: table-cell !important;
+                background: transparent !important;
+                border-radius: 0 !important;
+                font-size: 10px !important;
+                margin: 0 !important;
+                min-width: auto !important;
+                padding: 4px 3px !important;
+            }
+            body.view-table .stock-table tbody td:nth-child(n+5) .score-val { font-size: 10px !important; }
+            body.view-table .stock-table tbody td:nth-child(n+5) .score-bar {
+                display: block !important;
+                height: 2px !important;
+            }
+            body.view-table .stock-table-wrap::after {
+                content: '← 가로 스크롤 →';
+                display: block;
+                text-align: center;
+                font-size: 9px;
+                color: var(--text-muted);
+                padding: 4px 0;
+            }
+            /* 표 뷰에서 compare/wishlist 토글은 작게 */
+            body.view-table .compare-toggle,
+            body.view-table .stock-cell span[onclick*="toggleWatchlist"] {
+                font-size: 11px !important;
+                padding: 2px !important;
+                min-width: auto !important;
+                min-height: auto !important;
+            }
+            
+            /* M3: Bottom Sheet 모달 */
+            #paModal, #factorGuideModal, #compareModal {
                 align-items: flex-end !important;
                 padding: 0 !important;
             }
-            #paModal > div, #factorGuideModal > div {
+            #paModal > div, #factorGuideModal > div, #compareModal > div {
                 width: 100% !important;
                 max-width: 100% !important;
                 max-height: 90vh !important;
@@ -1809,8 +1937,8 @@
                 border-radius: 16px 16px 0 0 !important;
                 padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
             }
-            /* 드래그 핸들 (시각적 표시만) */
-            #paModal > div::before, #factorGuideModal > div::before, .stock-detail-content::before {
+            #paModal > div::before, #factorGuideModal > div::before, 
+            .stock-detail-content::before, #compareModal > div::before {
                 content: '';
                 display: block;
                 width: 36px;
@@ -1830,7 +1958,6 @@
                 grid-template-columns: 1fr !important;
                 gap: 8px !important;
             }
-            /* 액션 버튼 2열 → 1열 세로 */
             #paModal [style*="grid-template-columns:1fr 1fr"] button {
                 min-height: 44px;
             }
@@ -1851,33 +1978,6 @@
                 overflow-x: auto !important;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: none;
-            }
-            .filter-toggle-btn {
-                font-size: 11px !important;
-                padding: 4px 10px !important;
-                height: 30px !important;
-                line-height: 20px !important;
-                min-width: max-content;
-                white-space: nowrap;
-            }
-            
-            /* 💰 액션 버튼 터치 영역 확대 */
-            .stock-ticker span[onclick*="showPositionActionCard"] {
-                padding: 4px 8px !important;
-                font-size: 11px !important;
-                display: inline-block;
-                min-height: 24px;
-            }
-            
-            /* 북마크 아이콘 터치 영역 */
-            .stock-cell span[onclick*="toggleWatchlist"] {
-                font-size: 18px !important;
-                padding: 4px 6px !important;
-                min-width: 32px;
-                min-height: 32px;
-                display: inline-flex !important;
-                align-items: center;
-                justify-content: center;
             }
             
             /* 백테스트 탭 컨트롤 버튼 */
@@ -1908,11 +2008,278 @@
             .card { padding: 8px; margin-bottom: 8px; }
             
             /* 더 작은 화면에서 총점 숫자 살짝 축소 */
-            .stock-table tbody td:nth-child(4) .score-val { font-size: 18px !important; }
+            .stock-table tbody td:nth-child(4) .score-val { font-size: 16px !important; }
             
             /* 워치리스트 요약 카드 아이템 컴팩트 */
             #watchlistSummaryContent [style*="padding:8px 10px"] {
                 padding: 6px 8px !important;
+            }
+        }
+        
+        /* v5.22-fix (M13): 모바일에서 모든 박스/모달/가이드 컴팩트화 */
+        @media (max-width: 640px) {
+            /* 상세 모달 압축 */
+            .stock-detail-header { padding: 10px 12px !important; }
+            .stock-detail-header h2 { font-size: 15px !important; }
+            .stock-detail-body { padding: 10px !important; }
+            .detail-section {
+                padding: 8px 10px !important;
+                margin-bottom: 8px !important;
+                border-radius: 8px !important;
+            }
+            .detail-section-title {
+                font-size: 12px !important;
+                margin-bottom: 6px !important;
+            }
+            .detail-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 4px !important;
+            }
+            .detail-item {
+                padding: 4px 6px !important;
+                font-size: 11px !important;
+                border-radius: 4px !important;
+            }
+            .detail-item-label {
+                font-size: 10px !important;
+                gap: 2px !important;
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .detail-item-label .info-icon { font-size: 9px !important; }
+            .detail-item-value { font-size: 11px !important; font-weight: 700 !important; }
+            
+            /* 필터 영역 압축 */
+            .filter-section {
+                padding: 6px 8px !important;
+                margin-bottom: 10px !important;
+                border-radius: 8px !important;
+            }
+            .filter-section .filter-header {
+                padding: 4px 0 !important;
+            }
+            .filter-section .filter-body {
+                padding-top: 4px !important;
+            }
+            .filter-section .filter-header-btn {
+                padding: 4px 8px !important;
+                font-size: 11px !important;
+                min-height: auto !important;
+            }
+            /* 시장선택·버전 박스 */
+            [style*="border-radius: 12px"][style*="padding: 14px"] {
+                padding: 8px !important;
+                border-radius: 8px !important;
+                margin-bottom: 8px !important;
+            }
+            /* 필터 토글 버튼 (역발상 · 모멘텀 등) */
+            .filter-toggle-btn {
+                height: 20px !important;
+                line-height: 20px !important;
+            }
+            /* 필터 줄 내부 padding 축소 */
+            [style*="background: var(--bg-card); padding: 2px; border-radius: 5px; height: 26px"] {
+                height: 24px !important;
+            }
+            
+            /* 팩터 가이드 모달 압축 */
+            #factorGuideModal > div { padding: 12px !important; }
+            #factorGuideModal [style*="grid-template-columns:repeat(auto-fit"] {
+                grid-template-columns: 1fr !important;
+                gap: 6px !important;
+            }
+            #factorGuideModal [style*="padding:10px"] {
+                padding: 8px !important;
+            }
+            
+            /* 투자 지식 탭 - 시나리오 박스 */
+            #knowledge .scenario-card,
+            #knowledge [style*="padding: 20px"],
+            #knowledge [style*="padding:20px"] {
+                padding: 10px !important;
+            }
+            
+            /* 일반 카드 내부 타이틀 */
+            .card-header {
+                padding-bottom: 6px !important;
+                margin-bottom: 6px !important;
+            }
+            
+            /* Stats 영역 압축 */
+            [style*="gap: 16px; margin-bottom: 16px"] {
+                gap: 8px !important;
+                margin-bottom: 8px !important;
+            }
+            
+            /* 액션 카드 모달 내부 여유 축소 */
+            #paModal > div { padding: 12px !important; }
+            #paModal [style*="padding:14px"] { padding: 10px !important; }
+            #paModal [style*="padding:12px"] { padding: 8px !important; }
+            #paModal [style*="padding:10px"] { padding: 8px !important; }
+            
+            /* v5.22-fix (M14): 내 포지션 탭 압축 */
+            #myHoldingsList > div {
+                padding: 8px 10px !important;
+                margin-bottom: 4px !important;
+                border-radius: 6px !important;
+            }
+            #myHoldingsList [style*="min-width:60px"] {
+                min-width: 46px !important;
+                font-size: 10px !important;
+            }
+            #myHoldingsList [style*="font-size:var(--fs-md);font-weight:700"] {
+                font-size: 13px !important;
+            }
+            #myHoldingsList [style*="font-size:var(--fs-xs);color:#64748b"],
+            #myHoldingsList [style*="font-size:var(--fs-xs);color:var(--text-muted)"] {
+                font-size: 10px !important;
+            }
+            #myHoldingsList button {
+                padding: 4px 7px !important;
+                font-size: 10px !important;
+                min-height: 28px !important;
+            }
+            /* 포지션 추가 폼 */
+            #myAddHoldingForm {
+                gap: 6px !important;
+            }
+            #myAddHoldingForm input {
+                padding: 6px 8px !important;
+                min-height: 34px !important;
+            }
+            /* 경보 배너 */
+            #myHoldingsList [style*="background:rgba(239,68,68,0.06)"] {
+                padding: 4px 6px !important;
+                font-size: 10px !important;
+            }
+            
+            /* ═══════════════════════════════════════════════════════
+               v5.23-fix (M15): 전역 카드/헤더/배지 모바일 축소
+               ═══════════════════════════════════════════════════════ */
+            .card {
+                padding: 8px 10px !important;
+                margin-bottom: 8px !important;
+                border-radius: 10px !important;
+            }
+            .card-header {
+                margin-bottom: 6px !important;
+                gap: 4px !important;
+            }
+            .card-title {
+                font-size: 14px !important;
+                gap: 4px !important;
+            }
+            .card-badge {
+                padding: 2px 8px !important;
+                font-size: 10px !important;
+                border-radius: 10px !important;
+            }
+            
+            /* v5.23-fix (M15-b): 상단 "ℹ️ 가이드" 배지 및 데이터 갱신/엑셀/초기화 버튼 축소 */
+            .card-header button,
+            .card-header label {
+                padding: 4px 8px !important;
+                font-size: 11px !important;
+                border-radius: 4px !important;
+                min-height: auto !important;
+                line-height: 1.3 !important;
+            }
+            /* 헤더 flex-direction column의 gap */
+            .card-header[style*="flex-direction: column"] {
+                gap: 4px !important;
+            }
+            
+            /* v5.23-fix (M15-c): 시장선택·버전 박스 내부 여유 줄이기 */
+            [style*="background: var(--bg-secondary); border-radius: 12px; padding: 14px"] {
+                padding: 6px 8px !important;
+                margin-bottom: 8px !important;
+                border-radius: 8px !important;
+            }
+            /* 시장 버튼 열 margin-bottom 축소 */
+            [style*="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px"] {
+                margin-bottom: 4px !important;
+                gap: 3px !important;
+            }
+            /* V25 Q20 G15 M15 R20 F5 가중치 표시 */
+            [style*="font-size: var(--fs-xs); color: var(--text-muted)"][style*="font-family: 'JetBrains Mono'"] {
+                font-size: 9px !important;
+            }
+            
+            /* v5.23-fix (M16): 뷰모드 토글 축소 */
+            #viewModeCompactBtn, #viewModeTableBtn {
+                padding: 2px 6px !important;
+                font-size: 10px !important;
+                min-height: auto !important;
+            }
+            
+            /* v5.23-fix (M17): 내 포지션 탭 안내 문구/라벨 축소 */
+            #positions > .card > div[style*="font-size: var(--fs-md); color: var(--text-muted)"] {
+                font-size: 11px !important;
+                margin-bottom: 6px !important;
+                line-height: 1.4;
+            }
+            #myAddHoldingForm label {
+                font-size: 10px !important;
+            }
+            #myAddHoldingForm input {
+                padding: 6px 8px !important;
+                font-size: 13px !important;
+                min-height: 32px !important;
+            }
+            #myAddHoldingForm button {
+                padding: 6px 10px !important;
+                font-size: 12px !important;
+                min-height: 32px !important;
+            }
+            /* 고급 옵션 details */
+            #myAddHoldingForm + details {
+                margin-bottom: 8px !important;
+            }
+            #myAddHoldingForm + details summary {
+                font-size: 11px !important;
+                padding: 2px 0 !important;
+            }
+            #myAddHoldingForm + details [style*="padding: 10px"] {
+                padding: 6px !important;
+            }
+            #myAddHoldingForm + details input {
+                min-height: 28px !important;
+                font-size: 12px !important;
+                padding: 4px 6px !important;
+            }
+            #myAddHoldingForm + details label {
+                font-size: 9px !important;
+            }
+            /* "보유종목을 추가하세요" 플레이스홀더 */
+            #myHoldingsList > div[style*="text-align:center"] {
+                font-size: 12px !important;
+                padding: 14px 10px !important;
+            }
+            
+            /* v5.23-fix (M18): 투자 메모 섹션 축소 */
+            #investMemo {
+                min-height: 80px !important;
+                padding: 8px !important;
+                font-size: 12px !important;
+                line-height: 1.5 !important;
+            }
+            #memoStatus { font-size: 9px !important; }
+            
+            /* v5.23-fix (M19): Stats 영역 폰트 통일 */
+            [style*="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-gold)"],
+            [style*="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-green)"] {
+                font-size: 13px !important;
+            }
+            
+            /* 필터 섹션 헤더 내부 칩들 */
+            #filterActiveSummary {
+                font-size: 10px !important;
+            }
+            .filter-active-badge {
+                font-size: 9px !important;
+                padding: 1px 4px !important;
             }
         }
         
@@ -1936,28 +2303,6 @@
                 right: 8px !important;
                 max-height: 60vh !important;
                 border-radius: 12px 12px 0 0 !important;
-            }
-            #compareModal {
-                align-items: flex-end !important;
-                padding: 0 !important;
-            }
-            #compareModal > div {
-                width: 100% !important;
-                max-width: 100% !important;
-                max-height: 90vh !important;
-                margin: 0 !important;
-                border-radius: 16px 16px 0 0 !important;
-                padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
-            }
-            #compareModal > div::before {
-                content: '';
-                display: block;
-                width: 36px;
-                height: 4px;
-                background: var(--text-muted);
-                opacity: 0.3;
-                border-radius: 2px;
-                margin: -4px auto 12px;
             }
         }
 
@@ -2064,8 +2409,31 @@
                     </div>
                 </div>
 
-                <!-- 필터 + 점수/추세 박스 -->
-                <div style="background: var(--bg-secondary); border-radius: 10px; padding: 8px 10px; margin-bottom: 16px;">
+                <!-- v5.21-fix (M7): 필터 + 점수/추세 박스 (접기 가능) -->
+                <div class="filter-section" data-collapsed="true" id="mainFilterSection" style="background: var(--bg-secondary); border-radius: 10px; padding: 8px 10px; margin-bottom: 16px;">
+                    <!-- M7: 필터 헤더 (항상 보임, 접기/펼치기 토글) + v5.23 프리셋 통합 -->
+                    <div class="filter-header" id="filterHeader">
+                        <div style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                            <span style="font-size: 13px; font-weight: 700; color: var(--text-secondary);">🔍 필터</span>
+                            <span id="filterActiveSummary" style="font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></span>
+                        </div>
+                        <!-- v5.23-fix (M16): 프리셋 버튼을 헤더 우측으로 이동 (작은 아이콘 형태) -->
+                        <div style="position:relative; display:inline-block;">
+                            <button type="button" id="presetToggleBtn" onclick="togglePresetPopup(event)" style="padding: 4px 8px; background: rgba(59,130,246,0.15); border: none; border-radius: 4px; font-size: 11px; font-weight: 700; color: var(--accent-blue); cursor: pointer; white-space: nowrap;" title="필터 프리셋 (저장/불러오기)">📌</button>
+                            <div id="presetPopup" style="display:none;position:absolute;top:calc(100% + 4px);right:0;min-width:240px;max-width:320px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.4);z-index:100;max-height:400px;overflow-y:auto;">
+                                <div style="padding:8px;border-bottom:1px solid var(--border-color);">
+                                    <button onclick="saveCurrentAsPreset()" style="width:100%;padding:8px;border:none;border-radius:4px;background:rgba(16,185,129,0.15);color:var(--accent-green);font-weight:700;font-size:12px;cursor:pointer;">💾 현재 필터 저장</button>
+                                </div>
+                                <div id="presetListContainer"></div>
+                            </div>
+                        </div>
+                        <button class="filter-header-btn" onclick="toggleFilterSection()" id="filterToggleBtn">
+                            <span id="filterToggleLabel">🔽 펼치기</span>
+                        </button>
+                    </div>
+                    
+                    <!-- M7: 접히는 내용 영역 -->
+                    <div class="filter-body">
                     <!-- 스크리닝 필터 -->
                     <div style="display: flex; align-items: flex-start; gap: 6px; margin-bottom: 5px;">
                         <span style="font-size: var(--fs-sm); color: var(--text-muted); line-height: 26px; flex-shrink: 0;">필터</span>
@@ -2087,16 +2455,7 @@
                                 <button type="button" class="filter-toggle-btn" id="filterValueGraduateBtn" data-target="filterValueGraduate" title="가치 졸업 = 역발상 조건 충족했으나 시장이 인식하여 과열 상태. 역발상→가치주 전환 (신규 개념)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: var(--fs-xs); font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">💰졸업</button>
                                 <button type="button" class="filter-toggle-btn" id="filterWatchlistOnlyBtn" data-target="filterWatchlistOnly" title="워치리스트에 북마크한 종목만 표시 (v5.18 신규)" style="padding: 0 6px; height: 22px; line-height: 22px; background: transparent; border: none; border-radius: 4px; font-size: var(--fs-xs); font-weight: 600; color: var(--text-muted); cursor: pointer; box-sizing: border-box;">🔖워치리스트</button>
                             </div>
-                            <!-- v5.20-fix (F6-h): 프리셋 버튼 + 팝업 -->
-                            <div style="position:relative;display:inline-block;">
-                                <button type="button" id="presetToggleBtn" onclick="togglePresetPopup(event)" style="padding: 0 8px; height: 22px; line-height: 22px; background: rgba(59,130,246,0.15); border: none; border-radius: 4px; font-size: var(--fs-xs); font-weight: 700; color: var(--accent-blue); cursor: pointer; white-space: nowrap;" title="필터 프리셋 (저장/불러오기)">📌 프리셋</button>
-                                <div id="presetPopup" style="display:none;position:absolute;top:calc(100% + 4px);right:0;min-width:240px;max-width:320px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.4);z-index:100;max-height:400px;overflow-y:auto;">
-                                    <div style="padding:8px;border-bottom:1px solid var(--border-color);">
-                                        <button onclick="saveCurrentAsPreset()" style="width:100%;padding:8px;border:none;border-radius:4px;background:rgba(16,185,129,0.15);color:var(--accent-green);font-weight:700;font-size:var(--fs-sm);cursor:pointer;">💾 현재 필터 저장</button>
-                                    </div>
-                                    <div id="presetListContainer"></div>
-                                </div>
-                            </div>
+                            <!-- v5.23-fix (M16): 프리셋 버튼은 필터 헤더로 이동됨 (2422줄 참조) -->
                         </div>
                         <input type="checkbox" id="filterOverbought" style="display: none;">
                         <input type="checkbox" id="filterNearHigh" style="display: none;">
@@ -2130,12 +2489,18 @@
                             <button class="momentum-pill" data-filter="momentum" data-value="down" style="padding: 0 10px; height: 22px; line-height: 22px; border: none; border-radius: 4px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); box-sizing: border-box;">📉</button>
                         </div>
                     </div>
+                    </div><!-- /.filter-body -->
                 </div>
 
-                <!-- Stats (한 줄) -->
-                <div style="display: flex; gap: 16px; margin-bottom: 16px; align-items: center; font-size: var(--fs-md);">
-                    <span style="color: var(--text-muted);">필터 결과: <span id="filteredCount" style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-gold);">511</span></span>
-                    <span style="color: var(--text-muted);">평균 점수: <span id="avgScore" style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-green);">-</span></span>
+                <!-- Stats (한 줄) + v5.21 뷰 모드 토글 -->
+                <div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: center; font-size: var(--fs-md); flex-wrap: wrap;">
+                    <span style="color: var(--text-muted);">결과: <span id="filteredCount" style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-gold);">511</span></span>
+                    <span style="color: var(--text-muted);">평균: <span id="avgScore" style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-green);">-</span></span>
+                    <!-- v5.22-fix (M8): 뷰 모드 토글 (리스트 기본, 표 옵션) -->
+                    <div style="margin-left: auto; display: flex; gap: 2px; background: var(--bg-card); padding: 2px; border-radius: 6px;">
+                        <button id="viewModeCompactBtn" onclick="setViewMode('compact')" style="padding: 3px 8px; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; background: rgba(245,158,11,0.2); color: var(--accent-gold);" title="컴팩트 리스트 (한 줄)">📋 리스트</button>
+                        <button id="viewModeTableBtn" onclick="setViewMode('table')" style="padding: 3px 8px; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted);" title="표 (가로 스크롤로 전체 컬럼)">📊 표</button>
+                    </div>
                 </div>
 
                 <!-- Table -->
@@ -6180,8 +6545,12 @@
                 // 종목명에 플래그 아이콘 추가
                 const displayName = statusIcons ? `${name.substring(0,16)} ${statusIcons}` : name.substring(0,18);
                 
-                // 🆕 종목 데이터를 JSON으로 인코딩 (모달용)
-                const stockDataId = `stock_${i}`;
+                // v5.21-fix (M9): stockDataId를 ticker 기반으로 안정화
+                //   기존: stock_${i} — 정렬·필터 후 i가 바뀌면 비교 바스켓 참조가 stale 됨
+                //   신규: stock_${ticker or code} — 종목 고유 식별자 기반이라 안정적
+                const stockUid = String(d.Ticker || d.Code || d._ticker || ('row_' + i))
+                    .replace(/[^a-zA-Z0-9가-힣_]/g, '_');
+                const stockDataId = `stock_${stockUid}`;
                 window._stockDetailData = window._stockDetailData || {};
                 window._stockDetailData[stockDataId] = d;
                 
@@ -6285,6 +6654,8 @@
             
             // v5.18-fix (F3-k): 워치리스트 요약 카드 재렌더링
             try { renderWatchlistSummary(); } catch(e) {}
+            // v5.21-fix (M7): 필터 활성 상태 요약 업데이트
+            try { updateFilterActiveSummary(); } catch(e) {}
         }
         
         // 필터 버튼 이벤트
@@ -18770,21 +19141,161 @@
             kellyWarning = '<div style="padding:8px 12px;background:rgba(245,158,11,0.1);border-left:3px solid #f59e0b;border-radius:4px;margin-bottom:10px;font-size:var(--fs-sm);color:#f59e0b;">ℹ️ 권장 비중이 매우 낮음 (0.5% 미만). 엣지가 작거나 변동성이 너무 큼.</div>';
         }
         
+        // v5.21-fix (M11-b): 백테스트 실증 데이터 조회 (있으면 승률 보정)
+        var histData = null;
+        try {
+            histData = summarizeHistoricalReturnsForScoreBucket(sizing.score, 10);
+        } catch (e) {}
+        
+        // v5.21-fix (M11-c): 3가지 사이징 방식 비교 데이터
+        var sizings = [
+            {
+                name: 'Kelly (×' + cfg.kellyFraction + ')',
+                desc: '확률적 최적 베팅 (가정 기반)',
+                amount: sizing.kellyAmount,
+                shares: Math.floor(sizing.kellyAmount / sizing.price),
+                pct: (sizing.kellyAmount / cfg.totalPortfolioValue) * 100,
+                color: '#a855f7',
+                basis: 'p=' + (sizing.winRate*100).toFixed(0) + '% · b=' + sizing.payoffRatio.toFixed(1)
+            },
+            {
+                name: 'Volatility',
+                desc: '손절 시 ' + cfg.riskBudgetPct + '% 손실 제한',
+                amount: sizing.volAmount,
+                shares: Math.floor(sizing.volAmount / sizing.price),
+                pct: (sizing.volAmount / cfg.totalPortfolioValue) * 100,
+                color: '#3b82f6',
+                basis: 'σ' + cfg.defaultStopLossMultiplier + ' · 손절 ' + sizing.stopPct.toFixed(1) + '%'
+            },
+            {
+                name: '단일 캡',
+                desc: '포트폴리오 집중도 제한',
+                amount: sizing.cap,
+                shares: Math.floor(sizing.cap / sizing.price),
+                pct: cfg.maxSinglePositionPct,
+                color: '#64748b',
+                basis: '최대 ' + cfg.maxSinglePositionPct + '%'
+            }
+        ];
+        
+        // 어느 것이 "채택"됐는지 표시
+        var chosenName;
+        if (sizing.recommendedAmount === sizing.kellyAmount) chosenName = 'Kelly (×' + cfg.kellyFraction + ')';
+        else if (sizing.recommendedAmount === sizing.volAmount) chosenName = 'Volatility';
+        else chosenName = '단일 캡';
+        
+        var sizingsHtml = sizings.map(function(s) {
+            var isChosen = s.name === chosenName;
+            return '<div style="padding:10px 12px;border-radius:8px;border:' + (isChosen ? '2px solid ' + s.color : '1px solid var(--border-color)') + ';background:' + (isChosen ? s.color + '15' : 'var(--bg-secondary)') + ';position:relative;">'
+                + (isChosen ? '<div style="position:absolute;top:-8px;right:8px;padding:2px 8px;background:' + s.color + ';color:#fff;border-radius:10px;font-size:9px;font-weight:800;">채택</div>' : '')
+                + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">'
+                + '<span style="font-weight:700;color:' + s.color + ';font-size:var(--fs-sm);">' + s.name + '</span>'
+                + '<span style="font-family:monospace;font-weight:700;color:var(--text-primary);font-size:var(--fs-md);">' + s.pct.toFixed(2) + '%</span>'
+                + '</div>'
+                + '<div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;">' + s.desc + '</div>'
+                + '<div style="display:flex;justify-content:space-between;font-size:var(--fs-xs);">'
+                + '<span style="color:var(--text-muted);">' + s.basis + '</span>'
+                + '<span style="font-family:monospace;color:var(--text-secondary);">' + fmtMoney(s.amount) + ' · ' + s.shares + '주</span>'
+                + '</div>'
+                + '</div>';
+        }).join('');
+        
+        // v5.21-fix (M11-d): 승률 근거 박스 (백테스트 연동)
+        var winrateBasisHtml = '';
+        var estimatedP = sizing.winRate;
+        var backtestP = (histData && histData.totalCases >= 5) ? histData.winRate : null;
+        
+        var rateLine = '<div style="display:flex;gap:8px;margin-bottom:6px;">'
+            + '<div style="flex:1;padding:8px;background:var(--bg-secondary);border-radius:6px;">'
+            + '<div style="font-size:10px;color:var(--text-muted);">📐 점수 기반 추정</div>'
+            + '<div style="font-size:var(--fs-md);font-weight:700;color:var(--text-primary);font-family:monospace;">' + (estimatedP*100).toFixed(1) + '%</div>'
+            + '<div style="font-size:9px;color:var(--text-muted);">가정값 (점수 ' + Math.round(sizing.score) + ')</div>'
+            + '</div>'
+            + '<div style="flex:1;padding:8px;background:' + (backtestP != null ? 'rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3)' : 'var(--bg-secondary)') + ';border-radius:6px;">'
+            + '<div style="font-size:10px;color:var(--text-muted);">🧪 백테스트 실증</div>'
+            + (backtestP != null ?
+                '<div style="font-size:var(--fs-md);font-weight:700;color:var(--color-gain);font-family:monospace;">' + (backtestP*100).toFixed(1) + '%</div>'
+                + '<div style="font-size:9px;color:var(--text-muted);">' + histData.totalCases + '건 (' + histData.minDaysHeld + '~' + histData.maxDaysHeld + '일)</div>'
+                :
+                '<div style="font-size:var(--fs-md);font-weight:700;color:var(--text-muted);">데이터 부족</div>'
+                + '<div style="font-size:9px;color:var(--text-muted);">백테스트 축적 필요</div>'
+            )
+            + '</div>'
+            + '</div>';
+        
+        winrateBasisHtml = '<div style="margin-bottom:12px;padding:10px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.25);border-radius:8px;">'
+            + '<div style="font-size:var(--fs-sm);font-weight:700;color:var(--accent-blue);margin-bottom:6px;">💡 승률 추정 근거</div>'
+            + rateLine;
+        
+        if (histData && histData.totalCases >= 5) {
+            // 실증 데이터 상세
+            winrateBasisHtml += '<div style="font-size:var(--fs-xs);color:var(--text-secondary);line-height:1.5;">'
+                + '점수 <b>' + Math.round(sizing.score - histData.tolerance) + '~' + Math.round(sizing.score + histData.tolerance) + '</b> 구간의 과거 추천 '
+                + '<b>' + histData.totalCases + '건</b> 중 현재까지 <b style="color:var(--color-gain);">' + histData.winners + '승</b> / <b style="color:var(--color-loss);">' + histData.losers + '패</b>, '
+                + '평균 수익률 <b style="color:' + (histData.avgReturn >= 0 ? 'var(--color-gain)' : 'var(--color-loss)') + ';">' + (histData.avgReturn >= 0 ? '+' : '') + histData.avgReturn.toFixed(1) + '%</b>';
+            if (histData.payoffRatio != null) {
+                winrateBasisHtml += ' · 평균 R:R <b>' + histData.payoffRatio.toFixed(2) + '</b>';
+            }
+            winrateBasisHtml += '</div>';
+            // 점수 기반 vs 실증 불일치 경고
+            var delta = Math.abs(estimatedP - backtestP);
+            if (delta > 0.1) {
+                winrateBasisHtml += '<div style="margin-top:6px;padding:6px 8px;background:rgba(245,158,11,0.1);border-left:3px solid #f59e0b;border-radius:3px;font-size:10px;color:#f59e0b;">⚠️ 점수 기반 추정과 실증 데이터가 <b>' + (delta*100).toFixed(0) + '%p 차이</b>. 실증 쪽을 신뢰할지 판단 필요.</div>';
+            }
+        } else {
+            winrateBasisHtml += '<div style="font-size:var(--fs-xs);color:var(--text-muted);line-height:1.5;">'
+                + '점수→승률 매핑은 <b>가정값</b>입니다 (80+=60%, 70+=55%, 60+=52%). '
+                + '백테스트 탭에서 스냅샷을 꾸준히 저장하면 실제 승률로 교정됩니다. '
+                + '현재: <b>' + (histData ? histData.msg : '데이터 없음') + '</b>'
+                + '</div>';
+        }
+        winrateBasisHtml += '</div>';
+        
         modal.innerHTML = '<div style="background:var(--bg-primary);border-radius:12px;padding:20px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;border:1px solid var(--border-color);">'
             // 헤더
-            + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">'
-            + '<div>'
-            + '<h3 style="margin:0 0 4px 0;color:var(--text-primary);">💰 ' + (d.Name || stockName) + '</h3>'
+            + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">'
+            + '<div style="min-width:0;flex:1;">'
+            + '<h3 style="margin:0 0 4px 0;color:var(--text-primary);font-size:18px;">💰 ' + (d.Name || stockName) + '</h3>'
             + '<div style="font-size:var(--fs-sm);color:var(--text-muted);">' + (d.Ticker || d.Code || '') + ' · ' + (d.Sector || d.Industry || '') + ' · 현재가 ' + fmtMoney(sizing.price) + '</div>'
             + '</div>'
-            + '<button onclick="document.getElementById(\'paModal\').remove()" style="background:transparent;border:none;font-size:24px;cursor:pointer;color:var(--text-muted);">×</button>'
+            + '<button onclick="document.getElementById(\'paModal\').remove()" style="background:transparent;border:none;font-size:28px;cursor:pointer;color:var(--text-muted);line-height:1;padding:0 4px;">×</button>'
+            + '</div>'
+            
+            // v5.21-fix (M11-e): 상단 빨간 경고 배너 (참고용 계산임을 강조)
+            + '<div style="padding:10px 12px;background:rgba(239,68,68,0.08);border:1.5px solid rgba(239,68,68,0.4);border-radius:8px;margin-bottom:12px;">'
+            + '<div style="font-size:13px;font-weight:700;color:#ef4444;margin-bottom:3px;">⚠️ 참고용 계산입니다</div>'
+            + '<div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">'
+            + 'Kelly 공식은 <b>가정된 승률</b>에 기반합니다. 실제 수익률은 다를 수 있으며, 거래비용·세금·슬리피지는 <b>미반영</b>. '
+            + '아래 3가지 방식 중 가장 보수적인 값을 채택하나, 최종 판단은 투자자 책임입니다.'
+            + '</div>'
             + '</div>'
             
             + kellyWarning
             
-            // 설정 수정 폼
+            // v5.21-fix (M11-c): 3가지 사이징 방식 비교 그리드
+            + '<div style="margin-bottom:12px;">'
+            + '<div style="font-size:var(--fs-sm);font-weight:700;color:var(--text-primary);margin-bottom:6px;">⚖️ 3가지 방식 비교 (채택 = 가장 작은 값)</div>'
+            + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">'
+            + sizingsHtml
+            + '</div>'
+            + '</div>'
+            
+            // 최종 채택 (축약)
+            + '<div style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.02));border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:12px;margin-bottom:12px;">'
+            + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">'
+            + '<div><div style="font-size:10px;color:var(--text-muted);">💡 채택 포지션 (' + chosenName + ')</div>'
+            + '<div style="font-size:22px;font-weight:800;color:var(--color-gain);font-variant-numeric:tabular-nums;">' + sizing.recommendedShares + '주</div></div>'
+            + '<div style="text-align:right;"><div style="font-size:var(--fs-sm);font-weight:700;color:var(--text-primary);font-variant-numeric:tabular-nums;">' + fmtMoney(sizing.actualAmount) + '</div>'
+            + '<div style="font-size:10px;color:var(--text-muted);">포트폴리오 ' + sizing.pctOfPortfolio.toFixed(2) + '%</div></div>'
+            + '</div>'
+            + '</div>'
+            
+            // v5.21-fix (M11-d): 승률 근거 섹션 (기본 펼침)
+            + winrateBasisHtml
+            
+            // 설정 수정 폼 (접힘 유지)
             + '<details style="margin-bottom:12px;">'
-            + '<summary style="cursor:pointer;font-size:var(--fs-sm);color:var(--text-muted);padding:4px 0;">⚙️ 설정 (포트폴리오 가치 / 리스크 버짓 / Kelly 배수)</summary>'
+            + '<summary style="cursor:pointer;font-size:var(--fs-sm);color:var(--text-muted);padding:4px 0;">⚙️ 설정 변경 (포트폴리오 가치 / 리스크 버짓 / Kelly 배수)</summary>'
             + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px;padding:10px;background:var(--bg-secondary);border-radius:6px;">'
             + '<label style="font-size:var(--fs-xs);">총 포트폴리오 (원)<input id="paCfgPV" type="number" value="' + cfg.totalPortfolioValue + '" style="width:100%;padding:4px 6px;border:1px solid var(--border-color);border-radius:4px;background:var(--bg-primary);color:var(--text-primary);font-size:var(--fs-sm);margin-top:2px;"></label>'
             + '<label style="font-size:var(--fs-xs);">리스크 버짓 (%)<input id="paCfgRB" type="number" step="0.1" value="' + cfg.riskBudgetPct + '" style="width:100%;padding:4px 6px;border:1px solid var(--border-color);border-radius:4px;background:var(--bg-primary);color:var(--text-primary);font-size:var(--fs-sm);margin-top:2px;"></label>'
@@ -18792,15 +19303,6 @@
             + '</div>'
             + '<button onclick="applyPAConfigFromModal(\'' + stockName.replace(/'/g, "\\'") + '\')" style="width:100%;margin-top:8px;padding:6px;border:none;border-radius:4px;background:var(--accent-blue);color:#fff;font-size:var(--fs-sm);font-weight:600;cursor:pointer;">재계산</button>'
             + '</details>'
-            
-            // 핵심 권장 사항
-            + '<div style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.02));border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:14px;margin-bottom:12px;">'
-            + '<div style="font-size:var(--fs-sm);color:var(--text-muted);margin-bottom:6px;">💡 권장 포지션</div>'
-            + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
-            + '<div><div style="font-size:var(--fs-xs);color:var(--text-muted);">권장 수량</div><div style="font-size:var(--font-xl);font-weight:800;color:var(--color-gain);font-variant-numeric:tabular-nums;">' + sizing.recommendedShares + '주</div></div>'
-            + '<div><div style="font-size:var(--fs-xs);color:var(--text-muted);">투입 금액</div><div style="font-size:var(--font-lg);font-weight:700;color:var(--text-primary);font-variant-numeric:tabular-nums;">' + fmtMoney(sizing.actualAmount) + '</div><div style="font-size:var(--fs-xs);color:var(--text-muted);">포트폴리오의 ' + sizing.pctOfPortfolio.toFixed(2) + '%</div></div>'
-            + '</div>'
-            + '</div>'
             
             // 엑싯 플랜
             + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">'
@@ -18822,20 +19324,6 @@
             + trancheHtml
             + '</div>'
             
-            // Kelly 상세
-            + '<details style="margin-bottom:12px;">'
-            + '<summary style="cursor:pointer;font-size:var(--fs-sm);color:var(--text-muted);padding:4px 0;">🧮 계산 상세 (Kelly / Volatility / 승률)</summary>'
-            + '<div style="padding:10px;background:var(--bg-secondary);border-radius:6px;font-size:var(--fs-xs);font-family:monospace;color:var(--text-secondary);line-height:1.6;">'
-            + '• 추정 승률 (p): <b>' + (sizing.winRate * 100).toFixed(1) + '%</b> (점수 ' + Math.round(sizing.score) + ' 기반)<br>'
-            + '• Payoff Ratio (b): <b>' + sizing.payoffRatio.toFixed(2) + '</b> (Quality/Growth 기반)<br>'
-            + '• Kelly Full: <b>' + (sizing.kellyFull * 100).toFixed(2) + '%</b> = (bp-q)/b<br>'
-            + '• Kelly Adjusted (×' + cfg.kellyFraction + '): <b>' + (sizing.kellyAdjusted * 100).toFixed(2) + '%</b> → ' + fmtMoney(sizing.kellyAmount) + '<br>'
-            + '• Volatility Sizing (리스크 ' + cfg.riskBudgetPct + '%, 손절 ' + sizing.stopPct.toFixed(1) + '%): ' + fmtMoney(sizing.volAmount) + '<br>'
-            + '• 단일 포지션 캡 (' + cfg.maxSinglePositionPct + '%): ' + fmtMoney(sizing.cap) + '<br>'
-            + '• <b>최종: min(Kelly, Volatility, Cap) = ' + fmtMoney(sizing.recommendedAmount) + '</b>'
-            + '</div>'
-            + '</details>'
-            
             // 진입 체크리스트
             + '<div style="margin-bottom:12px;">'
             + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
@@ -18847,13 +19335,18 @@
             
             // 액션 버튼
             + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
-            + '<button onclick="addStockToHoldings(\'' + stockName.replace(/'/g, "\\'") + '\', ' + sizing.recommendedShares + ', ' + sizing.price + ', ' + sizing.stopPrice + ', ' + sizing.targetPrice + ')" style="padding:12px;border:none;border-radius:6px;background:var(--accent-gold);color:#000;font-weight:700;cursor:pointer;font-size:var(--fs-md);">📌 권장대로 내 포지션에 추가</button>'
+            + '<button onclick="addStockToHoldings(\'' + stockName.replace(/'/g, "\\'") + '\', ' + sizing.recommendedShares + ', ' + sizing.price + ', ' + sizing.stopPrice + ', ' + sizing.targetPrice + ')" style="padding:12px;border:none;border-radius:6px;background:var(--accent-gold);color:#000;font-weight:700;cursor:pointer;font-size:var(--fs-md);">📌 권장대로 포지션 추가</button>'
             + '<button onclick="document.getElementById(\'paModal\').remove()" style="padding:12px;border:1px solid var(--border-color);border-radius:6px;background:transparent;color:var(--text-primary);font-weight:600;cursor:pointer;font-size:var(--fs-md);">닫기</button>'
             + '</div>'
             
-            // Disclaimer
-            + '<div style="margin-top:12px;padding:8px 12px;background:rgba(100,116,139,0.1);border-radius:4px;font-size:var(--fs-xs);color:var(--text-muted);line-height:1.5;">'
-            + '⚠️ 이 권장은 학술 공식 기반의 참고 수치입니다. 실제 승률은 백테스트 데이터 누적 후 교정됩니다 (백테스트 탭 참고). 거래비용, 세금, 슬리피지는 반영되지 않았습니다.'
+            // v5.21-fix (M11-e): 강화된 Disclaimer
+            + '<div style="margin-top:12px;padding:10px 12px;background:rgba(100,116,139,0.1);border-radius:6px;font-size:10px;color:var(--text-muted);line-height:1.6;">'
+            + '<b>⚠️ 유의사항</b><br>'
+            + '• Kelly 공식 승률은 점수→확률 <b>가정</b>이며 실제와 다를 수 있음<br>'
+            + '• ATR 손절가는 과거 변동성 기반, 미래 변동성 예측 아님<br>'
+            + '• 거래수수료, 양도소득세, 슬리피지 <b>미반영</b><br>'
+            + '• 3가지 방식 중 보수적 값 채택했으나, 여전히 본 수치는 <b>참고용</b><br>'
+            + '• 최종 매수 결정 및 손익 책임은 투자자에게 있음'
             + '</div>'
             + '</div>';
         
@@ -19334,6 +19827,125 @@
             renderTable();
             alert('✅ 워치리스트 전체 삭제됨');
         } catch (e) { alert('삭제 실패: ' + e.message); }
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // v5.21-fix (M7): 필터 섹션 접기/펼치기
+    // ═══════════════════════════════════════════════════════════
+    var FILTER_COLLAPSED_KEY = 'filterSection_collapsed_v5';
+    
+    function toggleFilterSection() {
+        var sec = document.getElementById('mainFilterSection');
+        var label = document.getElementById('filterToggleLabel');
+        if (!sec) return;
+        var collapsed = sec.getAttribute('data-collapsed') === 'true';
+        sec.setAttribute('data-collapsed', collapsed ? 'false' : 'true');
+        if (label) label.textContent = collapsed ? '🔼 접기' : '🔽 펼치기';
+        // 선호도 저장
+        try { AppStorage.set(FILTER_COLLAPSED_KEY, collapsed ? 'false' : 'true'); } catch (e) {}
+    }
+    
+    // v5.21-fix (M7): 활성 필터 개수 요약 텍스트 업데이트
+    function updateFilterActiveSummary() {
+        var el = document.getElementById('filterActiveSummary');
+        if (!el) return;
+        var parts = [];
+        
+        // 시장
+        var sheetMap = { 'KR_Stocks': '🇰🇷주식', 'US_Stocks': '🇺🇸주식', 'KR_ETF': '🇰🇷ETF', 'US_ETF': '🇺🇸ETF' };
+        var curSheet = (typeof filters !== 'undefined') ? filters.sheet : null;
+        if (curSheet && sheetMap[curSheet]) parts.push(sheetMap[curSheet]);
+        
+        // 버전
+        try {
+            var v = getSelectedVersion();
+            if (v) parts.push('v_' + v);
+        } catch (e) {}
+        
+        // 점수 필터
+        if (typeof filters !== 'undefined' && filters.score && filters.score !== 'all') {
+            parts.push(filters.score);
+        }
+        
+        // 활성 체크박스 개수
+        var checkIds = ['filterOverbought', 'filterNearHigh', 'filterVolatility',
+                        'filterContrarianOnly', 'filterMomentumOnly', 'filterQualityOnly',
+                        'filterIlliquidOnly', 'filterValueGraduate', 'filterDefensiveDiv',
+                        'filterWatchlistOnly'];
+        var activeCount = 0;
+        checkIds.forEach(function(id) {
+            var c = document.getElementById(id);
+            if (c && c.checked) activeCount++;
+        });
+        if (activeCount > 0) {
+            parts.push('<span class="filter-active-badge">' + activeCount + '개</span>');
+        }
+        
+        el.innerHTML = parts.join(' · ');
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // v5.22-fix (M8): 뷰 모드 토글 (컴팩트 ↔ 표) — 카드뷰 삭제
+    // ═══════════════════════════════════════════════════════════
+    var VIEW_MODE_KEY = 'screeningViewMode_v5';
+    
+    function setViewMode(mode) {
+        // mode: 'compact' | 'table'
+        var body = document.body;
+        body.classList.remove('view-card', 'view-table');
+        if (mode === 'table') {
+            body.classList.add('view-table');
+        }
+        
+        // 버튼 스타일 갱신
+        var compactBtn = document.getElementById('viewModeCompactBtn');
+        var tableBtn = document.getElementById('viewModeTableBtn');
+        if (compactBtn && tableBtn) {
+            var setActive = function(btn, active) {
+                btn.style.background = active ? 'rgba(245,158,11,0.2)' : 'transparent';
+                btn.style.color = active ? 'var(--accent-gold)' : 'var(--text-muted)';
+            };
+            setActive(compactBtn, mode !== 'table');
+            setActive(tableBtn, mode === 'table');
+        }
+        
+        try { AppStorage.set(VIEW_MODE_KEY, mode); } catch (e) {}
+    }
+    
+    // 초기화: 저장된 뷰 모드 복원 (DOMContentLoaded 시 호출)
+    function initViewMode() {
+        try {
+            var saved = AppStorage.get(VIEW_MODE_KEY);
+            // 기본: compact (리스트)
+            // v5.22: 'card'를 저장된 경우 → 'compact'로 자동 마이그레이션
+            if (saved === 'card') saved = 'compact';
+            setViewMode(saved === 'table' ? 'table' : 'compact');
+        } catch (e) { setViewMode('compact'); }
+    }
+    
+    function initFilterSectionState() {
+        try {
+            var saved = AppStorage.get(FILTER_COLLAPSED_KEY);
+            // 기본: 접힌 상태 (모바일 우선 설계)
+            var collapsed = saved === null || saved === undefined ? 'true' : saved;
+            var sec = document.getElementById('mainFilterSection');
+            var label = document.getElementById('filterToggleLabel');
+            if (sec) sec.setAttribute('data-collapsed', collapsed);
+            if (label) label.textContent = collapsed === 'true' ? '🔽 펼치기' : '🔼 접기';
+        } catch (e) {}
+    }
+    
+    // 페이지 로드 후 초기화
+    if (typeof document !== 'undefined') {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                try { initViewMode(); initFilterSectionState(); } catch(e) {}
+            });
+        } else {
+            setTimeout(function() {
+                try { initViewMode(); initFilterSectionState(); } catch(e) {}
+            }, 0);
+        }
     }
     
     // ──────────────────────────────────────────────────────────
@@ -20585,6 +21197,92 @@
         results.alpha = (benchReturn != null && results.validCount > 0) ? (results.avgReturn - benchReturn) : null;
         
         return results;
+    }
+    
+    // v5.21-fix (M11-a): 동일 점수 구간 종목의 과거 실현 수익률 집계
+    //   Action Card의 승률 추정을 백테스트 실증 데이터로 보정하기 위함
+    //   입력: targetScore (예: 72), tolerance (예: 10 → 62-82 구간)
+    //   출력: { totalCases, avgReturn, winRate, avgWinner, avgLoser, snapshots, ... }
+    function summarizeHistoricalReturnsForScoreBucket(targetScore, tolerance) {
+        if (targetScore == null) return null;
+        var tol = tolerance || 10;
+        
+        try {
+            var snaps = loadBacktestSnapshots();
+            if (!snaps || snaps.length === 0) return { totalCases: 0, msg: '백테스트 데이터 없음' };
+            
+            // 현재 vs 당시 가격 비교를 위해 screeningData에서 현재가 조회
+            var currentPriceMap = {};
+            if (typeof screeningData !== 'undefined' && screeningData) {
+                screeningData.forEach(function(s) {
+                    var t = String(s.Ticker || s.Code || s._ticker || '');
+                    currentPriceMap[t] = s.Price || s.Close || null;
+                });
+            }
+            
+            var cases = [];  // [{ snapshotDate, name, score, initialPrice, currentPrice, returnPct }]
+            var today = new Date();
+            
+            snaps.forEach(function(snap) {
+                if (!snap || !snap.topStocks || !snap.date) return;
+                var snapDate = new Date(snap.date);
+                var daysAgo = Math.floor((today - snapDate) / 86400000);
+                // 최소 7일은 지나야 "실현 수익률"이라 부를 수 있음
+                if (daysAgo < 7) return;
+                
+                snap.topStocks.forEach(function(stock) {
+                    if (stock.score == null || stock.price == null) return;
+                    // 점수가 타겟 구간 내에 있는지
+                    if (Math.abs(stock.score - targetScore) > tol) return;
+                    // 현재가 존재
+                    var curPrice = currentPriceMap[stock.ticker];
+                    if (!curPrice || curPrice <= 0) return;
+                    
+                    var ret = ((curPrice - stock.price) / stock.price) * 100;
+                    cases.push({
+                        snapshotDate: snap.date,
+                        daysHeld: daysAgo,
+                        name: stock.name,
+                        ticker: stock.ticker,
+                        score: stock.score,
+                        initialPrice: stock.price,
+                        currentPrice: curPrice,
+                        returnPct: ret
+                    });
+                });
+            });
+            
+            if (cases.length === 0) {
+                return { totalCases: 0, msg: '동일 점수 구간 과거 기록 부족 (7일 이상 경과 + 현재가 보유 필요)' };
+            }
+            
+            // 통계
+            var winners = cases.filter(function(c) { return c.returnPct > 0; });
+            var losers = cases.filter(function(c) { return c.returnPct < 0; });
+            var avgReturn = cases.reduce(function(s, c) { return s + c.returnPct; }, 0) / cases.length;
+            var winRate = winners.length / cases.length;
+            var avgWinner = winners.length > 0 ? winners.reduce(function(s, c) { return s + c.returnPct; }, 0) / winners.length : 0;
+            var avgLoser = losers.length > 0 ? losers.reduce(function(s, c) { return s + c.returnPct; }, 0) / losers.length : 0;
+            
+            return {
+                totalCases: cases.length,
+                targetScore: targetScore,
+                tolerance: tol,
+                avgReturn: avgReturn,
+                winRate: winRate,
+                winners: winners.length,
+                losers: losers.length,
+                avgWinner: avgWinner,
+                avgLoser: avgLoser,
+                payoffRatio: (losers.length > 0) ? Math.abs(avgWinner / avgLoser) : null,
+                snapshots: cases.length,
+                minDaysHeld: Math.min.apply(null, cases.map(function(c) { return c.daysHeld; })),
+                maxDaysHeld: Math.max.apply(null, cases.map(function(c) { return c.daysHeld; }))
+            };
+        } catch (e) {
+            console.warn('historical returns 계산 실패:', e);
+            return { totalCases: 0, msg: '데이터 처리 실패' };
+        }
     }
     
     // v5.16-fix (N16-c): 전체 스냅샷 집계 - 버전별 성과 요약
@@ -22585,30 +23283,137 @@
             document.body.style.overflow = 'hidden';
         }
         
-        // 상세 아이템 생성 헬퍼
+        // v5.22-fix (M12-a): 지표별 방향성 및 임계값 정의
+        // direction: 'higher_better'(높을수록 좋음) | 'lower_better'(낮을수록 좋음) | 'neutral'(중립)
+        // thresholds: { good: 기준, warn: 경계 } — direction에 따라 자동 비교
+        var METRIC_DIRECTION_MAP = {
+            // 수익성 (높을수록 좋음)
+            'ROE(%)':           { direction: 'higher_better', good: 15, warn: 5,   desc: '자기자본이익률. 15% 이상이면 우수' },
+            'ROA(%)':           { direction: 'higher_better', good: 7,  warn: 2,   desc: '총자산이익률. 7% 이상이면 우수' },
+            'ROIC(%)':          { direction: 'higher_better', good: 12, warn: 5,   desc: '투하자본이익률. 자본비용 초과 여부' },
+            'GrossMargin(%)':   { direction: 'higher_better', good: 40, warn: 20,  desc: '매출총이익률. 원가 효율성' },
+            'OpMargin(%)':      { direction: 'higher_better', good: 15, warn: 5,   desc: '영업이익률. 본업 수익성' },
+            'NetMargin(%)':     { direction: 'higher_better', good: 10, warn: 3,   desc: '순이익률. 최종 수익성' },
+            // 밸류에이션 (낮을수록 좋음)
+            'PER':              { direction: 'lower_better',  good: 15, warn: 25,  desc: '주가수익비율. 낮을수록 저평가 (음수/300+ = 이상치)' },
+            'PBR':              { direction: 'lower_better',  good: 1.5,warn: 3,   desc: '주가순자산비율. 1 미만이면 청산가치 이하' },
+            'PSR':              { direction: 'lower_better',  good: 2,  warn: 5,   desc: '주가매출액비율. 매출 대비 시가총액' },
+            'ForwardPE':        { direction: 'lower_better',  good: 15, warn: 25,  desc: '예상 PER. 미래 이익 기반' },
+            'EV/EBITDA':        { direction: 'lower_better',  good: 10, warn: 18,  desc: '기업가치/상각전영업이익. 10 미만이면 저평가' },
+            // 배당/현금흐름 (높을수록 좋음)
+            'FCFYield(%)':      { direction: 'higher_better', good: 5,  warn: 2,   desc: '잉여현금흐름 수익률' },
+            'DivYield(%)':      { direction: 'higher_better', good: 3,  warn: 1,   desc: '배당 수익률' },
+            // 재무 안정성 (상황에 따라 다름)
+            'CurrentRatio':     { direction: 'higher_better', good: 2,  warn: 1,   desc: '유동비율. 1 미만이면 단기 유동성 부족 위험' },
+            'DebtRatio(%)':     { direction: 'lower_better',  good: 50, warn: 150, desc: '부채비율. 150% 초과면 과다 (은행·보험 제외)' },
+            'Debt/Equity':      { direction: 'lower_better',  good: 50, warn: 150, desc: '부채/자기자본. 150 초과면 레버리지 과다' },
+            'InterestCoverage': { direction: 'higher_better', good: 5,  warn: 2,   desc: '이자보상배율. 2 미만이면 이자 감당 어려움' },
+            // 성장성 (높을수록 좋음)
+            'RevenueGrowth(%)': { direction: 'higher_better', good: 15, warn: 0,   desc: '매출 성장률 (YoY)' },
+            'EarningsGrowth(%)':{ direction: 'higher_better', good: 15, warn: 0,   desc: '이익 성장률 (YoY)' },
+            'EPSGrowth(%)':     { direction: 'higher_better', good: 10, warn: 0,   desc: '주당순이익 성장률' },
+            // 모멘텀 (단기는 중립, 장기는 높을수록 좋음)
+            'Return1D(%)':      { direction: 'neutral',       desc: '1일 수익률' },
+            'Return1W(%)':      { direction: 'neutral',       desc: '1주 수익률' },
+            'Return5D(%)':      { direction: 'neutral',       desc: '5일 수익률' },
+            'Return1M(%)':      { direction: 'neutral',       desc: '1개월 수익률' },
+            'Return20D(%)':     { direction: 'neutral',       desc: '20거래일 수익률' },
+            'Return3M(%)':      { direction: 'higher_better', good: 10, warn: -10, desc: '3개월 수익률. 중기 모멘텀' },
+            'Return60D(%)':     { direction: 'higher_better', good: 10, warn: -10, desc: '60거래일 수익률' },
+            'Return120D(%)':    { direction: 'higher_better', good: 15, warn: -15, desc: '120거래일 수익률' },
+            'Return6M(%)':      { direction: 'higher_better', good: 15, warn: -15, desc: '6개월 수익률' },
+            'Return1Y(%)':      { direction: 'higher_better', good: 20, warn: -20, desc: '1년 수익률. 장기 모멘텀' },
+            // 기술적 지표 (RSI는 극단이 위험)
+            'RSI14':            { direction: 'mean_revert',   good: [30, 65], warn: [20, 80], desc: 'RSI. 70+ 과매수, 30- 과매도' },
+            'BB_Position':      { direction: 'mean_revert',   good: [30, 70], warn: [10, 90], desc: '볼린저밴드 위치 (0~100)' },
+            'vs_MA20(%)':       { direction: 'neutral',       desc: '20일 이평선 대비 괴리율' },
+            'vs_MA60(%)':       { direction: 'neutral',       desc: '60일 이평선 대비 괴리율' },
+            'vs_MA120(%)':      { direction: 'neutral',       desc: '120일 이평선 대비 괴리율' },
+            'MACD':             { direction: 'neutral',       desc: 'MACD 지표' },
+            'ADX':              { direction: 'higher_better', good: 25, warn: 15, desc: '추세 강도. 25 이상이면 강한 추세' },
+            // 리스크 (낮을수록 좋음) ← 핵심 수정
+            'Volatility20D':    { direction: 'lower_better',  good: 20, warn: 40,  desc: '20일 변동성. 낮을수록 안정적 (%)' },
+            'Volatility60D':    { direction: 'lower_better',  good: 20, warn: 40,  desc: '60일 변동성' },
+            'Beta':             { direction: 'lower_better',  good: 1,  warn: 1.5, desc: '시장 민감도. 1 미만이면 방어적' },
+            'MaxDrawdown(%)':   { direction: 'higher_better', good: -10, warn: -25, desc: '최대 낙폭 (음수). 덜 음수일수록 좋음' },
+            'SharpeRatio':      { direction: 'higher_better', good: 1,  warn: 0,   desc: '샤프지수. 위험조정 수익률' },
+            // 점수 (높을수록 좋음)
+            'TotalScore':       { direction: 'higher_better', good: 70, warn: 40,  desc: '종합 점수 (100점 만점)' },
+            'ValueScore':       { direction: 'higher_better', good: 70, warn: 30,  desc: 'Value 팩터 점수' },
+            'QualityScore':     { direction: 'higher_better', good: 70, warn: 30,  desc: 'Quality 팩터 점수' },
+            'GrowthScore':      { direction: 'higher_better', good: 70, warn: 30,  desc: 'Growth 팩터 점수' },
+            'MomentumScore':    { direction: 'higher_better', good: 70, warn: 30,  desc: 'Momentum 팩터 점수' },
+            'RiskScore':        { direction: 'higher_better', good: 70, warn: 30,  desc: '리스크 점수 (높을수록 안정적 = 역백분위)' },
+            'FlowScore':        { direction: 'higher_better', good: 70, warn: 30,  desc: '수급 점수' },
+            'Stability':        { direction: 'higher_better', good: 70, warn: 30,  desc: '안정성 점수' },
+            'Profitability':    { direction: 'higher_better', good: 70, warn: 30,  desc: '수익성 점수' },
+            'Cost_Score':       { direction: 'higher_better', good: 95, warn: 85,  desc: 'ETF 비용 점수' },
+            // 기타
+            'ForeignRatio(%)':  { direction: 'higher_better', good: 30, warn: 10,  desc: '외국인 보유 비중' },
+            'InstOwn(%)':       { direction: 'higher_better', good: 30, warn: 10,  desc: '기관 보유 비중' },
+            'ExpenseRatio(%)':  { direction: 'lower_better',  good: 0.2, warn: 0.6, desc: 'ETF 운용보수. 낮을수록 좋음' },
+            'TrackingError':    { direction: 'lower_better',  good: 1,   warn: 3,   desc: '추적오차' },
+            'DataQuality(%)':   { direction: 'higher_better', good: 90,  warn: 60,  desc: '데이터 완성도' },
+            'From52wHigh(%)':   { direction: 'mean_revert',   good: [-20, -2], warn: [-50, 0], desc: '52주 고점 대비 (%). 0에 가까우면 고점 근접' },
+            '52wHigh':          { direction: 'neutral',       desc: '52주 최고가' },
+            '52wLow':           { direction: 'neutral',       desc: '52주 최저가' },
+        };
+        
+        // v5.22-fix (M12-b): 방향성을 고려한 색상 결정
+        function getMetricColorClass(key, value) {
+            var spec = METRIC_DIRECTION_MAP[key];
+            if (!spec || value == null || isNaN(value)) return '';
+            
+            if (spec.direction === 'higher_better') {
+                if (spec.good != null && value >= spec.good) return 'positive';
+                if (spec.warn != null && value < spec.warn) return 'negative';
+                return '';
+            }
+            if (spec.direction === 'lower_better') {
+                if (spec.good != null && value <= spec.good) return 'positive';
+                if (spec.warn != null && value > spec.warn) return 'negative';
+                return '';
+            }
+            if (spec.direction === 'mean_revert' && Array.isArray(spec.good)) {
+                var g = spec.good, w = spec.warn || [-Infinity, Infinity];
+                if (value >= g[0] && value <= g[1]) return 'positive';
+                if (value < w[0] || value > w[1]) return 'negative';
+                return '';
+            }
+            return '';  // neutral
+        }
+        
+        // 상세 아이템 생성 헬퍼 (v5.22 개편)
         function createDetailItem(key, value, type) {
+            var spec = METRIC_DIRECTION_MAP[key];
+            var tooltip = (spec && spec.desc) || INDICATOR_DESCRIPTIONS[key] || key;
+            // 키 표시 이름 정리 (% 괄호 제거, 짧게)
+            var labelName = key.replace(/[%()\[\]]/g, '').substring(0, 15);
+            
             if (value === null || value === undefined || value === '') {
-                return `
-                    <div class="detail-item">
-                        <span class="detail-item-label detail-tooltip" data-tooltip="${INDICATOR_DESCRIPTIONS[key] || key}">
-                            ${key.replace(/[%()\[\]]/g, '').substring(0, 15)}
-                            <span class="info-icon">ⓘ</span>
-                        </span>
-                        <span class="detail-item-value neutral">-</span>
-                    </div>
-                `;
+                return '<div class="detail-item">'
+                    + '<span class="detail-item-label detail-tooltip" data-tooltip="' + String(tooltip).replace(/"/g, '&quot;') + '">'
+                    + labelName + ' <span class="info-icon">ⓘ</span></span>'
+                    + '<span class="detail-item-value neutral">-</span>'
+                    + '</div>';
             }
             
-            let displayValue = value;
-            let valueClass = '';
+            var displayValue = value;
+            var valueClass = '';
             
             switch (type) {
                 case 'percent':
                     displayValue = typeof value === 'number' ? value.toFixed(2) + '%' : value;
-                    valueClass = value > 0 ? 'positive' : value < 0 ? 'negative' : '';
+                    // v5.22-fix: 방향성 맵 우선, 없으면 기본 (양수=green, 음수=red)
+                    if (spec) {
+                        valueClass = getMetricColorClass(key, value);
+                    } else {
+                        valueClass = value > 0 ? 'positive' : value < 0 ? 'negative' : '';
+                    }
                     break;
                 case 'ratio':
                     displayValue = typeof value === 'number' ? value.toFixed(2) : value;
+                    if (spec) valueClass = getMetricColorClass(key, value);
                     break;
                 case 'price':
                     displayValue = typeof value === 'number' ? value.toLocaleString() : value;
@@ -22618,25 +23423,27 @@
                     break;
                 case 'score':
                     displayValue = typeof value === 'number' ? value.toFixed(0) : value;
-                    valueClass = value >= 70 ? 'positive' : value < 40 ? 'negative' : '';
+                    valueClass = spec ? getMetricColorClass(key, value)
+                                      : (value >= 70 ? 'positive' : value < 40 ? 'negative' : '');
                     break;
                 case 'rsi':
                     displayValue = typeof value === 'number' ? value.toFixed(1) : value;
-                    valueClass = value > 70 ? 'negative' : value < 30 ? 'positive' : '';
+                    valueClass = getMetricColorClass(key, value);
+                    break;
+                case 'number':
+                    displayValue = typeof value === 'number' ? value.toLocaleString() : value;
+                    if (spec) valueClass = getMetricColorClass(key, value);
                     break;
                 default:
                     displayValue = typeof value === 'number' ? value.toFixed(2) : value;
+                    if (spec) valueClass = getMetricColorClass(key, value);
             }
             
-            return `
-                <div class="detail-item">
-                    <span class="detail-item-label detail-tooltip" data-tooltip="${INDICATOR_DESCRIPTIONS[key] || key}">
-                        ${key.replace(/[%()\[\]]/g, '').substring(0, 15)}
-                        <span class="info-icon">ⓘ</span>
-                    </span>
-                    <span class="detail-item-value ${valueClass}">${displayValue}</span>
-                </div>
-            `;
+            return '<div class="detail-item">'
+                + '<span class="detail-item-label detail-tooltip" data-tooltip="' + String(tooltip).replace(/"/g, '&quot;') + '">'
+                + labelName + ' <span class="info-icon">ⓘ</span></span>'
+                + '<span class="detail-item-value ' + valueClass + '">' + displayValue + '</span>'
+                + '</div>';
         }
         
         // 모달 닫기
