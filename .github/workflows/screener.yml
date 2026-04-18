@@ -2,7 +2,7 @@ name: Global Stock Screener
 
 on:
   schedule:
-    # 매일 08:00실행 -
+    # 매일 08:00 KST 실행 (UTC 23:00 = KST 08:00)
     - cron: '0 23 * * *'
   workflow_dispatch:  # 수동 실행 가능
     inputs:
@@ -11,11 +11,16 @@ on:
         required: false
         default: false
         type: boolean
+      clear_cache:
+        description: 'v4.3+: 캐시 무효화 후 실행'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 120  # v4.0: 종목수 확대로 시간 증가
+    timeout-minutes: 180  # v4.4: DART API 호출로 +5~10분 증가 (150→180)
 
     steps:
       - name: Checkout repository
@@ -31,19 +36,80 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install yfinance openpyxl pandas requests beautifulsoup4 lxml numpy pykrx finance-datareader
+          # v4.4 신규: OpenDartReader (DART Open API 래퍼)
+          pip install OpenDartReader
+          # v4.3+: concurrent.futures / hashlib / json은 표준 라이브러리이므로 추가 설치 불필요
 
       - name: Run screener
         env:
           TZ: Asia/Seoul
+          # v4.3: FRED API 키 (HY OAS 등 추가 거시지표용, 선택사항)
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          # v4.4: DART Open API 키 (한국 재무제표 정확 계산용, 강력 권장)
+          # 미설정 시 v4.3 방식(yfinance+naver)으로 자동 fallback
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
         run: |
-          echo "🚀 글로벌 스크리너 v4.1 시작"
+          echo "🚀 글로벌 스크리너 v4.4 시작"
           echo "현재 시간: $(date)"
+          echo "신규 (v4.4): DART 재무제표 정식 + pykrx 마이크로구조 + 한국 breadth"
+          
+          # DART 키 등록 여부 표시
+          if [ -n "$DART_API_KEY" ]; then
+            echo "✅ DART API 활성화 (한국 Piotroski/Altman 정확 계산)"
+          else
+            echo "⚠️  DART_API_KEY 미설정 → v4.3 방식 사용 (회원가입: https://opendart.fss.or.kr)"
+          fi
+          
+          CLEAR_CACHE_FLAG=""
+          if [ "${{ inputs.clear_cache }}" = "true" ]; then
+            CLEAR_CACHE_FLAG="--no-cache"
+            echo "🗑️  캐시 무효화 모드"
+          fi
           
           # JSON만 출력 (PWA용)
-          python global_screener_v3.py --json-only --output-dir ./data
+          python global_screener_v3.py --json-only --output-dir ./data $CLEAR_CACHE_FLAG
           
           echo "✅ 완료"
           ls -la ./data/
+          
+          # v4.4: JSON 메타 확인 및 DART/pykrx 수집 통계
+          if [ -f ./data/data.json ]; then
+            python -c "
+import json
+with open('./data/data.json') as f:
+    d = json.load(f)
+print('📊 Pipeline version:', d.get('metadata', {}).get('version', 'N/A'))
+meta = d.get('data', {}).get('_meta', {})
+if meta:
+    print('   Generated at:', meta.get('generated_at', 'N/A'))
+    print('   Data sources:', ', '.join(meta.get('data_sources', [])))
+    print('   DART enabled:', meta.get('dart_enabled', False))
+
+kr = d.get('data', {}).get('KR_Stocks', [])
+us = d.get('data', {}).get('US_Stocks', [])
+mi = d.get('data', {}).get('Market_Indicators', [])
+print(f'   KR stocks: {len(kr)}')
+print(f'   US stocks: {len(us)}')
+print(f'   Market indicators: {len(mi)}')
+
+# v4.4: DART/pykrx 수집 성공률
+if kr:
+    with_dart = sum(1 for s in kr if 'dart' in str(s.get('_source', '')))
+    with_pykrx = sum(1 for s in kr if 'pykrx' in str(s.get('_source', '')))
+    with_piotroski = sum(1 for s in kr if s.get('PiotroskiFScore') is not None)
+    with_altman = sum(1 for s in kr if s.get('AltmanZScore') is not None)
+    with_roic = sum(1 for s in kr if s.get('ROIC(%)') is not None)
+    with_shorting = sum(1 for s in kr if s.get('ShortingBalance(억)') is not None)
+    with_foreign = sum(1 for s in kr if s.get('Foreign5DNet(억)') is not None)
+    print(f'   KR - DART 적용: {with_dart}/{len(kr)} ({100*with_dart/len(kr):.0f}%)')
+    print(f'   KR - pykrx 적용: {with_pykrx}/{len(kr)} ({100*with_pykrx/len(kr):.0f}%)')
+    print(f'   KR - Piotroski 계산됨: {with_piotroski}/{len(kr)} ({100*with_piotroski/len(kr):.0f}%)')
+    print(f'   KR - Altman 계산됨: {with_altman}/{len(kr)} ({100*with_altman/len(kr):.0f}%)')
+    print(f'   KR - ROIC 계산됨: {with_roic}/{len(kr)} ({100*with_roic/len(kr):.0f}%)')
+    print(f'   KR - 공매도 데이터: {with_shorting}/{len(kr)} ({100*with_shorting/len(kr):.0f}%)')
+    print(f'   KR - 외국인 순매수: {with_foreign}/{len(kr)} ({100*with_foreign/len(kr):.0f}%)')
+"
+          fi
 
       - name: Commit and push data
         run: |
@@ -53,11 +119,13 @@ jobs:
           # data 폴더의 변경사항 추가
           git add data/
           
+          # v4.3+: _cache/ 디렉토리는 .gitignore에 의해 제외됨 (재현성 유지)
+          
           # 변경사항이 있을 때만 커밋
           if git diff --staged --quiet; then
             echo "📝 변경사항 없음"
           else
-            git commit -m "📊 데이터 업데이트: $(date +'%Y-%m-%d %H:%M') KST"
+            git commit -m "📊 데이터 업데이트 v4.4: $(date +'%Y-%m-%d %H:%M') KST"
             git push
             echo "✅ 데이터 푸시 완료"
           fi
