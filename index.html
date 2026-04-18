@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-title" content="Investment">
     <meta name="theme-color" content="#0a0a0f">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>투자 의사결정 시스템 v5.24</title>
+    <title>투자 의사결정 시스템 v5.25</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
@@ -2436,6 +2436,10 @@
                                 <input type="radio" name="scoringVersion" value="E" style="display: none;">
                                 <span class="version-pill" data-version="E" style="display: block; padding: 5px 16px; border-radius: 6px; font-size: var(--fs-sm); font-weight: 600; color: var(--text-muted); background: transparent;">E</span>
                             </label>
+                            <label style="cursor: pointer;" title="Korea Flow Edition — 외국인 수급 중심">
+                                <input type="radio" name="scoringVersion" value="F" style="display: none;">
+                                <span class="version-pill" data-version="F" style="display: block; padding: 5px 16px; border-radius: 6px; font-size: var(--fs-sm); font-weight: 600; color: var(--text-muted); background: transparent;">F🇰🇷</span>
+                            </label>
                         </div>
                         <span id="versionDesc" style="font-size: var(--fs-sm); color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">V25 Q20 G15 M15 R20 F5</span>
                     </div>
@@ -2715,6 +2719,99 @@
 
         <!-- ==================== TAB 3: 시장 판단 ==================== -->
         <div class="tab-content" id="market">
+            <!-- ==================================================== -->
+            <!-- v5.25-M1: 거시 복합 대시보드 (Risk-On/Off, Korea 온도계, VIX term, HMM, 경기사이클) -->
+            <!-- ==================================================== -->
+            <div class="card" id="macroCompositeDashboard" style="padding: 12px; margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+                    <h3 class="card-title" style="margin: 0;">🌐 거시 복합 대시보드</h3>
+                    <span id="macroDashMeta" style="font-size: var(--fs-xs); color: var(--text-muted); font-family: 'JetBrains Mono', monospace;"></span>
+                </div>
+                
+                <!-- 1열: Risk-On/Off + Korea 온도계 -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-bottom: 10px;">
+                    <!-- Risk-On/Off -->
+                    <div style="padding: 10px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: var(--fs-sm); font-weight: 700; color: var(--text-primary);">🌡️ Risk-On/Off</span>
+                            <span id="riskOnOffLabel" style="font-size: var(--fs-sm); font-weight: 700; padding: 2px 8px; border-radius: 4px; background: var(--bg-card); color: var(--text-secondary);">―</span>
+                        </div>
+                        <div style="position: relative; height: 60px; margin-bottom: 6px;">
+                            <div style="position: absolute; left: 0; right: 0; top: 50%; height: 8px; transform: translateY(-50%); background: linear-gradient(90deg, var(--accent-red) 0%, var(--accent-gold) 50%, var(--accent-green) 100%); border-radius: 4px;"></div>
+                            <div id="riskOnOffMarker" style="position: absolute; top: 50%; transform: translate(-50%, -50%); width: 4px; height: 24px; background: var(--text-primary); border-radius: 2px; left: 50%; transition: left 0.5s ease;"></div>
+                            <div style="position: absolute; top: calc(50% + 14px); left: 0; font-size: var(--fs-xs); color: var(--accent-red);">위험회피</div>
+                            <div style="position: absolute; top: calc(50% + 14px); right: 0; font-size: var(--fs-xs); color: var(--accent-green);">위험선호</div>
+                        </div>
+                        <div id="riskOnOffDetail" style="font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.5;"></div>
+                    </div>
+                    
+                    <!-- Korea 온도계 -->
+                    <div style="padding: 10px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: var(--fs-sm); font-weight: 700; color: var(--text-primary);">🇰🇷 한국 시장 온도계</span>
+                            <span id="koreaThermoLabel" style="font-size: var(--fs-sm); font-weight: 700; padding: 2px 8px; border-radius: 4px; background: var(--bg-card); color: var(--text-secondary);">―</span>
+                        </div>
+                        <div style="position: relative; height: 60px; margin-bottom: 6px;">
+                            <div style="position: absolute; left: 0; right: 0; top: 50%; height: 8px; transform: translateY(-50%); background: linear-gradient(90deg, #1e40af 0%, var(--accent-gold) 50%, #dc2626 100%); border-radius: 4px;"></div>
+                            <div id="koreaThermoMarker" style="position: absolute; top: 50%; transform: translate(-50%, -50%); width: 4px; height: 24px; background: var(--text-primary); border-radius: 2px; left: 50%; transition: left 0.5s ease;"></div>
+                            <div style="position: absolute; top: calc(50% + 14px); left: 0; font-size: var(--fs-xs); color: #3b82f6;">Cold</div>
+                            <div style="position: absolute; top: calc(50% + 14px); right: 0; font-size: var(--fs-xs); color: #ef4444;">Hot</div>
+                        </div>
+                        <div id="koreaThermoDetail" style="font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.5;"></div>
+                    </div>
+                </div>
+                
+                <!-- 2열: VIX 기간구조 + 경기 사이클 국면 -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-bottom: 10px;">
+                    <!-- VIX 기간 구조 -->
+                    <div style="padding: 10px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: var(--fs-sm); font-weight: 700; color: var(--text-primary);">📉 VIX 기간 구조</span>
+                            <span id="vixTermLabel" style="font-size: var(--fs-sm); font-weight: 700; padding: 2px 8px; border-radius: 4px; background: var(--bg-card); color: var(--text-secondary);">―</span>
+                        </div>
+                        <div id="vixTermChart" style="display: flex; align-items: flex-end; gap: 6px; height: 70px; padding: 4px 0;"></div>
+                        <div id="vixTermDetail" style="font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.5; margin-top: 6px;"></div>
+                    </div>
+                    
+                    <!-- 경기 사이클 국면 -->
+                    <div style="padding: 10px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: var(--fs-sm); font-weight: 700; color: var(--text-primary);">🔄 경기 사이클 국면</span>
+                            <span id="cyclePhaseLabel" style="font-size: var(--fs-sm); font-weight: 700; padding: 2px 8px; border-radius: 4px; background: var(--bg-card); color: var(--text-secondary);">―</span>
+                        </div>
+                        <div id="cyclePhaseChart" style="display: flex; gap: 4px; height: 30px; margin-bottom: 8px;">
+                            <div class="cycle-phase-bar" data-phase="Early" style="flex: 1; background: var(--bg-card); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: var(--fs-xs); color: var(--text-muted); font-weight: 600; border: 1px solid var(--border-color);">Early</div>
+                            <div class="cycle-phase-bar" data-phase="Mid" style="flex: 1; background: var(--bg-card); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: var(--fs-xs); color: var(--text-muted); font-weight: 600; border: 1px solid var(--border-color);">Mid</div>
+                            <div class="cycle-phase-bar" data-phase="Late" style="flex: 1; background: var(--bg-card); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: var(--fs-xs); color: var(--text-muted); font-weight: 600; border: 1px solid var(--border-color);">Late</div>
+                            <div class="cycle-phase-bar" data-phase="Recession" style="flex: 1; background: var(--bg-card); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: var(--fs-xs); color: var(--text-muted); font-weight: 600; border: 1px solid var(--border-color);">Recession</div>
+                        </div>
+                        <div id="cyclePhaseDetail" style="font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.5;"></div>
+                    </div>
+                </div>
+                
+                <!-- 3열: HMM Regime Watch (전폭) -->
+                <div style="padding: 10px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: var(--fs-sm); font-weight: 700; color: var(--text-primary);">📊 HMM Regime Watch</span>
+                        <span id="hmmRegimeLabel" style="font-size: var(--fs-sm); font-weight: 700; padding: 2px 8px; border-radius: 4px; background: var(--bg-card); color: var(--text-secondary);">―</span>
+                    </div>
+                    <div id="hmmSparkline" style="height: 50px; position: relative; margin-bottom: 6px;"></div>
+                    <div id="hmmRegimeDetail" style="font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.5;"></div>
+                </div>
+                
+                <!-- 출처 정보 + 학술 근거 -->
+                <details style="margin-top: 10px; font-size: var(--fs-xs); color: var(--text-muted);">
+                    <summary style="cursor: pointer; padding: 4px 0; font-weight: 600;">📚 학술 근거 · 계산 공식</summary>
+                    <div style="padding: 8px 10px; background: var(--bg-card); border-radius: 6px; margin-top: 4px; line-height: 1.7;">
+                        <div><b>Risk-On/Off</b>: (Copper/Gold z) + (HY/IG z) + (SPX Breadth z) - (VIX term z), 평균 → 0~100 스케일. 위험선호 지표 복합 (Gundlach 2012, Gilchrist-Zakrajšek 2012)</div>
+                        <div><b>한국 온도계</b>: KOSPI200 breadth + 외국인 5일 순매수 합 z + USDKRW 변화. 한국 특화 수급 지표 (Kho-Kim 2011)</div>
+                        <div><b>VIX 기간구조</b>: VIX9D / VIX / VIX3M. 백워데이션(단기↑) = 단기 스트레스 (Johnson 2017)</div>
+                        <div><b>경기 사이클</b>: 10Y-2Y 스프레드 + Copper/Gold 조합. Early/Mid/Late/Recession 4국면</div>
+                        <div><b>HMM Regime</b>: Hidden Markov Model로 시장 상태(BULL/BEAR) 확률 추정 (Hamilton 1989, Ang-Timmermann 2012)</div>
+                    </div>
+                </details>
+            </div>
+            
             <!-- 동적 판단 결과 -->
             <!-- ★ v5.3: 정적 투자근거 vs 동적 시장판단 충돌 감지 배너 -->
             <div id="rationaleConflictBanner" class="card" style="display:none; padding: 12px; background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(239,68,68,0.05)); border: 1px solid rgba(245,158,11,0.4);">
@@ -6929,16 +7026,20 @@
         //                v_D/E는 비표준 팩터 구조라 곱셈식 틸트로 처리 (버전 철학 보존)
         function getVersionBaseWeights(version, sheet) {
             // v5.7-fix: 각 버전의 원본 가중치를 반환. null이면 레짐 재계산 불가 (D/E)
+            // v5.25-F1: F 버전 "Korea Flow Edition" 추가 — 외국인 수급 중심 (KR 특화)
             if (sheet === 'KR_Stocks') {
                 if (version === 'A') return { Value: 0.25, Quality: 0.20, Growth: 0.15, Momentum: 0.15, Risk: 0.20, Flow: 0.05 };
                 if (version === 'B') return { Value: 0.20, Quality: 0.20, Growth: 0.20, Momentum: 0.20, Risk: 0.20, Flow: 0.00 };
                 if (version === 'C') return { Value: 0.25, Quality: 0.20, Growth: 0.15, Momentum: 0.20, Risk: 0.15, Flow: 0.05 };
+                if (version === 'F') return { Value: 0.15, Quality: 0.20, Growth: 0.10, Momentum: 0.15, Risk: 0.15, Flow: 0.25 };
                 return null; // D, E는 비표준 구조
             }
             if (sheet === 'US_Stocks') {
                 if (version === 'A') return { Value: 0.25, Quality: 0.20, Growth: 0.15, Momentum: 0.15, Risk: 0.15, Flow: 0.10 };
                 if (version === 'B') return { Value: 0.20, Quality: 0.20, Growth: 0.20, Momentum: 0.20, Risk: 0.20, Flow: 0.00 };
                 if (version === 'C') return { Value: 0.25, Quality: 0.20, Growth: 0.15, Momentum: 0.20, Risk: 0.15, Flow: 0.05 };
+                // v5.25-F1: F 버전은 US 종목에는 A 가중치와 동일 적용 (pykrx 수급 데이터 없으므로)
+                if (version === 'F') return { Value: 0.25, Quality: 0.20, Growth: 0.15, Momentum: 0.15, Risk: 0.15, Flow: 0.10 };
                 return null; // D, E는 비표준 구조
             }
             return null;
@@ -7026,6 +7127,7 @@
         //               → 스케일된 MomentumScore가 레짐 재계산에 반영되도록 순서 보정
         // v5.10-fix (N1): 최종 감쇠 집계 및 검증 로직 추가 (극단 감쇠 가드)
         function applyPostScoringAdjustments(data) {
+            applyV44FactorBoosts(data);     // v5.25-F3: v4.4 데이터 있을 때만 팩터 부스터 적용 (맨 앞)
             applyMomentumVolScaling(data); // v5.7-fix: 먼저 스케일 적용
             applyRegimeWeights(data);       // 그 뒤 레짐 재계산 (스케일된 MomentumScore 사용)
             applyDataCompletenessPenalty(data);
@@ -7049,6 +7151,182 @@
             
             return data;
         }
+        
+        // ==========================================================
+        // v5.25-F3: 팩터 재설계 (Factor Boosters)
+        // ==========================================================
+        // 파이프라인 v4.4 배포 후 신규 재무/시장 필드가 있으면 기존 점수에
+        // 가점/감점을 적용하여 학술적 근거를 강화. Graceful degradation:
+        // 필드 없으면 부스터 스킵, 기존 점수 그대로 유지.
+        //
+        // 적용 대상 필드 (v4.4 신규):
+        //   · Piotroski_FScore  (0~9, Piotroski 2000)    → QualityScore
+        //   · Altman_Z          (Altman 1968)            → QualityScore
+        //   · Sortino_Ratio     (Sortino 1991)           → RiskScore
+        //   · Calmar_Ratio                               → RiskScore
+        //   · ROIC              (Greenblatt 2005 Magic F) → ValueScore
+        //   · MACD_Signal       ('bullish_cross' 등)     → MomentumScore
+        //
+        // 설계 원칙:
+        //   1. 순수 가점/감점 (+/- 5~10점), 원래 점수 구조 유지
+        //   2. 0~100 clamp로 오버플로우 차단
+        //   3. 각 부스터는 해당 필드 없으면 자동 스킵
+        //   4. d._v44Boosts 객체에 적용 내역 기록 (디버깅/툴팁용)
+        // ==========================================================
+        function applyV44FactorBoosts(data) {
+            if (!Array.isArray(data) || data.length === 0) return data;
+            
+            let boostedCount = 0;
+            data.forEach(d => {
+                if (!d._sheet || d._sheet.includes('ETF')) return; // ETF는 팩터 구조 다름
+                if (d.TotalScore == null) return;
+                
+                const boosts = {};
+                let anyApplied = false;
+                
+                // ----- 1) Piotroski F-Score → QualityScore -----
+                // F=9/9 → +10, F=6~8 → +5, F≤2 → -5 (Piotroski 2000)
+                if (d.Piotroski_FScore != null && d.QualityScore != null) {
+                    let delta = 0;
+                    if (d.Piotroski_FScore >= 9) delta = 10;
+                    else if (d.Piotroski_FScore >= 7) delta = 6;
+                    else if (d.Piotroski_FScore >= 5) delta = 2;
+                    else if (d.Piotroski_FScore <= 2) delta = -5;
+                    else if (d.Piotroski_FScore <= 3) delta = -3;
+                    
+                    if (delta !== 0) {
+                        const before = d.QualityScore;
+                        d.QualityScore = Math.max(0, Math.min(100, d.QualityScore + delta));
+                        boosts.piotroski = { score: d.Piotroski_FScore, delta: delta, before: before };
+                        anyApplied = true;
+                    }
+                }
+                
+                // ----- 2) Altman Z-Score → QualityScore -----
+                // Z ≥ 3.0 (Safe) → +4, Z < 1.8 (Distress) → -6 (Altman 1968)
+                if (d.Altman_Z != null && d.QualityScore != null) {
+                    let delta = 0;
+                    if (d.Altman_Z >= 3.0) delta = 4;
+                    else if (d.Altman_Z >= 2.6) delta = 2;
+                    else if (d.Altman_Z < 1.1) delta = -8;  // 심각
+                    else if (d.Altman_Z < 1.8) delta = -6;  // Distress zone
+                    
+                    if (delta !== 0) {
+                        const before = d.QualityScore;
+                        d.QualityScore = Math.max(0, Math.min(100, d.QualityScore + delta));
+                        boosts.altman = { z: d.Altman_Z, delta: delta, before: before };
+                        anyApplied = true;
+                    }
+                }
+                
+                // ----- 3) Sortino Ratio → RiskScore -----
+                // 하방 변동성 대비 초과수익 (Sortino 1991). 높을수록 좋음
+                // Sortino ≥ 2.0 → +6, ≥ 1.0 → +3, < 0 → -3
+                if (d.Sortino_Ratio != null && d.RiskScore != null && isFinite(d.Sortino_Ratio)) {
+                    let delta = 0;
+                    if (d.Sortino_Ratio >= 2.0) delta = 6;
+                    else if (d.Sortino_Ratio >= 1.0) delta = 3;
+                    else if (d.Sortino_Ratio < 0) delta = -3;
+                    
+                    if (delta !== 0) {
+                        const before = d.RiskScore;
+                        d.RiskScore = Math.max(0, Math.min(100, d.RiskScore + delta));
+                        boosts.sortino = { ratio: d.Sortino_Ratio, delta: delta, before: before };
+                        anyApplied = true;
+                    }
+                }
+                
+                // ----- 4) Calmar Ratio → RiskScore -----
+                // 최대낙폭 대비 연평균 수익. Calmar ≥ 1.0 → +3, < 0 → -2
+                if (d.Calmar_Ratio != null && d.RiskScore != null && isFinite(d.Calmar_Ratio)) {
+                    let delta = 0;
+                    if (d.Calmar_Ratio >= 1.5) delta = 4;
+                    else if (d.Calmar_Ratio >= 1.0) delta = 3;
+                    else if (d.Calmar_Ratio < 0) delta = -2;
+                    
+                    if (delta !== 0) {
+                        const before = d.RiskScore;
+                        d.RiskScore = Math.max(0, Math.min(100, d.RiskScore + delta));
+                        boosts.calmar = { ratio: d.Calmar_Ratio, delta: delta, before: before };
+                        anyApplied = true;
+                    }
+                }
+                
+                // ----- 5) ROIC → ValueScore + QualityScore (Greenblatt 2005) -----
+                // 자본효율성 핵심 지표. ROIC ≥ 20% → Value +5, Quality +3
+                if (d.ROIC != null && isFinite(d.ROIC)) {
+                    let vDelta = 0, qDelta = 0;
+                    if (d.ROIC >= 0.20) { vDelta = 5; qDelta = 3; }
+                    else if (d.ROIC >= 0.15) { vDelta = 3; qDelta = 2; }
+                    else if (d.ROIC >= 0.10) { vDelta = 1; qDelta = 1; }
+                    else if (d.ROIC < 0) { vDelta = -3; qDelta = -2; }
+                    
+                    if (vDelta !== 0 && d.ValueScore != null) {
+                        d.ValueScore = Math.max(0, Math.min(100, d.ValueScore + vDelta));
+                    }
+                    if (qDelta !== 0 && d.QualityScore != null) {
+                        d.QualityScore = Math.max(0, Math.min(100, d.QualityScore + qDelta));
+                    }
+                    if (vDelta !== 0 || qDelta !== 0) {
+                        boosts.roic = { value: d.ROIC, vDelta: vDelta, qDelta: qDelta };
+                        anyApplied = true;
+                    }
+                }
+                
+                // ----- 6) MACD Signal → MomentumScore -----
+                // bullish_cross (최근 5일 내 골든크로스) → +8
+                // bearish_cross → -5
+                if (d.MACD_Signal != null && d.MomentumScore != null) {
+                    let delta = 0;
+                    const sig = String(d.MACD_Signal).toLowerCase();
+                    if (sig === 'bullish_cross' || sig === 'bull_cross' || sig === 'golden_cross') delta = 8;
+                    else if (sig === 'bullish' || sig === 'bull') delta = 3;
+                    else if (sig === 'bearish_cross' || sig === 'bear_cross' || sig === 'death_cross') delta = -5;
+                    else if (sig === 'bearish' || sig === 'bear') delta = -2;
+                    
+                    if (delta !== 0) {
+                        const before = d.MomentumScore;
+                        d.MomentumScore = Math.max(0, Math.min(100, d.MomentumScore + delta));
+                        boosts.macd = { signal: sig, delta: delta, before: before };
+                        anyApplied = true;
+                    }
+                }
+                
+                // 부스트 적용된 경우 TotalScore 재계산 필요 (기존 가중치 유지)
+                if (anyApplied) {
+                    d._v44Boosts = boosts;
+                    boostedCount++;
+                    // TotalScore 재계산: 현재 선택된 버전의 가중치로 재계산
+                    try {
+                        const version = (typeof getSelectedVersion === 'function') ? getSelectedVersion() : 'A';
+                        const weights = (typeof getVersionBaseWeights === 'function') ? getVersionBaseWeights(version, d._sheet) : null;
+                        if (weights && d.ValueScore != null && d.QualityScore != null) {
+                            d._preBoost_TotalScore = d.TotalScore;  // 백업
+                            d.TotalScore = 
+                                (d.ValueScore || 0) * weights.Value +
+                                (d.QualityScore || 0) * weights.Quality +
+                                (d.GrowthScore || 0) * weights.Growth +
+                                (d.MomentumScore || 0) * weights.Momentum +
+                                (d.RiskScore || 0) * weights.Risk +
+                                (d.FlowScore || 0) * weights.Flow;
+                        }
+                    } catch (e) {
+                        // 실패 시 TotalScore 보정 생략 (다음 재계산에서 반영됨)
+                    }
+                }
+            });
+            
+            if (boostedCount > 0) {
+                console.log(`[v5.25-F3] v4.4 팩터 부스터 적용: ${boostedCount}/${data.length}종목`);
+            }
+            
+            return data;
+        }
+        // window 노출 (디버깅용)
+        try { window.applyV44FactorBoosts = applyV44FactorBoosts; } catch (e) {}
+        // ==========================================================
+        // v5.25-F3 END
+        // ==========================================================
         
         // v5.4: P2-2 — 모멘텀 변동성 스케일링 (Barroso & Santa-Clara, 2015)
         // 고변동성 구간에서 모멘텀 노출을 축소하여 모멘텀 크래시 위험 완화
@@ -9079,6 +9357,107 @@
             return data;
         }
         
+        // ========================================================
+        // v5.25-F1: calcScoresVersionF - Korea Flow Edition
+        // ========================================================
+        // 전략: A 버전 스코어를 그대로 사용하되, KR 종목의 FlowScore를
+        //       v4.4 pykrx 데이터(외국인/기관 5일 순매수, 외국인 한도 소진률, 공매도 잔고)로
+        //       재정의. Flow 가중치 10%(A) → 25%(F).
+        //
+        // FlowScore 공식 (KR 전용, v4.4 데이터 있을 때):
+        //   F_score = 0.35 * foreign_5d_percentile
+        //           + 0.25 * inst_5d_percentile
+        //           + 0.20 * foreign_exhaustion_percentile
+        //           + 0.20 * (100 - shorting_ratio_percentile)   [공매도 낮을수록 좋음]
+        //
+        // 학술 근거: Kho & Kim (2011) "Foreign investor trading and returns in Korea"
+        //   → 한국 시장에서 외국인 순매수가 익일 수익률의 유의미한 선행지표
+        //
+        // v4.4 필드 없으면 (기존 데이터) A 버전 FlowScore를 유지 (graceful degradation)
+        // ========================================================
+        function calcScoresVersionF(data) {
+            // 1) A 버전으로 먼저 계산 (모든 점수 동일)
+            calcScoresVersionA(data);
+            
+            // 2) KR_Stocks만 FlowScore 재정의 + TotalScore 재계산
+            const krStocks = data.filter(d => d._sheet === 'KR_Stocks');
+            if (krStocks.length === 0) return data;
+            
+            // v4.4 신규 필드 존재 여부 체크 (하위 호환성)
+            const hasV44Fields = krStocks.some(d => 
+                d['Foreign5DNet(억)'] != null || 
+                d['Inst5DNet(억)'] != null ||
+                d['ForeignExhaustionRate(%)'] != null ||
+                d['ShortingBalanceRatio(%)'] != null
+            );
+            
+            if (!hasV44Fields) {
+                // v4.3 이하 데이터: FlowScore는 InstOwn(%) 기반 유지, 가중치만 F로 재계산
+                console.log('[버전 F] v4.4 pykrx 필드 없음 → 기존 FlowScore 유지, 가중치만 재적용');
+            } else {
+                // v4.4 데이터: FlowScore 재정의
+                // 각 필드별 KR_Stocks 대상 컬럼 값 모음 (percentileRank용)
+                const f5d = krStocks.map(d => d['Foreign5DNet(억)']).filter(v => v != null);
+                const i5d = krStocks.map(d => d['Inst5DNet(억)']).filter(v => v != null);
+                const fer = krStocks.map(d => d['ForeignExhaustionRate(%)']).filter(v => v != null);
+                const sbr = krStocks.map(d => d['ShortingBalanceRatio(%)']).filter(v => v != null);
+                
+                let reDefinedCount = 0;
+                krStocks.forEach(d => {
+                    let components = [];
+                    let weightSum = 0;
+                    
+                    // 외국인 5일 순매수 (가중 35%)
+                    if (d['Foreign5DNet(억)'] != null && f5d.length >= 5) {
+                        components.push({ v: percentileRank(f5d, d['Foreign5DNet(억)']), w: 0.35 });
+                        weightSum += 0.35;
+                    }
+                    // 기관 5일 순매수 (가중 25%)
+                    if (d['Inst5DNet(억)'] != null && i5d.length >= 5) {
+                        components.push({ v: percentileRank(i5d, d['Inst5DNet(억)']), w: 0.25 });
+                        weightSum += 0.25;
+                    }
+                    // 외국인 한도 소진률 (가중 20%)
+                    if (d['ForeignExhaustionRate(%)'] != null && fer.length >= 5) {
+                        components.push({ v: percentileRank(fer, d['ForeignExhaustionRate(%)']), w: 0.20 });
+                        weightSum += 0.20;
+                    }
+                    // 공매도 잔고 비율 (가중 20%, 역방향 - 낮을수록 좋음)
+                    if (d['ShortingBalanceRatio(%)'] != null && sbr.length >= 5) {
+                        components.push({ v: percentileRank(sbr, d['ShortingBalanceRatio(%)'], true), w: 0.20 });
+                        weightSum += 0.20;
+                    }
+                    
+                    if (components.length >= 2 && weightSum >= 0.50) {
+                        // 가중 평균 (사용 가능한 컴포넌트만으로 정규화)
+                        const weightedSum = components.reduce((acc, c) => acc + c.v * c.w, 0);
+                        d.FlowScore = weightedSum / weightSum;
+                        d._flowSource = 'v4.4-pykrx'; // 추적용
+                        reDefinedCount++;
+                    }
+                    // 2개 미만이면 A 버전 FlowScore 유지
+                });
+                
+                console.log(`[버전 F] FlowScore v4.4 재정의: ${reDefinedCount}/${krStocks.length}종목`);
+            }
+            
+            // 3) KR_Stocks TotalScore 재계산 (F 가중치 적용)
+            // F(KR) = V15 Q20 G10 M15 R15 F25
+            krStocks.forEach(d => {
+                if (d.ValueScore != null && d.QualityScore != null) {
+                    d.TotalScore = 
+                        (d.ValueScore || 0) * 0.15 +
+                        (d.QualityScore || 0) * 0.20 +
+                        (d.GrowthScore || 0) * 0.10 +
+                        (d.MomentumScore || 0) * 0.15 +
+                        (d.RiskScore || 0) * 0.15 +
+                        (d.FlowScore || 0) * 0.25;
+                }
+            });
+            
+            return data;
+        }
+        
         // 현재 선택된 버전 가져오기
         function getSelectedVersion() {
             const radio = document.querySelector('input[name="scoringVersion"]:checked');
@@ -9087,14 +9466,16 @@
         
         // 버전 pill 스타일 업데이트 함수
         function updateVersionPillStyles(selectedValue) {
-            const colors = { A: 'var(--accent-gold)', B: 'var(--accent-blue)', C: 'var(--accent-green)', D: 'var(--accent-purple)', E: 'var(--accent-red)' };
-            const bgColors = { A: 'rgba(245,158,11,0.2)', B: 'rgba(59,130,246,0.2)', C: 'rgba(16,185,129,0.2)', D: 'rgba(139,92,246,0.2)', E: 'rgba(239,68,68,0.2)' };
+            // v5.25-F1: F 버전 추가 (빨간색 계열, 한국 국기 강조)
+            const colors = { A: 'var(--accent-gold)', B: 'var(--accent-blue)', C: 'var(--accent-green)', D: 'var(--accent-purple)', E: 'var(--accent-red)', F: '#FF6B6B' };
+            const bgColors = { A: 'rgba(245,158,11,0.2)', B: 'rgba(59,130,246,0.2)', C: 'rgba(16,185,129,0.2)', D: 'rgba(139,92,246,0.2)', E: 'rgba(239,68,68,0.2)', F: 'rgba(255,107,107,0.2)' };
             const descs = { 
                 A: 'V25 Q20 G15 M15 R20 F5 (개선)', 
                 B: 'V20 Q20 G20 M20 R20 (등가중)', 
                 C: 'V25 Q20 G15 M20 R15 F5 +패널티',
                 D: 'V20 Q18 S11 G11 M16 T4 R12 F8 +학술',
-                E: 'QMJ30 V22 M18 R10 Liq10 Div10 (AQR)' 
+                E: 'QMJ30 V22 M18 R10 Liq10 Div10 (AQR)',
+                F: 'V15 Q20 G10 M15 R15 F25 🇰🇷 외국인수급'
             };
             
             document.querySelectorAll('.version-pill').forEach(pill => {
@@ -9127,8 +9508,11 @@
                         calcScoresVersionC(screeningData);
                     } else if (this.value === 'D') {
                         calcScoresVersionD(screeningData);
-                    } else {
+                    } else if (this.value === 'E') {
                         calcScoresVersionE(screeningData);
+                    } else if (this.value === 'F') {
+                        // v5.25-F1: F 버전은 A 기반 + FlowScore 재정의 + Flow 가중치 25%
+                        calcScoresVersionF(screeningData);
                     }
                     applyPostScoringAdjustments(screeningData);
                     const _tb = document.getElementById('totalBadge'); if(_tb) _tb.textContent = `✅ ${screeningData.length}개 종목 (v${this.value})`;
@@ -9246,8 +9630,10 @@
                         calcScoresVersionC(screeningData);
                     } else if (version === 'D') {
                         calcScoresVersionD(screeningData);
-                    } else {
+                    } else if (version === 'E') {
                         calcScoresVersionE(screeningData);
+                    } else if (version === 'F') {
+                        calcScoresVersionF(screeningData);  // v5.25-F1
                     }
                     applyPostScoringAdjustments(screeningData);
                     console.log(`스크리닝 점수 계산 완료 (버전 ${version})`);
@@ -9288,6 +9674,456 @@
         // 🆕 엑셀에서 시장지표 로드 (Market_Indicators 시트 구조)
         // 원시 지표 데이터 저장 (전역)
         let rawMarketIndicators = [];
+        
+        // ==========================================================
+        // v5.25-M1: 거시 복합 대시보드 (Macro Composite Dashboard)
+        // ==========================================================
+        // 5개 패널 렌더러:
+        //   1) Risk-On/Off 게이지
+        //   2) 한국 시장 온도계
+        //   3) VIX 기간 구조
+        //   4) 경기 사이클 국면
+        //   5) HMM Regime Watch
+        // ==========================================================
+        
+        // 헬퍼: rawMarketIndicators에서 특정 ticker의 현재 값 찾기
+        function _findIndicatorValue(tickerOrName) {
+            if (!rawMarketIndicators || rawMarketIndicators.length === 0) return null;
+            const needle = String(tickerOrName).toUpperCase().trim();
+            for (const row of rawMarketIndicators) {
+                const ticker = String(row.Ticker || row.ticker || row.Symbol || row.symbol || '').toUpperCase().trim();
+                const name = String(row.Name || row.name || '').toUpperCase().trim();
+                if (ticker === needle || name === needle || ticker.includes(needle)) {
+                    // Value, value, Current, Price 등에서 값 추출
+                    const v = row.Value !== undefined ? row.Value :
+                              row.value !== undefined ? row.value :
+                              row.Current !== undefined ? row.Current :
+                              row.Price !== undefined ? row.Price : null;
+                    if (v != null && !isNaN(parseFloat(v))) return parseFloat(v);
+                }
+            }
+            return null;
+        }
+        
+        // 헬퍼: 시계열 필드 (HMM_Series 등)에서 배열 추출
+        function _findIndicatorSeries(tickerOrName) {
+            if (!rawMarketIndicators || rawMarketIndicators.length === 0) return null;
+            const needle = String(tickerOrName).toUpperCase().trim();
+            for (const row of rawMarketIndicators) {
+                const ticker = String(row.Ticker || row.ticker || '').toUpperCase().trim();
+                const name = String(row.Name || row.name || '').toUpperCase().trim();
+                if (ticker === needle || name === needle || ticker.includes(needle)) {
+                    const series = row.Series || row.series || row.History || row.values;
+                    if (Array.isArray(series) && series.length > 0) return series;
+                    // 문자열(쉼표 구분) 형태일 수도 있음
+                    if (typeof series === 'string' && series.includes(',')) {
+                        return series.split(',').map(s => parseFloat(s)).filter(v => !isNaN(v));
+                    }
+                }
+            }
+            return null;
+        }
+        
+        // z-score 계산 (평균 대비 표준편차, 근사)
+        function _zScore(value, referenceMean, referenceStd) {
+            if (value == null || referenceStd == null || referenceStd === 0) return 0;
+            return (value - referenceMean) / referenceStd;
+        }
+        
+        // z-score를 0~100 스케일로 매핑 (z=0 → 50, z=±2 → 0/100)
+        function _zTo100(z) {
+            return Math.max(0, Math.min(100, 50 + z * 25));
+        }
+        
+        // -------- 1) Risk-On/Off 게이지 --------
+        function renderRiskOnOffGauge() {
+            const marker = document.getElementById('riskOnOffMarker');
+            const label = document.getElementById('riskOnOffLabel');
+            const detail = document.getElementById('riskOnOffDetail');
+            if (!marker || !label || !detail) return;
+            
+            // 4개 하위 지표 수집
+            const copperGold = _findIndicatorValue('COPPER-GOLD');
+            const hyIg = _findIndicatorValue('HY-IG-RATIO');
+            const spxBreadth = _findIndicatorValue('BREADTH-SPX-200MA');
+            const vix = _findIndicatorValue('VIX') || _findIndicatorValue('^VIX');
+            const vix3M = _findIndicatorValue('VIX-TERM-3M') || _findIndicatorValue('^VIX3M');
+            
+            // 기준값 (역사적 평균/표준편차, 2020-2025 근사)
+            const refs = {
+                copperGold: { mean: 5.5, std: 1.5 },
+                hyIg: { mean: 1.05, std: 0.08 },
+                spxBreadth: { mean: 60, std: 20 },
+                vixTermRatio: { mean: 1.05, std: 0.10 } // VIX3M/VIX
+            };
+            
+            // 개별 z-score
+            const zs = [];
+            const components = [];
+            if (copperGold != null) {
+                const z = _zScore(copperGold, refs.copperGold.mean, refs.copperGold.std);
+                zs.push(z);
+                components.push(`Copper/Gold ${copperGold.toFixed(2)} (z=${z.toFixed(2)})`);
+            }
+            if (hyIg != null) {
+                const z = _zScore(hyIg, refs.hyIg.mean, refs.hyIg.std);
+                zs.push(z);
+                components.push(`HY/IG ${hyIg.toFixed(3)} (z=${z.toFixed(2)})`);
+            }
+            if (spxBreadth != null) {
+                const z = _zScore(spxBreadth, refs.spxBreadth.mean, refs.spxBreadth.std);
+                zs.push(z);
+                components.push(`SPX Breadth ${spxBreadth.toFixed(1)}% (z=${z.toFixed(2)})`);
+            }
+            if (vix != null && vix3M != null && vix > 0) {
+                // VIX term ratio가 1보다 크면 contango(정상) → 위험선호
+                // 1보다 작으면 backwardation(스트레스) → 위험회피
+                const vixRatio = vix3M / vix;
+                const z = _zScore(vixRatio, refs.vixTermRatio.mean, refs.vixTermRatio.std);
+                zs.push(z);
+                components.push(`VIX Term ${vixRatio.toFixed(2)} (z=${z.toFixed(2)})`);
+            }
+            
+            if (zs.length === 0) {
+                label.textContent = '데이터 없음';
+                label.style.color = 'var(--text-muted)';
+                detail.textContent = 'COPPER-GOLD, HY-IG-RATIO, BREADTH-SPX-200MA, VIX 등이 필요합니다.';
+                marker.style.left = '50%';
+                return;
+            }
+            
+            // 평균 z → 0~100 위치
+            const avgZ = zs.reduce((a, b) => a + b, 0) / zs.length;
+            const position = _zTo100(avgZ);
+            marker.style.left = position + '%';
+            
+            // 라벨
+            let labelText, labelColor;
+            if (position >= 70) { labelText = 'Risk-On'; labelColor = 'var(--accent-green)'; }
+            else if (position >= 55) { labelText = 'Mild Risk-On'; labelColor = 'var(--accent-gold)'; }
+            else if (position >= 45) { labelText = 'Neutral'; labelColor = 'var(--text-secondary)'; }
+            else if (position >= 30) { labelText = 'Mild Risk-Off'; labelColor = 'var(--accent-gold)'; }
+            else { labelText = 'Risk-Off'; labelColor = 'var(--accent-red)'; }
+            label.textContent = `${labelText} (${position.toFixed(0)})`;
+            label.style.color = labelColor;
+            
+            detail.innerHTML = components.map(c => `<div>· ${c}</div>`).join('') + 
+                `<div style="margin-top: 4px; font-weight: 600; color: var(--text-secondary);">평균 z=${avgZ.toFixed(2)} → ${position.toFixed(0)}/100</div>`;
+        }
+        
+        // -------- 2) 한국 시장 온도계 --------
+        function renderKoreaThermometer() {
+            const marker = document.getElementById('koreaThermoMarker');
+            const label = document.getElementById('koreaThermoLabel');
+            const detail = document.getElementById('koreaThermoDetail');
+            if (!marker || !label || !detail) return;
+            
+            // 지표 수집
+            const kospiBreadth = _findIndicatorValue('BREADTH-KOSPI200-MA200');
+            const usdkrw = _findIndicatorValue('USDKRW') || _findIndicatorValue('USD/KRW') || _findIndicatorValue('KRW=X');
+            const usdkrw7dChange = _findIndicatorValue('USDKRW-7D-CHG');
+            
+            // screeningData에서 KR 외국인 5일 순매수 집계 (v4.4 필드)
+            let foreign5dSum = null;
+            try {
+                if (typeof screeningData !== 'undefined' && Array.isArray(screeningData)) {
+                    const krs = screeningData.filter(d => d._sheet === 'KR_Stocks' && d['Foreign5DNet(억)'] != null);
+                    if (krs.length >= 10) {
+                        foreign5dSum = krs.reduce((acc, d) => acc + (d['Foreign5DNet(억)'] || 0), 0);
+                    }
+                }
+            } catch (e) {}
+            
+            const refs = {
+                kospiBreadth: { mean: 50, std: 20 },
+                foreign5dSum: { mean: 0, std: 10000 }, // 억 단위, 매우 큰 분산
+                usdkrw7d: { mean: 0, std: 1.5 } // %
+            };
+            
+            const zs = [];
+            const components = [];
+            if (kospiBreadth != null) {
+                const z = _zScore(kospiBreadth, refs.kospiBreadth.mean, refs.kospiBreadth.std);
+                zs.push(z);
+                components.push(`KOSPI200 breadth ${kospiBreadth.toFixed(1)}% (z=${z.toFixed(2)})`);
+            }
+            if (foreign5dSum != null) {
+                const z = _zScore(foreign5dSum, refs.foreign5dSum.mean, refs.foreign5dSum.std);
+                zs.push(z);
+                components.push(`외국인 5일 순매수 ${foreign5dSum.toFixed(0)}억 (z=${z.toFixed(2)})`);
+            }
+            if (usdkrw7dChange != null) {
+                // USDKRW 상승 = 원화 약세 = negative for market
+                const z = -_zScore(usdkrw7dChange, refs.usdkrw7d.mean, refs.usdkrw7d.std);
+                zs.push(z);
+                components.push(`USDKRW 7일 ${usdkrw7dChange.toFixed(2)}% (z=${z.toFixed(2)}, 역방향)`);
+            }
+            
+            if (zs.length === 0) {
+                label.textContent = '데이터 없음';
+                label.style.color = 'var(--text-muted)';
+                detail.textContent = 'BREADTH-KOSPI200-MA200, v4.4 외국인5D, USDKRW-7D-CHG 등이 필요합니다.';
+                marker.style.left = '50%';
+                return;
+            }
+            
+            const avgZ = zs.reduce((a, b) => a + b, 0) / zs.length;
+            const position = _zTo100(avgZ);
+            marker.style.left = position + '%';
+            
+            let labelText, labelColor;
+            if (position >= 70) { labelText = 'Hot'; labelColor = '#ef4444'; }
+            else if (position >= 55) { labelText = 'Warming'; labelColor = 'var(--accent-gold)'; }
+            else if (position >= 45) { labelText = 'Neutral'; labelColor = 'var(--text-secondary)'; }
+            else if (position >= 30) { labelText = 'Cooling'; labelColor = '#3b82f6'; }
+            else { labelText = 'Cold'; labelColor = '#1e40af'; }
+            label.textContent = `${labelText} (${position.toFixed(0)})`;
+            label.style.color = labelColor;
+            
+            detail.innerHTML = components.map(c => `<div>· ${c}</div>`).join('') + 
+                `<div style="margin-top: 4px; font-weight: 600; color: var(--text-secondary);">평균 z=${avgZ.toFixed(2)} → ${position.toFixed(0)}/100</div>`;
+        }
+        
+        // -------- 3) VIX 기간 구조 --------
+        function renderVIXTermStructure() {
+            const chart = document.getElementById('vixTermChart');
+            const label = document.getElementById('vixTermLabel');
+            const detail = document.getElementById('vixTermDetail');
+            if (!chart || !label || !detail) return;
+            
+            const vix9d = _findIndicatorValue('^VIX9D') || _findIndicatorValue('VIX9D') || _findIndicatorValue('VIX-TERM-9D');
+            const vix = _findIndicatorValue('^VIX') || _findIndicatorValue('VIX');
+            const vix3M = _findIndicatorValue('^VIX3M') || _findIndicatorValue('VIX3M') || _findIndicatorValue('VIX-TERM-3M');
+            
+            const vals = [
+                { period: '9D', value: vix9d, color: '#ef4444' },
+                { period: '30D', value: vix, color: 'var(--accent-gold)' },
+                { period: '3M', value: vix3M, color: '#3b82f6' }
+            ];
+            
+            const valid = vals.filter(v => v.value != null);
+            if (valid.length === 0) {
+                chart.innerHTML = '<div style="flex: 1; text-align: center; color: var(--text-muted); font-size: var(--fs-sm);">VIX 데이터 없음</div>';
+                label.textContent = '―';
+                detail.textContent = '^VIX9D, ^VIX, ^VIX3M 중 최소 하나가 필요합니다.';
+                return;
+            }
+            
+            const maxVal = Math.max(...valid.map(v => v.value));
+            const scale = maxVal > 0 ? 60 / maxVal : 1;
+            
+            chart.innerHTML = vals.map(v => {
+                if (v.value == null) {
+                    return `<div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; opacity: 0.3;">
+                        <div style="font-size: var(--fs-xs); color: var(--text-muted);">—</div>
+                        <div style="width: 100%; height: 10px; background: var(--bg-card); border-radius: 2px; margin-top: 2px;"></div>
+                        <div style="font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px;">${v.period}</div>
+                    </div>`;
+                }
+                const h = v.value * scale;
+                return `<div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;">
+                    <div style="font-size: var(--fs-xs); color: ${v.color}; font-weight: 600;">${v.value.toFixed(1)}</div>
+                    <div style="width: 100%; height: ${h}px; background: ${v.color}; border-radius: 3px 3px 0 0; margin-top: 2px;"></div>
+                    <div style="font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px;">${v.period}</div>
+                </div>`;
+            }).join('');
+            
+            // 백워데이션/콘탱고 판별
+            if (vix9d != null && vix != null && vix3M != null) {
+                if (vix9d > vix && vix > vix3M) {
+                    label.textContent = '🔴 Backwardation';
+                    label.style.color = 'var(--accent-red)';
+                    detail.innerHTML = `단기 스트레스 상승 (9D > 30D > 3M).<br>평균적으로 단기 하락 압력 또는 단기 리스크 헤징 수요 ↑. (Johnson 2017)`;
+                } else if (vix9d < vix && vix < vix3M) {
+                    label.textContent = '🟢 Contango';
+                    label.style.color = 'var(--accent-green)';
+                    detail.innerHTML = `정상 구조 (9D < 30D < 3M). 단기 리스크 낮음, 장기 변동성 프리미엄 ↑.`;
+                } else {
+                    label.textContent = '⚠️ 혼조';
+                    label.style.color = 'var(--accent-gold)';
+                    detail.innerHTML = `구조 불명확. VIX9D=${vix9d.toFixed(1)}, VIX=${vix.toFixed(1)}, VIX3M=${vix3M.toFixed(1)}`;
+                }
+            } else {
+                label.textContent = '부분 데이터';
+                label.style.color = 'var(--text-muted)';
+                detail.innerHTML = `일부 항목만 제공됨. 완전한 기간구조 판별을 위해 3개 모두 필요.`;
+            }
+        }
+        
+        // -------- 4) 경기 사이클 국면 --------
+        function renderBusinessCyclePhase() {
+            const bars = document.querySelectorAll('#cyclePhaseChart .cycle-phase-bar');
+            const label = document.getElementById('cyclePhaseLabel');
+            const detail = document.getElementById('cyclePhaseDetail');
+            if (!bars || bars.length === 0 || !label || !detail) return;
+            
+            // 10Y-2Y 스프레드 + Copper/Gold
+            const yieldSpread = _findIndicatorValue('T10Y2Y') || _findIndicatorValue('10Y-2Y') || _findIndicatorValue('YIELD-SPREAD');
+            const copperGold = _findIndicatorValue('COPPER-GOLD');
+            
+            // 모든 bar를 비활성화 먼저
+            bars.forEach(b => {
+                b.style.background = 'var(--bg-card)';
+                b.style.color = 'var(--text-muted)';
+                b.style.borderColor = 'var(--border-color)';
+            });
+            
+            if (yieldSpread == null && copperGold == null) {
+                label.textContent = '데이터 없음';
+                label.style.color = 'var(--text-muted)';
+                detail.textContent = 'T10Y2Y 스프레드 또는 COPPER-GOLD 비율이 필요합니다.';
+                return;
+            }
+            
+            // 4국면 분류 로직 (NBER + Clement Juglar, 교과서 버전)
+            // Early: spread ↑ 크고, Copper/Gold 회복 → 통화완화 + 경기 저점
+            // Mid: spread ↑ 중간, Copper/Gold 상승 → 확장기
+            // Late: spread ↓/평탄, Copper/Gold 여전히 높음 → 후기 호황
+            // Recession: spread 역전 후 해소, Copper/Gold 급락 → 수축기
+            
+            let phase = 'Mid'; // 기본값
+            let reason = '';
+            const cgRef = 5.5;
+            
+            if (yieldSpread != null) {
+                if (yieldSpread < -0.3) {
+                    phase = 'Late';
+                    reason = `10Y-2Y 역전 (${yieldSpread.toFixed(2)}%p) → 후기 호황 또는 침체 신호`;
+                } else if (yieldSpread < 0.3) {
+                    phase = copperGold != null && copperGold < cgRef * 0.9 ? 'Recession' : 'Late';
+                    reason = `10Y-2Y 평탄 (${yieldSpread.toFixed(2)}%p), Copper/Gold ${copperGold != null ? copperGold.toFixed(2) : 'N/A'}`;
+                } else if (yieldSpread < 1.5) {
+                    phase = 'Mid';
+                    reason = `10Y-2Y 정상 (${yieldSpread.toFixed(2)}%p) → 확장기`;
+                } else {
+                    phase = copperGold != null && copperGold > cgRef ? 'Mid' : 'Early';
+                    reason = `10Y-2Y 가파름 (${yieldSpread.toFixed(2)}%p) → 경기 저점 회복기`;
+                }
+            } else if (copperGold != null) {
+                if (copperGold > cgRef * 1.1) { phase = 'Mid'; reason = `Copper/Gold ${copperGold.toFixed(2)} 높음 (확장기)`; }
+                else if (copperGold < cgRef * 0.9) { phase = 'Recession'; reason = `Copper/Gold ${copperGold.toFixed(2)} 낮음 (수축)`; }
+                else { phase = 'Late'; reason = `Copper/Gold ${copperGold.toFixed(2)} 보통`; }
+            }
+            
+            // 해당 bar 활성화
+            const colors = {
+                'Early': { bg: 'rgba(59,130,246,0.25)', fg: '#3b82f6' },
+                'Mid': { bg: 'rgba(16,185,129,0.25)', fg: 'var(--accent-green)' },
+                'Late': { bg: 'rgba(245,158,11,0.25)', fg: 'var(--accent-gold)' },
+                'Recession': { bg: 'rgba(239,68,68,0.25)', fg: 'var(--accent-red)' }
+            };
+            bars.forEach(b => {
+                if (b.dataset.phase === phase) {
+                    b.style.background = colors[phase].bg;
+                    b.style.color = colors[phase].fg;
+                    b.style.borderColor = colors[phase].fg;
+                }
+            });
+            
+            label.textContent = phase;
+            label.style.color = colors[phase].fg;
+            detail.innerHTML = reason;
+        }
+        
+        // -------- 5) HMM Regime Watch --------
+        function renderHMMRegimeWatch() {
+            const sparkline = document.getElementById('hmmSparkline');
+            const label = document.getElementById('hmmRegimeLabel');
+            const detail = document.getElementById('hmmRegimeDetail');
+            if (!sparkline || !label || !detail) return;
+            
+            // HMM_Series (P(BULL) 시계열) 또는 현재값
+            const series = _findIndicatorSeries('HMM_Series') || _findIndicatorSeries('HMM-BULL-PROB');
+            const currentProb = _findIndicatorValue('HMM') || _findIndicatorValue('HMM-BULL-PROB') || _findIndicatorValue('HMM_Regime');
+            
+            if (!series && currentProb == null) {
+                sparkline.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); font-size: var(--fs-sm);">HMM 데이터 없음</div>';
+                label.textContent = '―';
+                label.style.color = 'var(--text-muted)';
+                detail.textContent = 'HMM_Series (P(BULL) 시계열) 또는 HMM-BULL-PROB 현재값이 필요합니다.';
+                return;
+            }
+            
+            // 시계열이 있으면 스파크라인 그리기
+            if (series && series.length > 0) {
+                const last = series[series.length - 1];
+                const first = series[0];
+                const change = last - first;
+                
+                // SVG 스파크라인
+                const w = sparkline.clientWidth || 300;
+                const h = 50;
+                const padding = 4;
+                const plotW = w - padding * 2;
+                const plotH = h - padding * 2;
+                const maxV = 1;
+                const minV = 0;
+                const xStep = plotW / Math.max(1, series.length - 1);
+                const points = series.map((v, i) => {
+                    const x = padding + i * xStep;
+                    const y = padding + plotH - ((v - minV) / (maxV - minV)) * plotH;
+                    return `${x.toFixed(1)},${y.toFixed(1)}`;
+                }).join(' ');
+                
+                const strokeColor = last >= 0.6 ? 'var(--accent-green)' : last <= 0.4 ? 'var(--accent-red)' : 'var(--accent-gold)';
+                
+                sparkline.innerHTML = `<svg width="100%" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="display: block;">
+                    <line x1="0" y1="${padding + plotH * 0.5}" x2="${w}" y2="${padding + plotH * 0.5}" stroke="var(--border-color)" stroke-dasharray="2,2" stroke-width="1"/>
+                    <polyline fill="none" stroke="${strokeColor}" stroke-width="2" points="${points}"/>
+                    <circle cx="${padding + (series.length - 1) * xStep}" cy="${padding + plotH - ((last - minV) / (maxV - minV)) * plotH}" r="3" fill="${strokeColor}"/>
+                </svg>`;
+                
+                // 라벨
+                let labelText, labelColor;
+                if (last >= 0.7) { labelText = `강한 BULL (${(last * 100).toFixed(0)}%)`; labelColor = 'var(--accent-green)'; }
+                else if (last >= 0.55) { labelText = `BULL (${(last * 100).toFixed(0)}%)`; labelColor = 'var(--accent-green)'; }
+                else if (last >= 0.45) { labelText = `중립 (${(last * 100).toFixed(0)}%)`; labelColor = 'var(--text-secondary)'; }
+                else if (last >= 0.3) { labelText = `BEAR (${(last * 100).toFixed(0)}%)`; labelColor = 'var(--accent-red)'; }
+                else { labelText = `강한 BEAR (${(last * 100).toFixed(0)}%)`; labelColor = 'var(--accent-red)'; }
+                label.textContent = labelText;
+                label.style.color = labelColor;
+                
+                // 세부 정보
+                let changeText = '';
+                if (Math.abs(change) >= 0.20) {
+                    changeText = ` <b style="color: ${change > 0 ? 'var(--accent-green)' : 'var(--accent-red)'};">급변 감지 (${(change * 100).toFixed(0)}%p)</b>`;
+                }
+                detail.innerHTML = `${series.length}일 P(BULL): ${(first*100).toFixed(0)}% → ${(last*100).toFixed(0)}%${changeText}. Hamilton 1989 HMM 기반 시장 상태 추정.`;
+            } else {
+                // 현재값만 있는 경우
+                const p = currentProb;
+                sparkline.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 2rem; font-weight: 700; color: ${p >= 0.6 ? 'var(--accent-green)' : p <= 0.4 ? 'var(--accent-red)' : 'var(--accent-gold)'};">${(p * 100).toFixed(0)}%</div>`;
+                let labelText, labelColor;
+                if (p >= 0.6) { labelText = 'BULL'; labelColor = 'var(--accent-green)'; }
+                else if (p >= 0.4) { labelText = '중립'; labelColor = 'var(--text-secondary)'; }
+                else { labelText = 'BEAR'; labelColor = 'var(--accent-red)'; }
+                label.textContent = `${labelText} (${(p * 100).toFixed(0)}%)`;
+                label.style.color = labelColor;
+                detail.innerHTML = `현재 P(BULL) = ${(p * 100).toFixed(0)}%. 시계열 데이터 없음 (HMM_Series 제공 시 30일 추이 시각화).`;
+            }
+        }
+        
+        // -------- 마스터 렌더러 --------
+        function renderMacroCompositeDashboard() {
+            try { renderRiskOnOffGauge(); } catch (e) { console.error('Risk-On/Off 렌더 실패:', e); }
+            try { renderKoreaThermometer(); } catch (e) { console.error('Korea 온도계 렌더 실패:', e); }
+            try { renderVIXTermStructure(); } catch (e) { console.error('VIX term 렌더 실패:', e); }
+            try { renderBusinessCyclePhase(); } catch (e) { console.error('경기사이클 렌더 실패:', e); }
+            try { renderHMMRegimeWatch(); } catch (e) { console.error('HMM Regime 렌더 실패:', e); }
+            
+            // 메타 정보
+            const meta = document.getElementById('macroDashMeta');
+            if (meta) {
+                const nIndicators = rawMarketIndicators ? rawMarketIndicators.length : 0;
+                const ts = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+                meta.textContent = `${nIndicators}개 지표 · 업데이트 ${ts}`;
+            }
+        }
+        // window 노출 (백테스트/외부 호출용)
+        try { window.renderMacroCompositeDashboard = renderMacroCompositeDashboard; } catch (e) {}
+        // ==========================================================
+        // v5.25-M1 END
+        // ==========================================================
         
         // 🆕 지표 대시보드 렌더링 함수
         function renderIndicatorDashboard() {
@@ -9531,6 +10367,15 @@
             // v5.16-fix (N16-a): 백테스트 엔진이 참조할 수 있도록 window에 노출
             try { window._marketIndicators = dataRows; } catch (e) {}
             renderRawIndicatorCard();
+            
+            // v5.25-M1: 거시 복합 대시보드 렌더 (Risk-On/Off, Korea 온도계, VIX term, HMM, 사이클)
+            try {
+                if (typeof renderMacroCompositeDashboard === 'function') {
+                    renderMacroCompositeDashboard();
+                }
+            } catch (err) {
+                console.error('❌ 거시 대시보드 렌더 실패:', err);
+            }
             
             // 로드된 데이터가 있으면 자동 판단 실행 (1개 이상이면 실행)
             if (loadedCount > 0) {
@@ -10507,8 +11352,10 @@
                         calcScoresVersionC(screeningData);
                     } else if (version === 'D') {
                         calcScoresVersionD(screeningData);
-                    } else {
+                    } else if (version === 'E') {
                         calcScoresVersionE(screeningData);
+                    } else if (version === 'F') {
+                        calcScoresVersionF(screeningData);  // v5.25-F1
                     }
                     applyPostScoringAdjustments(screeningData);
 
@@ -10594,7 +11441,8 @@
                 else if (version === 'B') calcScoresVersionB(screeningData);
                 else if (version === 'C') calcScoresVersionC(screeningData);
                 else if (version === 'D') calcScoresVersionD(screeningData);
-                else calcScoresVersionE(screeningData);
+                else if (version === 'E') calcScoresVersionE(screeningData);
+                else if (version === 'F') calcScoresVersionF(screeningData);  // v5.25-F1
                 applyPostScoringAdjustments(screeningData);
                 renderTable();
                 console.log('초기 데이터 로드 및 렌더링 완료');
