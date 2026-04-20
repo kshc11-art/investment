@@ -1,5 +1,10 @@
 name: Global Stock Screener
 
+# v4.4.1-fix2 (2026-04-19): GitHub의 기본 워크플로우 권한이 read-only로 제한된 경우
+# git push 단계가 실패함 → permissions 명시로 해결
+permissions:
+  contents: write   # data/ 폴더 커밋 + push에 필요
+
 on:
   schedule:
     # 매일 08:00 KST 실행 (UTC 23:00 = KST 08:00)
@@ -38,6 +43,8 @@ jobs:
           pip install yfinance openpyxl pandas requests beautifulsoup4 lxml numpy pykrx finance-datareader
           # v4.4 신규: OpenDartReader (DART Open API 래퍼)
           pip install OpenDartReader
+          # v4.4.1: pykrx-openapi는 Phase 3에서 추가 예정 (현재는 미사용)
+          # pip install pykrx-openapi  # <- Phase 3 이후 활성화
           # v4.3+: concurrent.futures / hashlib / json은 표준 라이브러리이므로 추가 설치 불필요
 
       - name: Run screener
@@ -48,16 +55,38 @@ jobs:
           # v4.4: DART Open API 키 (한국 재무제표 정확 계산용, 강력 권장)
           # 미설정 시 v4.3 방식(yfinance+naver)으로 자동 fallback
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
+          # v4.4.1 (2026-04-19): KRX 회원제 전환 대응 (2025-12-27 KRX 정책 변경)
+          # 옵션 A (임시): pykrx 스크래핑 + KRX 계정 로그인
+          #   - https://data.krx.co.kr 회원가입 후 ID/PW
+          #   - 미설정 시 pykrx 마이크로구조 수집 자동 스킵 (네이버+FDR fallback)
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
+          # 옵션 B (권장, Phase 3): pykrx-openapi 공식 API
+          #   - https://openapi.krx.co.kr 회원가입 후 인증키 발급
+          #   - 현재 파이프라인에서는 아직 사용 안 함 (Phase 3 구현 예정)
+          KRX_API_KEY: ${{ secrets.KRX_API_KEY }}
         run: |
-          echo "🚀 글로벌 스크리너 v4.4 시작"
+          echo "🚀 글로벌 스크리너 v4.4.1 시작"
           echo "현재 시간: $(date)"
-          echo "신규 (v4.4): DART 재무제표 정식 + pykrx 마이크로구조 + 한국 breadth"
+          echo "신규 (v4.4.1): KRX 회원제 전환 대응, pykrx graceful degradation"
           
           # DART 키 등록 여부 표시
           if [ -n "$DART_API_KEY" ]; then
             echo "✅ DART API 활성화 (한국 Piotroski/Altman 정확 계산)"
           else
             echo "⚠️  DART_API_KEY 미설정 → v4.3 방식 사용 (회원가입: https://opendart.fss.or.kr)"
+          fi
+          
+          # KRX 자격증명 확인 (v4.4.1)
+          if [ -n "$KRX_ID" ] && [ -n "$KRX_PW" ]; then
+            echo "✅ KRX 자격증명 설정됨 (옵션 A: pykrx 스크래핑 시도)"
+          elif [ -n "$KRX_API_KEY" ]; then
+            echo "ℹ️  KRX OpenAPI 키 설정됨 (옵션 B: Phase 3 전환 후 사용)"
+            echo "    현재는 pykrx 스크래핑 스킵 → 네이버+FDR fallback으로 진행"
+          else
+            echo "ℹ️  KRX 자격증명 없음 (옵션 C: graceful degradation)"
+            echo "    네이버+FDR로 KR 종목 수집, v4.4 마이크로구조 필드 null"
+            echo "    상세: KRX_SETUP_GUIDE.md 참조"
           fi
           
           CLEAR_CACHE_FLAG=""
@@ -113,6 +142,25 @@ if kr:
 
       - name: Commit and push data
         run: |
+          # v4.4.1-fix2: 진단 로그 강화 (data 폴더 존재 / 파일 / 변경 / push 결과)
+          
+          echo "🔍 [진단] data 폴더 상태 확인"
+          if [ -d "./data" ]; then
+            echo "  ✅ data 폴더 존재"
+            ls -la ./data/
+            if [ -f "./data/data.json" ]; then
+              SIZE=$(stat -c%s "./data/data.json")
+              echo "  ✅ data.json 존재 (크기: ${SIZE} bytes)"
+            else
+              echo "  🔴 data.json 파일 없음 → 파이썬 단계가 JSON을 생성하지 못했음"
+              echo "     'Run screener' step의 Python 로그를 확인하세요"
+              exit 1
+            fi
+          else
+            echo "  🔴 data 폴더 없음 → 파이썬 단계가 출력 폴더를 만들지 못했음"
+            exit 1
+          fi
+          
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
@@ -123,19 +171,38 @@ if kr:
           
           # 변경사항이 있을 때만 커밋
           if git diff --staged --quiet; then
-            echo "📝 변경사항 없음"
+            echo "📝 변경사항 없음 (이전 실행 결과와 동일)"
           else
-            git commit -m "📊 데이터 업데이트 v4.4: $(date +'%Y-%m-%d %H:%M') KST"
-            git push
-            echo "✅ 데이터 푸시 완료"
+            echo "📝 [진단] 스테이징된 변경 파일:"
+            git diff --staged --name-status
+            
+            git commit -m "📊 데이터 업데이트 v4.4.1: $(date +'%Y-%m-%d %H:%M') KST"
+            
+            echo "🚀 [진단] git push 시도..."
+            if git push; then
+              echo "✅ 데이터 푸시 완료"
+              echo ""
+              echo "📌 GitHub Pages가 활성화되어 있다면 1~2분 내 반영됩니다"
+              echo "📌 캐시로 인해 브라우저 강제 새로고침(Ctrl+Shift+R) 권장"
+            else
+              echo ""
+              echo "🔴 git push 실패!"
+              echo "원인 후보:"
+              echo "  1. Workflow permissions 누락"
+              echo "     → 저장소 Settings → Actions → General → Workflow permissions"
+              echo "     → 'Read and write permissions' 선택"
+              echo "  2. 또는 screener.yml 최상단 'permissions: contents: write' 명시 필요"
+              echo "  3. 브랜치 보호 규칙(branch protection)이 push를 막고 있을 수 있음"
+              exit 1
+            fi
           fi
 
-      - name: Upload artifacts (optional)
+      - name: Upload artifacts (always for debugging)
+        # v4.4.1-fix2: 항상 업로드 (성공/실패 무관) — 사용자가 data.json 직접 다운로드 가능
         uses: actions/upload-artifact@v4
-        if: failure()  # 실패 시에만 업로드
+        if: always()
         with:
-          name: screener-logs
+          name: screener-data-${{ github.run_number }}
           path: |
             ./data/
-            ./*.log
-          retention-days: 7
+          retention-days: 14
