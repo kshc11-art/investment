@@ -1,0 +1,194 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "generated_at": "2026-04-22",
+    "note": "이벤트 일정은 공개된 공식 일정 기준. 실제 날짜는 각 기관 확정일로 재검증 필요.",
+    "sources": {
+      "FOMC": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "BOK": "https://www.bok.or.kr/portal/bbs/P0002340/list.do",
+      "BEA": "https://www.bea.gov/news/schedule",
+      "BLS": "https://www.bls.gov/schedule/news_release/"
+    }
+  },
+  "events": [
+    {
+      "date": "2026-04-29",
+      "time_kst": "03:00",
+      "event": "FOMC 정책금리 결정 (4월)",
+      "category": "fomc",
+      "impact": "very_high",
+      "region": "US",
+      "consensus": "5.25-5.50% 유지 (예상)",
+      "description": "3월 CPI 이후 첫 회의. 점도표 업데이트 없음."
+    },
+    {
+      "date": "2026-05-01",
+      "time_kst": "10:00",
+      "event": "한국은행 금통위 기준금리 결정 (5월)",
+      "category": "korea_central_bank",
+      "impact": "high",
+      "region": "KR",
+      "consensus": "3.50% 유지 (예상)",
+      "description": "한국은행 기준금리 결정 후 총재 기자회견."
+    },
+    {
+      "date": "2026-05-02",
+      "time_kst": "21:30",
+      "event": "미국 4월 고용보고서 (NFP)",
+      "category": "us_employment",
+      "impact": "high",
+      "region": "US",
+      "consensus": "실업률 4.0%, NFP +180K (예상)"
+    },
+    {
+      "date": "2026-05-13",
+      "time_kst": "21:30",
+      "event": "미국 4월 CPI",
+      "category": "us_cpi",
+      "impact": "very_high",
+      "region": "US",
+      "consensus": "YoY 3.2% (예상)"
+    },
+    {
+      "date": "2026-05-15",
+      "time_kst": "08:00",
+      "event": "한국 4월 고용동향",
+      "category": "kr_employment",
+      "impact": "medium",
+      "region": "KR",
+      "consensus": "실업률 3.0% (예상)"
+    },
+    {
+      "date": "2026-05-22",
+      "time_kst": "22:00",
+      "event": "한국 1분기 실적 발표 마감",
+      "category": "earnings_season",
+      "impact": "medium",
+      "region": "KR",
+      "description": "코스피200 대부분 기업 1분기 보고서 마감일."
+    },
+    {
+      "date": "2026-05-29",
+      "time_kst": "10:00",
+      "event": "한국은행 금통위 기준금리 결정 (5월 재개)",
+      "category": "korea_central_bank",
+      "impact": "high",
+      "region": "KR"
+    },
+    {
+      "date": "2026-06-12",
+      "time_kst": "03:00",
+      "event": "FOMC 정책금리 결정 (6월) — 점도표 업데이트",
+      "category": "fomc",
+      "impact": "very_high",
+      "region": "US",
+      "description": "분기별 경제 전망 (SEP) 업데이트 포함. 변동성 확대."
+    },
+    {
+      "date": "2026-06-12",
+      "time_kst": "21:30",
+      "event": "미국 5월 CPI",
+      "category": "us_cpi",
+      "impact": "very_high",
+      "region": "US"
+    },
+    {
+      "date": "2026-06-30",
+      "time_kst": "10:00",
+      "event": "MSCI 분기 리밸런싱 (6월)",
+      "category": "index_rebalance",
+      "impact": "medium",
+      "region": "GLOBAL",
+      "description": "MSCI Standard Index 정기 변경. 편입/편출 종목 거래량 급증."
+    },
+    {
+      "date": "2026-07-11",
+      "time_kst": "10:00",
+      "event": "한국은행 금통위 기준금리 결정 (7월)",
+      "category": "korea_central_bank",
+      "impact": "high",
+      "region": "KR"
+    },
+    {
+      "date": "2026-07-30",
+      "time_kst": "03:00",
+      "event": "FOMC 정책금리 결정 (7월)",
+      "category": "fomc",
+      "impact": "very_high",
+      "region": "US"
+    },
+    {
+      "date": "2026-08-15",
+      "time_kst": "-",
+      "event": "한국 광복절 (휴장)",
+      "category": "market_holiday",
+      "impact": "low",
+      "region": "KR"
+    },
+    {
+      "date": "2026-08-28",
+      "time_kst": "10:00",
+      "event": "한국은행 금통위 기준금리 결정 (8월)",
+      "category": "korea_central_bank",
+      "impact": "high",
+      "region": "KR"
+    },
+    {
+      "date": "2026-09-17",
+      "time_kst": "03:00",
+      "event": "FOMC 정책금리 결정 (9월) — 점도표 업데이트",
+      "category": "fomc",
+      "impact": "very_high",
+      "region": "US",
+      "description": "SEP 업데이트 포함."
+    },
+    {
+      "date": "2026-10-16",
+      "time_kst": "10:00",
+      "event": "한국은행 금통위 기준금리 결정 (10월)",
+      "category": "korea_central_bank",
+      "impact": "high",
+      "region": "KR"
+    },
+    {
+      "date": "2026-10-29",
+      "time_kst": "03:00",
+      "event": "FOMC 정책금리 결정 (10월)",
+      "category": "fomc",
+      "impact": "very_high",
+      "region": "US"
+    },
+    {
+      "date": "2026-11-28",
+      "time_kst": "10:00",
+      "event": "한국은행 금통위 기준금리 결정 (11월)",
+      "category": "korea_central_bank",
+      "impact": "high",
+      "region": "KR"
+    },
+    {
+      "date": "2026-12-10",
+      "time_kst": "03:00",
+      "event": "FOMC 정책금리 결정 (12월) — 점도표 업데이트",
+      "category": "fomc",
+      "impact": "very_high",
+      "region": "US"
+    }
+  ],
+  "categories": {
+    "fomc": { "icon": "🏦", "color": "#dc2626", "label": "FOMC" },
+    "korea_central_bank": { "icon": "🇰🇷", "color": "#2563eb", "label": "한국은행" },
+    "us_cpi": { "icon": "💵", "color": "#ea580c", "label": "미국 CPI" },
+    "us_employment": { "icon": "💼", "color": "#f59e0b", "label": "미국 고용" },
+    "kr_employment": { "icon": "📊", "color": "#0ea5e9", "label": "한국 고용" },
+    "earnings_season": { "icon": "📈", "color": "#10b981", "label": "실적 시즌" },
+    "index_rebalance": { "icon": "🔄", "color": "#8b5cf6", "label": "지수 리밸런싱" },
+    "market_holiday": { "icon": "🎌", "color": "#64748b", "label": "휴장" }
+  },
+  "impact_levels": {
+    "very_high": { "color": "#dc2626", "label": "🔴 매우 높음" },
+    "high": { "color": "#ea580c", "label": "🟠 높음" },
+    "medium": { "color": "#f59e0b", "label": "🟡 보통" },
+    "low": { "color": "#10b981", "label": "🟢 낮음" }
+  }
+}

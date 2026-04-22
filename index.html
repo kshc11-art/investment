@@ -63,6 +63,18 @@
             --space-sm: 10px;
             --space-md: 16px;
             --space-lg: 24px;
+            /* v5.28-UX1: 디자인 시스템 토큰 (Phase UX-1 통일) */
+            --radius-sm: 4px;
+            --radius-md: 6px;
+            --radius-lg: 8px;
+            --radius-xl: 10px;
+            --border-thin: 1px solid var(--border-color);
+            --border-accent-thin: 1px solid var(--border-accent);
+            --card-padding: 12px;
+            --card-padding-lg: 14px;
+            --card-gap: 12px;
+            --elevation-card: 0 1px 3px rgba(0, 0, 0, 0.2);
+            --elevation-hover: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         * {
@@ -224,7 +236,7 @@
         }
 
         /* Cards - 모바일 최적화 */
-        .card {
+        .card, .std-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 16px;
@@ -983,7 +995,7 @@
                 font-size: var(--font-xs);
             }
 
-            .card {
+            .card, .std-card {
                 padding: var(--space-lg);
             }
 
@@ -1562,7 +1574,7 @@
         @media (max-width: 768px) {
             /* 기본 레이아웃 */
             .container { padding: 8px 6px 80px; }
-            .card { padding: 10px; margin-bottom: 10px; }
+            .card, .std-card { padding: 10px; margin-bottom: 10px; }
             .card-header { flex-direction: column; align-items: flex-start; gap: 6px; }
             
             /* 탭 네비게이션: 하단 고정 */
@@ -2017,7 +2029,7 @@
         /* iPhone 13 mini 전용 미세 조정 */
         @media (max-width: 400px) {
             .container { padding: calc(6px + env(safe-area-inset-top, 0px)) max(4px, env(safe-area-inset-right, 0px)) calc(72px + env(safe-area-inset-bottom, 0px)) max(4px, env(safe-area-inset-left, 0px)); }
-            .card { padding: 8px; margin-bottom: 8px; }
+            .card, .std-card { padding: 8px; margin-bottom: 8px; }
             
             /* 더 작은 화면에서 총점 숫자 살짝 축소 */
             .stock-table tbody td:nth-child(4) .score-val { font-size: 16px !important; }
@@ -2170,7 +2182,7 @@
             /* ═══════════════════════════════════════════════════════
                v5.23-fix (M15): 전역 카드/헤더/배지 모바일 축소
                ═══════════════════════════════════════════════════════ */
-            .card {
+            .card, .std-card {
                 padding: 8px 10px !important;
                 margin-bottom: 8px !important;
                 border-radius: 10px !important;
@@ -2690,6 +2702,304 @@
         .ec-name { flex: 1; min-width: 0; font-weight: 600; }
         .ec-consensus { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px; }
 
+        /* ============================================================ */
+        /* v5.28-UX1: 통일 디자인 시스템 (Phase UX-1)                    */
+        /* 사용법: 신규 카드/배지/버튼에 std-* 클래스 사용                */
+        /* 기존 inline style 카드는 영향 없음 (점진적 마이그레이션)       */
+        /* ============================================================ */
+        
+        /* --- 표준 카드 --- */
+        .std-card {
+            padding: var(--card-padding);
+            margin-bottom: var(--card-gap);
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: var(--border-thin);
+        }
+        .std-card-lg {
+            padding: var(--card-padding-lg);
+            margin-bottom: var(--card-gap);
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+            border-radius: var(--radius-lg);
+            border: var(--border-thin);
+        }
+        .std-card-compact {
+            padding: var(--space-sm);
+            margin-bottom: var(--space-sm);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+        
+        /* --- 표준 카드 제목 --- */
+        .std-card-title {
+            font-size: var(--fs-md);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 var(--space-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            flex-wrap: wrap;
+        }
+        .std-card-title .std-title-meta {
+            margin-left: auto;
+            font-size: var(--fs-xs);
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+        .std-card-subtitle {
+            font-size: var(--fs-sm);
+            color: var(--text-muted);
+            margin-bottom: var(--space-sm);
+        }
+        
+        /* --- 표준 배지 (3단계) --- */
+        .std-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-size: var(--fs-xs);
+            font-weight: 600;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .std-badge-md {
+            padding: 4px 10px;
+            border-radius: var(--radius-md);
+            font-size: var(--fs-sm);
+        }
+        .std-badge-lg {
+            padding: 8px 14px;
+            border-radius: var(--radius-lg);
+            font-size: var(--fs-md);
+        }
+        /* 배지 색상 변형 */
+        .std-badge.success { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+        .std-badge.warning { background: rgba(245,158,11,0.15); color: var(--accent-gold); }
+        .std-badge.danger  { background: rgba(239,68,68,0.15); color: var(--accent-red); }
+        .std-badge.info    { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+        .std-badge.purple  { background: rgba(168,85,247,0.15); color: var(--accent-purple); }
+        
+        /* --- 표준 버튼 --- */
+        .std-btn {
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: background 0.15s ease, transform 0.1s ease;
+        }
+        .std-btn:hover { background: var(--bg-card-hover); }
+        .std-btn:active { transform: scale(0.97); }
+        .std-btn-sm {
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--fs-xs);
+        }
+        .std-btn-lg {
+            padding: 10px 18px;
+            border-radius: var(--radius-lg);
+            font-size: var(--fs-md);
+        }
+        /* 버튼 색상 변형 */
+        .std-btn.primary   { background: var(--accent-gold); color: #000; }
+        .std-btn.primary:hover { background: var(--accent-gold-dim); color: #fff; }
+        .std-btn.success   { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+        .std-btn.success:hover { background: rgba(16,185,129,0.25); }
+        .std-btn.danger    { background: rgba(239,68,68,0.15); color: var(--accent-red); }
+        .std-btn.ghost     { background: transparent; color: var(--text-muted); }
+        .std-btn.ghost:hover { background: var(--bg-card); color: var(--text-primary); }
+        
+        /* --- 표준 섹션 (카드 내부 소제목) --- */
+        .std-section {
+            margin-bottom: var(--space-md);
+        }
+        .std-section:last-child { margin-bottom: 0; }
+        .std-section-sm { margin-bottom: var(--space-sm); }
+        .std-section-title {
+            font-size: var(--fs-xs);
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: var(--space-xs);
+            letter-spacing: 0.3px;
+        }
+        
+        /* --- 표준 리스트 (데이터 표시) --- */
+        .std-list { list-style: none; padding: 0; margin: 0; }
+        .std-list > li {
+            padding: 6px 10px;
+            margin-bottom: 4px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--text-muted);
+            font-size: var(--fs-sm);
+            line-height: 1.5;
+        }
+        .std-list > li:last-child { margin-bottom: 0; }
+        .std-list > li.priority-high    { border-left-color: var(--accent-red); }
+        .std-list > li.priority-medium  { border-left-color: var(--accent-gold); }
+        .std-list > li.priority-low     { border-left-color: var(--accent-green); }
+        
+        /* --- 표준 그리드 --- */
+        .std-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: var(--space-xs);
+        }
+        .std-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .std-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .std-grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
+        
+        /* --- 표준 빈 상태 --- */
+        .std-empty {
+            text-align: center;
+            padding: var(--space-md);
+            color: var(--text-muted);
+            font-size: var(--fs-sm);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+        }
+        .std-empty-icon { font-size: 24px; margin-bottom: var(--space-xs); opacity: 0.6; }
+        .std-empty-hint { font-size: var(--fs-xs); margin-top: var(--space-xs); opacity: 0.8; }
+        
+        /* --- 표준 데이터 포인트 (지표 타일) --- */
+        .std-datapoint {
+            padding: 6px 8px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            text-align: center;
+            border-top: 2px solid var(--text-muted);
+        }
+        .std-datapoint-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .std-datapoint-value {
+            font-size: var(--fs-md);
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            margin-top: 2px;
+        }
+        
+        /* --- v5.28-UX3: 투자 지식(knowledge) 탭 통일 --- */
+        /* 섹션 제목 (h4 통일) */
+        .std-subtitle {
+            font-size: var(--fs-lg);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: var(--space-md) 0 var(--space-sm);
+        }
+        .std-subtitle.accent-gold   { color: var(--accent-gold); }
+        .std-subtitle.accent-green  { color: var(--accent-green); }
+        .std-subtitle.accent-red    { color: var(--accent-red); }
+        .std-subtitle.accent-blue   { color: var(--accent-blue); }
+        .std-subtitle.accent-purple { color: var(--accent-purple); }
+        
+        /* 정보 박스 (원칙/팁/경고 등) */
+        .std-info-box {
+            padding: var(--space-sm);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--text-muted);
+            margin-bottom: var(--space-sm);
+            font-size: var(--fs-sm);
+            line-height: 1.6;
+        }
+        .std-info-box.tip     { border-left-color: var(--accent-gold); }
+        .std-info-box.success { border-left-color: var(--accent-green); }
+        .std-info-box.warning { border-left-color: var(--accent-red); }
+        .std-info-box.info    { border-left-color: var(--accent-blue); }
+        .std-info-box.rule    { border-left-color: var(--accent-purple); }
+        
+        /* 시나리오 타이틀 */
+        .scenario-title {
+            font-size: var(--fs-lg);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 var(--space-sm);
+        }
+        
+        /* 지식 탭 내부 '원론' 표시 배지 */
+        .std-principle-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--accent-purple);
+            border-radius: var(--radius-sm);
+            font-size: var(--fs-xs);
+            font-weight: 600;
+            margin-left: var(--space-xs);
+        }
+        
+        /* --- v5.28-UX3: 시나리오 섹션 반복 패턴 클래스 --- */
+        /* 반복 13회: bg-secondary + padding + radius */
+        .std-box {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: 12px;
+            margin-bottom: 14px;
+        }
+        /* 색상 변형 박스 */
+        .std-box.box-success {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .std-box.box-warning {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .std-box.box-danger {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .std-box.box-info {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        /* h5 섹션 제목 (반복 25+회) */
+        .std-box-title {
+            color: var(--text-primary);
+            font-size: var(--fs-md);
+            margin: 0 0 10px;
+        }
+        .std-box-title.accent-green { color: var(--accent-green); }
+        .std-box-title.accent-red   { color: var(--accent-red); }
+        .std-box-title.accent-gold  { color: var(--accent-gold); }
+        .std-box-title.accent-blue  { color: var(--accent-blue); }
+        
+        /* 연쇄반응 트리 (모노스페이스, 반복 12회) */
+        .std-chain-tree {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: var(--fs-sm);
+            color: var(--text-secondary);
+            line-height: 1.9;
+        }
+        
+        /* 설명 텍스트 (반복 12회) */
+        .std-description {
+            font-size: var(--fs-md);
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* 하위 조건 리스트 (반복 12회) */
+        .std-condition-list {
+            margin-top: 8px;
+            padding-left: 12px;
+        }
+
     </style>
 </head>
 <body>
@@ -2740,7 +3050,7 @@
         <!-- ==================== TAB 1: 종목 스크리닝 ==================== -->
         <div class="tab-content active" id="stocks" role="tabpanel" aria-labelledby="stocks">
             <!-- v5.18-fix (F3-g): 워치리스트 요약 카드 (비어있으면 숨김) -->
-            <div class="card" id="watchlistSummaryCard" style="display:none;background:linear-gradient(135deg,rgba(168,85,247,0.08),rgba(139,92,246,0.02));border:1px solid rgba(168,85,247,0.3);">
+            <div class="std-card" id="watchlistSummaryCard" style="display:none;background:linear-gradient(135deg,rgba(168,85,247,0.08),rgba(139,92,246,0.02));border:1px solid rgba(168,85,247,0.3);">
                 <div class="card-header">
                     <h3 class="card-title">🔖 워치리스트</h3>
                     <span class="card-badge" id="watchlistCountBadge" style="background:rgba(168,85,247,0.3);color:#a855f7;">0</span>
@@ -2751,7 +3061,7 @@
                     <button onclick="if(confirm('워치리스트 전체 삭제?')) clearWatchlist()" style="padding:4px 10px;border:none;border-radius:4px;background:rgba(239,68,68,0.15);color:#ef4444;font-size:var(--fs-xs);font-weight:600;cursor:pointer;">🗑️ 전체 삭제</button>
                 </div>
             </div>
-            <div class="card">
+            <div class="std-card">
                 <div class="card-header" style="display: flex; flex-direction: column; gap: 8px;">
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <h3 class="card-title" style="white-space: nowrap;">📈 글로벌 스크리닝</h3>
@@ -2947,6 +3257,45 @@
 
         <!-- ==================== TAB 2: 내 포지션 ==================== -->
         <div class="tab-content" id="myposition">
+            <!-- v5.28-UX4: 내 총 자산 설정 카드 (신규) -->
+            <div class="std-card" id="totalAssetCard" style="border: 1px solid var(--accent-purple); background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(139,92,246,0.02));">
+                <h3 class="std-card-title">
+                    💰 내 총 자산 설정
+                    <span class="std-title-meta" id="totalAssetMeta">투자 가능 총액 계산</span>
+                </h3>
+                <div class="std-card-subtitle">
+                    포트폴리오 비율 추천은 포지션 + 예수금 + 추가 투자 예정액을 모두 포함한 총액 기준으로 계산됩니다.
+                </div>
+                
+                <div class="std-grid cols-3" style="gap: var(--space-sm); margin-bottom: var(--space-md);">
+                    <!-- 포지션 평가액 (자동) -->
+                    <div class="std-datapoint" style="border-top-color: var(--accent-blue);">
+                        <div class="std-datapoint-label">포지션 평가액</div>
+                        <div class="std-datapoint-value" id="taPositionValue" style="color: var(--accent-blue);">0원</div>
+                        <div style="font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px;">자동 계산</div>
+                    </div>
+                    <!-- 예수금 입력 -->
+                    <div class="std-datapoint" style="border-top-color: var(--accent-green);">
+                        <div class="std-datapoint-label">예수금 / 현금</div>
+                        <input type="number" id="taCash" placeholder="0" min="0" step="10000"
+                            style="width: 100%; text-align: center; font-size: var(--fs-md); font-weight: 700; font-family: 'JetBrains Mono', monospace; background: transparent; border: none; color: var(--accent-green); margin-top: 2px;">
+                        <div style="font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px;">직접 입력 (원)</div>
+                    </div>
+                    <!-- 추가 투자 예정 -->
+                    <div class="std-datapoint" style="border-top-color: var(--accent-gold);">
+                        <div class="std-datapoint-label">추가 투자 예정</div>
+                        <input type="number" id="taPlannedInvest" placeholder="0" min="0" step="10000"
+                            style="width: 100%; text-align: center; font-size: var(--fs-md); font-weight: 700; font-family: 'JetBrains Mono', monospace; background: transparent; border: none; color: var(--accent-gold); margin-top: 2px;">
+                        <div style="font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px;">6개월 이내 (원)</div>
+                    </div>
+                </div>
+                
+                <div class="std-box" style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); margin-bottom: 0; text-align: center;">
+                    <div style="font-size: var(--fs-sm); color: var(--text-muted); margin-bottom: 4px;">📊 투자 가능 총액</div>
+                    <div id="taTotalInvestable" style="font-size: var(--font-2xl); font-weight: 800; color: var(--accent-purple); font-family: 'JetBrains Mono', monospace;">0원</div>
+                </div>
+            </div>
+            
             <!-- v5.5: 포트폴리오 요약 헤더 (Above the fold) -->
             <div id="portfolioSummaryHero" class="card" style="display:none; border: 2px solid var(--accent-gold); background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.02));">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--space-md);">
@@ -2967,7 +3316,7 @@
                 <div id="taxHarvestAlert" style="display:none;padding:var(--space-sm) var(--space-md);background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:8px;font-size: var(--fs-md);margin-top:var(--space-sm);"></div>
             </div>
             
-            <div class="card">
+            <div class="std-card">
                 <div class="card-header">
                     <h3 class="card-title">💼 내 포지션 판단</h3>
                     <span class="card-badge" id="positionBadge" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">보유종목 입력 필요</span>
@@ -3081,7 +3430,7 @@
                 <div id="fxHedgeRecommendation"></div>
             </div>
 
-            <div class="card">
+            <div class="std-card">
                 <div class="card-header">
                     <h3 class="card-title">📋 투자 메모</h3>
                     <button onclick="saveInvestMemo()" style="padding:4px 10px;border:none;border-radius:5px;font-size: var(--fs-xs);font-weight:700;cursor:pointer;background:rgba(16,185,129,0.2);color:var(--accent-green);">저장</button>
@@ -3095,50 +3444,48 @@
         <div class="tab-content" id="market">
             <!-- ==================================================== -->
             <!-- v5.27-A1: NOW — 시장 신호 단일 의사결정 카드 -->
-            <!-- v5.26-D1의 placeholder를 실제 작동 카드로 교체 -->
-            <!-- 자원 활용:                                              -->
-            <!--   · window.MRS.inferCurrentRegime (Hamilton 1989 Markov) -->
-            <!--   · window._marketIndicators (VIX/CAPE/10Y/USDKRW/WTI)  -->
-            <!--   · 기존 assetJudgmentCard 데이터 통합                   -->
+            <!-- v5.28-UX1: std-card-lg 클래스로 디자인 통일 -->
             <!-- ==================================================== -->
-            <div class="card" id="nowSignalCard" style="padding: 14px; margin-bottom: 12px; background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));">
+            <div class="std-card-lg" id="nowSignalCard">
                 <!-- 헤더 -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-                    <h3 class="card-title" style="margin: 0;">🎯 NOW — 시장 신호</h3>
-                    <span id="nowSignalTimestamp" style="font-size: var(--fs-xs); color: var(--text-muted);">―</span>
-                </div>
+                <h3 class="std-card-title">
+                    🎯 NOW — 시장 신호
+                    <span class="std-title-meta" id="nowSignalTimestamp">―</span>
+                </h3>
                 
                 <!-- 레짐 배지 (큼직) -->
-                <div id="nowRegimeBanner" style="padding: 14px; border-radius: 10px; margin-bottom: 12px; text-align: center; background: var(--bg-secondary); border: 2px solid var(--text-muted); transition: all 0.3s ease;">
+                <div id="nowRegimeBanner" style="padding: 14px; border-radius: var(--radius-xl); margin-bottom: var(--space-md); text-align: center; background: var(--bg-secondary); border: 2px solid var(--text-muted); transition: all 0.3s ease;">
                     <div id="nowRegimeIcon" style="font-size: 28px; line-height: 1; margin-bottom: 6px;">⏳</div>
                     <div id="nowRegimeLabel" style="font-size: var(--fs-lg); font-weight: 800; margin-bottom: 4px;">분석 중...</div>
                     <div id="nowRegimeSubtitle" style="font-size: var(--fs-sm); color: var(--text-muted);">데이터 로드 후 레짐 판별</div>
                     <div id="nowRegimeConfidence" style="font-size: var(--fs-xs); color: var(--text-muted); margin-top: 6px;"></div>
                 </div>
                 
-                <!-- 핵심 5지표 한 줄 -->
-                <div style="margin-bottom: 12px;">
-                    <div style="font-size: var(--fs-xs); color: var(--text-muted); margin-bottom: 6px; font-weight: 600;">📊 핵심 지표</div>
-                    <div id="nowCoreIndicators" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(95px, 1fr)); gap: 6px;">
-                        <!-- JS가 채움 -->
-                        <div style="padding: 6px 8px; background: var(--bg-secondary); border-radius: 6px; font-size: var(--fs-xs); color: var(--text-muted); text-align: center;">―</div>
+                <!-- 핵심 5지표 -->
+                <div class="std-section">
+                    <div class="std-section-title">📊 핵심 지표</div>
+                    <div id="nowCoreIndicators" class="std-grid">
+                        <div class="std-datapoint">
+                            <div class="std-datapoint-label">―</div>
+                            <div class="std-datapoint-value">―</div>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- 3줄 권고 -->
-                <div style="margin-bottom: 12px;">
-                    <div style="font-size: var(--fs-xs); color: var(--text-muted); margin-bottom: 6px; font-weight: 600;">💡 권고</div>
-                    <ul id="nowRecommendations" style="list-style: none; padding: 0; margin: 0; font-size: var(--fs-sm); line-height: 1.7;">
-                        <li style="color: var(--text-muted);">· 레짐 판별 후 생성됩니다</li>
+                <div class="std-section">
+                    <div class="std-section-title">💡 권고</div>
+                    <ul id="nowRecommendations" class="std-list">
+                        <li>레짐 판별 후 생성됩니다</li>
                     </ul>
                 </div>
                 
                 <!-- 펼침: 학술 근거 + 시나리오 확률 -->
                 <details style="font-size: var(--fs-xs); color: var(--text-muted);">
                     <summary style="cursor: pointer; padding: 6px 0; font-weight: 600; color: var(--text-secondary);">📚 근거 & 시나리오 확률</summary>
-                    <div style="padding: 10px; background: var(--bg-card); border-radius: 6px; margin-top: 6px; line-height: 1.7;">
-                        <div id="nowScenarioProbs" style="margin-bottom: 10px;"></div>
-                        <div id="nowAcademicBasis" style="border-top: 1px solid var(--border-color); padding-top: 8px;">
+                    <div style="padding: var(--space-sm); background: var(--bg-card); border-radius: var(--radius-md); margin-top: 6px; line-height: 1.7;">
+                        <div id="nowScenarioProbs" style="margin-bottom: var(--space-sm);"></div>
+                        <div id="nowAcademicBasis" style="border-top: var(--border-thin); padding-top: 8px;">
                             <b>학술 근거</b>:<br>
                             · Hamilton (1989) — Markov Regime Switching 2-state Gaussian HMM<br>
                             · Ang & Bekaert (2002) — International Asset Allocation with Regime Shifts<br>
@@ -3148,68 +3495,66 @@
                     </div>
                 </details>
                 
-                <!-- 자산별 권고 (구 assetJudgmentCard 통합) -->
-                <div id="nowAssetAllocation" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color); display: none;">
-                    <div style="font-size: var(--fs-xs); color: var(--text-muted); margin-bottom: 6px; font-weight: 600;">💼 자산별 권고</div>
-                    <div id="nowAssetGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px;"></div>
+                <!-- 자산별 권고 -->
+                <div id="nowAssetAllocation" class="std-section" style="margin-top: var(--space-sm); padding-top: var(--space-sm); border-top: var(--border-thin); display: none;">
+                    <div class="std-section-title">💼 자산별 권고</div>
+                    <div id="nowAssetGrid" class="std-grid"></div>
                 </div>
             </div>
             
             <!-- ==================================================== -->
             <!-- v5.28-D1: 이벤트 캘린더 (Phase D, 독립 JSON) -->
-            <!-- events_calendar.json이 있으면 즉시 작동, 없으면 placeholder -->
             <!-- ==================================================== -->
-            <div class="card phase-card" id="eventsCalendarCard">
-                <h3 class="phase-card-title">
+            <div class="std-card" id="eventsCalendarCard">
+                <h3 class="std-card-title">
                     📅 이벤트 캘린더
-                    <span id="ecCountBadge" style="font-size: var(--fs-xs); color: var(--text-muted); font-weight: 400;">(다음 14일)</span>
+                    <span class="std-title-meta" id="ecCountBadge">(다음 14일)</span>
                 </h3>
                 <div id="eventsCalendarContent">
-                    <div class="phase-empty-state">
-                        <div style="font-size: 24px; margin-bottom: 4px;">⏳</div>
+                    <div class="std-empty">
+                        <div class="std-empty-icon">⏳</div>
                         <div>events_calendar.json 로드 대기 중...</div>
                     </div>
                 </div>
             </div>
             
             <!-- ==================================================== -->
-            <!-- v5.28-B1: 기업 이벤트 (Phase B, data.json.FinancialEvents) -->
-            <!-- 파이프라인 통합 전까지는 placeholder 상태 -->
+            <!-- v5.28-B1: 기업 이벤트 (Phase B) -->
             <!-- ==================================================== -->
-            <div class="card phase-card" id="financialEventsCard">
-                <h3 class="phase-card-title">
+            <div class="std-card" id="financialEventsCard">
+                <h3 class="std-card-title">
                     🏢 기업 이벤트
-                    <span id="feCountBadge" style="font-size: var(--fs-xs); color: var(--text-muted); font-weight: 400;">(최근 7일)</span>
+                    <span class="std-title-meta" id="feCountBadge">(최근 7일)</span>
                 </h3>
                 <div id="financialEventsContent">
-                    <div class="phase-empty-state">
-                        <div style="font-size: 24px; margin-bottom: 4px;">📭</div>
+                    <div class="std-empty">
+                        <div class="std-empty-icon">📭</div>
                         <div>DART 재무 이벤트 데이터 대기 중</div>
-                        <div style="margin-top: 6px; font-size: var(--fs-xs);">파이프라인 Phase B 통합 후 자동 표시됨</div>
+                        <div class="std-empty-hint">파이프라인 Phase B 통합 후 자동 표시</div>
                     </div>
                 </div>
             </div>
             
             <!-- ==================================================== -->
-            <!-- v5.28-C1: 수급 시그널 (Phase C, data.json.FlowSignals) -->
+            <!-- v5.28-C1: 수급 시그널 (Phase C) -->
             <!-- ==================================================== -->
-            <div class="card phase-card" id="flowSignalsCard">
-                <h3 class="phase-card-title">
+            <div class="std-card" id="flowSignalsCard">
+                <h3 class="std-card-title">
                     💰 수급 시그널
-                    <span id="fsCountBadge" style="font-size: var(--fs-xs); color: var(--text-muted); font-weight: 400;"></span>
+                    <span class="std-title-meta" id="fsCountBadge"></span>
                 </h3>
                 <div id="flowSignalsContent">
-                    <div class="phase-empty-state">
-                        <div style="font-size: 24px; margin-bottom: 4px;">⏳</div>
+                    <div class="std-empty">
+                        <div class="std-empty-icon">⏳</div>
                         <div>KRX 수급 데이터 대기 중</div>
-                        <div style="margin-top: 6px; font-size: var(--fs-xs);">파이프라인 Phase C 통합 후 자동 표시됨</div>
+                        <div class="std-empty-hint">파이프라인 Phase C 통합 후 자동 표시</div>
                     </div>
                 </div>
             </div>
             
             <!-- 동적 판단 결과 -->
             <!-- ★ v5.3: 정적 투자근거 vs 동적 시장판단 충돌 감지 배너 -->
-            <div id="rationaleConflictBanner" class="card" style="display:none; padding: 12px; background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(239,68,68,0.05)); border: 1px solid rgba(245,158,11,0.4);">
+            <div id="rationaleConflictBanner" class="std-card" style="display:none; background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(239,68,68,0.05)); border: 1px solid rgba(245,158,11,0.4);">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                     <span style="font-size: 1.1rem;">⚠️</span>
                     <span style="font-size: var(--fs-md); font-weight: 700; color: var(--accent-gold);">투자논리 vs 시장판단 충돌 감지</span>
@@ -3222,13 +3567,13 @@
             </div>
 
             <!-- ★ v5.3: 거시환경 기반 동적 자산 판단 (시장판단에서 이동) -->
-            <div class="card" id="assetJudgmentCard" style="display:none; padding: 12px;">
+            <div class="std-card" id="assetJudgmentCard" style="display:none;">
                 <h3 class="card-title" style="font-size: var(--fs-md); margin-bottom: 10px;">📊 거시환경 기반 동적 자산 판단</h3>
                 <div id="assetJudgmentGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px;"></div>
                 <div id="assetJudgmentReasoning" style="margin-top: 10px; padding: 8px; background: var(--bg-secondary); border-radius: 6px; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.6;"></div>
             </div>
 
-            <div class="card" id="dailyDetailedCard" style="display:none; padding: 12px;">
+            <div class="std-card" id="dailyDetailedCard" style="display:none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
                     <h3 class="card-title" style="font-size: var(--fs-md); margin: 0;">🎯 일일 상세 매매 판단</h3>
                     <span id="dailyDecisionDate" style="font-size: var(--fs-xs); color: var(--text-muted); padding: 3px 8px; background: var(--bg-secondary); border-radius: 4px;"></span>
@@ -3287,7 +3632,7 @@
             </div>
 
             <!-- ★ v5.3: 매도 신호 체크리스트 (시장판단에서 이동) -->
-            <div class="card" id="sellTimingCard" style="display:none; padding: 12px;">
+            <div class="std-card" id="sellTimingCard" style="display:none;">
                 <h3 class="card-title" style="font-size: var(--fs-md); margin-bottom: 10px;">🔔 매도 신호 체크리스트 — 룰 기반 EXIT 시스템</h3>
                 <p style="font-size: var(--fs-xs);color:var(--text-muted);margin-bottom:10px;line-height:1.5;">
                     코로나 이후 자산간 상관관계 변화로 예측형 매도보다 <b>룰 기반 출구전략</b>이 효과적.
@@ -3297,7 +3642,7 @@
                 <div id="sellTimingSummary" style="margin-top: 10px; padding: 8px; background: var(--bg-secondary); border-radius: 6px; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.6;"></div>
             </div>
             <!-- 종합 판단 결과 (컴팩트) -->
-            <div class="card" id="marketResultCard" style="display:none; padding: 12px;">
+            <div class="std-card" id="marketResultCard" style="display:none;">
                 <!-- 상단: 핵심 판단 한 줄 -->
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap;">
                     <div style="display: flex; align-items: center; gap: 8px;">
@@ -3314,7 +3659,7 @@
                 <!-- 핵심 지표 대시보드 (엑셀/JSON에서 로드된 값) -->
                 <div id="indicatorDashboard" style="background: var(--bg-secondary); border-radius: 8px; padding: 10px; margin-bottom: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <h4 style="font-size: var(--fs-sm); color: var(--accent-gold); margin: 0;">📊 핵심 지표 현황</h4>
+                        <h4 class="std-subtitle accent-gold" style="font-size: var(--fs-sm); margin: 0;">📊 핵심 지표 현황</h4>
                         <span id="indicatorLoadTime" style="font-size: var(--fs-sm); color: var(--text-muted);"></span>
                     </div>
                     <div id="indicatorGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 6px; font-size: var(--fs-sm);"></div>
@@ -3350,11 +3695,11 @@
                 <div style="margin-top: 8px; padding: 8px; background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.03)); border: 1px solid rgba(245,158,11,0.3); border-radius: 6px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
                         <div style="flex: 1; min-width: 150px;">
-                            <h4 style="color: var(--accent-gold); font-size: var(--fs-sm); margin-bottom: 4px;">⚡ 활성 시나리오</h4>
+                            <h4 class="std-subtitle accent-gold" style="font-size: var(--fs-sm); margin-bottom: 4px;">⚡ 활성 시나리오</h4>
                             <div id="activeScenarios" style="font-size: var(--fs-sm); color: var(--text-secondary);">-</div>
                         </div>
                         <div id="portfolioRecommendation" style="flex: 1; min-width: 200px; display: none;">
-                            <h4 style="font-size: var(--fs-sm); color: var(--text-primary); margin-bottom: 4px;">권장 배분</h4>
+                            <h4 class="std-subtitle" style="font-size: var(--fs-sm); margin-bottom: 4px;">권장 배분</h4>
                             <div id="recommendedAllocation" style="display: flex; flex-wrap: wrap; gap: 4px;"></div>
                         </div>
                     </div>
@@ -3375,7 +3720,7 @@
             </div>
 
             <!-- 📊 상세 지표 현황 (엑셀/JSON 원시 데이터) - 접기 가능 -->
-            <div class="card" id="rawIndicatorCard" style="display:none;">
+            <div class="std-card" id="rawIndicatorCard" style="display:none;">
                 <details>
                     <summary style="cursor: pointer; padding: 10px 12px; margin: -16px; display: flex; align-items: center;">
                         <h3 class="card-title" style="font-size: var(--fs-md); margin: 0;">📈 Market_Indicators 상세</h3>
@@ -3389,7 +3734,7 @@
             </div>
             
             <!-- 📈 추이 차트 -->
-            <div class="card" id="historyChartCard" style="display:none;">
+            <div class="std-card" id="historyChartCard" style="display:none;">
                 <div class="card-header">
                     <h3 class="card-title">📈 지표 추이 (최근 90일)</h3>
                     <div style="display:flex;gap:4px;">
@@ -3409,7 +3754,7 @@
             </div>
 
             <!-- 🔄 스코어 변동 알림 -->
-            <div class="card" id="scoreChangeCard" style="display:none;">
+            <div class="std-card" id="scoreChangeCard" style="display:none;">
                 <div class="card-header">
                     <h3 class="card-title">🔄 스코어 변동 감지</h3>
                     <span class="card-badge" id="scoreChangeBadge" style="background:rgba(245,158,11,0.2);color:var(--accent-gold);">-</span>
@@ -3418,7 +3763,7 @@
             </div>
 
             <!-- Config 업로드 카드 -->
-            <div class="card">
+            <div class="std-card">
                 <!-- 숨겨진 지표 필드 (JS 호환성) -->
                 <div style="display: none;">
                     <input type="number" id="ind_vix">
@@ -3656,7 +4001,7 @@
             </div>
             
             <!-- 개별 신호 상세 (접기 가능) -->
-            <div class="card" id="signalDetailsCard" style="display: none;">
+            <div class="std-card" id="signalDetailsCard" style="display:none;">
                 <details open>
                     <summary style="cursor: pointer; padding: 16px; margin: -16px; display: flex; align-items: center;">
                         <h3 class="card-title" style="margin: 0;">📋 개별 신호 상세</h3>
@@ -3667,7 +4012,7 @@
             </div>
             
             <!-- 학술적 근거 설명 (접기 가능) -->
-            <div class="card">
+            <div class="std-card">
                 <details>
                     <summary style="cursor: pointer; padding: 16px; margin: -16px; display: flex; align-items: center;">
                         <h3 class="card-title" style="margin: 0;">📚 판단 로직 & 학술 근거</h3>
@@ -3722,7 +4067,7 @@
                     </details>
                     
                     <div style="border-top: 2px solid var(--border-color); margin-top: 16px; padding-top: 16px;">
-                        <h4 style="color: var(--text-primary); margin-bottom: 12px;">📊 종목 스코어링 학술 근거</h4>
+                        <h4 class="std-subtitle" style="margin-bottom: 12px;">📊 종목 스코어링 학술 근거</h4>
                     </div>
                     
                     <details style="margin-bottom: 16px;">
@@ -3812,7 +4157,7 @@
         <!-- ==================== TAB 5: 백테스트·기록 (v5.16 N16) ==================== -->
         <div class="tab-content" id="backtest">
             <!-- 상단 안내 -->
-            <div class="card" style="background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(139,92,246,0.02)); border: 1px solid rgba(168,85,247,0.3);">
+            <div class="std-card" style="background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(139,92,246,0.02)); border: 1px solid rgba(168,85,247,0.3);">
                 <div class="card-header">
                     <h3 class="card-title">🧪 백테스트·기록 (v5.16)</h3>
                     <span class="card-badge" id="backtestSnapshotBadge" style="background: rgba(168,85,247,0.3); color: #a855f7;">-</span>
@@ -3829,7 +4174,7 @@
             </div>
             
             <!-- 컨트롤 카드 -->
-            <div class="card">
+            <div class="std-card">
                 <div class="card-header">
                     <h3 class="card-title">⚙️ 스냅샷 제어</h3>
                 </div>
@@ -3846,7 +4191,7 @@
             </div>
             
             <!-- 성과 요약 (버전별 비교) -->
-            <div class="card" id="btPerformanceSummaryCard" style="display: none;">
+            <div class="std-card" id="btPerformanceSummaryCard" style="display:none;">
                 <div class="card-header">
                     <h3 class="card-title">📊 버전별 성과 요약</h3>
                 </div>
@@ -3857,7 +4202,7 @@
             </div>
             
             <!-- 누적 수익률 차트 (간단 SVG sparkline) -->
-            <div class="card" id="btCumulativeChartCard" style="display: none;">
+            <div class="std-card" id="btCumulativeChartCard" style="display:none;">
                 <div class="card-header">
                     <h3 class="card-title">📈 가상 포트폴리오 누적 추적</h3>
                 </div>
@@ -3868,7 +4213,7 @@
             </div>
             
             <!-- 실현 최고/최악 종목 -->
-            <div class="card" id="btTopBottomCard" style="display: none;">
+            <div class="std-card" id="btTopBottomCard" style="display:none;">
                 <div class="card-header">
                     <h3 class="card-title">🏆 실현 성과 Best/Worst</h3>
                 </div>
@@ -3876,7 +4221,7 @@
             </div>
             
             <!-- 스냅샷 타임라인 -->
-            <div class="card" id="btTimelineCard">
+            <div class="std-card" id="btTimelineCard">
                 <div class="card-header">
                     <h3 class="card-title">📅 스냅샷 타임라인</h3>
                     <span class="card-badge" id="btTimelineCount" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">0개</span>
@@ -3901,19 +4246,19 @@
                 <div style="font-size: var(--fs-xs); color: var(--text-muted); margin-bottom: 12px; padding: 6px 10px; background: rgba(59,130,246,0.08); border-radius: 6px; border-left: 3px solid rgba(59,130,246,0.5);">
                     ⏱️ 시간불변 원칙. 구체적 수치(환율, CAPE 등)는 시장 판단 탭의 실시간 데이터와 대조하세요.
                 </div>
-            <div class="card">
+            <div class="std-card">
                 <div class="card-header">
                     <h3 class="card-title">💡 경제/금융 의사결정 팁</h3>
                     <span id="tipsConfigBadge" class="card-badge" style="display: none; background: rgba(236,72,153,0.2); color: #ec4899;">Config2</span>
                 </div>
 
                 <div id="tipsGrid" class="tips-grid">
-                    <!-- 기본값 (JS가 덮어씀) -->
+                    <!-- 기본값 (JS가 config 기반으로 덮어씀). 원론만 표시 -->
                     <div class="tip-card" style="border-top-color: var(--accent-red);">
                         <h4>🚨 조건부 리밸런싱 룰</h4>
                         <ul>
                             <li><strong>CAPE 45 돌파</strong> → 미국→현금 5%p 이동</li>
-                            <li><strong>환율 1,500원</strong> → 해외투자 중단</li>
+                            <li><strong>환율 급등 구간</strong> → 해외투자 속도 감속</li>
                             <li>TLT -15% → TLT 50%→IEF 전환</li>
                             <li><strong>VIX 30 돌파</strong> → 현금 20%로 확대</li>
                             <li>인플레 4%+ → 금 20%, TLT 축소</li>
@@ -3933,7 +4278,7 @@
                         <h4>💵 현금 관리 원칙</h4>
                         <ul>
                             <li><strong style="color: var(--accent-gold);">위기 시 현금비중 15~20%</strong> (평상시 8~10%)</li>
-                            <li>MMF 활용 (연 3~4% 수익)</li>
+                            <li>MMF 활용 (단기 유동성 확보)</li>
                             <li>급락 시 저가매수 기회자금</li>
                             <li>정신적 안정감 확보</li>
                             <li>전재산 올인 절대 금지</li>
@@ -3943,10 +4288,10 @@
                         <h4>💱 환율 고려사항</h4>
                         <ul>
                             <li>환율 급등 시 해외자산 비중 → 환손실 직격</li>
-                            <li>해외자산 62% → 환율 -10%시 포트 -6.2%</li>
-                            <li>1,500원 돌파 시: 해외투자 일시 중단</li>
+                            <li>해외자산 비중이 클수록 환리스크 증가</li>
+                            <li>환율 과열 구간 돌파 시: 해외투자 속도 감속</li>
                             <li>국내상장 해외ETF (TIGER 등) 검토</li>
-                            <li>환율 1,380 이하 시 달러자산 적극 확대</li>
+                            <li>환율 저평가 구간 시 달러자산 적극 확대</li>
                         </ul>
                     </div>
                     <div class="tip-card">
@@ -3983,7 +4328,7 @@
             </div>
 
             <!-- 🆕 환율 구간별 행동 지침 (신규 추가) -->
-            <div class="card">
+            <div class="std-card">
                 <div class="card-header">
                     <h3 class="card-title">💱 환율 구간별 행동 지침 매트릭스</h3>
                     <span id="fxMatrixBadge" class="card-badge badge-warning">2026.1 기준</span>
@@ -4004,61 +4349,61 @@
                             </tr>
                         </thead>
                         <tbody id="fxMatrixBody">
-                            <!-- 기본값 (JS가 덮어씀) -->
+                            <!-- 기본값 (JS가 config 기반으로 덮어씀). 수치가 아닌 원칙만 표시 -->
                             <tr>
-                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong>1,380원 이하</strong></td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong>저평가 구간</strong></td>
                                 <td style="padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color);"><span style="color: var(--accent-green); font-size: var(--fs-lg);">🟢</span></td>
-                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--accent-green);"><strong>해외투자 적극 확대</strong><br>달러 매수 최적 타이밍, 분할매수 가속</td>
-                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">분할매수 속도 <strong>150%</strong>로 가속<br>VOO, SCHD, TLT 집중 매수</td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--accent-green);"><strong>해외투자 확대</strong><br>달러 매수 기회, 분할매수 가속</td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">직접 해외 ETF 비중 확대<br>분할매수 속도 가속</td>
                             </tr>
                             <tr>
-                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong>1,380~1,420원</strong></td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong>정상 구간</strong></td>
                                 <td style="padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color);"><span style="color: var(--accent-green); font-size: var(--fs-lg);">🟢</span></td>
-                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--accent-green);"><strong>정상 분할매수 진행</strong><br>계획대로 월 33만원 실행</td>
-                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">추가 대체 전략 불필요<br>기본 계획 유지</td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--accent-green);"><strong>계획대로 실행</strong><br>장기 평균 대비 중립 구간</td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">기본 계획 유지<br>추가 대체 전략 불필요</td>
                             </tr>
                             <tr style="background: rgba(245,158,11,0.05);">
-                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong>1,420~1,460원</strong></td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong>과열 진입</strong></td>
                                 <td style="padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color);"><span style="color: var(--accent-gold); font-size: var(--fs-lg);">🟡</span></td>
-                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--accent-gold);"><strong>해외투자 속도 50% 감속</strong><br>신규 달러매수 신중, 기존분 유지</td>
-                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">국내주식/채권 비중 확대<br>국내상장 해외ETF(TIGER) 병행 고려</td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--accent-gold);"><strong>속도 감속</strong><br>신규 달러매수 신중, 기존분 유지</td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">국내주식/채권 비중 확대<br>국내상장 해외 ETF 병행 고려</td>
                             </tr>
                             <tr style="background: rgba(245,158,11,0.15);">
-                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong style="color: var(--accent-gold);">1,460~1,500원<br>⬅️ 현재</strong></td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong style="color: var(--accent-gold);">과열 지속</strong></td>
                                 <td style="padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color);"><span style="color: var(--accent-gold); font-size: var(--fs-lg);">🟠</span></td>
-                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--accent-gold);"><strong>해외 신규투자 최소화</strong><br>기존 보유분만 유지, 추가매수 자제</td>
-                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong>TIGER 미국S&P500</strong> 등 국내상장 ETF로 대체<br>원화로 해외지수 투자 효과 유지</td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--accent-gold);"><strong>신규 최소화</strong><br>기존 보유분만 유지</td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">국내상장 해외 ETF로 대체<br>원화로 해외지수 노출 유지</td>
                             </tr>
                             <tr style="background: rgba(239,68,68,0.1);">
-                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong style="color: var(--accent-red);">1,500원 이상</strong></td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong style="color: var(--accent-red);">급등 구간</strong></td>
                                 <td style="padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color);"><span style="color: var(--accent-red); font-size: var(--fs-lg);">🔴</span></td>
-                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--accent-red);"><strong>해외투자 완전 중단</strong><br>달러 매수 금지, 환율 하락 대기</td>
-                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><strong>국내상장 해외ETF 전면 전환</strong><br>TIGER/KODEX S&P500, 나스닥100 활용</td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--accent-red);"><strong>신규 중단</strong><br>달러 매수 중단, 하락 대기</td>
+                                <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">국내상장 해외 ETF로 전면 전환<br>환율 리스크 최소화</td>
                             </tr>
                             <tr style="background: rgba(239,68,68,0.15);">
-                                <td style="padding: 12px;"><strong style="color: var(--accent-red);">1,550원 이상</strong></td>
+                                <td style="padding: 12px;"><strong style="color: var(--accent-red);">위기 구간</strong></td>
                                 <td style="padding: 12px; text-align: center;"><span style="color: var(--accent-red); font-size: var(--fs-lg);">🔴🔴</span></td>
-                                <td style="padding: 12px; color: var(--accent-red);"><strong>위기 모드 진입</strong><br>기존 해외자산 환헤지 검토</td>
-                                <td style="padding: 12px;"><strong>전액 국내 운용</strong><br>달러 기보유분 일부 환전 고려 (극단적 상황)</td>
+                                <td style="padding: 12px; color: var(--accent-red);"><strong>위기 모드</strong><br>기존 해외자산 환헤지 검토</td>
+                                <td style="padding: 12px;"><strong>전액 국내 운용</strong><br>극단적 상황만 환전 고려</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 
                 <div id="fxMatrixRecommendation" style="margin-top: 16px; padding: 12px; background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(239,68,68,0.05)); border-radius: 8px; border-left: 4px solid var(--accent-gold);">
-                    <!-- 기본값 (JS가 덮어씀) -->
-                    <strong style="color: var(--text-primary);">📌 환율 급등 시 권고 (1,400원+ 구간):</strong>
+                    <!-- 기본값 (JS가 config 기반으로 덮어씀). 수치 대신 원칙만 표시 -->
+                    <strong style="color: var(--text-primary);">📌 환율 과열 시 원칙:</strong>
                     <div style="color: var(--text-secondary); margin-top: 6px; line-height: 1.6;">
-                        • 신규 해외투자: 계획 대비 <strong>30-50% 축소</strong> 실행<br>
-                        • 대안: TIGER 미국S&P500, TIGER 미국나스닥100 등 국내상장 ETF 활용<br>
-                        • 기존 해외자산: <strong>보유 유지</strong> (환차익 실현 중이므로)<br>
-                        • 환율 1,420원 이하로 하락 시 해외투자 정상화
+                        • 신규 해외투자: 계획 대비 축소 실행<br>
+                        • 대안: 국내상장 해외 ETF (TIGER/KODEX S&P500, 나스닥100) 활용<br>
+                        • 기존 해외자산: 보유 유지 (환차익 실현 중)<br>
+                        • 정상 구간 복귀 시 해외투자 정상화
                     </div>
                 </div>
             </div>
 
             <!-- 🆕 손절/익절 조건부 매트릭스 (신규 추가) -->
-            <div class="card">
+            <div class="std-card">
                 <div class="card-header">
                     <h3 class="card-title">🎯 손절/익절 조건부 의사결정 매트릭스</h3>
                     <span class="card-badge badge-danger">리스크 관리</span>
@@ -4069,7 +4414,7 @@
                 </p>
 
                 <!-- 손절 매트릭스 -->
-                <h4 style="color: var(--accent-red); margin-bottom: 16px; font-size: var(--fs-lg);">📉 손절 의사결정 매트릭스</h4>
+                <h4 class="std-subtitle accent-red">📉 손절 의사결정 매트릭스</h4>
                 <div style="overflow-x: auto; margin-bottom: 20px;">
                     <table style="width: 100%; border-collapse: collapse; font-size: var(--fs-md);">
                         <thead>
@@ -4128,7 +4473,7 @@
                 </div>
 
                 <!-- 익절 매트릭스 -->
-                <h4 style="color: var(--accent-green); margin-bottom: 16px; font-size: var(--fs-lg);">📈 익절 의사결정 매트릭스</h4>
+                <h4 class="std-subtitle accent-green">📈 익절 의사결정 매트릭스</h4>
                 <div style="overflow-x: auto;">
                     <table style="width: 100%; border-collapse: collapse; font-size: var(--fs-md);">
                         <thead>
@@ -4192,7 +4537,7 @@
             </div>
 
             <!-- 🆕 주간/월간 모니터링 체크리스트 (신규 추가) -->
-            <div class="card">
+            <div class="std-card">
                 <div class="card-header">
                     <h3 class="card-title">📊 정기 모니터링 체크리스트</h3>
                     <span class="card-badge badge-info">시스템화</span>
@@ -4201,7 +4546,7 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
                     <!-- 주간 체크 -->
                     <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
-                        <h4 style="color: var(--accent-blue); margin-bottom: 16px; font-size: var(--fs-lg);">📅 주간 체크 (매주 금요일)</h4>
+                        <h4 class="std-subtitle accent-blue">📅 주간 체크 (매주 금요일)</h4>
                         <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.8;">
                             <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
                                 <span>VIX (변동성 지수)</span>
@@ -4228,7 +4573,7 @@
 
                     <!-- 월간 체크 -->
                     <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
-                        <h4 style="color: var(--accent-green); margin-bottom: 16px; font-size: var(--fs-lg);">📅 월간 체크 (매월 1일)</h4>
+                        <h4 class="std-subtitle accent-green">📅 월간 체크 (매월 1일)</h4>
                         <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.8;">
                             <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
                                 <span>CAPE Ratio</span>
@@ -4255,7 +4600,7 @@
 
                     <!-- 분기 체크 -->
                     <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px;">
-                        <h4 style="color: var(--accent-gold); margin-bottom: 16px; font-size: var(--fs-lg);">📅 분기 체크 (3, 6, 9, 12월)</h4>
+                        <h4 class="std-subtitle accent-gold">📅 분기 체크 (3, 6, 9, 12월)</h4>
                         <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.8;">
                             <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
                                 <span>목표 비중 vs 실제</span>
@@ -4288,7 +4633,7 @@
                 <div style="font-size: var(--fs-xs); color: var(--text-muted); margin-bottom: 12px; padding: 6px 10px; background: rgba(59,130,246,0.08); border-radius: 6px; border-left: 3px solid rgba(59,130,246,0.5);">
                     지표 기반 조건부 매수 로직과 행동 체크리스트.
                 </div>
-            <div class="card">
+            <div class="std-card">
                 <div class="card-header">
                     <h3 class="card-title">⚡ 조건부 분할매수 로직</h3>
                     <span class="card-badge badge-warning">동적 조정</span>
@@ -4299,7 +4644,7 @@
                 </p>
 
                 <div style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
-                    <h4 style="color: var(--text-primary); margin-bottom: 16px; font-size: var(--fs-lg);">🔀 의사결정 트리</h4>
+                    <h4 class="std-subtitle">🔀 의사결정 트리</h4>
                     <div style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.9; background: var(--bg-card); padding: 14px; border-radius: 8px; overflow-x: auto;">
 [기본] 월 33M 분할매수<br>
 ├─ S&P <span style="color: var(--accent-green);">-10%</span> → <span style="color: var(--accent-green);">가속</span>: 다음달분 50% 앞당김<br>
@@ -4344,7 +4689,7 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div class="std-card">
                 <div class="card-header">
                     <h3 class="card-title">🎯 월별 의사결정 체크리스트</h3>
                     <span id="checklistConfigBadge" class="card-badge" style="display: none; background: rgba(236,72,153,0.2); color: #ec4899;">Config2 적용됨</span>
@@ -4353,15 +4698,15 @@
                 <div id="checklistGrid" class="checklist-grid">
                     <!-- 기본값 (JS가 덮어씀) -->
                     <div class="checklist-card" style="border-left: 4px solid var(--accent-gold);">
-                        <h4 style="color: var(--accent-gold); font-size: var(--font-base); margin-bottom: var(--space-sm);">🗓️ 이번 달 체크</h4>
+                        <h4 class="std-subtitle accent-gold">🗓️ 이번 달 체크</h4>
                         <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">인플레 3% 이상 유지?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">Yes → 채권매수 보류</span>
                             <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">No → 채권 15M 매수</span>
                         </div>
-                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">원/달러 1,450원 이상?</span></div>
+                        <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">원/달러 환율 과열 구간?</span></div>
                         <div class="checklist-options">
-                            <span class="checklist-option" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">Yes → 해외투자 30% 축소</span>
+                            <span class="checklist-option" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">Yes → 해외투자 축소</span>
                             <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">No → 계획대로</span>
                         </div>
                         <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">지정학 위기 발생?</span></div>
@@ -4376,7 +4721,7 @@
                         </div>
                     </div>
                     <div class="checklist-card" style="border-left: 4px solid var(--accent-blue);">
-                        <h4 style="color: var(--accent-blue); font-size: var(--font-base); margin-bottom: var(--space-sm);">🗓️ 2-3월 체크</h4>
+                        <h4 class="std-subtitle accent-blue">🗓️ 분기 초 체크</h4>
                         <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">유럽 성장률 1.5% 이상?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">Yes → 유럽 비중 확대</span>
@@ -4394,7 +4739,7 @@
                         </div>
                     </div>
                     <div class="checklist-card" style="border-left: 4px solid var(--accent-green);">
-                        <h4 style="color: var(--accent-green); font-size: var(--font-base); margin-bottom: var(--space-sm);">🗓️ 4-5월 체크</h4>
+                        <h4 class="std-subtitle accent-green">🗓️ 분기 중 체크</h4>
                         <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">S&P 500 -10% 이상 조정?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">Yes → 미국 비중 확대!</span>
@@ -4412,7 +4757,7 @@
                         </div>
                     </div>
                     <div class="checklist-card" style="border-left: 4px solid #8b5cf6;">
-                        <h4 style="color: #8b5cf6; font-size: var(--font-base); margin-bottom: var(--space-sm);">🗓️ 6월 리밸런싱 체크</h4>
+                        <h4 class="std-subtitle accent-purple">🗓️ 반기 리밸런싱 체크</h4>
                         <div class="checklist-item"><span style="color: var(--text-secondary); font-size: var(--fs-sm);">목표비중 ±5% 이탈?</span></div>
                         <div class="checklist-options">
                             <span class="checklist-option" style="background: rgba(245,158,11,0.2); color: var(--accent-gold);">Yes → 리밸런싱 실행</span>
@@ -4464,7 +4809,7 @@
                     채권·현금성 자산의 역할, 듀레이션 관리, 금리 환경별 전략 가이드.
                 </div>
             <!-- 📜 채권/현금 투자 가이드 -->
-            <div class="card">
+            <div class="std-card">
                 <div class="card-header">
                     <h3 class="card-title">📜 채권/현금 투자 가이드</h3>
                     <span class="card-badge badge-info">학술 기반</span>
@@ -4474,22 +4819,22 @@
                 <div id="bondMarketSummary" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px; background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(59,130,246,0.05)); border-radius: 10px; margin-bottom: 16px;">
                     <span style="font-size: var(--fs-sm); color: var(--text-muted);">📊</span>
                     <span style="font-size: var(--fs-md); padding: 4px 8px; background: var(--bg-card); border-radius: 6px;">
-                        <span style="color: var(--text-muted);">10Y</span> <span id="bond-us10y" style="color: var(--accent-blue); font-weight: 600;">4.23%</span>
+                        <span style="color: var(--text-muted);">10Y</span> <span id="bond-us10y" style="color: var(--accent-blue); font-weight: 600;">―</span>
                     </span>
                     <span style="font-size: var(--fs-md); padding: 4px 8px; background: var(--bg-card); border-radius: 6px;">
-                        <span style="color: var(--text-muted);">2Y</span> <span id="bond-us2y" style="color: var(--accent-blue); font-weight: 600;">4.36%</span>
+                        <span style="color: var(--text-muted);">2Y</span> <span id="bond-us2y" style="color: var(--accent-blue); font-weight: 600;">―</span>
                     </span>
                     <span style="font-size: var(--fs-md); padding: 4px 8px; background: var(--bg-card); border-radius: 6px;">
-                        <span style="color: var(--text-muted);">스프레드</span> <span id="bond-spread" style="color: var(--accent-red); font-weight: 600;">-0.13%</span>
+                        <span style="color: var(--text-muted);">스프레드</span> <span id="bond-spread" style="color: var(--accent-red); font-weight: 600;">―</span>
                     </span>
                     <span style="font-size: var(--fs-md); padding: 4px 8px; background: var(--bg-card); border-radius: 6px;">
-                        <span style="color: var(--text-muted);">Fed</span> <span id="bond-fed" style="color: var(--accent-gold); font-weight: 600;">4.50%</span>
+                        <span style="color: var(--text-muted);">Fed</span> <span id="bond-fed" style="color: var(--accent-gold); font-weight: 600;">―</span>
                     </span>
                     <span style="font-size: var(--fs-md); padding: 4px 8px; background: var(--bg-card); border-radius: 6px;">
-                        <span style="color: var(--text-muted);">환율</span> <span id="bondFxRate" style="color: var(--accent-purple); font-weight: 600;">1,473원</span>
+                        <span style="color: var(--text-muted);">환율</span> <span id="bondFxRate" style="color: var(--accent-purple); font-weight: 600;">―</span>
                     </span>
                     <span id="bondMarketJudgment" style="flex: 1; min-width: 200px; font-size: var(--fs-sm); color: var(--accent-gold); padding: 4px 8px;">
-                        💡 역수익률 → 단기채 우위
+                        💡 데이터 로드 중...
                     </span>
                 </div>
                 
@@ -4590,7 +4935,7 @@
                         <div id="scenario-fxhigh" class="bond-scenario" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-secondary); border-radius: 8px; border-left: 3px solid #f472b6; cursor: pointer;" onclick="toggleScenarioDetail(this)">
                             <span style="font-size: 1rem;">💱</span>
                             <div style="flex: 1; min-width: 0;">
-                                <div style="font-size: var(--fs-md); font-weight: 600; color: var(--text-primary);">고환율 (1,400원+)</div>
+                                <div style="font-size: var(--fs-md); font-weight: 600; color: var(--text-primary);">고환율 (원화 약세 지속)</div>
                                 <div style="font-size: var(--fs-sm); color: var(--text-muted);">환차손 리스크 회피</div>
                             </div>
                             <div style="text-align: right;">
@@ -4599,8 +4944,8 @@
                             </div>
                         </div>
                         <div class="scenario-detail" style="display: none; padding: 10px 12px 10px 32px; background: rgba(244,114,182,0.05); border-radius: 0 0 8px 8px; margin-top: -8px; font-size: var(--fs-sm); color: var(--text-secondary);">
-                            <strong>학술 근거:</strong> 환율 평균회귀 - 1,400원+ 고환율 시 달러 자산 신규 매수 불리. 국내채권으로 환리스크 회피.<br>
-                            <strong>추천:</strong> KOSEF 국고채, TIGER 국채3년, 개인국채 직접매수 | <strong>전략:</strong> 환율 1,300원대 복귀 시 해외채권 진입
+                            <strong>학술 근거:</strong> 환율 평균회귀 — 고환율 구간에서는 달러 자산 신규 매수가 불리. 국내채권으로 환리스크 회피.<br>
+                            <strong>추천:</strong> KOSEF 국고채, TIGER 국채3년, 개인국채 직접매수 | <strong>전략:</strong> 환율 정상 구간 복귀 시 해외채권 진입
                         </div>
                     </div>
                 </div>
@@ -4640,7 +4985,7 @@
                     거시경제 시나리오별 대응 프레임워크.
                 </div>
             <!-- 기존 활성 시나리오 패널 유지 -->
-            <div class="card" id="activeScenarioCard" style="border: 2px solid var(--accent-gold); background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.02));">
+            <div class="std-card" id="activeScenarioCard" style="border: 2px solid var(--accent-gold); background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.02));">
                 <div class="card-header">
                     <h3 class="card-title">🚦 현재 시장 상태 & 활성 시나리오</h3>
                     <span class="card-badge" id="scenarioConfidenceBadge" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">⏳ 지표 입력 필요</span>
@@ -4655,16 +5000,16 @@
                 
                 <div id="activeScenarioContent" style="display: none;">
                     <div style="margin-bottom: 16px;">
-                        <h4 style="font-size: var(--fs-lg); color: var(--text-primary); margin-bottom: 16px;">🚨 트리거된 시나리오</h4>
+                        <h4 class="std-subtitle">🚨 트리거된 시나리오</h4>
                         <div id="triggeredScenariosList" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
                     </div>
                     <div id="scenarioConflictBox" style="display: none; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 12px; margin-bottom: 16px;">
-                        <h4 style="font-size: var(--fs-md); color: var(--accent-red); margin-bottom: 8px;">⚠️ 시나리오 충돌 감지</h4>
+                        <h4 class="std-subtitle accent-red">⚠️ 시나리오 충돌 감지</h4>
                         <p id="conflictDescription" style="font-size: var(--fs-md); color: var(--text-secondary); margin-bottom: 8px;"></p>
                         <div id="conflictResolution" style="font-size: var(--fs-md); color: var(--text-primary); font-weight: 600;"></div>
                     </div>
                     <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 16px;">
-                        <h4 style="font-size: var(--fs-lg); color: var(--accent-gold); margin-bottom: 10px;">⭐ 우선 적용 시나리오</h4>
+                        <h4 class="std-subtitle accent-gold">⭐ 우선 적용 시나리오</h4>
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <div id="primaryScenarioIcon" style="font-size: 2rem;">-</div>
                             <div>
@@ -4674,18 +5019,18 @@
                         </div>
                     </div>
                     <div style="margin-bottom: 16px;">
-                        <h4 style="font-size: var(--fs-md); color: var(--text-primary); margin-bottom: 10px;">📋 트리거 상세</h4>
+                        <h4 class="std-subtitle">📋 트리거 상세</h4>
                         <div id="triggerDetails" style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.8;"></div>
                     </div>
                     <div style="background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(245,158,11,0.1)); border-radius: 10px; padding: 12px;">
-                        <h4 style="font-size: var(--fs-lg); color: var(--accent-gold); margin-bottom: 10px;">⚡ 즉시 행동 지침</h4>
+                        <h4 class="std-subtitle accent-gold">⚡ 즉시 행동 지침</h4>
                         <ul id="immediateActions" style="list-style: none; padding: 0; font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.8;"></ul>
                     </div>
                 </div>
             </div>
             
             <!-- 시나리오별 대응 전략 -->
-            <div class="card">
+            <div class="std-card">
                 <div class="card-header">
                     <h3 class="card-title">🎭 시나리오별 대응 전략</h3>
                     <span class="card-badge badge-danger">v2.0 재구성</span>
@@ -4693,7 +5038,7 @@
                 
                 <!-- 시나리오 분류 (3개 카테고리) -->
                 <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 16px;">
-                    <h4 style="font-size: var(--fs-lg); margin-bottom: 10px; color: var(--text-primary);">📊 시나리오 분류 (3개 카테고리)</h4>
+                    <h4 class="std-subtitle">📊 시나리오 분류 (3개 카테고리)</h4>
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: var(--fs-sm); text-align: center;">
                         <div style="padding: 8px; background: rgba(59,130,246,0.1); border-radius: 6px; border: 1px solid rgba(59,130,246,0.3);">
                             <strong style="color: var(--accent-blue);">📈 정책 변수</strong><br>
@@ -4715,7 +5060,7 @@
 
                 <!-- 연쇄 반응 매트릭스 (신규) -->
                 <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 16px;">
-                    <h4 style="font-size: var(--fs-lg); margin-bottom: 10px; color: var(--text-primary);">🔗 핵심 연쇄 반응 매트릭스</h4>
+                    <h4 class="std-subtitle">🔗 핵심 연쇄 반응 매트릭스</h4>
                     <div style="overflow-x: auto;">
                         <table style="width: 100%; font-size: var(--fs-sm); border-collapse: collapse;">
                             <thead>
@@ -4812,12 +5157,12 @@
                             <span class="probability-badge" data-scenario-prob="krRateCut" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">🟢 35% 가능</span>
                         </div>
                         
-                        <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--accent-green); font-size: var(--fs-md); margin-bottom: 10px;">🚨 진입 판단 기준 <span data-scenario-status="krRateCut" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">미충족</span></h5>
-                            <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.6;">
+                        <div class="std-box box-success">
+                            <h5 class="std-box-title accent-green">🚨 진입 판단 기준 <span data-scenario-status="krRateCut" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">미충족</span></h5>
+                            <div class="std-description">
                                 아래 조건 충족 시 한국 금리 인하 시나리오 진입:<br>
-                                <div style="margin-top: 8px; padding-left: 12px;">
-                                    • 한은 기준금리 <strong>0.25%p 이상 인하</strong> (현재 2.5% 동결) <span data-condition="krRateCut-rate">❌</span><br>
+                                <div class="std-condition-list">
+                                    • 한은 기준금리 <strong>0.25%p 이상 인하</strong> (현재 동결 기조) <span data-condition="krRateCut-rate">❌</span><br>
                                     • 금통위 <strong>비둘기파 기조</strong> 2회 연속 <span data-condition="krRateCut-stance">❌</span><br>
                                     • 한국 CPI <strong>2% 이하</strong> 안착 <span data-condition="krRateCut-cpi">❌</span><br>
                                     • 가계부채 증가율 <strong>둔화</strong> <span data-condition="krRateCut-debt">⚠️</span><br>
@@ -4829,9 +5174,9 @@
                             </div>
                         </div>
 
-                        <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">🔗 연쇄 반응</h5>
-                            <div style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.9;">
+                        <div class="std-box">
+                            <h5 class="std-box-title">🔗 연쇄 반응</h5>
+                            <div class="std-chain-tree">
                                 한은 금리 인하<br>
                                 ├─→ <strong>원화 약세 압력</strong> (금리차 확대)<br>
                                 │&nbsp;&nbsp;&nbsp;&nbsp;└─→ 정부 환율 개입 시 상쇄 가능<br>
@@ -4843,7 +5188,7 @@
                         </div>
 
                         <div style="margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                            <h5 class="std-box-title">📊 자산별 예상 영향</h5>
                             <div class="impact-table">
                                 <div class="impact-row">
                                     <div class="impact-asset">한국 금융주</div>
@@ -4910,15 +5255,15 @@
                             <span class="probability-badge" data-scenario-prob="krRateHold" style="background: rgba(245,158,11,0.2); color: var(--accent-gold);">🟡 60% 진행중</span>
                         </div>
                         
-                        <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--accent-gold); font-size: var(--fs-md); margin-bottom: 10px;">🚨 진입 판단 기준 <span data-scenario-status="krRateHold" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(16,185,129,0.2); color: var(--accent-green);">2/5 충족</span></h5>
-                            <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.6;">
+                        <div class="std-box box-warning">
+                            <h5 class="std-box-title accent-gold">🚨 진입 판단 기준 <span data-scenario-status="krRateHold" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(16,185,129,0.2); color: var(--accent-green);">2/5 충족</span></h5>
+                            <div class="std-description">
                                 아래 조건 중 <strong>2개 이상</strong> 충족 시:<br>
-                                <div style="margin-top: 8px; padding-left: 12px;">
-                                    • 한국 CPI <strong>3% 이상</strong> 3개월 연속 <span data-condition="krRateHold-cpi">❌ 2.7%</span><br>
+                                <div class="std-condition-list">
+                                    • 한국 CPI <strong>3% 이상</strong> 3개월 연속 <span data-condition="krRateHold-cpi">❌</span><br>
                                     • 가계부채 증가율 <strong>재가속</strong> <span data-condition="krRateHold-debt">⚠️</span><br>
                                     • 부동산 가격 <strong>급등</strong> 재발 <span data-condition="krRateHold-housing">❌</span><br>
-                                    • 원화 약세 <strong>1,500원</strong> 지속 <span data-condition="krRateHold-fx">⚠️ 1,473원</span><br>
+                                    • 원화 약세 <strong>과열 구간</strong> 지속 <span data-condition="krRateHold-fx">⚠️</span><br>
                                     • 한은 <strong>매파 기조</strong> 전환 <span data-condition="krRateHold-stance">✅ 금융안정 우선</span>
                                 </div>
                                 <div data-scenario-reason="krRateHold" style="margin-top: 10px; padding: 8px; background: rgba(245,158,11,0.1); border-radius: 6px; font-size: var(--fs-sm);">
@@ -4927,9 +5272,9 @@
                             </div>
                         </div>
 
-                        <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">🔗 연쇄 반응</h5>
-                            <div style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.9;">
+                        <div class="std-box">
+                            <h5 class="std-box-title">🔗 연쇄 반응</h5>
+                            <div class="std-chain-tree">
                                 한은 금리 인상/동결 장기화<br>
                                 ├─→ <strong>원화 강세 압력</strong> (금리차 축소)<br>
                                 ├─→ 한국 채권 <strong>약세</strong><br>
@@ -4941,7 +5286,7 @@
                         </div>
 
                         <div style="margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                            <h5 class="std-box-title">📊 자산별 예상 영향</h5>
                             <div class="impact-table">
                                 <div class="impact-row">
                                     <div class="impact-asset">한국 금융주</div>
@@ -4996,14 +5341,14 @@
                             <span class="probability-badge" data-scenario-prob="fedPivot" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">🟢 55% 진행중</span>
                         </div>
                         
-                        <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--accent-green); font-size: var(--fs-md); margin-bottom: 10px;">🚨 진입 판단 기준 <span data-scenario-status="fedPivot" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(16,185,129,0.2); color: var(--accent-green);">4/5 충족</span></h5>
-                            <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.6;">
+                        <div class="std-box box-success">
+                            <h5 class="std-box-title accent-green">🚨 진입 판단 기준 <span data-scenario-status="fedPivot" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(16,185,129,0.2); color: var(--accent-green);">4/5 충족</span></h5>
+                            <div class="std-description">
                                 아래 조건이 <strong>대체로 유지</strong>될 때 기본 시나리오로 진행:<br>
-                                <div style="margin-top: 8px; padding-left: 12px;">
-                                    • Core PCE <strong>2.0~3.0%</strong> 범위 내 안정 <span data-condition="fedPivot-pce">✅ 2.7%</span><br>
+                                <div class="std-condition-list">
+                                    • Core PCE <strong>2.0~3.0%</strong> 범위 내 안정 <span data-condition="fedPivot-pce">✅</span><br>
                                     • Fed 연내 <strong>1~3회 인하</strong> 전망 유지 <span data-condition="fedPivot-cuts">✅ 인하 사이클</span><br>
-                                    • 실업률 <strong>4.5% 이하</strong> 유지 <span data-condition="fedPivot-unemployment">✅ 4.4%</span><br>
+                                    • 실업률 <strong>4.5% 이하</strong> 유지 <span data-condition="fedPivot-unemployment">✅</span><br>
                                     • ISM 제조업 <strong>50 전후</strong> (확장/위축 경계) <span data-condition="fedPivot-ism">✅</span><br>
                                     • 주요 지정학 이벤트 <strong>없음</strong> <span data-condition="fedPivot-geopolitics">⚠️ 관세 우려</span>
                                 </div>
@@ -5013,9 +5358,9 @@
                             </div>
                         </div>
 
-                        <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">🔗 연쇄 반응 (예상 전개)</h5>
-                            <div style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.9;">
+                        <div class="std-box">
+                            <h5 class="std-box-title">🔗 연쇄 반응 (예상 전개)</h5>
+                            <div class="std-chain-tree">
                                 Fed 점진적 인하<br>
                                 ├─→ 시장 금리 하락 → <strong>TLT 상승</strong><br>
                                 ├─→ 달러 약세 → <strong>환율 하락</strong> (<span data-dynamic="target-fx-low">1,380</span>~<span data-dynamic="target-fx-high">1,420</span>원 예상)<br>
@@ -5027,7 +5372,7 @@
                         </div>
 
                         <div style="margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                            <h5 class="std-box-title">📊 자산별 예상 영향</h5>
                             <div class="impact-table">
                                 <div class="impact-row">
                                     <div class="impact-asset">미국 주식</div>
@@ -5075,7 +5420,7 @@
                                 → 개별주식 +30% 시 일부 익절<br><br>
                                 
                                 <strong>환율 활용</strong><br>
-                                → 환율 1,400원 이하 시 해외투자 <strong>가속</strong><br>
+                                → 환율 정상 구간 복귀 시 해외투자 <strong>가속</strong><br>
                                 → 달러 자산 비중 확대 적기
                             </p>
                         </div>
@@ -5088,14 +5433,14 @@
                             <span class="probability-badge" data-scenario-prob="stagflation" style="background: rgba(245,158,11,0.2); color: var(--accent-gold);">🟡 20% 경계</span>
                         </div>
                         
-                        <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--accent-gold); font-size: var(--fs-md); margin-bottom: 10px;">🚨 진입 판단 기준 <span data-scenario-status="stagflation" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">1/5 충족</span></h5>
-                            <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.6;">
+                        <div class="std-box box-warning">
+                            <h5 class="std-box-title accent-gold">🚨 진입 판단 기준 <span data-scenario-status="stagflation" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">1/5 충족</span></h5>
+                            <div class="std-description">
                                 아래 조건 중 <strong>2개 이상</strong> 충족 시 진입으로 판단:<br>
-                                <div style="margin-top: 8px; padding-left: 12px;">
-                                    • Core PCE <strong>3.5% 이상</strong> 3개월 연속 유지 <span data-condition="stagflation-pce">❌ 2.7%</span><br>
+                                <div class="std-condition-list">
+                                    • Core PCE <strong>3.5% 이상</strong> 3개월 연속 유지 <span data-condition="stagflation-pce">❌</span><br>
                                     • Fed dot plot <strong>상향 조정</strong> (인하 취소) <span data-condition="stagflation-fed">❌</span><br>
-                                    • 10년물 국채 금리 <strong>5.0% 돌파</strong> <span data-condition="stagflation-yield">❌ 4.23%</span><br>
+                                    • 10년물 국채 금리 <strong>5.0% 돌파</strong> <span data-condition="stagflation-yield">❌</span><br>
                                     • FOMC <strong>매파적 기조</strong> 2회 연속 <span data-condition="stagflation-hawkish">⚠️ 점검 필요</span><br>
                                     • 관세발 인플레 + 임금상승 <strong>동시 지속</strong> <span data-condition="stagflation-tariff">⚠️ 관세 우려</span>
                                 </div>
@@ -5105,9 +5450,9 @@
                             </div>
                         </div>
 
-                        <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">🔗 연쇄 반응 (예상 전개)</h5>
-                            <div style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.9;">
+                        <div class="std-box">
+                            <h5 class="std-box-title">🔗 연쇄 반응 (예상 전개)</h5>
+                            <div class="std-chain-tree">
                                 금리인상/유지 확정<br>
                                 ├─→ 달러 강세 → <strong>환율 상승</strong> (높은 연관성)<br>
                                 │&nbsp;&nbsp;&nbsp;&nbsp;└─→ 외국인 자금 유출 → KOSPI 하락 압력<br>
@@ -5119,7 +5464,7 @@
                         </div>
 
                         <div style="margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                            <h5 class="std-box-title">📊 자산별 예상 영향</h5>
                             <div class="impact-table">
                                 <div class="impact-row">
                                     <div class="impact-asset">미국 주식</div>
@@ -5189,12 +5534,12 @@
                             <span class="probability-badge" data-scenario-prob="fxCrisis" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">🔴 80% 현재 진행</span>
                         </div>
                         
-                        <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--accent-red); font-size: var(--fs-md); margin-bottom: 10px;">🚨 진입 판단 기준 <span data-scenario-status="fxCrisis" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(239,68,68,0.2); color: var(--accent-red);">4/4 충족 ⚠️</span></h5>
-                            <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.6;">
+                        <div class="std-box box-danger">
+                            <h5 class="std-box-title accent-red">🚨 진입 판단 기준 <span data-scenario-status="fxCrisis" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(239,68,68,0.2); color: var(--accent-red);">4/4 충족 ⚠️</span></h5>
+                            <div class="std-description">
                                 현재 진행 중인 시나리오. 아래 조건 지속 시:<br>
-                                <div style="margin-top: 8px; padding-left: 12px;">
-                                    • 환율 <strong>1,450원 이상</strong> 지속에도 정부 무대응 <span data-condition="fxCrisis-level">✅ 1,473원</span><br>
+                                <div class="std-condition-list">
+                                    • 환율 <strong>과열 구간</strong> 지속에도 정부 무대응 <span data-condition="fxCrisis-level">✅</span><br>
                                     • 외환당국 <strong>구두개입만</strong> (실제 시장 개입 없음) <span data-condition="fxCrisis-intervention">✅ 구두개입만</span><br>
                                     • 무역수지 <strong>적자 지속</strong> <span data-condition="fxCrisis-trade">✅</span><br>
                                     • 정치 불안 <strong>지속</strong> <span data-condition="fxCrisis-politics">✅ 탄핵 정국</span>
@@ -5205,11 +5550,11 @@
                             </div>
                         </div>
 
-                        <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">🔗 연쇄 반응</h5>
-                            <div style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.9;">
+                        <div class="std-box">
+                            <h5 class="std-box-title">🔗 연쇄 반응</h5>
+                            <div class="std-chain-tree">
                                 정부 환율 방관<br>
-                                ├─→ 환율 <strong><span data-dynamic="fx-risk-level">1,500원</span> 돌파 가능</strong><br>
+                                ├─→ 환율 <strong><span data-dynamic="fx-risk-level">―</span> 돌파 가능</strong><br>
                                 ├─→ 수출 기업 <strong>실적 개선</strong> (환율 수혜)<br>
                                 ├─→ 수입 물가 <strong>상승</strong> → 인플레 압력<br>
                                 ├─→ 외국인 <strong>이탈 가속</strong> (환차손 우려)<br>
@@ -5220,7 +5565,7 @@
                         </div>
 
                         <div style="margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                            <h5 class="std-box-title">📊 자산별 예상 영향</h5>
                             <div class="impact-table">
                                 <div class="impact-row">
                                     <div class="impact-asset">기보유 달러자산</div>
@@ -5276,7 +5621,7 @@
                                 
                                 <strong>전환 신호 대비</strong><br>
                                 → 정부 개입 신호 시 <strong>전략 전환 준비</strong><br>
-                                → 환율 1,400원 이하 시 해외투자 <strong>재개</strong><br>
+                                → 환율 정상 구간 복귀 시 해외투자 <strong>재개</strong><br>
                                 → 달러 자산 일부 <strong>환헤지 또는 축소</strong> 검토
                             </p>
                         </div>
@@ -5289,11 +5634,11 @@
                             <span class="probability-badge" data-scenario-prob="fxNormal" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">🟢 20% 대기</span>
                         </div>
                         
-                        <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--accent-green); font-size: var(--fs-md); margin-bottom: 10px;">🚨 진입 판단 기준 <span data-scenario-status="fxNormal" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">1/5 충족</span></h5>
-                            <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.6;">
+                        <div class="std-box box-success">
+                            <h5 class="std-box-title accent-green">🚨 진입 판단 기준 <span data-scenario-status="fxNormal" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">1/5 충족</span></h5>
+                            <div class="std-description">
                                 아래 조건 중 <strong>2개 이상</strong> 충족 시 개입 시나리오 진입:<br>
-                                <div style="margin-top: 8px; padding-left: 12px;">
+                                <div class="std-condition-list">
                                     • 외환당국 <strong>직접 시장 개입</strong> 확인 <span data-condition="fxNormal-intervention">❌ 구두개입만</span><br>
                                     • 환율 <strong>일일 1% 이상 급락</strong> <span data-condition="fxNormal-drop">❌</span><br>
                                     • 기재부/한은 <strong>"변동성 용납 불가"</strong> 발언 <span data-condition="fxNormal-statement">⚠️ 모니터링</span><br>
@@ -5306,11 +5651,11 @@
                             </div>
                         </div>
 
-                        <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">🔗 연쇄 반응</h5>
-                            <div style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.9;">
+                        <div class="std-box">
+                            <h5 class="std-box-title">🔗 연쇄 반응</h5>
+                            <div class="std-chain-tree">
                                 정부 환율 적극 개입<br>
-                                ├─→ 환율 <strong>1,350~1,400원</strong> 목표 하락<br>
+                                ├─→ 환율 <strong>정상 구간</strong> 목표 하락<br>
                                 ├─→ <strong>원화 강세 전환</strong><br>
                                 │&nbsp;&nbsp;&nbsp;&nbsp;├─→ 외국인 <strong>순매수 전환</strong><br>
                                 │&nbsp;&nbsp;&nbsp;&nbsp;└─→ 코스피 <strong>상승 가속</strong><br>
@@ -5322,7 +5667,7 @@
                         </div>
 
                         <div style="margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                            <h5 class="std-box-title">📊 자산별 예상 영향</h5>
                             <div class="impact-table">
                                 <div class="impact-row">
                                     <div class="impact-asset">코스피</div>
@@ -5377,7 +5722,7 @@
                                 → 코스피 상승분 일부 <strong>차익실현</strong> 후 해외 전환<br><br>
                                 
                                 <strong>해외 투자</strong><br>
-                                → 환율 1,400원 이하 시 <strong>역사적 매수 기회</strong><br>
+                                → 환율 저평가 구간 진입 시 <strong>역사적 매수 기회</strong><br>
                                 → 달러 매수 <strong>적극 확대</strong><br>
                                 → 분할매수 속도 <strong>150%</strong>로 가속<br>
                                 → VOO, SCHD, TLT 추가매수
@@ -5401,16 +5746,16 @@
                             <span class="probability-badge" data-scenario-prob="recession" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">🔴 15% 경계</span>
                         </div>
                         
-                        <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--accent-red); font-size: var(--fs-md); margin-bottom: 10px;">🚨 진입 판단 기준 <span data-scenario-status="recession" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">0/5 충족</span></h5>
-                            <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.6;">
+                        <div class="std-box box-danger">
+                            <h5 class="std-box-title accent-red">🚨 진입 판단 기준 <span data-scenario-status="recession" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">0/5 충족</span></h5>
+                            <div class="std-description">
                                 아래 조건 중 <strong>2개 이상</strong> 충족 시 진입으로 판단:<br>
-                                <div style="margin-top: 8px; padding-left: 12px;">
-                                    • 실업률 <strong>5.0% 돌파</strong> <span data-condition="recession-unemployment">❌ 4.4%</span><br>
+                                <div class="std-condition-list">
+                                    • 실업률 <strong>5.0% 돌파</strong> <span data-condition="recession-unemployment">❌</span><br>
                                     • ISM 제조업 <strong>48 이하</strong> 2개월 연속 <span data-condition="recession-ism">❌</span><br>
                                     • GDP <strong>역성장</strong> 2분기 연속 <span data-condition="recession-gdp">❌</span><br>
                                     • 신규실업수당 <strong>30만건 이상</strong> <span data-condition="recession-claims">❌</span><br>
-                                    • 10Y-2Y 역전 해소 후 <strong>+50bp 이상</strong> <span data-condition="recession-curve">❌ -0.13%</span>
+                                    • 10Y-2Y 역전 해소 후 <strong>+50bp 이상</strong> <span data-condition="recession-curve">❌ -</span>
                                 </div>
                                 <div data-scenario-reason="recession" style="margin-top: 10px; padding: 8px; background: rgba(239,68,68,0.1); border-radius: 6px; font-size: var(--fs-sm);">
                                     💡 <strong>AI 판단:</strong> 현재 연착륙 가능성 높음, 다만 관세 충격 시 상향 조정 필요
@@ -5418,9 +5763,9 @@
                             </div>
                         </div>
 
-                        <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">🔗 연쇄 반응</h5>
-                            <div style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.9;">
+                        <div class="std-box">
+                            <h5 class="std-box-title">🔗 연쇄 반응</h5>
+                            <div class="std-chain-tree">
                                 경기침체 확정<br>
                                 ├─→ Fed <strong>긴급 금리인하</strong><br>
                                 │&nbsp;&nbsp;&nbsp;&nbsp;└─→ TLT 급등<br>
@@ -5433,7 +5778,7 @@
                         </div>
 
                         <div style="margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                            <h5 class="std-box-title">📊 자산별 예상 영향</h5>
                             <div class="impact-table">
                                 <div class="impact-row">
                                     <div class="impact-asset">미국 주식</div>
@@ -5502,13 +5847,13 @@
                             <span class="probability-badge" data-scenario-prob="boom" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">🟢 25% 가능</span>
                         </div>
                         
-                        <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--accent-green); font-size: var(--fs-md); margin-bottom: 10px;">🚨 진입 판단 기준 <span data-scenario-status="boom" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">2/5 충족</span></h5>
-                            <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.6;">
+                        <div class="std-box box-success">
+                            <h5 class="std-box-title accent-green">🚨 진입 판단 기준 <span data-scenario-status="boom" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">2/5 충족</span></h5>
+                            <div class="std-description">
                                 아래 조건이 <strong>대부분 충족</strong>될 때:<br>
-                                <div style="margin-top: 8px; padding-left: 12px;">
+                                <div class="std-condition-list">
                                     • GDP 성장률 <strong>3% 이상</strong> 2분기 연속 <span data-condition="boom-gdp">⚠️</span><br>
-                                    • 실업률 <strong>4% 이하</strong> 유지 <span data-condition="boom-unemployment">❌ 4.4%</span><br>
+                                    • 실업률 <strong>4% 이하</strong> 유지 <span data-condition="boom-unemployment">❌</span><br>
                                     • 기업 실적 <strong>컨센서스 상회</strong> 60% 이상 <span data-condition="boom-earnings">✅</span><br>
                                     • ISM 제조업 <strong>55 이상</strong> <span data-condition="boom-ism">⚠️</span><br>
                                     • 소비자신뢰지수 <strong>상승 추세</strong> <span data-condition="boom-confidence">✅</span>
@@ -5519,9 +5864,9 @@
                             </div>
                         </div>
 
-                        <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">🔗 연쇄 반응</h5>
-                            <div style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.9;">
+                        <div class="std-box">
+                            <h5 class="std-box-title">🔗 연쇄 반응</h5>
+                            <div class="std-chain-tree">
                                 경기호황<br>
                                 ├─→ 기업실적 <strong>호조</strong> → 주가 상승<br>
                                 ├─→ 금리 <strong>완만한 인하</strong> 또는 동결<br>
@@ -5536,7 +5881,7 @@
                         </div>
 
                         <div style="margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                            <h5 class="std-box-title">📊 자산별 예상 영향</h5>
                             <div class="impact-table">
                                 <div class="impact-row">
                                     <div class="impact-asset">미국 주식</div>
@@ -5608,10 +5953,10 @@
                         
                         <div style="background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
                             <h5 style="color: #a78bfa; font-size: var(--fs-md); margin-bottom: 10px;">🚨 진입 판단 기준 <span data-scenario-status="stagflationWorst" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">0/5 충족</span></h5>
-                            <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.6;">
+                            <div class="std-description">
                                 아래 조건 중 <strong>3개 이상</strong> 동시 충족 시:<br>
-                                <div style="margin-top: 8px; padding-left: 12px;">
-                                    • CPI <strong>4% 이상</strong> + GDP <strong>1% 미만</strong> <span data-condition="stagflationWorst-cpigdp">❌ CPI 2.7%</span><br>
+                                <div class="std-condition-list">
+                                    • CPI <strong>4% 이상</strong> + GDP <strong>1% 미만</strong> <span data-condition="stagflationWorst-cpigdp">❌ CPI</span><br>
                                     • 실업률 <strong>상승세</strong> + 임금상승률 <strong>둔화</strong> <span data-condition="stagflationWorst-labor">❌</span><br>
                                     • S&P + TLT 하락 <strong>2개월 동반</strong> <span data-condition="stagflationWorst-markets">❌</span><br>
                                     • 금 + 원자재만 <strong>상승</strong>하는 패턴 <span data-condition="stagflationWorst-gold">⚠️ 금만 상승</span><br>
@@ -5623,9 +5968,9 @@
                             </div>
                         </div>
 
-                        <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">🔗 연쇄 반응 (최악의 조합)</h5>
-                            <div style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.9;">
+                        <div class="std-box">
+                            <h5 class="std-box-title">🔗 연쇄 반응 (최악의 조합)</h5>
+                            <div class="std-chain-tree">
                                 스태그플레이션<br>
                                 ├─→ <strong>주식 하락</strong> (경기둔화)<br>
                                 ├─→ <strong>채권도 하락</strong> (인플레)<br>
@@ -5641,7 +5986,7 @@
                         </div>
 
                         <div style="margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                            <h5 class="std-box-title">📊 자산별 예상 영향</h5>
                             <div class="impact-table">
                                 <div class="impact-row">
                                     <div class="impact-asset">미국 주식</div>
@@ -5721,11 +6066,11 @@
                             <span class="probability-badge" data-scenario-prob="geopolitical" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">🔴 25% 경계</span>
                         </div>
                         
-                        <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--accent-red); font-size: var(--fs-md); margin-bottom: 10px;">🚨 진입 판단 기준 <span data-scenario-status="geopolitical" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">1/5 충족</span></h5>
-                            <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.6;">
+                        <div class="std-box box-danger">
+                            <h5 class="std-box-title accent-red">🚨 진입 판단 기준 <span data-scenario-status="geopolitical" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">1/5 충족</span></h5>
+                            <div class="std-description">
                                 아래 조건 중 <strong>1개 이상</strong> 충족 시 진입으로 판단:<br>
-                                <div style="margin-top: 8px; padding-left: 12px;">
+                                <div class="std-condition-list">
                                     • VIX <strong>35 돌파</strong> + 금 <strong>급등</strong> 동시 <span data-condition="geopolitical-vix">❌ VIX 18.48</span><br>
                                     • 대만/한반도 군사적 긴장 <strong>연일 주요 뉴스</strong> <span data-condition="geopolitical-taiwan">⚠️ 모니터링</span><br>
                                     • 원유 가격 <strong>$100/배럴 돌파</strong> <span data-condition="geopolitical-oil">❌</span><br>
@@ -5738,9 +6083,9 @@
                             </div>
                         </div>
 
-                        <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">🔗 연쇄 반응 (예상 전개)</h5>
-                            <div style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.9;">
+                        <div class="std-box">
+                            <h5 class="std-box-title">🔗 연쇄 반응 (예상 전개)</h5>
+                            <div class="std-chain-tree">
                                 지정학 위기 발생<br>
                                 ├─→ <strong>VIX 급등</strong> → 위험자산 전반 매도<br>
                                 ├─→ <strong>금/TLT 급등</strong> (Safe Haven 수요)<br>
@@ -5753,7 +6098,7 @@
                         </div>
 
                         <div style="margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                            <h5 class="std-box-title">📊 자산별 예상 영향</h5>
                             <div class="impact-table">
                                 <div class="impact-row">
                                     <div class="impact-asset">미국 주식</div>
@@ -5824,14 +6169,14 @@
                         
                         <!-- v5.9-fix (C4): 지표 기반 프록시 구현 안내 -->
                         <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: var(--fs-sm); color: var(--accent-green);">
-                            ℹ️ <strong>v5.9 업데이트:</strong> 관세 시나리오가 <strong>지표 기반 프록시로 구현</strong>되었습니다. 환율(>1420원), KOSPI 1M(<-5%), WTI 1Y(<-15%), 외국인 20일 순매도(<-1.5조) 중 <strong>3개 이상 충족 시 자동 발동</strong>됩니다. 뉴스·정책 팩트는 아래 수동 체크리스트에서 교차 확인 권장.
+                            ℹ️ <strong>v5.9 업데이트:</strong> 관세 시나리오가 <strong>지표 기반 프록시로 구현</strong>되었습니다. 환율(과열 구간), KOSPI 1M(<-5%), WTI 1Y(<-15%), 외국인 20일 순매도(<-1.5조) 중 <strong>3개 이상 충족 시 자동 발동</strong>됩니다. 뉴스·정책 팩트는 아래 수동 체크리스트에서 교차 확인 권장.
                         </div>
                         
-                        <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--accent-gold); font-size: var(--fs-md); margin-bottom: 10px;">🚨 진입 판단 기준 <span data-scenario-status="tariffWar" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">1/5 충족</span></h5>
-                            <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.6;">
+                        <div class="std-box box-warning">
+                            <h5 class="std-box-title accent-gold">🚨 진입 판단 기준 <span data-scenario-status="tariffWar" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">1/5 충족</span></h5>
+                            <div class="std-description">
                                 아래 조건 중 <strong>2개 이상</strong> 충족 시 진입으로 판단:<br>
-                                <div style="margin-top: 8px; padding-left: 12px;">
+                                <div class="std-condition-list">
                                     • 중국 60% 관세 <strong>실제 시행</strong> <span data-condition="tariffWar-china">⚠️ 협상 중</span><br>
                                     • EU <strong>보복관세</strong> 공식 발표 <span data-condition="tariffWar-eu">❌</span><br>
                                     • 멕시코/캐나다 25% 관세 <strong>장기화</strong> <span data-condition="tariffWar-nafta">⚠️</span><br>
@@ -5844,9 +6189,9 @@
                             </div>
                         </div>
 
-                        <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">🔗 연쇄 반응</h5>
-                            <div style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.9;">
+                        <div class="std-box">
+                            <h5 class="std-box-title">🔗 연쇄 반응</h5>
+                            <div class="std-chain-tree">
                                 관세 전면전<br>
                                 ├─→ 수입물가 상승 → <strong>인플레</strong><br>
                                 │&nbsp;&nbsp;&nbsp;&nbsp;└─→ Fed 인하 지연/인상 가능<br>
@@ -5859,7 +6204,7 @@
                         </div>
 
                         <div style="margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                            <h5 class="std-box-title">📊 자산별 예상 영향</h5>
                             <div class="impact-table">
                                 <div class="impact-row">
                                     <div class="impact-asset">중국 ETF</div>
@@ -5922,11 +6267,11 @@
                             <span class="probability-badge" data-scenario-prob="aiBubble" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">🔴 15% 경계</span>
                         </div>
                         
-                        <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--accent-red); font-size: var(--fs-md); margin-bottom: 10px;">🚨 진입 판단 기준 <span data-scenario-status="aiBubble" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">0/5 충족</span></h5>
-                            <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.6;">
+                        <div class="std-box box-danger">
+                            <h5 class="std-box-title accent-red">🚨 진입 판단 기준 <span data-scenario-status="aiBubble" style="font-weight: normal; font-size: var(--fs-sm); margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.2); color: var(--accent-gold);">0/5 충족</span></h5>
+                            <div class="std-description">
                                 아래 조건 중 <strong>2개 이상</strong> 충족 시 진입으로 판단:<br>
-                                <div style="margin-top: 8px; padding-left: 12px;">
+                                <div class="std-condition-list">
                                     • Mag7 실적 <strong>2분기 연속</strong> 컨센서스 하회 <span data-condition="aiBubble-mag7">❌</span><br>
                                     • SOXX 고점 대비 <strong>-25% 이상</strong> <span data-condition="aiBubble-soxx">❌</span><br>
                                     • 엔비디아 가이던스 <strong>2분기 연속</strong> 하향 <span data-condition="aiBubble-nvda">❌</span><br>
@@ -5939,9 +6284,9 @@
                             </div>
                         </div>
 
-                        <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">🔗 연쇄 반응</h5>
-                            <div style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.9;">
+                        <div class="std-box">
+                            <h5 class="std-box-title">🔗 연쇄 반응</h5>
+                            <div class="std-chain-tree">
                                 AI 버블 붕괴<br>
                                 ├─→ <strong>Mag7/테크주 폭락</strong><br>
                                 │&nbsp;&nbsp;&nbsp;&nbsp;└─→ S&P500 전체 하락 (비중 30%)<br>
@@ -5953,7 +6298,7 @@
                         </div>
 
                         <div style="margin-bottom: 14px;">
-                            <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">📊 자산별 예상 영향</h5>
+                            <h5 class="std-box-title">📊 자산별 예상 영향</h5>
                             <div class="impact-table">
                                 <div class="impact-row">
                                     <div class="impact-asset">QQQ/테크</div>
@@ -6016,15 +6361,15 @@
             </div>
             
             <!-- 📌 현재 기현상 분석 (참고용) - AI 자동 업데이트 -->
-            <div class="card" style="border: 1px solid var(--border-color); background: var(--bg-card); margin-top: 16px;">
+            <div class="std-card" style="margin-top: var(--space-md);">
                 <div class="card-header">
                     <h3 class="card-title">📌 현재 기현상 메모 (<span id="ai-anomaly-date" data-dynamic="anomaly-date">날짜 미정</span>)</h3>
                     <span class="card-badge" style="background: rgba(100,116,139,0.3); color: var(--text-secondary);">참고용</span>
                 </div>
                 
                 <!-- 기현상 설명 -->
-                <div style="background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-                    <h5 style="color: var(--text-primary); font-size: var(--fs-md); margin-bottom: 10px;">❓ 관찰: <span id="ai-anomaly-title" data-dynamic="anomaly-title">금리차 축소인데 원화 약세?</span></h5>
+                <div class="std-box">
+                    <h5 class="std-box-title">❓ 관찰: <span id="ai-anomaly-title" data-dynamic="anomaly-title">금리차 축소인데 원화 약세?</span></h5>
                     <div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.7;">
                         <strong>일반적 메커니즘:</strong> <span id="ai-anomaly-mechanism" data-dynamic="anomaly-mechanism">한미 금리차 축소 → 원화 강세 경향</span><br>
                         <strong>현재 실제:</strong> <span id="ai-anomaly-reality" data-dynamic="anomaly-reality">금리차 축소 중 → 원화 약세 (<span data-dynamic="fx-value">1,460</span>원+)</span><br><br>
@@ -6945,9 +7290,9 @@
                     
                     coreEl.innerHTML = items.map(function(it) {
                         var displayVal = (it.value != null && isFinite(it.value)) ? it.fmt(it.value) : '―';
-                        return '<div style="padding: 6px 8px; background: var(--bg-secondary); border-radius: 6px; text-align: center; border-top: 2px solid ' + it.color + ';">' +
-                            '<div style="font-size: 9px; color: var(--text-muted); font-weight: 600;">' + it.label + '</div>' +
-                            '<div style="font-size: var(--fs-md); font-weight: 700; color: ' + it.color + '; font-family: JetBrains Mono, monospace;">' + displayVal + '</div>' +
+                        return '<div class="std-datapoint" style="border-top-color:' + it.color + ';">' +
+                            '<div class="std-datapoint-label">' + it.label + '</div>' +
+                            '<div class="std-datapoint-value" style="color:' + it.color + ';">' + displayVal + '</div>' +
                         '</div>';
                     }).join('');
                 }
@@ -6957,10 +7302,7 @@
                 if (recsEl && regime) {
                     var recs = _generateRecommendations(regime, indicators);
                     recsEl.innerHTML = recs.map(function(r) {
-                        var borderColor = r.priority === 'high' ? 'var(--accent-red)' 
-                                        : r.priority === 'medium' ? 'var(--accent-gold)' 
-                                        : 'var(--accent-green)';
-                        return '<li style="padding: 6px 10px; margin-bottom: 4px; background: var(--bg-secondary); border-left: 3px solid ' + borderColor + '; border-radius: 4px;">' +
+                        return '<li class="priority-' + r.priority + '">' +
                             '<span style="margin-right: 6px;">' + r.icon + '</span>' +
                             '<span>' + r.text + '</span>' +
                         '</li>';
@@ -6990,9 +7332,9 @@
                     var alloc = _generateAssetAllocation(regime, indicators);
                     allocWrap.style.display = 'block';
                     allocGrid.innerHTML = alloc.map(function(a) {
-                        return '<div style="padding: 8px; background: var(--bg-secondary); border-radius: 6px; text-align: center; border-top: 3px solid ' + a.color + ';">' +
-                            '<div style="font-size: var(--fs-xs); color: var(--text-muted); font-weight: 600;">' + a.name + '</div>' +
-                            '<div style="font-size: var(--fs-lg); font-weight: 800; color: ' + a.color + ';">' + a.pct + '%</div>' +
+                        return '<div class="std-datapoint" style="border-top-color:' + a.color + ';">' +
+                            '<div class="std-datapoint-label">' + a.name + '</div>' +
+                            '<div class="std-datapoint-value" style="color:' + a.color + ';font-size:var(--fs-lg);">' + a.pct + '%</div>' +
                         '</div>';
                     }).join('');
                 }
@@ -7047,8 +7389,8 @@
                     // 이미 placeholder 상태라면 그대로 유지 (initial state)
                     // 단, window._financialEvents가 빈 배열이면 "데이터 없음" 명시
                     if (window._financialEvents !== undefined) {
-                        content.innerHTML = '<div class="phase-empty-state">' +
-                            '<div style="font-size: 24px; margin-bottom: 4px;">📭</div>' +
+                        content.innerHTML = '<div class="std-empty">' +
+                            '<div class="std-empty-icon">📭</div>' +
                             '<div>최근 7일 주요 이벤트 없음</div>' +
                             '</div>';
                         if (badge) badge.textContent = '(0건)';
@@ -7110,9 +7452,9 @@
                 if (codes.length === 0) {
                     // window._flowSignals가 정의됐는데 비어있으면 "데이터 없음" 명시
                     if (window._flowSignals !== undefined) {
-                        content.innerHTML = '<div class="phase-empty-state">' +
+                        content.innerHTML = '<div class="std-empty">' +
                             '<div>수급 데이터 없음</div>' +
-                            '<div style="font-size: var(--fs-xs); margin-top: 4px;">T+1 지연으로 전일 데이터만 표시됨</div>' +
+                            '<div class="std-empty-hint">T+1 지연으로 전일 데이터만 표시됨</div>' +
                             '</div>';
                     }
                     return;
@@ -7147,9 +7489,9 @@
                                    squeezeCandidate.length + wyckoffAccum.length;
                 
                 if (totalSignals === 0) {
-                    content.innerHTML = '<div class="phase-empty-state">' +
+                    content.innerHTML = '<div class="std-empty">' +
                         '<div>현재 유의미한 수급 시그널 없음</div>' +
-                        '<div style="font-size: var(--fs-xs); margin-top: 4px;">분석 종목: ' + codes.length + '개</div>' +
+                        '<div class="std-empty-hint">분석 종목: ' + codes.length + '개</div>' +
                         '</div>';
                     if (badge) badge.textContent = '(' + codes.length + '종목 분석)';
                     return;
@@ -7211,10 +7553,10 @@
                         console.warn('[D1] events_calendar.json 로드 실패:', e);
                         var content = document.getElementById('eventsCalendarContent');
                         if (content) {
-                            content.innerHTML = '<div class="phase-empty-state">' +
-                                '<div style="font-size: 24px; margin-bottom: 4px;">📁</div>' +
+                            content.innerHTML = '<div class="std-empty">' +
+                                '<div class="std-empty-icon">📁</div>' +
                                 '<div>이벤트 캘린더 파일 없음</div>' +
-                                '<div style="font-size: var(--fs-xs); margin-top: 6px;">events_calendar.json을 GitHub Pages 루트에 배포하면 자동 표시</div>' +
+                                '<div class="std-empty-hint">events_calendar.json을 GitHub Pages 루트에 배포하면 자동 표시</div>' +
                                 '</div>';
                         }
                     });
@@ -7245,7 +7587,7 @@
                 upcoming.sort(function(a, b) { return a.date.localeCompare(b.date); });
                 
                 if (upcoming.length === 0) {
-                    content.innerHTML = '<div class="phase-empty-state">' +
+                    content.innerHTML = '<div class="std-empty">' +
                         '<div>다음 14일 내 주요 이벤트 없음</div>' +
                         '</div>';
                     if (badge) badge.textContent = '(0건)';
@@ -7726,7 +8068,7 @@
             checklistItems: {
                 thisMonth: [
                     { question: "인플레 3% 이상 유지?", yesAction: "채권매수 보류", noAction: "채권 15M 매수", yesType: "danger", noType: "success" },
-                    { question: "원/달러 1,450원 이상?", yesAction: "해외투자 30% 축소", noAction: "계획대로", yesType: "danger", noType: "success" },
+                    { question: "원/달러 환율 과열 구간?", yesAction: "해외투자 축소", noAction: "계획대로", yesType: "danger", noType: "success" },
                     { question: "지정학 위기 발생?", yesAction: "금 비중 확대", noAction: "금 15M 매수", yesType: "danger", noType: "success" },
                     { question: "VIX 25 이상?", yesAction: "신규 매수 중단", noAction: "계획대로 진행", yesType: "danger", noType: "success" }
                 ],
@@ -7831,24 +8173,26 @@
             ],
             
             // 💱 환율 구간별 행동 지침
+            // ⚠️ baseDate/currentZone은 JS가 실시간 환율로 자동 갱신
+            // zones의 구체 구간은 사용자 설정에서 조정 가능 (현재값은 2026-04 참조)
             fxMatrix: {
-                currentZone: "1,460~1,500원",
-                baseDate: "2026.01",
+                currentZone: "자동 감지",
+                baseDate: "실시간 반영",
                 zones: [
-                    { range: "1,380원 이하", signal: "🟢", signalColor: "green", strategy: "해외투자 적극 확대", strategyDetail: "달러 매수 최적 타이밍, 분할매수 가속", alternative: "분할매수 속도 150%로 가속", alternativeDetail: "VOO, SCHD, TLT 집중 매수", isCurrent: false },
-                    { range: "1,380~1,420원", signal: "🟢", signalColor: "green", strategy: "정상 분할매수 진행", strategyDetail: "계획대로 월 33만원 실행", alternative: "추가 대체 전략 불필요", alternativeDetail: "기본 계획 유지", isCurrent: false },
-                    { range: "1,420~1,460원", signal: "🟡", signalColor: "gold", strategy: "해외투자 속도 50% 감속", strategyDetail: "신규 달러매수 신중, 기존분 유지", alternative: "국내주식/채권 비중 확대", alternativeDetail: "국내상장 해외ETF(TIGER) 병행 고려", isCurrent: false },
-                    { range: "1,460~1,500원", signal: "🟠", signalColor: "gold", strategy: "해외 신규투자 최소화", strategyDetail: "기존 보유분만 유지, 추가매수 자제", alternative: "TIGER 미국S&P500 등 국내상장 ETF로 대체", alternativeDetail: "원화로 해외지수 투자 효과 유지", isCurrent: true },
-                    { range: "1,500원 이상", signal: "🔴", signalColor: "red", strategy: "해외투자 완전 중단", strategyDetail: "달러 매수 금지, 환율 하락 대기", alternative: "국내상장 해외ETF 전면 전환", alternativeDetail: "TIGER/KODEX S&P500, 나스닥100 활용", isCurrent: false },
-                    { range: "1,550원 이상", signal: "🔴🔴", signalColor: "red", strategy: "위기 모드 진입", strategyDetail: "기존 해외자산 환헤지 검토", alternative: "전액 국내 운용", alternativeDetail: "달러 기보유분 일부 환전 고려 (극단적 상황)", isCurrent: false }
+                    { range: "1,380원 이하", signal: "🟢", signalColor: "green", strategy: "해외투자 적극 확대", strategyDetail: "달러 매수 기회, 분할매수 가속", alternative: "분할매수 속도 가속", alternativeDetail: "VOO, SCHD, TLT 등 직접 매수", isCurrent: false },
+                    { range: "1,380~1,420원", signal: "🟢", signalColor: "green", strategy: "정상 분할매수 진행", strategyDetail: "장기 평균 대비 중립 구간", alternative: "추가 대체 전략 불필요", alternativeDetail: "기본 계획 유지", isCurrent: false },
+                    { range: "1,420~1,460원", signal: "🟡", signalColor: "gold", strategy: "해외투자 속도 감속", strategyDetail: "신규 달러매수 신중, 기존분 유지", alternative: "국내주식/채권 비중 확대", alternativeDetail: "국내상장 해외ETF 병행 고려", isCurrent: false },
+                    { range: "1,460~1,500원", signal: "🟠", signalColor: "gold", strategy: "해외 신규투자 최소화", strategyDetail: "기존 보유분만 유지", alternative: "국내상장 해외 ETF로 대체", alternativeDetail: "원화로 해외지수 노출 유지", isCurrent: false },
+                    { range: "1,500원 이상", signal: "🔴", signalColor: "red", strategy: "해외투자 신규 중단", strategyDetail: "달러 매수 중단, 하락 대기", alternative: "국내상장 해외 ETF 전면 전환", alternativeDetail: "TIGER/KODEX S&P500, 나스닥100 활용", isCurrent: false },
+                    { range: "1,550원 이상", signal: "🔴🔴", signalColor: "red", strategy: "위기 모드 진입", strategyDetail: "기존 해외자산 환헤지 검토", alternative: "전액 국내 운용", alternativeDetail: "극단적 상황만 환전 고려", isCurrent: false }
                 ],
                 currentRecommendation: {
-                    title: "환율 급등 구간 권고 (1,400원+)",
+                    title: "환율 과열 시 원칙",
                     items: [
-                        "신규 해외투자: 계획 대비 30-50% 축소 실행",
-                        "대안: TIGER 미국S&P500, TIGER 미국나스닥100 등 국내상장 ETF 활용",
-                        "기존 해외자산: 보유 유지 (환차익 실현 중이므로)",
-                        "환율 1,420원 이하로 하락 시 해외투자 정상화"
+                        "신규 해외투자: 계획 대비 축소 실행",
+                        "대안: 국내상장 해외 ETF (TIGER/KODEX) 활용",
+                        "기존 해외자산: 보유 유지 (환차익 실현 중)",
+                        "정상 구간 복귀 시 해외투자 정상화"
                     ]
                 }
             }
@@ -15365,7 +15709,7 @@
             const scenarioAssetRec = getScenarioAssetRecommendations(result.triggeredScenarios);
             if (scenarioAssetRec) {
                 let scenarioHtml = `<div style="margin-top: 16px; padding: 14px; background: var(--bg-secondary); border-radius: 10px; border-left: 4px solid var(--accent-blue);">
-                    <h4 style="font-size: var(--fs-lg); color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <h4 class="std-subtitle" style="display: flex; align-items: center; gap: 8px;">
                         <span>🔗</span> 시나리오 기반 자산 추천
                         <span style="font-size: var(--fs-sm); padding: 2px 8px; background: var(--accent-blue); color: white; border-radius: 10px; font-weight: 600;">${scenarioAssetRec.scenarioName}</span>
                     </h4>`;
@@ -15415,7 +15759,7 @@
             // 지표 변화 표시를 위한 컨테이너 (있으면)
             const indicatorPanel = document.getElementById('indicatorImpactPanel');
             if (indicatorPanel) {
-                indicatorPanel.innerHTML = `<h4 style="font-size: var(--fs-md); color: var(--text-primary); margin-bottom: 10px;">📊 지표별 배분 영향</h4>` + indicatorHtml;
+                indicatorPanel.innerHTML = `<h4 class="std-subtitle">📊 지표별 배분 영향</h4>` + indicatorHtml;
                 indicatorPanel.style.display = indicatorHtml ? 'block' : 'none';
             }
             
@@ -17675,7 +18019,7 @@
                 };
                 
                 html += '<div style="margin-top: 16px; padding: 14px; background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border-color);">';
-                html += '<h4 style="font-size: var(--fs-md); color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">';
+                html += '<h4 class="std-subtitle" style="font-size: var(--fs-md); display: flex; align-items: center; gap: 6px;">';
                 html += '🔗 복수 정책 영향 종목 종합 판단';
                 html += '<span style="font-size: var(--fs-sm); padding: 2px 6px; background: var(--accent-blue); color: white; border-radius: 4px;">' + duplicateStocks.length + '개</span>';
                 html += '</h4>';
@@ -18095,7 +18439,7 @@
                 }
                 html += ' - ' + item.subtitle + '</h4>';
                 
-                html += '<div style="font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.6;">';
+                html += '<div class="std-description">';
                 item.items.forEach(function(stock, idx) {
                     html += '<strong>' + stock.ticker + '</strong>';
                     if (stock.weight) {
@@ -19686,9 +20030,9 @@
             var items = config.checklistItems;
             var colors = {
                 thisMonth: { border: 'var(--accent-gold)', title: '🗓️ 이번 달 체크' },
-                month2_3: { border: 'var(--accent-blue)', title: '🗓️ 2-3월 체크' },
-                month4_5: { border: 'var(--accent-green)', title: '🗓️ 4-5월 체크' },
-                month6: { border: '#8b5cf6', title: '🗓️ 6월 리밸런싱 체크' }
+                month2_3: { border: 'var(--accent-blue)', title: '🗓️ 분기 초 체크' },
+                month4_5: { border: 'var(--accent-green)', title: '🗓️ 분기 중 체크' },
+                month6: { border: '#8b5cf6', title: '🗓️ 반기 리밸런싱 체크' }
             };
             
             var typeColors = {
@@ -20953,6 +21297,210 @@
                 });
             }
         }
+        
+        // ============================================================
+        // v5.28-UX4: 내 총 자산 설정 시스템
+        // ============================================================
+        // 사용자가 예수금/추가 투자 예정액을 입력하면 포지션 평가액과 
+        // 합산하여 '투자 가능 총액'을 계산. 이후 추천 포트폴리오 배분 %에
+        // 금액을 병기하여 "리밸런싱 필요액"을 원화로 제시.
+        
+        var TOTAL_ASSET_STORAGE_KEY = 'myTotalAssetsV1';
+        
+        // 저장된 값 불러오기
+        function loadTotalAssets() {
+            try {
+                var raw = localStorage.getItem(TOTAL_ASSET_STORAGE_KEY);
+                if (!raw) return { cash: 0, plannedInvest: 0 };
+                return JSON.parse(raw);
+            } catch(e) {
+                return { cash: 0, plannedInvest: 0 };
+            }
+        }
+        
+        // 저장
+        function saveTotalAssets(cash, plannedInvest) {
+            try {
+                localStorage.setItem(TOTAL_ASSET_STORAGE_KEY, JSON.stringify({
+                    cash: Math.max(0, Number(cash) || 0),
+                    plannedInvest: Math.max(0, Number(plannedInvest) || 0),
+                    savedAt: new Date().toISOString()
+                }));
+            } catch(e) { console.warn('[UX4] saveTotalAssets:', e); }
+        }
+        
+        // 포지션 평가액 조회 — AppStorage에서 직접 읽기
+        function getPositionValue() {
+            try {
+                var holdings = [];
+                // 1. AppStorage 우선 (v5.5+)
+                if (typeof AppStorage !== 'undefined' && AppStorage.get) {
+                    try {
+                        var raw = AppStorage.get('myHoldings_v5');
+                        if (raw) holdings = JSON.parse(raw);
+                    } catch(e) {}
+                }
+                // 2. localStorage fallback
+                if (!holdings.length) {
+                    try {
+                        var raw = localStorage.getItem('myHoldings_v5') || localStorage.getItem('myHoldings');
+                        if (raw) holdings = JSON.parse(raw);
+                    } catch(e) {}
+                }
+                // 3. window._myHoldings (렌더링 중 노출된 경우)
+                if (!holdings.length && window._myHoldings && Array.isArray(window._myHoldings)) {
+                    holdings = window._myHoldings;
+                }
+                
+                if (!Array.isArray(holdings) || !holdings.length) return 0;
+                
+                // 매입가 기준 평가액 계산
+                return holdings.reduce(function(sum, h) {
+                    var qty = Number(h.qty || h.quantity) || 0;
+                    var avg = Number(h.avgPrice || h.buyPrice) || 0;
+                    return sum + (qty * avg);
+                }, 0);
+            } catch(e) {
+                console.warn('[UX4] getPositionValue:', e);
+                return 0;
+            }
+        }
+        
+        // 숫자 포맷 (원화)
+        function _fmtKRW(n) {
+            if (n == null || !isFinite(n)) return '0원';
+            return Math.round(n).toLocaleString() + '원';
+        }
+        function _fmtKRWShort(n) {
+            if (n == null || !isFinite(n)) return '0원';
+            var abs = Math.abs(n);
+            if (abs >= 100000000) return (n / 100000000).toFixed(2) + '억';
+            if (abs >= 10000) return Math.round(n / 10000).toLocaleString() + '만원';
+            return Math.round(n).toLocaleString() + '원';
+        }
+        
+        // 투자 가능 총액 계산 + 표시 갱신
+        function updateTotalAssetDisplay() {
+            try {
+                var saved = loadTotalAssets();
+                var posValue = getPositionValue();
+                var cash = saved.cash || 0;
+                var planned = saved.plannedInvest || 0;
+                var total = posValue + cash + planned;
+                
+                // UI 갱신
+                var posEl = document.getElementById('taPositionValue');
+                var cashInput = document.getElementById('taCash');
+                var plannedInput = document.getElementById('taPlannedInvest');
+                var totalEl = document.getElementById('taTotalInvestable');
+                var metaEl = document.getElementById('totalAssetMeta');
+                
+                if (posEl) posEl.textContent = _fmtKRWShort(posValue);
+                if (cashInput && !cashInput.matches(':focus')) cashInput.value = cash > 0 ? cash : '';
+                if (plannedInput && !plannedInput.matches(':focus')) plannedInput.value = planned > 0 ? planned : '';
+                if (totalEl) totalEl.textContent = _fmtKRWShort(total);
+                if (metaEl) {
+                    if (total > 0) {
+                        metaEl.textContent = '총 ' + _fmtKRWShort(total);
+                    }
+                }
+                
+                // 전역 노출 (다른 함수에서 사용)
+                window._totalInvestableAssets = total;
+                window._taPositionValue = posValue;
+                window._taCash = cash;
+                window._taPlanned = planned;
+                
+                return total;
+            } catch(e) {
+                console.warn('[UX4] updateTotalAssetDisplay:', e);
+                return 0;
+            }
+        }
+        
+        // 입력 이벤트 바인딩
+        function initTotalAssetSystem() {
+            try {
+                var cashInput = document.getElementById('taCash');
+                var plannedInput = document.getElementById('taPlannedInvest');
+                if (!cashInput || !plannedInput) return;
+                
+                function onChange() {
+                    saveTotalAssets(cashInput.value, plannedInput.value);
+                    updateTotalAssetDisplay();
+                    // 자산 배분 재계산 트리거 (있다면)
+                    if (typeof renderAllocationAmounts === 'function') {
+                        renderAllocationAmounts();
+                    }
+                }
+                
+                cashInput.addEventListener('input', onChange);
+                plannedInput.addEventListener('change', onChange);
+                cashInput.addEventListener('blur', onChange);
+                plannedInput.addEventListener('blur', onChange);
+                
+                // 초기 로드
+                updateTotalAssetDisplay();
+                
+                // 포지션 변경 감지 (주기적)
+                setInterval(updateTotalAssetDisplay, 5000);
+            } catch(e) { console.warn('[UX4] init:', e); }
+        }
+        
+        // ============================================================
+        // v5.28-UX4: 추천 포트폴리오에 금액 병기 (NOW 카드 자산 배분)
+        // ============================================================
+        // _generateAssetAllocation()의 결과 + 총자산 → 원화 금액 표시
+        function renderAllocationAmounts() {
+            try {
+                var total = window._totalInvestableAssets || 0;
+                if (total <= 0) return;  // 총자산 설정 전까지 대기
+                
+                // NOW 카드의 자산 배분 그리드 재렌더링
+                var allocGrid = document.getElementById('nowAssetGrid');
+                if (!allocGrid) return;
+                
+                // 현재 렌더된 타일들에 금액 추가
+                var tiles = allocGrid.querySelectorAll('.std-datapoint');
+                tiles.forEach(function(tile) {
+                    var valueEl = tile.querySelector('.std-datapoint-value');
+                    if (!valueEl) return;
+                    var pctStr = valueEl.textContent || '';
+                    var pct = parseFloat(pctStr);
+                    if (isNaN(pct)) return;
+                    
+                    // 이미 금액 추가됐는지 체크
+                    if (tile.querySelector('.std-alloc-amount')) return;
+                    
+                    var amount = (pct / 100) * total;
+                    var amountEl = document.createElement('div');
+                    amountEl.className = 'std-alloc-amount';
+                    amountEl.style.cssText = 'font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px; font-family: JetBrains Mono, monospace;';
+                    amountEl.textContent = _fmtKRWShort(amount);
+                    tile.appendChild(amountEl);
+                });
+            } catch(e) { console.warn('[UX4] renderAllocationAmounts:', e); }
+        }
+        
+        // 초기화 호출 (DOMContentLoaded 이후)
+        try {
+            window.updateTotalAssetDisplay = updateTotalAssetDisplay;
+            window.renderAllocationAmounts = renderAllocationAmounts;
+            window.initTotalAssetSystem = initTotalAssetSystem;
+            
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    setTimeout(initTotalAssetSystem, 800);
+                });
+            } else {
+                setTimeout(initTotalAssetSystem, 800);
+            }
+            
+            // NOW 카드 렌더 후 금액 병기
+            setTimeout(renderAllocationAmounts, 3500);
+            setTimeout(renderAllocationAmounts, 8500);
+            setInterval(renderAllocationAmounts, 60000);
+        } catch(e) { console.warn('[UX4] bootstrap:', e); }
         
         // ========== data.json 자동 로드 (양적 데이터) ==========
         function loadDataJson() {
