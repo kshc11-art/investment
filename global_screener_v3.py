@@ -3124,18 +3124,65 @@ def save_to_json(data_dict, filename):
         'metadata': {
             'generated': datetime.now().isoformat(),
             'date': TODAY,
-            'version': 'v4.1-bond-enhanced'  # ★ v4.0 업데이트
+            'version': 'v4.1-bond-enhanced+R3-fix'  # v5.29-R3: list/dict 타입 처리 + 루트 노출
         },
         'data': {}
     }
     
+    # Phase B/C 결과 키는 HTML이 data.X 직접 접근하므로 루트에 노출
+    # (HTML applyDataJson: data.FinancialEvents, data.FlowSignals, data.EarningsRevisions)
+    FLAT_KEYS = {'FinancialEvents', 'EarningsRevisions', 'FlowSignals'}
+    
     for sheet_name, df in data_dict.items():
-        if df is None or df.empty:
+        # 1. None 스킵
+        if df is None:
             continue
         
-        records = df.replace({np.nan: None}).to_dict(orient='records')
-        output['data'][sheet_name] = records
-        log(f"  ✅ {sheet_name}: {len(records)}개")
+        # 2. list 처리 (Phase B의 FinancialEvents)
+        if isinstance(df, list):
+            if len(df) == 0:
+                # 빈 list여도 루트 키는 빈 배열로 노출 (HTML이 키 존재 체크)
+                if sheet_name in FLAT_KEYS:
+                    output[sheet_name] = []
+                continue
+            if sheet_name in FLAT_KEYS:
+                output[sheet_name] = df
+                log(f"  ✅ {sheet_name}: {len(df)}건 (루트)")
+            else:
+                output['data'][sheet_name] = df
+                log(f"  ✅ {sheet_name}: {len(df)}건")
+            continue
+        
+        # 3. dict 처리 (Phase C의 FlowSignals, EarningsRevisions)
+        if isinstance(df, dict):
+            if len(df) == 0:
+                if sheet_name in FLAT_KEYS:
+                    output[sheet_name] = {}
+                continue
+            if sheet_name in FLAT_KEYS:
+                output[sheet_name] = df
+                log(f"  ✅ {sheet_name}: {len(df)}항목 (루트)")
+            else:
+                output['data'][sheet_name] = df
+                log(f"  ✅ {sheet_name}: {len(df)}항목")
+            continue
+        
+        # 4. DataFrame 처리 (기존 KR_Stocks, US_Stocks 등)
+        if hasattr(df, 'empty'):
+            if df.empty:
+                continue
+            records = df.replace({np.nan: None}).to_dict(orient='records')
+            output['data'][sheet_name] = records
+            log(f"  ✅ {sheet_name}: {len(records)}개")
+            continue
+        
+        # 5. 알 수 없는 타입 - 경고 후 스킵 (크래시 방지)
+        log(f"  ⚠️ {sheet_name}: 미지원 타입 {type(df).__name__} → 스킵")
+    
+    # 빈 키도 보장 (HTML 호환 - 키 존재 체크)
+    for k in FLAT_KEYS:
+        if k not in output:
+            output[k] = [] if k == 'FinancialEvents' else {}
     
     with open(filename, 'w', encoding='utf-8') as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
